@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>China · un mes · Beijing a Hong Kong · 2026</title>
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="favicon-64.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  .site-header {
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; }
+  .header-title h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .header-title .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+  .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
+  .header-stats strong { color: #1a1a1a; font-weight: 600; }
+
+  main.dashboard {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; position: relative; }
+  .map-toggles { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 92%; }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-toggles .mt.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .map-toggles .mt:not(.active) { opacity: 0.92; }
+  .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+
+  .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+
+  .chart-section {
+    background: white;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; width: 100%; background: none; border: none; padding: 2px 0; cursor: pointer; }
+  .chart-header .qh-caret { transition: transform 0.15s; }
+  .chart-header.open .qh-caret { transform: rotate(90deg); }
+  .chart-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .chart-wrap { height: 200px; position: relative; display: none; }
+  .chart-wrap.open { display: block; }
+  .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .mini-pop { min-width: 150px; max-width: 210px; }
+  .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
+  .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
+  .mini-pop-maps:hover { color: #1D9E75; }
+
+  .details-section { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .details-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 4px 4px 10px; }
+
+  .flight-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .flight-card strong { color: #1a1a1a; font-weight: 600; }
+  .flight-card .flight-row { display: flex; justify-content: space-between; gap: 8px; }
+  .flight-card .flight-row + .flight-row { margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); }
+  .flight-card .flight-leg-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin: 0 0 6px; }
+  .flight-card .flight-leg-title + .flight-leg-title { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .flight-card a.flight-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 6px; margin: 0 -6px; border-radius: 6px; transition: background 0.12s; }
+  .flight-card a.flight-seg:hover { background: rgba(15, 110, 86, 0.07); }
+  .flight-card a.flight-seg .seg-route { color: #1a1a1a; font-weight: 600; }
+  .flight-card a.flight-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .flight-card a.flight-seg .seg-time { color: #666; font-size: 10px; text-align: right; }
+  .flight-card .flight-dir { border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: rgba(15,110,86,0.02); }
+  .flight-card .flight-dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .flight-card .flight-dir-label { font-size: 11px; font-weight: 700; color: #0F6E56; }
+  .flight-card .flight-dir-meta { font-size: 9px; color: #999; white-space: nowrap; }
+  .flight-card .seg-conn { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #b0b0b0; margin: 2px 0; }
+  .flight-card .seg-conn::before, .flight-card .seg-conn::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+  .flight-card .flight-note { font-size: 10px; color: #888; margin-top: 8px; line-height: 1.4; }
+
+  .dest-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dest-card:hover { border-color: rgba(15, 110, 86, 0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.active { border-color: #0F6E56; box-shadow: 0 2px 12px rgba(15, 110, 86, 0.15); }
+  .card-header { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .card-num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex-shrink: 0; }
+  .card-num.fullday { border-radius: 5px; background: #F0B84A; border-color: #B87814; color: #5A3A00; transform: rotate(45deg); }
+  .card-num.fullday span { transform: rotate(-45deg); display: block; }
+  .dest-card.fullday { border-style: dashed; border-color: rgba(184, 120, 20, 0.4); }
+  .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
+  .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
+  .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: #666; }
+  .card-temps { display: flex; gap: 6px; flex-shrink: 0; }
+  .temp-pill { display: flex; flex-direction: column; align-items: center; padding: 3px 8px; border-radius: 6px; min-width: 48px; font-size: 9px; line-height: 1.2; }
+  .temp-max { background: rgba(216, 90, 48, 0.12); color: #993C1D; }
+  .temp-min { background: rgba(29, 158, 117, 0.12); color: #0F6E56; }
+  .temp-label { font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .temp-value { font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+  .card-intro { font-size: 12px; color: #555; line-height: 1.5; margin: 0 0 10px; }
+  .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
+  .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
+  .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
+  .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
+  .leg-row:hover { background: rgba(0,0,0,0.03); }
+  .leg-head { display: flex; align-items: center; gap: 7px; }
+  .leg-air { border-left-color: #2563EB; } .leg-ferry { border-left-color: #15A6C9; }
+  .leg-train { border-left-color: #C0392B; } .leg-cruise { border-left-color: #1594A6; }
+  .leg-mode { font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .leg-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .leg-text { flex: 1; }
+  .leg-chevron { margin-left: auto; font-size: 10px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .leg-row.open .leg-chevron { transform: rotate(90deg); }
+  .leg-body { display: none; }
+  .leg-row.open .leg-body { display: block; }
+  .leg-actions { margin: 6px 0 1px 22px; }
+  .leg-segs { margin: 7px 0 2px 22px; padding: 6px 8px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 7px; }
+  .leg-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 5px 6px; margin: 0 -2px; border-radius: 5px; transition: background 0.12s; }
+  .leg-seg:hover { background: rgba(15,110,86,0.08); }
+  .leg-seg .seg-route { color: #1a1a1a; font-weight: 600; font-size: 12px; }
+  .leg-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .leg-seg .seg-time { color: #777; font-size: 10px; text-align: right; line-height: 1.5; }
+  .leg-layover { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #aaa; margin: 3px 0; }
+  .leg-layover::before, .leg-layover::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
+  .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
+  .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .leg-text strong { color: #555; font-weight: 600; }
+  .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
+  .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
+  .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
+  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
+  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
+  .lodging-sub { font-size: 11px; color: #666; }
+  .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
+  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-link { color: #1D9E75; text-decoration: underline; }
+  .lodging-link:hover { color: #0F6E56; }
+  .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
+  .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
+  .gallery-thumb:hover { opacity: 0.82; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
+  .lb-btn:hover { opacity: 1; }
+  .lb-close { top: 12px; right: 20px; font-size: 34px; line-height: 1; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); font-size: 48px; padding: 0 14px; }
+  .lb-prev { left: 2px; } .lb-next { right: 2px; }
+  .dest-card, .leg-row { scroll-margin-top: 14px; }
+  @keyframes cardflash { 0% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } 20% { box-shadow: 0 0 0 2px rgba(15,110,86,0.6); } 100% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } }
+  .flash { animation: cardflash 1.4s ease-out; }
+  .itin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .dest-flag { width: 28px; height: 19px; object-fit: cover; border-radius: 3px; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .itin-caret { font-size: 11px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .dest-card.open .itin-caret { transform: rotate(90deg); }
+  /* Modal de ficha individual por parada */
+  .stop-modal { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .stop-modal[hidden] { display: none; }
+  .sm-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.55); backdrop-filter: blur(2px); }
+  .sm-dialog { position: relative; background: #fbf9f5; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+  .sm-topbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(#fbf9f5, rgba(251,249,245,0.85)); }
+  .sm-share { border: 1px solid #d8d3c8; background: #fff; color: #0F6E56; cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; }
+  .sm-share:hover { background: #eef6f2; }
+  .sm-share.copied { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .sm-close { border: none; background: transparent; cursor: pointer; font-size: 24px; line-height: 1; color: #999; padding: 0 6px; }
+  .sm-close:hover { color: #333; }
+  .sm-content { padding: 0 18px 20px; }
+  .sm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sm-flag { width: 34px; height: 23px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
+  .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
+  .sm-sec { margin-bottom: 12px; }
+  .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
+  .sm-leg-mode { font-size: 15px; }
+  .sm-act { color: #0F6E56; text-decoration: none; }
+  .sm-act:hover { text-decoration: underline; }
+  .sm-dt-desc { font-size: 12px; color: #8a8478; line-height: 1.4; margin: 2px 0 6px; }
+  body.sm-open { overflow: hidden; }
+  .sm-leg-badge { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ficha-btn { width: 100%; border: 1px solid #cfe4db; background: #eef6f2; color: #0F6E56; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 8px; border-radius: 8px; margin-bottom: 10px; transition: background 0.15s; }
+  .ficha-btn:hover { background: #ddeee6; }
+  .leg-ficha { flex-shrink: 0; border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 5px; color: #999; opacity: 0.6; transition: opacity 0.15s, background 0.15s; }
+  .leg-head:hover .leg-ficha { opacity: 0.9; }
+  .leg-ficha:hover { opacity: 1; background: rgba(0,0,0,0.07); color: #444; }
+  .card-detail { display: none; margin-top: 10px; }
+  .dest-card.open .card-detail { display: block; }
+  .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
+  .cat-group { margin: 6px 0 2px; }
+  .cat-head { font-size: 11px; font-weight: 600; color: #0F6E56; margin: 6px 0 3px; }
+  .act-row { display: inline-block; width: 100%; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .act-row:hover { color: #1D9E75; }
+  .act-row-plain { font-size: 12px; line-height: 1.5; color: #444; padding: 1px 0; }
+  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row:hover .act-pin { opacity: 0.9; }
+  .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
+  .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .dt-row-name { font-size: 12px; font-weight: 500; }
+  .dt-row-time { font-size: 10px; color: #888; }
+  .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
+  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 1.5px solid #444; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, border-color 0.2s; }
+  .marker-dot.active { transform: scale(1.8); background: #fbbf77; border-color: #BA7517; }
+
+  /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
+  .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .marker-diamond { width: 26px; height: 26px; background: #F0B84A; border: 2px solid #B87814; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .marker-diamond span { transform: rotate(-45deg); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; color: #5A3A00; }
+  .marker-diamond.active { transform: rotate(45deg) scale(1.4); background: #E89B17; z-index: 1000 !important; }
+
+  /* Lugares guardados de Google Maps */
+  .saved-chip { font-size: 11px; color: #0F6E56; text-decoration: none; background: rgba(15, 110, 86, 0.07); border: 1px solid rgba(15, 110, 86, 0.15); border-radius: 12px; padding: 3px 9px; line-height: 1.3; transition: background 0.12s; }
+  .saved-chip:hover { background: rgba(15, 110, 86, 0.15); }
+  .saved-chip.no-coord { color: #999; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+
+  /* Sección de lugares sin destino, debajo de la lista */
+  .orphan-card { background: white; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); padding: 14px 16px; margin-bottom: 10px; }
+  .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
+  .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    main.dashboard { grid-template-columns: 1fr; grid-template-rows: 50vh auto; overflow: visible; }
+    .map-pane { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .content-pane { overflow: visible; }
+    .details-section { overflow: visible; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-title">
+    <h1>China · un mes, de norte a sur</h1>
+    <span class="subtitle">10 oct – 8 nov 2026</span>
+  </div>
+  <div class="header-stats">
+    <span><strong>Norte</strong> Beijing</span>
+    <span><strong>29</strong> noches</span>
+    <span><strong>11</strong> paradas</span>
+    <span><strong>tren bala · vuelo · crucero</strong></span>
+    <span><strong>Sur</strong> Hong Kong</span>
+  </div>
+</header>
+
+<main class="dashboard">
+  <div class="map-pane">
+    <div id="map"></div>
+  </div>
+
+  <div class="content-pane">
+    <div class="chart-section">
+      <button type="button" class="chart-header" id="chart-toggle">
+        <span class="chart-title">Temperatura por destino</span>
+        <span class="qh-caret">▸</span>
+      </button>
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="weatherChart"></canvas>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="details-title">Itinerario · click en una parada · los tramos de transporte son los módulos entre paradas</div>
+      <div id="details-list"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+
+const destinations = [
+  {
+    id: 'beijing', n: 1, type: 'destino', name: 'Beijing', short: 'Beijing',
+    coords: [39.9042, 116.4074],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/The_Great_Wall_of_China_at_Jinshanling-edit.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/The_Forbidden_City_-_View_from_Coal_Hill.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Temple_of_Heaven_20160323_01.jpg?width=600'
+    ],
+    dates: '10-14 oct', nights: 4,
+    arrival: '10 oct · punto de partida del viaje', departure: '14 oct · tren bala hacia Xi’an',
+    lodging: {
+      name: 'Hotel en Dongcheng (cerca de Wangfujing)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Dongcheng, a pasos de la Ciudad Prohibida y Wangfujing: base céntrica y bien conectada al metro para las 4 primeras noches.',
+      coords: [39.9163, 116.4104],
+      checkIn: '10 oct', checkOut: '14 oct', nights: 4, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Dongcheng%20Beijing%20hotels'
+    },
+    tempMax: '14-23', tempMin: '4-13', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Arranque del viaje en la capital. 4 noches para los grandes clásicos imperiales — la Ciudad Prohibida, el Templo del Cielo, el Palacio de Verano — y una excursión de día entero a la Gran Muralla. Metro y taxi dentro de la ciudad.',
+    activities: [
+      { text: 'Ciudad Prohibida (Palacio Imperial)', cat: 'museos', coords: [39.9163, 116.3972] },
+      { text: 'Plaza de Tian’anmen', cat: 'barrios', coords: [39.9055, 116.3976] },
+      { text: 'Templo del Cielo (Tiantan)', cat: 'museos', coords: [39.8822, 116.4066] },
+      { text: 'Palacio de Verano (Yiheyuan)', cat: 'parques', coords: [39.9999, 116.2755] },
+      { text: 'Parque Jingshan (mirador sobre la Ciudad Prohibida)', cat: 'miradores', coords: [39.9236, 116.3906] },
+      { text: 'Hutongs de Nanluoguxiang', cat: 'barrios', coords: [39.9370, 116.4030] },
+      { text: 'Templo Lama (Yonghegong)', cat: 'museos', coords: [39.9475, 116.4110] },
+      { text: 'Wangfujing (calle de snacks)', cat: 'comida', coords: [39.9149, 116.4109] }
+    ],
+    daytrips: [
+      { id: 'mutianyu', name: 'Gran Muralla · sección Mutianyu', coords: [40.4319, 116.5704], time: '~1 h 30 desde Beijing', desc: 'La sección mejor conservada y menos abarrotada que Badaling: teleférico de subida, tobogán de bajada y crestas restauradas sobre las montañas. Día entero.' },
+      { id: 'mingtombs', name: 'Tumbas Ming (Shisanling)', coords: [40.2559, 116.2278], time: '~1 h desde Beijing', desc: 'Vía de los Espíritus y complejo funerario imperial, combinable con la Gran Muralla en el mismo día.' }
+    ]
+  },
+  {
+    id: 'xian', n: 2, type: 'destino', name: 'Xi’an', short: 'Xi’an',
+    coords: [34.3416, 108.9398],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/51714-Terracota-Army.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/51714-Terracota-Army.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/City_wall_of_Xi%27an_51550-Xian_%2827959363326%29.jpg?width=600'
+    ],
+    dates: '14-17 oct', nights: 3,
+    arrival: '14 oct · desde Beijing en tren bala', departure: '17 oct · tren bala hacia Chengdu',
+    leg: { mode: '🚄', time: '~4 h 30', dist: '1.216 km', detail: 'Tren de alta velocidad Beijing Oeste → Xi’an Norte', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Beijing Oeste → Xi’an Norte', when: '1.216 km · ~4 h 30 en tren bala', road: 'Línea de alta velocidad Beijing–Guangzhou (CRH/CR400)' }
+    ] },
+    lodging: {
+      name: 'Hotel dentro de la muralla', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Casco antiguo, dentro de la muralla Ming y cerca de la Torre de la Campana: caminable al Barrio Musulmán.',
+      coords: [34.2614, 108.9530],
+      checkIn: '14 oct', checkOut: '17 oct', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Xian%20old%20city%20hotels'
+    },
+    tempMax: '12-28', tempMin: '7-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Antigua capital de trece dinastías y punto de partida de la Ruta de la Seda. 3 noches para los Guerreros de Terracota, la muralla Ming (que se recorre en bici) y la comida del Barrio Musulmán.',
+    activities: [
+      { text: 'Muralla de la ciudad (recorrido en bici)', cat: 'miradores', coords: [34.2610, 108.9423] },
+      { text: 'Barrio Musulmán + Gran Mezquita', cat: 'comida', coords: [34.2660, 108.9370] },
+      { text: 'Torre de la Campana y del Tambor', cat: 'barrios', coords: [34.2614, 108.9530] },
+      { text: 'Gran Pagoda del Ganso Salvaje', cat: 'museos', coords: [34.2186, 108.9648] }
+    ],
+    daytrips: [
+      { id: 'terracota', name: 'Guerreros de Terracota (Bingmayong)', coords: [34.3853, 109.2785], time: '~1 h al este de Xi’an', desc: 'El ejército de terracota de Qin Shi Huang: miles de soldados de tamaño real en tres fosas. Uno de los hallazgos arqueológicos más importantes del mundo.' },
+      { id: 'huashan', name: 'Monte Hua (Huashan)', coords: [34.4772, 110.0860], time: '~40 min en tren bala', desc: 'Una de las cinco montañas sagradas taoístas: senderos vertiginosos, teleférico y las famosas tablas de madera sobre el precipicio.' }
+    ]
+  },
+  {
+    id: 'chengdu', n: 3, type: 'destino', name: 'Chengdu', short: 'Chengdu',
+    coords: [30.5728, 104.0668],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chengdu_Research_Base_Eingang.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Chengdu_Research_Base_Eingang.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Jingli.jpeg?width=600'
+    ],
+    dates: '17-20 oct', nights: 3,
+    arrival: '17 oct · desde Xi’an en tren bala (túneles del Qinling)', departure: '20 oct · tren bala hacia Chongqing',
+    leg: { mode: '🚄', time: '~3 h 30', dist: '700 km', detail: 'Tren de alta velocidad Xi’an → Chengdu Este (cruce de la cordillera Qinling)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Xi’an Norte → Chengdu Este', when: '700 km · ~3 h 30 en tren bala', road: 'Línea de alta velocidad Xi’an–Chengdu (túneles del Qinling)' }
+    ] },
+    lodging: {
+      name: 'Hotel cerca de Jinli / Wuhou', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Zona de Jinli y el Templo de Wuhou: ambiente de casco antiguo, casas de té y buenos accesos al panda base.',
+      coords: [30.6420, 104.0480],
+      checkIn: '17 oct', checkOut: '20 oct', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jinli%20Chengdu%20hotels'
+    },
+    tempMax: '14-26', tempMin: '11-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'La capital de Sichuan: pandas, casas de té y el mejor hotpot picante del país. 3 noches con base tranquila antes del tramo hacia el Yangtsé. Ideal para excursiones al Buda de Leshan.',
+    activities: [
+      { text: 'Base de investigación del panda gigante', cat: 'parques', coords: [30.7333, 104.1450] },
+      { text: 'Calle antigua de Jinli', cat: 'barrios', coords: [30.6420, 104.0480] },
+      { text: 'Templo de Wuhou', cat: 'museos', coords: [30.6470, 104.0480] },
+      { text: 'Callejones Kuanzhai (Kuan-Zhai)', cat: 'barrios', coords: [30.6690, 104.0570] },
+      { text: 'Casa de té del Parque del Pueblo', cat: 'parques', coords: [30.6680, 104.0560] },
+      { text: 'Hotpot sichuanés', cat: 'comida', coords: [30.6598, 104.0633] }
+    ],
+    daytrips: [
+      { id: 'leshan', name: 'Gran Buda de Leshan', coords: [29.5449, 103.7710], time: '~1 h en tren bala', desc: 'El buda de piedra tallado más grande del mundo (71 m), esculpido en un acantilado sobre la confluencia de tres ríos. Combinable con el Monte Emei.' },
+      { id: 'dujiangyan', name: 'Dujiangyan + valle de pandas', coords: [30.9990, 103.6170], time: '~40 min en tren bala', desc: 'Sistema de irrigación del siglo III a.C. (Patrimonio de la Humanidad) y otro centro de pandas más tranquilo que el de la ciudad.' }
+    ]
+  },
+  {
+    id: 'chongqing', n: 4, type: 'destino', name: 'Chongqing', short: 'Chongqing',
+    coords: [29.5630, 106.5516],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chongqing_Nightscape.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Chongqing_Nightscape.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/202308_Hongya_Cave_at_night_from_Qiansimen_Bridge.jpg?width=600'
+    ],
+    dates: '20-21 oct', nights: 1,
+    arrival: '20 oct · desde Chengdu en tren bala', departure: '21 oct · embarque del crucero por el Yangtsé',
+    leg: { mode: '🚄', time: '~1 h 15', dist: '300 km', detail: 'Tren de alta velocidad Chengdu → Chongqing', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Chengdu Este → Chongqing Norte', when: '300 km · ~1 h 15 en tren bala', road: 'Línea de alta velocidad Chengdu–Chongqing' }
+    ] },
+    lodging: {
+      name: 'Hotel en Jiefangbei', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Centro de Jiefangbei, cerca de Hongyadong y el embarcadero del Yangtsé. 1 noche antes de subir al crucero.',
+      coords: [29.5570, 106.5770],
+      checkIn: '20 oct', checkOut: '21 oct', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jiefangbei%20Chongqing%20hotels'
+    },
+    tempMax: '16-27', tempMin: '12-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Megaciudad vertical sobre la confluencia del Yangtsé y el Jialing: rascacielos entre montañas, monorriel que atraviesa un edificio y hotpot por todos lados. Noche de paso para embarcar el crucero.',
+    activities: [
+      { text: 'Hongyadong (complejo colgante iluminado)', cat: 'miradores', coords: [29.5630, 106.5810] },
+      { text: 'Pueblo antiguo de Ciqikou', cat: 'barrios', coords: [29.5820, 106.4470] },
+      { text: 'Monorriel de Liziba (atraviesa un edificio)', cat: 'otros', coords: [29.5490, 106.5250] },
+      { text: 'Teleférico del Yangtsé', cat: 'miradores', coords: [29.5640, 106.5870] },
+      { text: 'Hotpot de Chongqing', cat: 'comida', coords: [29.5570, 106.5490] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'yangtze', n: 5, type: 'destino', name: 'Crucero por el Yangtsé', short: 'Yangtsé',
+    coords: [31.0500, 110.0000],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Qutang_Gorge_on_Changjiang.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Qutang_Gorge_on_Changjiang.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/ThreeGorgesDam-China2009.jpg?width=600'
+    ],
+    dates: '21-24 oct', nights: 3,
+    arrival: '21 oct · embarque en Chongqing', departure: '24 oct · desembarco en Yichang',
+    leg: { mode: '🚢', time: '3 noches a bordo', dist: '~660 km de río', detail: 'Crucero río abajo Chongqing → Yichang (Fengdu · Tres Gargantas · presa)', dirLabel: 'ver en Maps ↗',
+      via: [[29.8900, 107.6800], [30.8100, 108.3800], [31.0470, 109.5900], [31.0700, 110.4000], [30.8236, 111.0030]],
+      segments: [
+        { route: 'Chongqing → Fengdu → Wushan', when: 'noches 1–2 · río abajo', road: 'Garganta de Qutang y desfiladeros; excursión al arroyo Shennong' },
+        { route: 'Wushan → presa de las Tres Gargantas → Yichang', when: 'noche 3 · esclusas', road: 'Garganta de Xiling y presa de las Tres Gargantas' }
+      ] },
+    lodging: {
+      name: 'Camarote a bordo (crucero fluvial)', type: 'Camarote · sugerencia (sin reserva)',
+      area: 'Camarote con balcón en un crucero del Yangtsé (Century / Victoria u otro). Pensión completa a bordo, 3 noches río abajo.',
+      coords: [31.0500, 110.0000],
+      checkIn: '21 oct', checkOut: '24 oct', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yangtze%20River%20cruise%20Three%20Gorges'
+    },
+    tempMax: '12-26', tempMin: '6-16', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'El corazón del viaje: tres noches navegando el Yangtsé río abajo desde Chongqing hasta Yichang, cruzando las Tres Gargantas. Fengdu, el arroyo Shennong en barcas pequeñas y las esclusas gigantes de la presa.',
+    activities: [
+      { text: 'Garganta de Qutang (la del billete de 10 yuanes)', cat: 'miradores', coords: [31.0470, 109.5670] },
+      { text: 'Garganta de Wu (Wu Gorge)', cat: 'miradores', coords: [31.0700, 110.4000] },
+      { text: 'Arroyo Shennong (barcas tradicionales)', cat: 'parques', coords: [31.0400, 109.8800] },
+      { text: 'Ciudad fantasma de Fengdu', cat: 'museos', coords: [29.8900, 107.6800] },
+      { text: 'Presa de las Tres Gargantas + esclusas', cat: 'miradores', coords: [30.8236, 111.0030] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'zhangjiajie', n: 6, type: 'destino', name: 'Zhangjiajie', short: 'Zhangjiajie',
+    coords: [29.1170, 110.4790],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Tianmen_38330-Zhangjiajie_%2849047525877%29.jpg?width=600'
+    ],
+    dates: '24-26 oct', nights: 2,
+    arrival: '24 oct · desde Yichang en tren bala', departure: '26 oct · tren bala hacia Guilin',
+    leg: { mode: '🚄', time: '~2 h 30', dist: '380 km', detail: 'Tren de alta velocidad Yichang → Zhangjiajie (tras desembarcar del crucero)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Yichang Este → Zhangjiajie Oeste', when: '380 km · ~2 h 30 en tren bala', road: 'Línea de alta velocidad Zhengzhou–Wanzhou / Qianjiang–Changde' }
+    ] },
+    lodging: {
+      name: 'Hotel en Wulingyuan', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Wulingyuan, en la puerta del parque forestal: cómodo para madrugar y subir a los pilares antes de las multitudes.',
+      coords: [29.3450, 110.5490],
+      checkIn: '24 oct', checkOut: '26 oct', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Wulingyuan%20Zhangjiajie%20hotels'
+    },
+    tempMax: '16-28', tempMin: '10-20', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Los pilares de arenisca que inspiraron las montañas flotantes de Avatar. 2 noches para el parque forestal de Wulingyuan, el ascensor de Bailong y la montaña Tianmen con su sendero de cristal.',
+    activities: [
+      { text: 'Parque forestal de Wulingyuan (pilares de Avatar)', cat: 'parques', coords: [29.3150, 110.4340] },
+      { text: 'Montaña Tianzi (Tianzishan)', cat: 'miradores', coords: [29.3480, 110.4820] },
+      { text: 'Ascensor de Bailong (glass elevator)', cat: 'otros', coords: [29.3220, 110.4380] },
+      { text: 'Montaña Tianmen + sendero de cristal', cat: 'miradores', coords: [29.0510, 110.4790] },
+      { text: 'Teleférico de Tianmen (uno de los más largos)', cat: 'otros', coords: [29.1130, 110.4790] },
+      { text: 'Arroyo del Látigo Dorado (Golden Whip)', cat: 'parques', coords: [29.3200, 110.4400] }
+    ],
+    daytrips: [
+      { id: 'glassbridge', name: 'Gran Cañón + puente de cristal', coords: [29.3860, 110.5540], time: '~40 min desde Wulingyuan', desc: 'El puente de vidrio más alto y largo del mundo cuando abrió: 300 m sobre el cañón de Zhangjiajie.' },
+      { id: 'fenghuang', name: 'Pueblo antiguo de Fenghuang', coords: [27.9480, 109.5990], time: '~4 h ida (excursión larga)', desc: 'Ciudad ribereña de casas colgantes sobre pilotes junto al río Tuo. Especialmente linda de noche, iluminada.' }
+    ]
+  },
+  {
+    id: 'guilin', n: 7, type: 'destino', name: 'Guilin y Yangshuo', short: 'Guilin',
+    coords: [25.2740, 110.2900],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1_guilin_yangshuo_2017.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/LongshengRiceTerrace.jpg?width=600'
+    ],
+    dates: '26-29 oct', nights: 3,
+    arrival: '26 oct · desde Zhangjiajie en tren bala', departure: '29 oct · vuelo doméstico a Shanghái',
+    leg: { mode: '🚄', time: '~3 h 00', dist: '460 km', detail: 'Tren de alta velocidad Zhangjiajie → Guilin', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Zhangjiajie Oeste → Guilin Norte', when: '460 km · ~3 h 00 en tren bala', road: 'Línea de alta velocidad Zhangjiajie–Huaihua–Guilin' }
+    ] },
+    lodging: {
+      name: 'Hotel en Yangshuo (West Street)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Yangshuo, entre picos kársticos y el río Yulong: más lindo para dormir que Guilin ciudad. West Street a pasos.',
+      coords: [24.7784, 110.4960],
+      checkIn: '26 oct', checkOut: '29 oct', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yangshuo%20West%20Street%20hotels'
+    },
+    tempMax: '19-29', tempMin: '13-21', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'El paisaje kárstico de postal: picos de piedra caliza sobre el río Li. 3 noches para el crucero fluvial Guilin–Yangshuo, las balsas de bambú del Yulong y una excursión a las terrazas de arroz de Longji.',
+    activities: [
+      { text: 'Crucero por el río Li (Guilin → Yangshuo)', cat: 'miradores', coords: [25.0000, 110.4000] },
+      { text: 'Xingping (el paisaje del billete de 20 yuanes)', cat: 'miradores', coords: [24.9330, 110.6660] },
+      { text: 'West Street de Yangshuo', cat: 'barrios', coords: [24.7784, 110.4960] },
+      { text: 'Balsas de bambú por el río Yulong', cat: 'parques', coords: [24.7500, 110.4200] },
+      { text: 'Colina de la Luna (Moon Hill)', cat: 'miradores', coords: [24.7300, 110.4600] },
+      { text: 'Cueva de la Flauta de Caña (Guilin)', cat: 'parques', coords: [25.3060, 110.2820] }
+    ],
+    daytrips: [
+      { id: 'longji', name: 'Terrazas de arroz de Longji (Longsheng)', coords: [25.7560, 110.1290], time: '~2 h desde Guilin', desc: 'La "espina dorsal del dragón": laderas enteras esculpidas en terrazas de arroz por las minorías zhuang y yao. En octubre, doradas antes de la cosecha.' }
+    ]
+  },
+  {
+    id: 'shanghai', n: 8, type: 'destino', name: 'Shanghái', short: 'Shanghái',
+    coords: [31.2304, 121.4737],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Shanghai_-_Yu_Garden_-_0035.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/20191114_Shanghai_Tower_%282%29.jpg?width=600'
+    ],
+    dates: '29 oct-1 nov', nights: 3,
+    arrival: '29 oct · desde Guilin en vuelo doméstico', departure: '1 nov · tren bala hacia Hangzhou',
+    leg: { mode: '✈️', time: '~2 h 20', dist: '1.350 km', detail: 'Vuelo doméstico Guilin (KWL) → Shanghái (SHA/PVG)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Guilin Liangjiang → Shanghái Hongqiao', no: 'vuelo doméstico', when: '~2 h 20 de vuelo', aircraft: 'El tren bala tardaría ~9 h; acá conviene volar' }
+    ] },
+    lodging: {
+      name: 'Hotel cerca del Bund', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Entre el Bund y Nanjing Road: vistas al skyline de Pudong y caminable a Yu Garden y la Concesión Francesa.',
+      coords: [31.2340, 121.4900],
+      checkIn: '29 oct', checkOut: '1 nov', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Bund%20Shanghai%20hotels'
+    },
+    tempMax: '20-28', tempMin: '12-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'La metrópoli de la costa: el malecón del Bund frente a los rascacielos de Pudong, jardines clásicos y la Concesión Francesa. 3 noches y base para day trips a los pueblos de agua.',
+    activities: [
+      { text: 'El Bund (malecón histórico)', cat: 'miradores', coords: [31.2400, 121.4900] },
+      { text: 'Jardín Yu (Yuyuan)', cat: 'parques', coords: [31.2270, 121.4920] },
+      { text: 'Shanghai Tower (mirador, 2º edificio más alto)', cat: 'miradores', coords: [31.2336, 121.5058] },
+      { text: 'Concesión Francesa + Tianzifang', cat: 'barrios', coords: [31.2100, 121.4680] },
+      { text: 'Xintiandi', cat: 'barrios', coords: [31.2200, 121.4750] },
+      { text: 'Nanjing Road (compras)', cat: 'compras', coords: [31.2350, 121.4750] },
+      { text: 'Museo de Shanghái', cat: 'museos', coords: [31.2290, 121.4760] }
+    ],
+    daytrips: [
+      { id: 'zhujiajiao', name: 'Pueblo de agua de Zhujiajiao', coords: [31.1120, 121.0530], time: '~1 h desde Shanghái', desc: 'Canales, puentes de piedra Ming y barcas en las afueras de Shanghái. El pueblo de agua más accesible de la ciudad.' }
+    ]
+  },
+  {
+    id: 'hangzhou', n: 9, type: 'destino', name: 'Hangzhou', short: 'Hangzhou',
+    coords: [30.2741, 120.1551],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/West_Lake%2C_Hangzhou_2025.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/West_Lake%2C_Hangzhou_2025.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Lingyin_Temple%2C_Hangzhou_20161003.jpg?width=600'
+    ],
+    dates: '1-3 nov', nights: 2,
+    arrival: '1 nov · desde Shanghái en tren bala', departure: '3 nov · tren bala hacia Suzhou',
+    leg: { mode: '🚄', time: '~1 h 00', dist: '170 km', detail: 'Tren de alta velocidad Shanghái → Hangzhou', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Shanghái Hongqiao → Hangzhou Este', when: '170 km · ~1 h 00 en tren bala', road: 'Línea de alta velocidad Shanghái–Hangzhou' }
+    ] },
+    lodging: {
+      name: 'Hotel junto al Lago del Oeste', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Orilla del Lago del Oeste (Xihu): caminatas al atardecer, pagodas y casas de té. Base tranquila y muy verde.',
+      coords: [30.2450, 120.1490],
+      checkIn: '1 nov', checkOut: '3 nov', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=West%20Lake%20Hangzhou%20hotels'
+    },
+    tempMax: '17-28', tempMin: '11-16', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'La ciudad del Lago del Oeste, clásico de la pintura china: pagodas, sauces y plantaciones de té Longjing en las colinas. 2 noches de ritmo más lento antes de Suzhou.',
+    activities: [
+      { text: 'Lago del Oeste (Xihu) en barca', cat: 'parques', coords: [30.2450, 120.1490] },
+      { text: 'Templo Lingyin (Retiro del Alma)', cat: 'museos', coords: [30.2410, 120.1010] },
+      { text: 'Pagoda Leifeng (atardecer sobre el lago)', cat: 'miradores', coords: [30.2320, 120.1490] },
+      { text: 'Plantaciones de té Longjing (Dragon Well)', cat: 'parques', coords: [30.2330, 120.1100] },
+      { text: 'Calle antigua de Hefang', cat: 'comida', coords: [30.2400, 120.1680] }
+    ],
+    daytrips: [
+      { id: 'wuzhen', name: 'Pueblo de agua de Wuzhen', coords: [30.7460, 120.4890], time: '~1 h desde Hangzhou', desc: 'Uno de los pueblos de agua mejor conservados: canales, puentes y casas Ming/Qing. La sección Xizha, iluminada de noche, es la más linda.' }
+    ]
+  },
+  {
+    id: 'suzhou', n: 10, type: 'destino', name: 'Suzhou', short: 'Suzhou',
+    coords: [31.2990, 120.5853],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Zhuozheng_Yuan_2015.04.23_08-13-49.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Zhuozheng_Yuan_2015.04.23_08-13-49.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Pingjiang_Road.jpg?width=600'
+    ],
+    dates: '3-5 nov', nights: 2,
+    arrival: '3 nov · desde Hangzhou en tren bala', departure: '5 nov · vuelo a Hong Kong (vía Shanghái)',
+    leg: { mode: '🚄', time: '~1 h 30', dist: '200 km', detail: 'Tren de alta velocidad Hangzhou → Suzhou', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Hangzhou Este → Suzhou Norte', when: '200 km · ~1 h 30 en tren bala', road: 'Línea de alta velocidad Shanghái–Hangzhou / Beijing–Shanghái' }
+    ] },
+    lodging: {
+      name: 'Hotel cerca de Pingjiang Road', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Casco antiguo junto a Pingjiang Road: canales, jardines clásicos y todo caminable. La "Venecia de Oriente".',
+      coords: [31.3200, 120.6280],
+      checkIn: '3 nov', checkOut: '5 nov', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Pingjiang%20Road%20Suzhou%20hotels'
+    },
+    tempMax: '16-30', tempMin: '8-19', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'La ciudad de los jardines clásicos y los canales, a media hora de Shanghái en tren bala. 2 noches para los jardines Patrimonio de la Humanidad, Pingjiang Road y una escapada a un pueblo de agua.',
+    activities: [
+      { text: 'Jardín del Administrador Humilde (Zhuozheng Yuan)', cat: 'parques', coords: [31.3250, 120.6290] },
+      { text: 'Jardín del Bosque de Leones (Lion Grove)', cat: 'parques', coords: [31.3230, 120.6270] },
+      { text: 'Colina del Tigre + pagoda inclinada', cat: 'miradores', coords: [31.3300, 120.5730] },
+      { text: 'Pingjiang Road (canal y casas antiguas)', cat: 'barrios', coords: [31.3200, 120.6280] },
+      { text: 'Museo de Suzhou (diseño de I. M. Pei)', cat: 'museos', coords: [31.3240, 120.6300] },
+      { text: 'Calle Shantang (canal nocturno)', cat: 'barrios', coords: [31.3130, 120.5820] }
+    ],
+    daytrips: [
+      { id: 'tongli', name: 'Pueblo de agua de Tongli', coords: [31.1580, 120.7150], time: '~40 min desde Suzhou', desc: 'Pueblo de agua Ming/Qing con canales, puentes de piedra y el jardín Tuisi (Patrimonio de la Humanidad). Más tranquilo que Zhouzhuang.' }
+    ]
+  },
+  {
+    id: 'hongkong', n: 11, type: 'destino', name: 'Hong Kong', short: 'Hong Kong',
+    coords: [22.3193, 114.1694],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Hong_Kong_Skyline_viewed_from_Victoria_Peak.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Hong_Kong_Skyline_viewed_from_Victoria_Peak.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Tsim_Sha_Tsui_Ferry_Pier.jpg?width=600'
+    ],
+    dates: '5-8 nov', nights: 3,
+    arrival: '5 nov · desde Suzhou/Shanghái en vuelo', departure: '8 nov · fin del viaje',
+    leg: { mode: '✈️', time: '~2 h 30', dist: '1.500 km', detail: 'Tren corto Suzhou → Shanghái + vuelo Shanghái (PVG) → Hong Kong (HKG)', dirLabel: 'ver en Maps ↗',
+      via: [[31.2304, 121.4737]],
+      segments: [
+        { route: 'Suzhou → Shanghái', when: '~30 min en tren bala', road: 'Enlace al aeropuerto de Pudong' },
+        { route: 'Shanghái Pudong → Hong Kong', no: 'vuelo', when: '~2 h 30 de vuelo', aircraft: 'Alternativa: tren bala directo Shanghái–Hong Kong Oeste (~8 h)' }
+      ] },
+    lodging: {
+      name: 'Hotel en Tsim Sha Tsui (Kowloon)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Tsim Sha Tsui, sobre el puerto: vistas al skyline de la isla, el Star Ferry a pasos y bien conectado por MTR.',
+      coords: [22.2980, 114.1720],
+      checkIn: '5 nov', checkOut: '8 nov', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Tsim%20Sha%20Tsui%20Hong%20Kong%20hotels'
+    },
+    tempMax: '20-29', tempMin: '14-23', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Cierre del viaje en la ciudad vertical: el Pico Victoria sobre la bahía, el Star Ferry, los mercados nocturnos y el dim sum. 3 noches con contraste total respecto del interior del país.',
+    activities: [
+      { text: 'Pico Victoria (mirador sobre la bahía)', cat: 'miradores', coords: [22.2758, 114.1455] },
+      { text: 'Star Ferry (Kowloon → Central)', cat: 'otros', coords: [22.2940, 114.1690] },
+      { text: 'Paseo de Tsim Sha Tsui + Symphony of Lights', cat: 'miradores', coords: [22.2930, 114.1720] },
+      { text: 'Buda Tian Tan (Big Buddha, Lantau)', cat: 'museos', coords: [22.2540, 113.9050] },
+      { text: 'Templo Wong Tai Sin', cat: 'museos', coords: [22.3420, 114.1930] },
+      { text: 'Mercado nocturno de Temple Street', cat: 'compras', coords: [22.3110, 114.1700] },
+      { text: 'Central + SoHo (escaleras mecánicas)', cat: 'barrios', coords: [22.2820, 114.1550] },
+      { text: 'Dim sum clásico', cat: 'comida', coords: [22.2810, 114.1580] }
+    ],
+    daytrips: [],
+    departureLeg: { mode: '✈️', time: 'vuelo de regreso', detail: 'Vuelo internacional desde Hong Kong (HKG)', dirLabel: '', segments: [
+      { route: 'Hong Kong (HKG) → vuelo de regreso', when: 'fin del viaje · 8 nov', aircraft: '30 días · 11 paradas · Beijing → Hong Kong' }
+    ] }
+  }
+];
+
+// Lugares guardados sueltos: desvíos y clásicos de la ruta que no caen dentro de una parada base.
+const orphanPlaces = [
+  { name: "Monte Emei (Sichuan)", lat: 29.5990, lon: 103.4840, url: "https://www.google.com/maps/search/?api=1&query=Mount%20Emei%20Sichuan" },
+  { name: "Templo Shaolin (Dengfeng)", lat: 34.5075, lon: 112.9350, url: "https://www.google.com/maps/search/?api=1&query=Shaolin%20Temple%20Dengfeng" },
+  { name: "Pueblo de agua de Zhouzhuang", lat: 31.1160, lon: 120.8510, url: "https://www.google.com/maps/search/?api=1&query=Zhouzhuang%20water%20town" }
+];
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([32.5, 112.0], 4);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+const routeCoords = destinations.map(d => d.coords);
+
+// Modo de transporte de un tramo → estilo de línea + etiqueta. Mezcla real de este
+// viaje: tren de alta velocidad (CRH), vuelo doméstico y crucero por el Yangtsé.
+const MODE_STYLE = {
+  train:  { color: '#C0392B', dash: null,          label: 'Tren bala', icon: '🚄', weight: 4 },  // rojo China, sólido grueso
+  air:    { color: '#2563EB', dash: '1, 7',        label: 'Vuelo', icon: '✈️', weight: 2 },  // azul, punteado fino
+  cruise: { color: '#1594A6', dash: '2, 6, 10, 6', label: 'Crucero', icon: '🚢', weight: 3 },  // teal, guion-punto (Yangtsé)
+};
+function legType(leg) {
+  const m = (leg && leg.mode) || '';
+  if (m.indexOf('✈️') !== -1) return 'air';
+  if (m.indexOf('🚢') !== -1 || m.indexOf('⛴️') !== -1) return 'cruise';
+  return 'train';
+}
+// Sub-detalle de un tramo (segmentos: vuelos/tramos con nº, horarios, avión, tracker).
+function legSegsHtml(leg) {
+  if (!leg || !leg.segments || !leg.segments.length) return '';
+  return '<div class="leg-segs">' + leg.segments.map(s => {
+    if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
+    return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="seg-route">' + s.route + (s.no ? ' <span class="seg-no">' + s.no + '</span>' : '') + '</span>' +
+      '<span class="seg-time">' + (s.when || '') + (s.road ? '<br>' + s.road : '') + (s.aircraft ? '<br>' + s.aircraft : '') + '</span>' +
+    '</a>';
+  }).join('') + '</div>';
+}
+
+// Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
+// con color/trazo según el modo. Cada segmento es clickeable (→ resalta el tramo
+// en el panel) y queda referenciado por id del nodo destino para el link inverso.
+const legSegments = {};
+const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
+const flightLayer = L.layerGroup().addTo(map);  // vuelos
+function styleFor(mode) {
+  const st = MODE_STYLE[mode];
+  return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
+  // dibuja con su modo (así los buses aparecen y los vuelos sólo en la parte aérea).
+  // Si no, una sola línea del modo primario (con waypoints `via` si los hay).
+  let subsegs;
+  if (b.leg && b.leg.path) {
+    let from = a.coords;
+    subsegs = b.leg.path.map(step => { const seg = { pts: [from, step.to], mode: step.m }; from = step.to; return seg; });
+  } else {
+    const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
+    subsegs = [{ pts: pts, mode: legType(b.leg) }];
+  }
+  const pls = subsegs.map(seg => {
+    const base = styleFor(seg.mode);
+    const pl = L.polyline(seg.pts, base).addTo(seg.mode === 'air' ? flightLayer : routeLayer);
+    pl.on('click', () => { focusTrip(b.id); highlightSegment(b.id); });  // mapa → panel
+    return { pl: pl, base: base };
+  });
+  legSegments[b.id] = pls;
+}
+
+// Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
+// de transporte del panel y por focusTrip. Resalta TODOS los sub-tramos del leg.
+function highlightSegment(id) {
+  const arr = legSegments[id];
+  if (!arr || !arr.length) return;
+  const bounds = L.latLngBounds([]);
+  arr.forEach(s => {
+    s.pl.setStyle({ color: '#D85A30', weight: 6, opacity: 1, dashArray: null });
+    s.pl.bringToFront();
+    bounds.extend(s.pl.getBounds());
+  });
+  try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
+  setTimeout(() => arr.forEach(s => s.pl.setStyle(s.base)), 1800);
+}
+
+// Leyenda de modos de transporte (colores de las líneas).
+const routeLegend = L.control({ position: 'topright' });
+routeLegend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'route-legend');
+  div.innerHTML = ['train', 'air', 'cruise'].map(k => {
+    const s = MODE_STYLE[k];
+    return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
+  }).join('');
+  return div;
+};
+routeLegend.addTo(map);
+
+// Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
+function gmapsFromName(name) {
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+}
+// Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
+function lodgingHtml(L) {
+  if (!L) return '';
+  const sub = [L.type, L.guests].filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
+  // Links explícitos: Airbnb (si url es de airbnb) y/o Google Maps (url de maps o mapsUrl de la dirección).
+  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(/airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps'));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  const inner =
+    (L.img ? '<img class="lodging-img" src="' + L.img + '" loading="lazy" alt="">' : '') +
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
+      (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
+      (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
+      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
+      '<div class="lodging-meta">' + meta + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div><div class="lodging-card">' + inner + '</div>';
+}
+
+// Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
+function lodgingPopupHtml(L) {
+  const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
+  let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
+  if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
+  if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
+  return h;
+}
+
+function miniPopup(img, title, sub, mapsUrl) {
+  return '<div class="mini-pop">' +
+    (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
+    '<div class="popup-title">' + title + '</div>' +
+    (sub ? '<div class="popup-dates">' + sub + '</div>' : '') +
+    (mapsUrl ? '<a class="mini-pop-maps" href="' + mapsUrl + '" target="_blank" rel="noopener">Ver en Google Maps →</a>' : '') +
+  '</div>';
+}
+
+const markers = {};
+const destLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const isFullday = d.type === 'fullday';
+  const icon = isFullday
+    ? L.divIcon({
+        html: '<div class="marker-diamond-wrap"><div class="marker-diamond" data-id="' + d.id + '"><span>' + d.n + '</span></div></div>',
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17],
+      })
+    : L.divIcon({
+        html: '<div class="marker-num" data-id="' + d.id + '">' + d.n + '</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+  const marker = L.marker(d.coords, { icon }).addTo(destLayer);
+  const datesLine = isFullday
+    ? d.dates + ' · pasar el día'
+    : d.dates + ' · ' + d.nights + ' noches';
+  marker.bindPopup(
+    miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+  );
+  markers[d.id] = marker;
+});
+
+const dtMarkers = {};
+const dtLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  d.daytrips.forEach(dt => {
+    const icon = L.divIcon({
+      html: '<div class="marker-dot" data-id="' + dt.id + '"></div>',
+      className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+    });
+    const marker = L.marker(dt.coords, { icon }).addTo(dtLayer);
+    marker.bindPopup(
+      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time, dt.url || gmapsFromName(dt.name))
+    );
+    dtMarkers[dt.id] = marker;
+  });
+});
+
+// LUGARES GUARDADOS (Google Maps) — puntitos sutiles dentro de cada destino,
+// y pins distintos (anillo naranja) para los orphans que no caen en ningún destino.
+function placePopup(p, sub) {
+  return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
+}
+
+// Categorías de "Qué hacer" (etiqueta + orden de despliegue).
+const CAT_LABELS = {
+  parques: '🏞️ Parques y naturaleza', miradores: '🌄 Miradores y escénico', barrios: '🏙️ Barrios y centro',
+  museos: '🏛️ Museos y cultura', comida: '🍔 Comida', ocio: '🎢 Ocio y música',
+  compras: '🛍️ Compras', ruta: '🛣️ En ruta', otros: '✨ Otros'
+};
+const CAT_ORDER = ['parques','miradores','barrios','museos','comida','ocio','compras','ruta','otros'];
+
+// Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
+// vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
+const actMarkers = {};
+const savedPlaceLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  (d.activities || []).forEach((a, i) => {
+    if (!a.coords) return;
+    const m = L.circleMarker(a.coords, {
+      radius: 4, color: '#0F6E56', weight: 1.5, opacity: 0.95,
+      fillColor: '#1D9E75', fillOpacity: 0.85,
+    }).addTo(savedPlaceLayer);
+    m.bindPopup(
+      miniPopup(a.img, a.text, d.short + ' · ' + (CAT_LABELS[a.cat] || a.cat), a.url || gmapsFromName(a.text))
+    );
+    actMarkers[d.id + ':' + i] = m;
+  });
+});
+
+// Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+const lodgingLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const lodg = d.lodging;
+  if (!lodg || !lodg.coords) return;
+  const icon = L.divIcon({
+    html: '<div class="lodging-marker">🛏️</div>',
+    className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+  });
+  L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+    '<div class="mini-pop">' +
+      (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+      '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+      '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+        (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+      (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+    '</div>'
+  );
+});
+
+const orphanPlaceLayer = L.layerGroup().addTo(map);
+orphanPlaces.forEach(p => {
+  if (p.lat == null || p.lon == null) return;
+  L.circleMarker([p.lat, p.lon], {
+    radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
+    fillColor: '#fbbf77', fillOpacity: 0.6,
+  }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+});
+
+const placeCoords = destinations
+  .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
+  .concat(orphanPlaces.filter(p => p.lat != null).map(p => [p.lat, p.lon]));
+const allCoords = routeCoords
+  .concat(destinations.flatMap(d => d.daytrips.map(dt => dt.coords)))
+  .concat(destinations.filter(d => d.lodging && d.lodging.coords).map(d => d.lodging.coords))
+  .concat(placeCoords);
+map.fitBounds(L.latLngBounds(allCoords), { padding: [40, 40] });
+
+const detailsList = document.getElementById('details-list');
+const cards = {};
+const legRows = {};   // id -> la fila de transporte que precede a esa card
+const galleries = {}; // id -> array de URLs de fotos (para el lightbox)
+
+destinations.forEach((d, idx) => {
+  const isFullday = d.type === 'fullday';
+  const card = document.createElement('article');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '');
+  card.dataset.id = d.id;
+
+  const dtHtml = d.daytrips.length > 0
+    ? '<div class="card-section-title">Day trips</div>' +
+      d.daytrips.map(dt =>
+        '<div class="dt-row" data-dt-id="' + dt.id + '">' +
+          '<div class="dt-row-header">' +
+            '<span class="dt-row-name">' + dt.name + '</span>' +
+            '<span class="dt-row-time">' + dt.time + '</span>' +
+          '</div>' +
+          '<div class="dt-row-desc">' + dt.desc + '</div>' +
+        '</div>'
+      ).join('')
+    : '';
+
+  const numHtml = isFullday
+    ? '<div class="card-num fullday"><span>' + d.n + '</span></div>'
+    : '<div class="card-num">' + d.n + '</div>';
+  const flagCC = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const flagImgHtml = (d.flag && flagCC[d.flag])
+    ? '<img class="dest-flag" src="https://flagcdn.com/' + flagCC[d.flag] + '.svg" alt="' + d.flag + '">'
+    : '';
+  const titleHtml = isFullday
+    ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
+    : '<h2>' + d.name + '</h2>';
+  const metaHtml = isFullday
+    ? '<div class="card-meta">' + d.dates + ' · pasar el día</div>'
+    : '<div class="card-meta">' + d.dates + ' · ' + d.nights + ' noches</div>';
+
+  // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
+  if (d.leg) {
+    const legRow = document.createElement('div');
+    legRow.className = 'leg-row';
+    const prev = destinations[idx - 1];
+    // dirUrl explícito si lo hay; si no, Google Maps directions en transporte público entre las dos paradas.
+    const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] +
+        '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+      : '');
+    const dirLink = dirHref
+      ? '<a class="leg-dir" target="_blank" rel="noopener" href="' + dirHref + '">' +
+        (d.leg.dirLabel || 'cómo llegar ↗') + '</a>'
+      : '';
+    const t = legType(d.leg);
+    const lt = MODE_STYLE[t];
+    const isAir = t === 'air';
+    const bodyHtml = legSegsHtml(d.leg) + (dirLink ? '<div class="leg-actions">' + dirLink + '</div>' : '');
+    // Los vuelos arrancan expandidos (más espaciosos, como una tarjeta); el resto colapsado.
+    legRow.className = 'leg-row leg-' + t + (isAir ? ' open' : '');
+    legRow.innerHTML =
+      '<div class="leg-head">' +
+        '<span class="leg-mode">' + d.leg.mode + '</span>' +
+        '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+        '<span class="leg-text"><strong>' + d.leg.time + '</strong>' + (d.leg.dist ? ' · ' + d.leg.dist : '') + ' · ' + d.leg.detail + '</span>' +
+        '<button type="button" class="leg-ficha" title="Ver ficha del tramo" aria-label="Ver ficha del tramo">⤢</button>' +
+        (bodyHtml ? '<span class="leg-chevron">▸</span>' : '') +
+      '</div>' +
+      (bodyHtml ? '<div class="leg-body">' + bodyHtml + '</div>' : '');
+    // Click en el header → expande/colapsa + resalta el tramo en el mapa (panel → mapa).
+    legRow.querySelector('.leg-head').addEventListener('click', (e) => {
+      if (e.target.closest('.leg-dir') || e.target.closest('.leg-seg') || e.target.closest('.leg-ficha')) return;
+      legRow.classList.toggle('open');
+      highlightSegment(d.id);
+    });
+    legRow.querySelector('.leg-ficha').addEventListener('click', (e) => { e.stopPropagation(); openLegModal(d.id); });
+    detailsList.appendChild(legRow);
+    legRows[d.id] = legRow;
+  }
+
+  const tempsHtml =
+    '<div class="detail-temps">' +
+      '<div class="temp-pill temp-min"><span class="temp-label">Mín</span><span class="temp-value">' + d.tempMin + '°</span></div>' +
+      '<div class="temp-pill temp-max"><span class="temp-label">Máx</span><span class="temp-value">' + d.tempMax + '°</span></div>' +
+      '<span class="temp-note">' + d.weatherMode + '</span>' +
+    '</div>';
+
+  const thumbHtml = d.img ? '<img class="itin-thumb" src="' + d.img + '" loading="lazy" alt="">' : '';
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  galleries[d.id] = gal;
+  const galleryHtml = gal.length
+    ? '<div class="detail-gallery">' + gal.map((u, gi) =>
+        '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
+
+  card.innerHTML =
+    '<div class="itin-head">' +
+      numHtml +
+      thumbHtml +
+      '<div class="card-title-wrap">' +
+        titleHtml +
+        metaHtml +
+      '</div>' +
+      flagImgHtml +
+      '<span class="itin-caret">▸</span>' +
+    '</div>' +
+    '<div class="card-detail">' +
+      galleryHtml +
+      '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
+      tempsHtml +
+      '<p class="card-intro">' + d.intro + '</p>' +
+      lodgingHtml(d.lodging) +
+      (d.activities.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="qh-body open">' +
+            CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+              '<div class="cat-group">' +
+                '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
+                '<ul class="card-list">' +
+                  d.activities.map((a, i) => [a, i]).filter(([a]) => a.cat === c).map(([a, i]) =>
+                    a.coords
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + a.text + '</li>'
+                  ).join('') +
+                '</ul>' +
+              '</div>'
+            ).join('') +
+          '</div>'
+        : '') +
+      dtHtml +
+    '</div>';
+  detailsList.appendChild(card);
+  cards[d.id] = card;
+
+  card.addEventListener('mouseenter', () => { highlightMarker(d.id); });
+  card.addEventListener('mouseleave', () => { unhighlightMarker(d.id); });
+
+  card.querySelector('.itin-head').addEventListener('click', () => {
+    const open = card.classList.toggle('open');
+    if (open) { markers[d.id].openPopup(); map.flyTo(d.coords, 8, { duration: 0.8 }); }
+  });
+
+  card.querySelector('.ficha-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openStopModal(d.id);
+  });
+
+  const qhToggle = card.querySelector('.qh-toggle');
+  if (qhToggle) {
+    qhToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const body = card.querySelector('.qh-body');
+      const open = body.classList.toggle('open');
+      qhToggle.classList.toggle('open', open);
+    });
+  }
+
+  card.querySelectorAll('.act-row').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const m = actMarkers[btn.dataset.act];
+      if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+    });
+  });
+
+  card.querySelectorAll('.dt-row').forEach(row => {
+    const dtId = row.dataset.dtId;
+    row.addEventListener('mouseenter', (e) => { e.stopPropagation(); highlightDaytrip(dtId); });
+    row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dtMarkers[dtId].openPopup();
+      const dt = d.daytrips.find(x => x.id === dtId);
+      map.flyTo(dt.coords, 9, { duration: 0.8 });
+    });
+  });
+});
+
+// Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
+const _lastDep = destinations[destinations.length - 1].departureLeg;
+if (_lastDep) {
+  const lt = MODE_STYLE[legType(_lastDep)];
+  const depRow = document.createElement('div');
+  depRow.className = 'leg-row leg-' + legType(_lastDep) + ' open';
+  depRow.innerHTML =
+    '<div class="leg-head">' +
+      '<span class="leg-mode">' + _lastDep.mode + '</span>' +
+      '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+      '<span class="leg-text"><strong>' + _lastDep.time + '</strong> · ' + _lastDep.detail + '</span>' +
+      '<span class="leg-chevron">▸</span>' +
+    '</div>' +
+    '<div class="leg-body">' + legSegsHtml(_lastDep) + '</div>';
+  depRow.querySelector('.leg-head').addEventListener('click', () => depRow.classList.toggle('open'));
+  detailsList.appendChild(depRow);
+}
+
+// Lugares guardados que no caen en ningún destino: tarjeta propia al final de la lista.
+if (orphanPlaces.length > 0) {
+  const oc = document.createElement('article');
+  oc.className = 'orphan-card';
+  oc.innerHTML =
+    '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa aparecen con anillo naranja.</p>' +
+    '<div class="orphan-list">' +
+      orphanPlaces.map(p =>
+        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
+      ).join('') +
+    '</div>';
+  detailsList.appendChild(oc);
+  oc.querySelectorAll('.saved-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const p = orphanPlaces.find(x => x.name === chip.textContent);
+      if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+    });
+  });
+}
+
+function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+
+// Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
+// "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
+// Ancla al top del bloque para que la carga de imágenes de abajo no descoloque el scroll.
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+// --- Deep-linking: ?stop=<id> abre y enfoca una parada (para compartir una vista). ---
+function shareUrl(kind, id) {
+  return location.origin + location.pathname + '?' + kind + '=' + encodeURIComponent(id);
+}
+function setView(kind, id) {  // kind: 'stop' | 'leg' | null
+  const u = new URL(location.href);
+  u.searchParams.delete('stop'); u.searchParams.delete('leg');
+  if (kind && id) u.searchParams.set(kind, id);
+  history.replaceState(null, '', u);
+}
+function hasViewParam() {
+  const s = new URLSearchParams(location.search);
+  return s.get('stop') || s.get('leg');
+}
+// --- Ficha individual por parada (modal): info condensada + mini-mapa con sus pines/rutas. ---
+let _smMap = null, _smLayer = null;
+function ensureStopModal() {
+  let el = document.getElementById('stop-modal');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stop-modal';
+  el.className = 'stop-modal';
+  el.hidden = true;
+  el.innerHTML =
+    '<div class="sm-backdrop"></div>' +
+    '<div class="sm-dialog" role="dialog" aria-modal="true">' +
+      '<div class="sm-topbar">' +
+        '<button type="button" class="sm-share" title="Copiar link a esta parada">🔗 Copiar link</button>' +
+        '<button type="button" class="sm-close" aria-label="Cerrar">×</button>' +
+      '</div>' +
+      '<div class="sm-content"></div>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('.sm-backdrop').addEventListener('click', closeStopModal);
+  el.querySelector('.sm-close').addEventListener('click', closeStopModal);
+  return el;
+}
+function closeStopModal() {
+  const el = document.getElementById('stop-modal');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.classList.remove('sm-open');
+  if (hasViewParam()) setView(null);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+
+function smBodyHtml(d) {
+  const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
+  const meta = d.type === 'fullday' ? (d.dates + ' · pasar el día') : (d.dates + ' · ' + d.nights + ' noches');
+  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
+  const acts = (d.activities && d.activities.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
+        CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+          '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
+            d.activities.filter(a => a.cat === c).map(a =>
+              a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
+                    : '<li class="act-row-plain">' + a.text + '</li>'
+            ).join('') +
+          '</ul></div>'
+        ).join('') +
+      '</div>'
+    : '';
+  const dts = (d.daytrips && d.daytrips.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
+        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+      '</ul></div>'
+    : '';
+  return (
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
+    hero +
+    '<div id="sm-map" class="sm-map"></div>' +
+    (d.intro ? '<p class="sm-intro">' + d.intro + '</p>' : '') +
+    lodgingHtml(d.lodging) + leg + acts + dts
+  );
+}
+function buildStopMiniMap(d, idx) {
+  const c = document.getElementById('sm-map');
+  if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const pts = [];
+  if (idx > 0 && d.leg) {  // tramo de llegada, por modo real
+    const a = destinations[idx - 1];
+    let subsegs;
+    if (d.leg.path) { let from = a.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+  }
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  pts.push(d.coords);
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  if (d.lodging && d.lodging.coords) { L.marker(d.lodging.coords, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging)); pts.push(d.lodging.coords); }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
+}
+function _wireShare(el, kind, id) {
+  const sb = el.querySelector('.sm-share');
+  sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link';
+  sb.onclick = () => {
+    const link = shareUrl(kind, id);
+    const done = () => { sb.classList.add('copied'); sb.innerHTML = '✓ Link copiado'; setTimeout(() => { sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link'; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(() => prompt('Copiá el link:', link));
+    else prompt('Copiá el link:', link);
+  };
+}
+function _showModal(el) { el.hidden = false; document.body.classList.add('sm-open'); el.querySelector('.sm-dialog').scrollTop = 0; }
+
+function openStopModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = smBodyHtml(d);
+  _wireShare(el, 'stop', d.id);
+  _showModal(el);
+  setView('stop', id);
+  buildStopMiniMap(d, idx);
+}
+
+// Ficha de un TRAMO de transporte: modo, duración, segmentos + mini-mapa de la ruta real.
+function legBodyHtml(d, idx) {
+  const prev = idx > 0 ? destinations[idx - 1] : null;
+  const t = legType(d.leg), lt = MODE_STYLE[t];
+  const origin = prev ? prev.short : 'inicio';
+  const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] + '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+    : '');
+  const dir = dirHref ? '<a class="sm-act" href="' + dirHref + '" target="_blank" rel="noopener">' + (d.leg.dirLabel || 'Cómo llegar en Maps ↗') + '</a>' : '';
+  return (
+    '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
+      '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + (d.leg.dist ? ' · ' + d.leg.dist : '') + ' · llega ' + segStartDate(d.dates) + '</div></div></div>' +
+    '<div id="sm-map" class="sm-map"></div>' +
+    '<p class="sm-intro">' + d.leg.detail + '</p>' +
+    (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
+    (dir ? '<div class="sm-sec">' + dir + '</div>' : '')
+  );
+}
+function buildLegMiniMap(d, idx) {
+  const c = document.getElementById('sm-map'); if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const prev = idx > 0 ? destinations[idx - 1] : null, pts = [];
+  if (prev) {
+    let subsegs;
+    if (d.leg.path) { let from = prev.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [prev.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+    [prev, d].forEach(node => { L.marker(node.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + node.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(node.short); pts.push(node.coords); });
+  } else {
+    L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(d.short); pts.push(d.coords);
+  }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 11 }); } catch (e) { _smMap.setView(d.coords, 8); } }, 60);
+}
+function openLegModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0 || !destinations[idx].leg) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = legBodyHtml(d, idx);
+  _wireShare(el, 'leg', d.id);
+  _showModal(el);
+  setView('leg', id);
+  buildLegMiniMap(d, idx);
+}
+function focusTrip(id) {
+  const card = cards[id];
+  if (!card) return;
+  card.classList.add('open');
+  if (legRows[id]) legRows[id].classList.add('open');  // expandir el módulo de transporte
+  const anchor = legRows[id] || card;
+  setTimeout(() => {
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(legRows[id]); flash(card);
+  }, 70);
+}
+
+Object.entries(markers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => { highlightMarker(id); if (cards[id]) cards[id].classList.add('active'); });
+  marker.on('mouseout', () => { unhighlightMarker(id); if (cards[id]) cards[id].classList.remove('active'); });
+  marker.on('click', () => focusTrip(id));
+});
+Object.entries(dtMarkers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => highlightDaytrip(id));
+  marker.on('mouseout', () => unhighlightDaytrip(id));
+});
+
+// Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
+// tramo (= fecha de inicio del nodo de destino). Click → abre la card del destino,
+// donde la fila de transporte (leg) está justo arriba.
+function segStartDate(s) {
+  const day = s.match(/^\s*(\d{1,2})/);
+  const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
+  return day && mon ? day[1] + ' ' + mon[1] : s;
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  const mid = [(a.coords[0] + b.coords[0]) / 2, (a.coords[1] + b.coords[1]) / 2];
+  const segIcon = L.divIcon({
+    html: '<div class="seg-date">' + segStartDate(b.dates) + '</div>',
+    className: '', iconSize: [40, 16], iconAnchor: [20, 8],
+  });
+  L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
+    .on('click', () => focusTrip(b.id));
+}
+
+// Toggles de capas — directos en el mapa (expandidos), ocultar/mostrar cada tipo.
+// Barra de toggles propia (abajo, pills). "Lugares" unifica actividades + day trips + guardados.
+const TOGGLES = [
+  { label: 'Paradas',    icon: '📍', layers: [destLayer] },
+  { label: 'Ruta',       icon: '🚗', layers: [routeLayer] },
+  { label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
+  { label: 'Lugares',    icon: '⭐', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+];
+const togglesBar = document.createElement('div');
+togglesBar.className = 'map-toggles';
+TOGGLES.forEach(t => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mt active';
+  btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+  btn.addEventListener('click', () => {
+    const on = btn.classList.toggle('active');
+    t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  });
+  togglesBar.appendChild(btn);
+});
+map.getContainer().appendChild(togglesBar);
+L.DomEvent.disableClickPropagation(togglesBar);
+L.DomEvent.disableScrollPropagation(togglesBar);
+
+// Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
+(function () {
+  const s = new URLSearchParams(location.search);
+  const stop = s.get('stop'), leg = s.get('leg');
+  if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
+  else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
+})();
+
+// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+(function () {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lb-btn lb-close">×</span><span class="lb-btn lb-prev">‹</span>' +
+    '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img');
+  let cur = [], idx = 0;
+  const show = () => { img.src = cur[idx]; };
+  const close = () => { lb.classList.remove('open'); img.src = ''; };
+  const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
+  detailsList.addEventListener('click', (e) => {
+    const t = e.target.closest('.gallery-thumb');
+    if (!t) return;
+    e.stopPropagation();
+    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
+    show(); lb.classList.add('open');
+  });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+
+// CHART
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const avg = (range) => { const [lo, hi] = range.split('-').map(Number); return Math.round((lo + hi) / 2); };
+
+const weatherChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: destinations.map(d => d.short),
+    datasets: [
+      { label: 'Máx', data: destinations.map(d => avg(d.tempMax)), borderColor: '#D85A30', backgroundColor: 'rgba(216, 90, 48, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D85A30', borderWidth: 2, fill: '+1' },
+      { label: 'Mín', data: destinations.map(d => avg(d.tempMin)), borderColor: '#1D9E75', backgroundColor: 'rgba(29, 158, 117, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#1D9E75', borderWidth: 2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
+        callbacks: {
+          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + ' · ' + d.dates; },
+          label: (item) => { const d = destinations[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        const d = destinations[idx];
+        focusTrip(d.id);
+        map.flyTo(d.coords, 7, { duration: 0.8 });
+      }
+    },
+    onHover: (event, elements) => { event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default'; },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 5, suggestedMax: 30, ticks: { callback: (v) => v + '°', font: { size: 10 }, color: 'rgba(0,0,0,0.5)', padding: 4 }, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+      x: { ticks: { font: { size: 9 }, color: 'rgba(0,0,0,0.55)', maxRotation: 35, minRotation: 35, autoSkip: false }, grid: { display: false, drawBorder: false } }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Panel de temperatura colapsado por default; resize del chart al abrir (Chart.js
+// no dimensiona bien si el contenedor estaba display:none).
+(function () {
+  const tgl = document.getElementById('chart-toggle');
+  const wrap = document.getElementById('chart-wrap');
+  if (tgl && wrap) {
+    tgl.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      tgl.classList.toggle('open', open);
+      if (open) setTimeout(() => weatherChart.resize(), 30);
+    });
+  }
+})();
+</script>
+</body>
+</html>

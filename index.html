@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viajes · itinerarios</title>
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="favicon-64.png">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+
+  .site-header {
+    padding: 14px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .site-header h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .site-header .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+  }
+  .lede { font-size: 13px; color: #666; line-height: 1.6; margin: 0 0 22px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  a.trip-card {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 18px 20px 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  a.trip-card:hover {
+    border-color: rgba(15, 110, 86, 0.35);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .trip-flag { font-size: 30px; line-height: 1; margin-bottom: 12px; }
+  .trip-card h2 { font-size: 16px; font-weight: 600; margin: 0 0 3px; line-height: 1.25; }
+  .trip-dates { font-size: 12px; color: #0F6E56; font-weight: 600; margin: 0 0 10px; }
+  .trip-route { font-size: 12px; color: #666; line-height: 1.5; margin: 0 0 14px; flex: 1; }
+  .trip-cta { font-size: 12px; font-weight: 600; color: #0F6E56; display: inline-flex; align-items: center; gap: 5px; }
+  .trip-badge {
+    display: inline-block;
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+    color: #8A5A0E; background: rgba(240, 184, 74, 0.22);
+    border-radius: 4px; padding: 2px 7px; margin-left: 8px; vertical-align: middle;
+  }
+  .trip-badge.live { color: #04342C; background: rgba(93, 202, 165, 0.28); }
+
+  footer { max-width: 920px; margin: 0 auto; padding: 0 20px 40px; font-size: 11px; color: #aaa; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <h1>Viajes</h1>
+    <span class="subtitle">itinerarios · mapa · clima por parada</span>
+  </header>
+
+  <main>
+    <p class="lede">Cada viaje es un sitio propio: mapa interactivo, itinerario noche por noche,
+      transportes entre paradas y clima estimado. Elegí uno.</p>
+
+    <div class="grid">
+      <a class="trip-card" href="japon/">
+        <div class="trip-flag">🇯🇵</div>
+        <h2>Japón + Corea<span class="trip-badge live">live</span></h2>
+        <p class="trip-dates">6 oct – 18 nov 2026</p>
+        <p class="trip-route">40 noches, Tokio → Seúl. Clima y lugares de Maps actualizados a diario.</p>
+        <span class="trip-cta">Ver itinerario →</span>
+      </a>
+
+      <a class="trip-card" href="usa/">
+        <div class="trip-flag">🇺🇸</div>
+        <h2>Roadtrip USA</h2>
+        <p class="trip-dates">5 sep – 4 oct 2026</p>
+        <p class="trip-route">Costa a costa, 15 paradas de Nueva York a San Francisco, con tramos de manejo.</p>
+        <span class="trip-cta">Ver itinerario →</span>
+      </a>
+
+      <a class="trip-card" href="china/">
+        <div class="trip-flag">🇨🇳</div>
+        <h2>China, un mes</h2>
+        <p class="trip-dates">10 oct – 8 nov 2026</p>
+        <p class="trip-route">De norte a sur, 11 paradas de Beijing a Hong Kong. Tren bala, vuelos y crucero por el Yangtsé.</p>
+        <span class="trip-cta">Ver itinerario →</span>
+      </a>
+
+      <a class="trip-card" href="espana/">
+        <div class="trip-flag">🇪🇸</div>
+        <h2>España en tren<span class="trip-badge">demo</span></h2>
+        <p class="trip-dates">12 – 30 may</p>
+        <p class="trip-route">18 noches recorriendo España en tren. Itinerario de demostración del molde.</p>
+        <span class="trip-cta">Ver itinerario →</span>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    Mismo molde para todos los viajes — un fix de UX se aplica una vez.
+    Agregar un viaje = una carpeta nueva, no un repo nuevo.
+  </footer>
+</body>
+</html>

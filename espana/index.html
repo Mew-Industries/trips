@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>España en tren · demo · 12–30 may</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥘</text></svg>">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  .site-header {
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; }
+  .header-title h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .header-title .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+  .demo-badge { font-size: 9px; font-weight: 700; letter-spacing: 1.2px; color: #9C3D1F; background: rgba(156,61,31,0.10); border: 1px solid rgba(156,61,31,0.28); border-radius: 4px; padding: 2px 7px; align-self: center; }
+  .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
+  .header-stats strong { color: #1a1a1a; font-weight: 600; }
+
+  main.dashboard {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; position: relative; }
+  .map-toggles { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 92%; }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-toggles .mt.active { background: #9C3D1F; color: #fff; border-color: #9C3D1F; }
+  .map-toggles .mt:not(.active) { opacity: 0.92; }
+  .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+
+  .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+
+  .chart-section {
+    background: white;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; width: 100%; background: none; border: none; padding: 2px 0; cursor: pointer; }
+  .chart-header .qh-caret { transition: transform 0.15s; }
+  .chart-header.open .qh-caret { transform: rotate(90deg); }
+  .chart-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .chart-wrap { height: 200px; position: relative; display: none; }
+  .chart-wrap.open { display: block; }
+  .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .mini-pop { min-width: 150px; max-width: 210px; }
+  .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
+  .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #9C3D1F; text-decoration: none; font-weight: 600; }
+  .mini-pop-maps:hover { color: #C4552F; }
+
+  .details-section { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .details-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 4px 4px 10px; }
+
+  .flight-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .flight-card strong { color: #1a1a1a; font-weight: 600; }
+  .flight-card .flight-row { display: flex; justify-content: space-between; gap: 8px; }
+  .flight-card .flight-row + .flight-row { margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); }
+  .flight-card .flight-leg-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin: 0 0 6px; }
+  .flight-card .flight-leg-title + .flight-leg-title { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .flight-card a.flight-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 6px; margin: 0 -6px; border-radius: 6px; transition: background 0.12s; }
+  .flight-card a.flight-seg:hover { background: rgba(156, 61, 31, 0.07); }
+  .flight-card a.flight-seg .seg-route { color: #1a1a1a; font-weight: 600; }
+  .flight-card a.flight-seg .seg-no { color: #9C3D1F; font-weight: 600; font-size: 10px; }
+  .flight-card a.flight-seg .seg-time { color: #666; font-size: 10px; text-align: right; }
+  .flight-card .flight-dir { border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: rgba(156,61,31,0.02); }
+  .flight-card .flight-dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .flight-card .flight-dir-label { font-size: 11px; font-weight: 700; color: #9C3D1F; }
+  .flight-card .flight-dir-meta { font-size: 9px; color: #999; white-space: nowrap; }
+  .flight-card .seg-conn { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #b0b0b0; margin: 2px 0; }
+  .flight-card .seg-conn::before, .flight-card .seg-conn::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+  .flight-card .flight-note { font-size: 10px; color: #888; margin-top: 8px; line-height: 1.4; }
+
+  .dest-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dest-card:hover { border-color: rgba(156, 61, 31, 0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.active { border-color: #9C3D1F; box-shadow: 0 2px 12px rgba(156, 61, 31, 0.15); }
+  .card-header { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .card-num { width: 28px; height: 28px; border-radius: 50%; background: #F0A283; border: 2px solid #9C3D1F; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #4A1505; flex-shrink: 0; }
+  .card-num.fullday { border-radius: 5px; background: #F0B84A; border-color: #B87814; color: #5A3A00; transform: rotate(45deg); }
+  .card-num.fullday span { transform: rotate(-45deg); display: block; }
+  .dest-card.fullday { border-style: dashed; border-color: rgba(184, 120, 20, 0.4); }
+  .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
+  .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
+  .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: #666; }
+  .card-temps { display: flex; gap: 6px; flex-shrink: 0; }
+  .temp-pill { display: flex; flex-direction: column; align-items: center; padding: 3px 8px; border-radius: 6px; min-width: 48px; font-size: 9px; line-height: 1.2; }
+  .temp-max { background: rgba(216, 90, 48, 0.12); color: #993C1D; }
+  .temp-min { background: rgba(37, 99, 235, 0.10); color: #1D4ED8; }
+  .temp-label { font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .temp-value { font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+  .card-intro { font-size: 12px; color: #555; line-height: 1.5; margin: 0 0 10px; }
+  .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
+  .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
+  .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
+  .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #e9cfc2; color: #9C3D1F; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .seg-date:hover { background: #9C3D1F; color: #fff; border-color: #9C3D1F; }
+  .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
+  .leg-row:hover { background: rgba(0,0,0,0.03); }
+  .leg-head { display: flex; align-items: center; gap: 7px; }
+  .leg-air { border-left-color: #2563EB; } .leg-ferry { border-left-color: #15A6C9; }
+  .leg-train { border-left-color: #0F8A5F; } .leg-bus { border-left-color: #E08A1E; }
+  .leg-mode { font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .leg-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .leg-text { flex: 1; }
+  .leg-chevron { margin-left: auto; font-size: 10px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .leg-row.open .leg-chevron { transform: rotate(90deg); }
+  .leg-body { display: none; }
+  .leg-row.open .leg-body { display: block; }
+  .leg-actions { margin: 6px 0 1px 22px; }
+  .leg-segs { margin: 7px 0 2px 22px; padding: 6px 8px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 7px; }
+  .leg-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 5px 6px; margin: 0 -2px; border-radius: 5px; transition: background 0.12s; }
+  .leg-seg:hover { background: rgba(156,61,31,0.08); }
+  .leg-seg .seg-route { color: #1a1a1a; font-weight: 600; font-size: 12px; }
+  .leg-seg .seg-no { color: #9C3D1F; font-weight: 600; font-size: 10px; }
+  .leg-seg .seg-time { color: #777; font-size: 10px; text-align: right; line-height: 1.5; }
+  .leg-layover { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #aaa; margin: 3px 0; }
+  .leg-layover::before, .leg-layover::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
+  .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
+  .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .leg-text strong { color: #555; font-weight: 600; }
+  .leg-dir { margin-left: 6px; font-size: 10px; color: #9C3D1F; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(156,61,31,0.4); flex-shrink: 0; }
+  .leg-dir:hover { color: #C4552F; border-bottom-color: #C4552F; }
+  .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
+  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(156,61,31,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  .lodging-card:hover { border-color: #C4552F; background: rgba(156,61,31,0.06); }
+  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
+  .lodging-sub { font-size: 11px; color: #666; }
+  .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
+  .lodging-meta { font-size: 11px; color: #9C3D1F; font-weight: 600; margin-top: 3px; }
+  .lodging-link { color: #C4552F; text-decoration: underline; }
+  .lodging-link:hover { color: #9C3D1F; }
+  .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
+  .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
+  .gallery-thumb:hover { opacity: 0.82; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
+  .lb-btn:hover { opacity: 1; }
+  .lb-close { top: 12px; right: 20px; font-size: 34px; line-height: 1; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); font-size: 48px; padding: 0 14px; }
+  .lb-prev { left: 2px; } .lb-next { right: 2px; }
+  .dest-card, .leg-row { scroll-margin-top: 14px; }
+  @keyframes cardflash { 0% { box-shadow: 0 0 0 2px rgba(156,61,31,0); } 20% { box-shadow: 0 0 0 2px rgba(156,61,31,0.6); } 100% { box-shadow: 0 0 0 2px rgba(156,61,31,0); } }
+  .flash { animation: cardflash 1.4s ease-out; }
+  .itin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .dest-flag { width: 28px; height: 19px; object-fit: cover; border-radius: 3px; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .itin-caret { font-size: 11px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .dest-card.open .itin-caret { transform: rotate(90deg); }
+  /* Modal de ficha individual por parada */
+  .stop-modal { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .stop-modal[hidden] { display: none; }
+  .sm-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.55); backdrop-filter: blur(2px); }
+  .sm-dialog { position: relative; background: #fbf9f5; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+  .sm-topbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(#fbf9f5, rgba(251,249,245,0.85)); }
+  .sm-share { border: 1px solid #d8d3c8; background: #fff; color: #9C3D1F; cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; }
+  .sm-share:hover { background: #faf1ea; }
+  .sm-share.copied { background: #9C3D1F; color: #fff; border-color: #9C3D1F; }
+  .sm-close { border: none; background: transparent; cursor: pointer; font-size: 24px; line-height: 1; color: #999; padding: 0 6px; }
+  .sm-close:hover { color: #333; }
+  .sm-content { padding: 0 18px 20px; }
+  .sm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sm-flag { width: 34px; height: 23px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
+  .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
+  .sm-sec { margin-bottom: 12px; }
+  .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
+  .sm-leg-mode { font-size: 15px; }
+  .sm-act { color: #9C3D1F; text-decoration: none; }
+  .sm-act:hover { text-decoration: underline; }
+  .sm-dt-desc { font-size: 12px; color: #8a8478; line-height: 1.4; margin: 2px 0 6px; }
+  body.sm-open { overflow: hidden; }
+  .sm-leg-badge { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ficha-btn { width: 100%; border: 1px solid #ecd3c6; background: #faf1ea; color: #9C3D1F; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 8px; border-radius: 8px; margin-bottom: 10px; transition: background 0.15s; }
+  .ficha-btn:hover { background: #f3e0d3; }
+  .leg-ficha { flex-shrink: 0; border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 5px; color: #999; opacity: 0.6; transition: opacity 0.15s, background 0.15s; }
+  .leg-head:hover .leg-ficha { opacity: 0.9; }
+  .leg-ficha:hover { opacity: 1; background: rgba(0,0,0,0.07); color: #444; }
+  .card-detail { display: none; margin-top: 10px; }
+  .dest-card.open .card-detail { display: block; }
+  .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
+  .cat-group { margin: 6px 0 2px; }
+  .cat-head { font-size: 11px; font-weight: 600; color: #9C3D1F; margin: 6px 0 3px; }
+  .act-row { display: inline-block; width: 100%; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #A14A2A; background: none; border: none; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .act-row:hover { color: #C4552F; }
+  .act-row-plain { font-size: 12px; line-height: 1.5; color: #444; padding: 1px 0; }
+  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row:hover .act-pin { opacity: 0.9; }
+  .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
+  .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .dt-row-name { font-size: 12px; font-weight: 500; }
+  .dt-row-time { font-size: 10px; color: #888; }
+  .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #F0A283; border: 2px solid #9C3D1F; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #4A1505; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num.active { transform: scale(1.45); background: #C4552F; color: white; box-shadow: 0 4px 10px rgba(156, 61, 31, 0.45); z-index: 1000 !important; }
+  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 1.5px solid #444; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, border-color 0.2s; }
+  .marker-dot.active { transform: scale(1.8); background: #fbbf77; border-color: #BA7517; }
+
+  /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
+  .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .marker-diamond { width: 26px; height: 26px; background: #F0B84A; border: 2px solid #B87814; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .marker-diamond span { transform: rotate(-45deg); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; color: #5A3A00; }
+  .marker-diamond.active { transform: rotate(45deg) scale(1.4); background: #E89B17; z-index: 1000 !important; }
+
+  /* Lugares guardados de Google Maps */
+  .saved-chip { font-size: 11px; color: #9C3D1F; text-decoration: none; background: rgba(156, 61, 31, 0.07); border: 1px solid rgba(156, 61, 31, 0.15); border-radius: 12px; padding: 3px 9px; line-height: 1.3; transition: background 0.12s; }
+  .saved-chip:hover { background: rgba(156, 61, 31, 0.15); }
+  .saved-chip.no-coord { color: #999; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+
+  /* Sección de lugares sin destino, debajo de la lista */
+  .orphan-card { background: white; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); padding: 14px 16px; margin-bottom: 10px; }
+  .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
+  .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    main.dashboard { grid-template-columns: 1fr; grid-template-rows: 50vh auto; overflow: visible; }
+    .map-pane { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .content-pane { overflow: visible; }
+    .details-section { overflow: visible; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-title">
+    <h1>España</h1>
+    <span class="subtitle">12 – 30 may · itinerario de demostración</span>
+    <span class="demo-badge">DEMO</span>
+  </div>
+  <div class="header-stats">
+    <span><strong>12/5</strong> llegada</span>
+    <span><strong>18</strong> noches</span>
+    <span><strong>8</strong> paradas</span>
+    <span><strong>30/5</strong> regreso</span>
+  </div>
+</header>
+
+<main class="dashboard">
+  <div class="map-pane">
+    <div id="map"></div>
+  </div>
+
+  <div class="content-pane">
+    <div class="chart-section">
+      <button type="button" class="chart-header" id="chart-toggle">
+        <span class="chart-title">Temperatura por destino · may (climatología)</span>
+        <span class="qh-caret">▸</span>
+      </button>
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="weatherChart"></canvas>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="details-title">Itinerario de demostración · click en una parada · los transportes son los módulos entre tramos</div>
+      <div id="details-list"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+
+const destinations = [
+  {
+    id: 'madrid', n: 1, type: 'destino', name: 'Madrid (llegada)', short: 'Madrid', flag: '🇪🇸',
+    coords: [40.4168, -3.7038],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/MADRID_100206_UDCI_019.jpg/500px-MADRID_100206_UDCI_019.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/MADRID_100206_UDCI_019.jpg/500px-MADRID_100206_UDCI_019.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Palacio_Real_de_Madrid_Julio_2016_%28cropped%29.jpg/500px-Palacio_Real_de_Madrid_Julio_2016_%28cropped%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Palacio_de_Cristal.jpg/500px-Palacio_de_Cristal.jpg'],
+    dates: '12-16 may', nights: 4,
+    arrival: '12 may (llegada internacional a Madrid-Barajas)', departure: '16 may (AVE al sur, con día completo en Córdoba de paso)',
+    lodging: null,
+    leg: { mode: '✈️', time: 'vuelo internacional', detail: 'Llegada a Madrid-Barajas (T4) + Cercanías o metro al centro.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20to%20Madrid', dirLabel: 'ver vuelos ↗' },
+    tempMax: '18-27', tempMin: '9-14', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Arranque del recorrido: 4 noches en la capital para aterrizar sin apuro. Museos del Paseo del Arte, tapas por La Latina y atardeceres desde el Templo de Debod. Desde Atocha salen los AVE al sur, y Toledo y Segovia quedan a media hora para escaparse el día que pinte.',
+    activities: [
+      { text: 'Museo del Prado (Velázquez, Goya, El Bosco)', cat: 'museos', coords: [40.4138, -3.6921], url: 'https://www.google.com/maps/search/?api=1&query=Museo%20del%20Prado' },
+      { text: 'Reina Sofía (el Guernica) + Thyssen', cat: 'museos', coords: [40.4086, -3.6944], url: 'https://www.google.com/maps/search/?api=1&query=Museo%20Reina%20Sof%C3%ADa' },
+      { text: 'Palacio Real + catedral de la Almudena', cat: 'monumentos', coords: [40.4179, -3.7143], url: 'https://www.google.com/maps/search/?api=1&query=Palacio%20Real%20de%20Madrid' },
+      { text: 'Plaza Mayor + Puerta del Sol', cat: 'monumentos', coords: [40.4155, -3.7074], url: 'https://www.google.com/maps/search/?api=1&query=Plaza%20Mayor%20de%20Madrid' },
+      { text: 'Parque del Retiro + Palacio de Cristal', cat: 'parques', coords: [40.4153, -3.6845], url: 'https://www.google.com/maps/search/?api=1&query=Parque%20del%20Retiro' },
+      { text: 'Templo de Debod al atardecer', cat: 'miradores', coords: [40.4240, -3.7177], url: 'https://www.google.com/maps/search/?api=1&query=Templo%20de%20Debod' },
+      { text: 'Gran Vía + azotea del Círculo de Bellas Artes', cat: 'miradores', coords: [40.4184, -3.6964], url: 'https://www.google.com/maps/search/?api=1&query=C%C3%ADrculo%20de%20Bellas%20Artes' },
+      { text: 'Tapas por La Latina (Cava Baja) + Mercado de San Miguel', cat: 'comida', coords: [40.4154, -3.7089], url: 'https://www.google.com/maps/search/?api=1&query=Mercado%20de%20San%20Miguel' },
+      { text: 'Bocata de calamares en la Plaza Mayor + chocolate con churros (San Ginés)', cat: 'comida' },
+      { text: 'Malasaña y Chueca (vermut, vintage, librerías)', cat: 'barrios' },
+      { text: 'El Rastro (domingo a la mañana)', cat: 'compras', coords: [40.4085, -3.7076], url: 'https://www.google.com/maps/search/?api=1&query=El%20Rastro%20Madrid' }
+    ],
+    daytrips: [
+      { id: 'toledo', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Toledo_%2837737041515%29.jpg/500px-Toledo_%2837737041515%29.jpg', name: 'Toledo', coords: [39.8628, -4.0273], time: '33 min en Avant', desc: 'Las tres culturas: catedral gótica, sinagogas, mezquita del Cristo de la Luz y El Greco. Vista clásica desde el mirador del Valle.' },
+      { id: 'segovia', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Aqueduct_of_Segovia_02.jpg/500px-Aqueduct_of_Segovia_02.jpg', name: 'Segovia', coords: [40.9481, -4.1184], time: '28 min en AVE', desc: 'Acueducto romano, alcázar de cuento y cochinillo asado. Se combina fácil en medio día largo.' }
+    ]
+  },
+  {
+    id: 'cordoba', n: 2, type: 'fullday', name: 'Córdoba', short: 'Córdoba', flag: '🇪🇸',
+    coords: [37.8882, -4.7794],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Mosque_Cordoba_edited.jpg/500px-Mosque_Cordoba_edited.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Mosque_Cordoba_edited.jpg/500px-Mosque_Cordoba_edited.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Puente_Romano_Cordoba.jpg/500px-Puente_Romano_Cordoba.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Cordoba-28_%2848026695918%29.jpg/500px-Cordoba-28_%2848026695918%29.jpg'],
+    dates: '16 may', nights: 0,
+    arrival: '16 may a la mañana (AVE desde Madrid, equipaje en consigna de la estación)', departure: '16 may a la tarde (AVE corto a Sevilla; se duerme allí esta noche)', lodging: null,
+    leg: { mode: '🚄', time: '~1 h 45', detail: 'AVE Madrid (Atocha) → Córdoba. Consigna de equipaje en la estación y día completo en la ciudad.' },
+    tempMax: '22-31', tempMin: '12-16', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Día completo de paso entre Madrid y Sevilla: el AVE para en Córdoba y la jugada es bajarse, dejar las valijas en consigna y dedicarle el día. Mezquita-catedral a primera hora (la luz del bosque de columnas), Judería, puente romano y — en mayo — los patios cordobeses en flor. A la tarde, AVE de 45 minutos a Sevilla, donde se duerme.',
+    activities: [
+      { text: 'Mezquita-catedral (ir temprano)', cat: 'monumentos', coords: [37.8789, -4.7794], url: 'https://www.google.com/maps/search/?api=1&query=Mezquita-catedral%20de%20C%C3%B3rdoba' },
+      { text: 'Puente romano + torre de la Calahorra', cat: 'monumentos', coords: [37.8768, -4.7784], url: 'https://www.google.com/maps/search/?api=1&query=Puente%20romano%20de%20C%C3%B3rdoba' },
+      { text: 'Judería + Calleja de las Flores', cat: 'barrios', coords: [37.8797, -4.7791], url: 'https://www.google.com/maps/search/?api=1&query=Calleja%20de%20las%20Flores' },
+      { text: 'Patios de San Basilio (mayo = festival de los patios)', cat: 'barrios' },
+      { text: 'Alcázar de los Reyes Cristianos (jardines)', cat: 'parques', coords: [37.8764, -4.7815], url: 'https://www.google.com/maps/search/?api=1&query=Alc%C3%A1zar%20de%20los%20Reyes%20Cristianos' },
+      { text: 'Salmorejo + flamenquín en una taberna del centro', cat: 'comida' }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'sevilla', n: 3, type: 'destino', name: 'Sevilla', short: 'Sevilla', flag: '🇪🇸',
+    coords: [37.3891, -5.9845],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Plaza_de_Espa%C3%B1a_%28Sevilla%29_-_01.jpg/500px-Plaza_de_Espa%C3%B1a_%28Sevilla%29_-_01.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Plaza_de_Espa%C3%B1a_%28Sevilla%29_-_01.jpg/500px-Plaza_de_Espa%C3%B1a_%28Sevilla%29_-_01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/La_Giralda_August_2012_Seville_Spain.jpg/500px-La_Giralda_August_2012_Seville_Spain.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Fachada_del_Palacio_del_rey_don_Pedro.jpg/500px-Fachada_del_Palacio_del_rey_don_Pedro.jpg'],
+    dates: '16-19 may', nights: 3,
+    arrival: '16 may a la tarde-noche (AVE corto desde Córdoba)', departure: '19 may (tren Avant a Granada vía Antequera)', lodging: null,
+    leg: { mode: '🚄', time: '~45 min', detail: 'AVE Córdoba → Sevilla (Santa Justa), a la tarde.' },
+    tempMax: '22-31', tempMin: '13-17', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Corazón de Andalucía: 3 noches para catedral + Giralda, Real Alcázar (entrada reservada con anticipación), atardecer en la Plaza de España y tapeo en Triana. Mayo es el mes ideal — calor amable y las jacarandás en flor. Cádiz queda a un tren de escapada si sobra un día.',
+    activities: [
+      { text: 'Catedral + subida a la Giralda', cat: 'monumentos', coords: [37.3861, -5.9926], url: 'https://www.google.com/maps/search/?api=1&query=Catedral%20de%20Sevilla' },
+      { text: 'Real Alcázar (reservar entrada online)', cat: 'monumentos', coords: [37.3831, -5.9902], url: 'https://www.google.com/maps/search/?api=1&query=Real%20Alc%C3%A1zar%20de%20Sevilla' },
+      { text: 'Torre del Oro + paseo por el Guadalquivir', cat: 'monumentos', coords: [37.3826, -5.9963], url: 'https://www.google.com/maps/search/?api=1&query=Torre%20del%20Oro' },
+      { text: 'Plaza de España + parque de María Luisa al atardecer', cat: 'parques', coords: [37.3772, -5.9869], url: 'https://www.google.com/maps/search/?api=1&query=Plaza%20de%20Espa%C3%B1a%20Sevilla' },
+      { text: 'Las Setas (Metropol Parasol) — pasarela al atardecer', cat: 'miradores', coords: [37.3931, -5.9910], url: 'https://www.google.com/maps/search/?api=1&query=Setas%20de%20Sevilla' },
+      { text: 'Barrio de Santa Cruz (callejear sin plan)', cat: 'barrios', coords: [37.3846, -5.9895], url: 'https://www.google.com/maps/search/?api=1&query=Barrio%20de%20Santa%20Cruz%20Sevilla' },
+      { text: 'Triana: mercado, cerámica y puente al caer el sol', cat: 'barrios', coords: [37.3859, -6.0033], url: 'https://www.google.com/maps/search/?api=1&query=Mercado%20de%20Triana' },
+      { text: 'Tablao flamenco (Triana o Santa Cruz)', cat: 'ocio' },
+      { text: 'Tapeo: espinacas con garbanzos, cazón en adobo, solomillo al whisky', cat: 'comida' }
+    ],
+    daytrips: [
+      { id: 'cadiz', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Catedral_de_C%C3%A1diz%2C_Espa%C3%B1a%2C_2015-12-08%2C_DD_56.JPG/500px-Catedral_de_C%C3%A1diz%2C_Espa%C3%B1a%2C_2015-12-08%2C_DD_56.JPG', name: 'Cádiz', coords: [36.5271, -6.2886], time: '~1 h 40 en tren', desc: 'La ciudad más antigua de Occidente: catedral dorada, barrio de La Viña, playa de la Caleta y pescaíto frito.' }
+    ]
+  },
+  {
+    id: 'granada', n: 4, type: 'destino', name: 'Granada', short: 'Granada', flag: '🇪🇸',
+    coords: [37.1773, -3.5986],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dawn_Charles_V_Palace_Alhambra_Granada_Andalusia_Spain.jpg/500px-Dawn_Charles_V_Palace_Alhambra_Granada_Andalusia_Spain.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dawn_Charles_V_Palace_Alhambra_Granada_Andalusia_Spain.jpg/500px-Dawn_Charles_V_Palace_Alhambra_Granada_Andalusia_Spain.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Albaicin-granada.JPG/500px-Albaicin-granada.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/LAlhambra_de_Grenade_%288356975975%29_%282%29.jpg/500px-LAlhambra_de_Grenade_%288356975975%29_%282%29.jpg'],
+    dates: '19-21 may', nights: 2,
+    arrival: '19 may (tren Avant desde Sevilla, ~2 h 30)', departure: '21 may (bus directo a Valencia por la costa)', lodging: null,
+    leg: { mode: '🚆', time: '~2 h 30', detail: 'Tren Avant Sevilla → Granada (vía Antequera).', via: [[37.02, -4.55]] },
+    tempMax: '18-28', tempMin: '9-14', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Dos noches con un solo objetivo grande: la Alhambra (los palacios nazaríes se agotan — reservar la entrada semanas antes, ideal el turno de la mañana). El resto: perderse por el Albaicín, atardecer en el mirador de San Nicolás con la Alhambra y Sierra Nevada de fondo, y tapas que vienen gratis con la bebida.',
+    activities: [
+      { text: 'Alhambra: palacios nazaríes + Alcazaba (RESERVAR con semanas de anticipación)', cat: 'monumentos', coords: [37.1761, -3.5881], url: 'https://www.google.com/maps/search/?api=1&query=Alhambra' },
+      { text: 'Generalife y sus jardines', cat: 'parques', coords: [37.1773, -3.5837], url: 'https://www.google.com/maps/search/?api=1&query=Generalife' },
+      { text: 'Mirador de San Nicolás al atardecer', cat: 'miradores', coords: [37.1811, -3.5927], url: 'https://www.google.com/maps/search/?api=1&query=Mirador%20de%20San%20Nicol%C3%A1s' },
+      { text: 'Albaicín: cármenes, cuestas y placetas', cat: 'barrios', coords: [37.1809, -3.5951], url: 'https://www.google.com/maps/search/?api=1&query=Albaic%C3%ADn' },
+      { text: 'Sacromonte (cuevas + zambra flamenca)', cat: 'ocio', coords: [37.1827, -3.5836], url: 'https://www.google.com/maps/search/?api=1&query=Sacromonte' },
+      { text: 'Capilla Real + catedral', cat: 'monumentos', coords: [37.1763, -3.5995], url: 'https://www.google.com/maps/search/?api=1&query=Capilla%20Real%20de%20Granada' },
+      { text: 'Tapas gratis por calle Navas + teterías de la Calderería', cat: 'comida' }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'valencia', n: 5, type: 'destino', name: 'Valencia', short: 'Valencia', flag: '🇪🇸',
+    coords: [39.4699, -0.3763],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Ciutat_de_les_Arts_i_les_Ci%C3%A8ncies.jpg/500px-Ciutat_de_les_Arts_i_les_Ci%C3%A8ncies.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Ciutat_de_les_Arts_i_les_Ci%C3%A8ncies.jpg/500px-Ciutat_de_les_Arts_i_les_Ci%C3%A8ncies.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Valencia_cathedral_2022_-_north_fa%C3%A7ade_dawn.jpg/500px-Valencia_cathedral_2022_-_north_fa%C3%A7ade_dawn.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Mercat_fa%C3%A7ana5.jpg/500px-Mercat_fa%C3%A7ana5.jpg'],
+    dates: '21-23 may', nights: 2,
+    arrival: '21 may (bus directo desde Granada por la A-7)', departure: '23 may (Euromed a Barcelona por la costa)', lodging: null,
+    leg: { mode: '🚌', time: '~6 h', detail: 'Bus ALSA directo Granada → Valencia por la costa (A-7, vía Alicante).', via: [[38.3452, -0.4810]] },
+    tempMax: '20-26', tempMin: '13-17', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Cambio de aire: del interior andaluz al Mediterráneo. Dos noches para la Ciudad de las Artes y las Ciencias de Calatrava, el casco viejo (Lonja + Mercado Central) y la primera tarde de playa del viaje. La paella se come acá — mejor aún en El Palmar, dentro del parque de la Albufera.',
+    activities: [
+      { text: 'Ciudad de las Artes y las Ciencias (Calatrava)', cat: 'monumentos', coords: [39.4548, -0.3535], url: 'https://www.google.com/maps/search/?api=1&query=Ciudad%20de%20las%20Artes%20y%20las%20Ciencias' },
+      { text: 'Oceanogràfic (el acuario más grande de Europa)', cat: 'ocio', coords: [39.4527, -0.3475], url: 'https://www.google.com/maps/search/?api=1&query=Oceanografic' },
+      { text: 'Lonja de la Seda (gótico civil, UNESCO)', cat: 'monumentos', coords: [39.4744, -0.3789], url: 'https://www.google.com/maps/search/?api=1&query=Lonja%20de%20la%20Seda' },
+      { text: 'Mercado Central (horchata + fartons)', cat: 'comida', coords: [39.4738, -0.3787], url: 'https://www.google.com/maps/search/?api=1&query=Mercado%20Central%20de%20Valencia' },
+      { text: 'Catedral + subida al Miguelete', cat: 'monumentos', coords: [39.4757, -0.3754], url: 'https://www.google.com/maps/search/?api=1&query=Catedral%20de%20Valencia' },
+      { text: 'Jardín del Turia en bici (el río convertido en parque)', cat: 'parques', coords: [39.4770, -0.3680], url: 'https://www.google.com/maps/search/?api=1&query=Jard%C3%ADn%20del%20Turia' },
+      { text: 'Playa de la Malvarrosa + paseo marítimo', cat: 'playas', coords: [39.4790, -0.3250], url: 'https://www.google.com/maps/search/?api=1&query=Playa%20de%20la%20Malvarrosa' },
+      { text: 'Barrio del Carmen (street art + cenas)', cat: 'barrios' },
+      { text: 'Paella valenciana de verdad (mejor al mediodía)', cat: 'comida' }
+    ],
+    daytrips: [
+      { id: 'albufera', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/El_Palmar_Barraca_2.jpg/500px-El_Palmar_Barraca_2.jpg', name: 'Albufera + El Palmar', coords: [39.3333, -0.3167], time: '~40 min en bus', desc: 'Paseo en barca por la laguna al atardecer y paella en El Palmar, el pueblo donde nació el plato.' }
+    ]
+  },
+  {
+    id: 'barcelona', n: 6, type: 'destino', name: 'Barcelona', short: 'Barcelona', flag: '🇪🇸',
+    coords: [41.3874, 2.1686],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/SF_maig_2026.jpg/500px-SF_maig_2026.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/SF_maig_2026.jpg/500px-SF_maig_2026.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/G%C3%BCell_BCN_edited.jpg/500px-G%C3%BCell_BCN_edited.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Catedral_de_Barcelona_%289248804702%29.jpg/500px-Catedral_de_Barcelona_%289248804702%29.jpg'],
+    dates: '23-27 may', nights: 4,
+    arrival: '23 may (Euromed desde Valencia, ~2 h 40 por la costa)', departure: '27 may (ferry rápido al puerto de Palma)', lodging: null,
+    leg: { mode: '🚆', time: '~2 h 40', detail: 'Euromed Valencia (Joaquín Sorolla) → Barcelona Sants, bordeando la costa.', via: [[39.9860, -0.0377], [41.1189, 1.2445]] },
+    tempMax: '18-24', tempMin: '12-17', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'El bloque más largo después de Madrid: 4 noches para Gaudí (Sagrada Familia y Park Güell con entrada reservada), el Gótico y el Born, Barceloneta en bici y un día de escapada — Montserrat o Girona, a menos de una hora. Vermut y bravas como religión local.',
+    activities: [
+      { text: 'Sagrada Familia (reservar franja horaria)', cat: 'monumentos', coords: [41.4036, 2.1744], url: 'https://www.google.com/maps/search/?api=1&query=Sagrada%20Familia' },
+      { text: 'Park Güell (mejor a primera hora)', cat: 'parques', coords: [41.4145, 2.1527], url: 'https://www.google.com/maps/search/?api=1&query=Park%20G%C3%BCell' },
+      { text: 'Casa Batlló + La Pedrera (Passeig de Gràcia)', cat: 'monumentos', coords: [41.3917, 2.1650], url: 'https://www.google.com/maps/search/?api=1&query=Casa%20Batll%C3%B3' },
+      { text: 'Barrio Gótico + catedral + plaça Sant Felip Neri', cat: 'barrios', coords: [41.3839, 2.1762], url: 'https://www.google.com/maps/search/?api=1&query=Barrio%20G%C3%B3tico%20Barcelona' },
+      { text: 'El Born + museo Picasso + Santa Maria del Mar', cat: 'museos', coords: [41.3851, 2.1810], url: 'https://www.google.com/maps/search/?api=1&query=Museu%20Picasso' },
+      { text: 'La Boqueria (ir con hambre)', cat: 'comida', coords: [41.3817, 2.1720], url: 'https://www.google.com/maps/search/?api=1&query=Mercat%20de%20la%20Boqueria' },
+      { text: 'Bunkers del Carmel al atardecer (la mejor vista de la ciudad)', cat: 'miradores', coords: [41.4194, 2.1615], url: 'https://www.google.com/maps/search/?api=1&query=Bunkers%20del%20Carmel' },
+      { text: 'Montjuïc: fundación Miró + teleférico + Font Màgica', cat: 'museos', coords: [41.3688, 2.1600], url: 'https://www.google.com/maps/search/?api=1&query=Fundaci%C3%B3%20Joan%20Mir%C3%B3' },
+      { text: 'Barceloneta en bici + chiringuito', cat: 'playas', coords: [41.3809, 2.1896], url: 'https://www.google.com/maps/search/?api=1&query=Playa%20de%20la%20Barceloneta' },
+      { text: 'Vermut y bravas en Gràcia', cat: 'comida' }
+    ],
+    daytrips: [
+      { id: 'montserrat', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Montserrat_Natural_Park_4.jpg/500px-Montserrat_Natural_Park_4.jpg', name: 'Montserrat', coords: [41.5931, 1.8385], time: '~1 h en FGC + cremallera', desc: 'Monasterio encajado en la montaña serrada, la Moreneta y caminatas con vistas al valle. Ir temprano.' },
+      { id: 'girona', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Girona_Cathedral_2020.jpg/500px-Girona_Cathedral_2020.jpg', name: 'Girona', coords: [41.9794, 2.8214], time: '38 min en AVE', desc: 'Casco medieval, casas de colores sobre el Onyar, judería y murallas caminables.' }
+    ]
+  },
+  {
+    id: 'palma', n: 7, type: 'destino', name: 'Palma de Mallorca', short: 'Palma', flag: '🇪🇸',
+    coords: [39.5696, 2.6502],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Kathedrale_von_Palma_II.jpg/500px-Kathedrale_von_Palma_II.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Kathedrale_von_Palma_II.jpg/500px-Kathedrale_von_Palma_II.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/FS_Train3_Soller.JPG/500px-FS_Train3_Soller.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/CapFormentor-pjt2.jpg/500px-CapFormentor-pjt2.jpg'],
+    dates: '27-30 may', nights: 3,
+    arrival: '27 may (ferry rápido desde Barcelona, llegada al puerto de Palma)', departure: '30 may (vuelo Palma → Madrid + conexión internacional)', lodging: null,
+    leg: { mode: '⛴️', time: '~7 h 30', detail: 'Ferry rápido Baleària Barcelona → Palma (travesía diurna, salida matinal del puerto).' },
+    departureLeg: { mode: '✈️', time: '~1 h 10 + conexión', detail: 'Regreso: vuelo Palma (PMI) → Madrid-Barajas + conexión internacional.', segments: [
+      { route: 'PMI → MAD', no: 'vuelo directo', when: '30 may por la mañana', aircraft: '~1 h 10' },
+      { layover: 'conexión en Madrid-Barajas (T4)' },
+      { route: 'MAD → casa', no: 'conexión', when: '30 may', aircraft: 'vuelo internacional de regreso' }
+    ] },
+    tempMax: '20-26', tempMin: '12-16', weatherUpdated: null, weatherMode: 'climatología may',
+    intro: 'Cierre isleño: 3 noches en Palma para bajar revoluciones antes del vuelo de vuelta. La Seu dorada al atardecer, el casco antiguo de patios señoriales, el tren de madera a Sóller por la sierra de Tramuntana y una cala turquesa para despedirse. Se vuela de regreso desde el aeropuerto de Palma.',
+    activities: [
+      { text: 'Catedral de Palma (La Seu) al atardecer, desde el Parc de la Mar', cat: 'monumentos', coords: [39.5673, 2.6480], url: 'https://www.google.com/maps/search/?api=1&query=Catedral%20de%20Palma' },
+      { text: 'Castillo de Bellver (circular, con vista a la bahía)', cat: 'miradores', coords: [39.5636, 2.6194], url: 'https://www.google.com/maps/search/?api=1&query=Castillo%20de%20Bellver' },
+      { text: 'Casco antiguo: patios de Can Oleza y Can Vivot, Lonja', cat: 'barrios', coords: [39.5687, 2.6459], url: 'https://www.google.com/maps/search/?api=1&query=La%20Lonja%20de%20Palma' },
+      { text: 'Cap de Formentor (mirador Es Colomer, en auto o excursión)', cat: 'miradores', coords: [39.9631, 3.2124], url: 'https://www.google.com/maps/search/?api=1&query=Cap%20de%20Formentor' },
+      { text: 'Playa de Illetes o Cala Major (a 20 min del centro)', cat: 'playas', coords: [39.5397, 2.5934], url: 'https://www.google.com/maps/search/?api=1&query=Playa%20de%20Illetes' },
+      { text: 'Ensaimada de Can Joan de S\'Aigo + sobrasada', cat: 'comida', coords: [39.5714, 2.6497], url: 'https://www.google.com/maps/search/?api=1&query=Can%20Joan%20de%20S%27Aigo' },
+      { text: 'Paseo Marítimo al caer el sol', cat: 'barrios' }
+    ],
+    daytrips: [
+      { id: 'soller', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Soller_Cathedral.JPG/500px-Soller_Cathedral.JPG', name: 'Sóller + Port de Sóller', coords: [39.7660, 2.7148], time: '~1 h en el tren histórico', desc: 'El tren de madera de 1912 cruza la Tramuntana entre naranjales; tranvía hasta el puerto y baño en la bahía.' },
+      { id: 'valldemossa', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Valdemosa%2C_en_Baleares_%28Espa%C3%B1a%29.jpg/500px-Valdemosa%2C_en_Baleares_%28Espa%C3%B1a%29.jpg', name: 'Valldemossa', coords: [39.7096, 2.6222], time: '~30 min en bus', desc: 'Pueblo de piedra en la sierra, la cartuja de Chopin y George Sand, y coca de patata con café helado.' }
+    ]
+  }
+];
+
+// Sin lugares sueltos en este demo.
+const orphanPlaces = [];
+
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([40.0, -2.5], 6);
+
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+const routeCoords = destinations.map(d => d.coords);
+
+// Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
+// se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
+const MODE_STYLE = {
+  air:   { color: '#2563EB', dash: '1, 7',         label: 'Vuelo', icon: '✈️', weight: 2 },  // azul, punteado fino
+  train: { color: '#0F8A5F', dash: null,           label: 'Tren',  icon: '🚆', weight: 4 },  // verde, sólido grueso
+  bus:   { color: '#E08A1E', dash: '11, 8',        label: 'Bus',   icon: '🚌', weight: 3 },  // naranja, guion largo
+  ferry: { color: '#15A6C9', dash: '2, 6, 10, 6',  label: 'Ferry', icon: '⛴️', weight: 3 },  // cyan, guion-punto
+};
+function legType(leg) {
+  const m = (leg && leg.mode) || '';
+  if (m.indexOf('✈️') !== -1) return 'air';
+  if (m.indexOf('⛴️') !== -1) return 'ferry';
+  if (m.indexOf('🚄') !== -1 || m.indexOf('🚆') !== -1) return 'train';
+  if (m.indexOf('🚌') !== -1) return 'bus';
+  return 'train';
+}
+// Sub-detalle de un tramo (segmentos: vuelos/tramos con nº, horarios, avión, tracker).
+function legSegsHtml(leg) {
+  if (!leg || !leg.segments || !leg.segments.length) return '';
+  return '<div class="leg-segs">' + leg.segments.map(s => {
+    if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
+    return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="seg-route">' + s.route + (s.no ? ' <span class="seg-no">' + s.no + '</span>' : '') + '</span>' +
+      '<span class="seg-time">' + (s.when || '') + (s.aircraft ? '<br>' + s.aircraft : '') + '</span>' +
+    '</a>';
+  }).join('') + '</div>';
+}
+
+// Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
+// con color/trazo según el modo. Cada segmento es clickeable (→ resalta el tramo
+// en el panel) y queda referenciado por id del nodo destino para el link inverso.
+const legSegments = {};
+const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
+const flightLayer = L.layerGroup().addTo(map);  // vuelos
+function styleFor(mode) {
+  const st = MODE_STYLE[mode];
+  return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
+  // dibuja con su modo (así los buses aparecen y los vuelos sólo en la parte aérea).
+  // Si no, una sola línea del modo primario (con waypoints `via` si los hay).
+  let subsegs;
+  if (b.leg && b.leg.path) {
+    let from = a.coords;
+    subsegs = b.leg.path.map(step => { const seg = { pts: [from, step.to], mode: step.m }; from = step.to; return seg; });
+  } else {
+    const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
+    subsegs = [{ pts: pts, mode: legType(b.leg) }];
+  }
+  const pls = subsegs.map(seg => {
+    const base = styleFor(seg.mode);
+    const pl = L.polyline(seg.pts, base).addTo(seg.mode === 'air' ? flightLayer : routeLayer);
+    pl.on('click', () => { focusTrip(b.id); highlightSegment(b.id); });  // mapa → panel
+    return { pl: pl, base: base };
+  });
+  legSegments[b.id] = pls;
+}
+
+// Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
+// de transporte del panel y por focusTrip. Resalta TODOS los sub-tramos del leg.
+function highlightSegment(id) {
+  const arr = legSegments[id];
+  if (!arr || !arr.length) return;
+  const bounds = L.latLngBounds([]);
+  arr.forEach(s => {
+    s.pl.setStyle({ color: '#D85A30', weight: 6, opacity: 1, dashArray: null });
+    s.pl.bringToFront();
+    bounds.extend(s.pl.getBounds());
+  });
+  try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
+  setTimeout(() => arr.forEach(s => s.pl.setStyle(s.base)), 1800);
+}
+
+// Aeropuertos usados en el viaje (markers ✈).
+const airports = [
+  { code: 'MAD', name: 'Madrid-Barajas', coords: [40.4983, -3.5676] },
+  { code: 'PMI', name: 'Palma de Mallorca', coords: [39.5517, 2.7388] }
+];
+// Aeropuertos en la MISMA capa que las líneas de vuelo (toggle "Vuelos" agrupa ambos).
+airports.forEach(ap => {
+  const icon = L.divIcon({ html: '<div class="airport-marker">✈</div>', className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
+  L.marker(ap.coords, { icon }).addTo(flightLayer)
+    .bindPopup('<div class="popup-title">✈ ' + ap.name + ' (' + ap.code + ')</div>');
+});
+
+// Vuelo de regreso Palma → Madrid graficado (en flightLayer). No entra al fitBounds.
+const _MAD = [40.4983, -3.5676], _PMI = [39.5517, 2.7388];
+const _intlStyle = { color: MODE_STYLE.air.color, weight: 2, opacity: 0.6, dashArray: '1, 7' };
+L.polyline([destinations[destinations.length - 1].coords, _PMI, _MAD], _intlStyle).addTo(flightLayer)
+  .bindPopup('<div class="popup-title">✈ Regreso · Palma → Madrid (30 may)</div>');
+
+// Leyenda de modos de transporte (colores de las líneas).
+const routeLegend = L.control({ position: 'topright' });
+routeLegend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'route-legend');
+  div.innerHTML = ['air', 'train', 'bus', 'ferry'].map(k => {
+    const s = MODE_STYLE[k];
+    return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
+  }).join('');
+  return div;
+};
+routeLegend.addTo(map);
+
+// Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
+function gmapsFromName(name) {
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+}
+// Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
+function lodgingHtml(L) {
+  if (!L) return '';
+  const sub = [L.type, L.guests].filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
+  // Links explícitos: Airbnb (si url es de airbnb) y/o Google Maps (url de maps o mapsUrl de la dirección).
+  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(/airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps'));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  const inner =
+    (L.img ? '<img class="lodging-img" src="' + L.img + '" loading="lazy" alt="">' : '') +
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
+      (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
+      (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
+      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
+      '<div class="lodging-meta">' + meta + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div><div class="lodging-card">' + inner + '</div>';
+}
+
+// Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
+function lodgingPopupHtml(L) {
+  const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
+  let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
+  if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
+  if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
+  return h;
+}
+
+function miniPopup(img, title, sub, mapsUrl) {
+  return '<div class="mini-pop">' +
+    (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
+    '<div class="popup-title">' + title + '</div>' +
+    (sub ? '<div class="popup-dates">' + sub + '</div>' : '') +
+    (mapsUrl ? '<a class="mini-pop-maps" href="' + mapsUrl + '" target="_blank" rel="noopener">Ver en Google Maps →</a>' : '') +
+  '</div>';
+}
+
+const markers = {};
+const destLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const isFullday = d.type === 'fullday';
+  const icon = isFullday
+    ? L.divIcon({
+        html: '<div class="marker-diamond-wrap"><div class="marker-diamond" data-id="' + d.id + '"><span>' + d.n + '</span></div></div>',
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17],
+      })
+    : L.divIcon({
+        html: '<div class="marker-num" data-id="' + d.id + '">' + d.n + '</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+  const marker = L.marker(d.coords, { icon }).addTo(destLayer);
+  const datesLine = isFullday
+    ? d.dates + ' · pasar el día'
+    : d.dates + ' · ' + d.nights + ' noches';
+  marker.bindPopup(
+    miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+  );
+  markers[d.id] = marker;
+});
+
+const dtMarkers = {};
+const dtLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  d.daytrips.forEach(dt => {
+    const icon = L.divIcon({
+      html: '<div class="marker-dot" data-id="' + dt.id + '"></div>',
+      className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+    });
+    const marker = L.marker(dt.coords, { icon }).addTo(dtLayer);
+    marker.bindPopup(
+      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time, dt.url || gmapsFromName(dt.name))
+    );
+    dtMarkers[dt.id] = marker;
+  });
+});
+
+// LUGARES GUARDADOS (Google Maps) — puntitos sutiles dentro de cada destino,
+// y pins distintos (anillo naranja) para los orphans que no caen en ningún destino.
+function placePopup(p, sub) {
+  return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
+}
+
+// Categorías de "Qué hacer" (etiqueta + orden de despliegue).
+const CAT_LABELS = {
+  comida: '🥘 Comida y tapas', monumentos: '🏰 Monumentos', museos: '🏛️ Museos y arte',
+  parques: '🌳 Parques y jardines', barrios: '🏘️ Barrios y paseos', compras: '🛍️ Compras y mercados',
+  miradores: '🌅 Miradores', playas: '🏖️ Playas', ocio: '🎭 Ocio y flamenco', otros: '✨ Otros'
+};
+const CAT_ORDER = ['monumentos','museos','parques','miradores','barrios','playas','comida','compras','ocio','otros'];
+
+// Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
+// vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
+const actMarkers = {};
+const savedPlaceLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  (d.activities || []).forEach((a, i) => {
+    if (!a.coords) return;
+    const m = L.circleMarker(a.coords, {
+      radius: 4, color: '#9C3D1F', weight: 1.5, opacity: 0.95,
+      fillColor: '#C4552F', fillOpacity: 0.85,
+    }).addTo(savedPlaceLayer);
+    m.bindPopup(
+      miniPopup(a.img, a.text, d.short + ' · ' + (CAT_LABELS[a.cat] || a.cat), a.url || gmapsFromName(a.text))
+    );
+    actMarkers[d.id + ':' + i] = m;
+  });
+});
+
+// Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+const lodgingLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const lodg = d.lodging;
+  if (!lodg || !lodg.coords) return;
+  const icon = L.divIcon({
+    html: '<div class="lodging-marker">🛏️</div>',
+    className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+  });
+  L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+    '<div class="mini-pop">' +
+      (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+      '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+      '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+        (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+      (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+    '</div>'
+  );
+});
+
+const orphanPlaceLayer = L.layerGroup().addTo(map);
+orphanPlaces.forEach(p => {
+  if (p.lat == null || p.lon == null) return;
+  L.circleMarker([p.lat, p.lon], {
+    radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
+    fillColor: '#fbbf77', fillOpacity: 0.6,
+  }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+});
+
+const placeCoords = destinations
+  .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
+  .concat(orphanPlaces.filter(p => p.lat != null).map(p => [p.lat, p.lon]));
+const allCoords = routeCoords
+  .concat(destinations.flatMap(d => d.daytrips.map(dt => dt.coords)))
+  .concat(destinations.filter(d => d.lodging && d.lodging.coords).map(d => d.lodging.coords))
+  .concat(placeCoords);
+map.fitBounds(L.latLngBounds(allCoords), { padding: [40, 40] });
+
+const detailsList = document.getElementById('details-list');
+const cards = {};
+const legRows = {};   // id -> la fila de transporte que precede a esa card
+const galleries = {}; // id -> array de URLs de fotos (para el lightbox)
+
+destinations.forEach((d, idx) => {
+  const isFullday = d.type === 'fullday';
+  const card = document.createElement('article');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '');
+  card.dataset.id = d.id;
+
+  const dtHtml = d.daytrips.length > 0
+    ? '<div class="card-section-title">Day trips</div>' +
+      d.daytrips.map(dt =>
+        '<div class="dt-row" data-dt-id="' + dt.id + '">' +
+          '<div class="dt-row-header">' +
+            '<span class="dt-row-name">' + dt.name + '</span>' +
+            '<span class="dt-row-time">' + dt.time + '</span>' +
+          '</div>' +
+          '<div class="dt-row-desc">' + dt.desc + '</div>' +
+        '</div>'
+      ).join('')
+    : '';
+
+  const numHtml = isFullday
+    ? '<div class="card-num fullday"><span>' + d.n + '</span></div>'
+    : '<div class="card-num">' + d.n + '</div>';
+  const flagCC = { '🇪🇸': 'es' };
+  const flagImgHtml = (d.flag && flagCC[d.flag])
+    ? '<img class="dest-flag" src="https://flagcdn.com/' + flagCC[d.flag] + '.svg" alt="' + d.flag + '">'
+    : '';
+  const titleHtml = isFullday
+    ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
+    : '<h2>' + d.name + '</h2>';
+  const metaHtml = isFullday
+    ? '<div class="card-meta">' + d.dates + ' · pasar el día</div>'
+    : '<div class="card-meta">' + d.dates + ' · ' + d.nights + ' noches</div>';
+
+  // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
+  if (d.leg) {
+    const legRow = document.createElement('div');
+    legRow.className = 'leg-row';
+    const prev = destinations[idx - 1];
+    // dirUrl explícito (vuelo→Google Flights, bus privado→japanbusonline, etc.);
+    // si no, Google Maps directions en transporte público entre los dos nodos.
+    const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] +
+        '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+      : '');
+    const dirLink = dirHref
+      ? '<a class="leg-dir" target="_blank" rel="noopener" href="' + dirHref + '">' +
+        (d.leg.dirLabel || 'cómo llegar ↗') + '</a>'
+      : '';
+    const t = legType(d.leg);
+    const lt = MODE_STYLE[t];
+    const isAir = t === 'air';
+    const bodyHtml = legSegsHtml(d.leg) + (dirLink ? '<div class="leg-actions">' + dirLink + '</div>' : '');
+    // Los vuelos arrancan expandidos (más espaciosos, como una tarjeta); el resto colapsado.
+    legRow.className = 'leg-row leg-' + t + (isAir ? ' open' : '');
+    legRow.innerHTML =
+      '<div class="leg-head">' +
+        '<span class="leg-mode">' + d.leg.mode + '</span>' +
+        '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+        '<span class="leg-text"><strong>' + d.leg.time + '</strong> · ' + d.leg.detail + '</span>' +
+        '<button type="button" class="leg-ficha" title="Ver ficha del tramo" aria-label="Ver ficha del tramo">⤢</button>' +
+        (bodyHtml ? '<span class="leg-chevron">▸</span>' : '') +
+      '</div>' +
+      (bodyHtml ? '<div class="leg-body">' + bodyHtml + '</div>' : '');
+    // Click en el header → expande/colapsa + resalta el tramo en el mapa (panel → mapa).
+    legRow.querySelector('.leg-head').addEventListener('click', (e) => {
+      if (e.target.closest('.leg-dir') || e.target.closest('.leg-seg') || e.target.closest('.leg-ficha')) return;
+      legRow.classList.toggle('open');
+      highlightSegment(d.id);
+    });
+    legRow.querySelector('.leg-ficha').addEventListener('click', (e) => { e.stopPropagation(); openLegModal(d.id); });
+    detailsList.appendChild(legRow);
+    legRows[d.id] = legRow;
+  }
+
+  const tempsHtml =
+    '<div class="detail-temps">' +
+      '<div class="temp-pill temp-min"><span class="temp-label">Mín</span><span class="temp-value">' + d.tempMin + '°</span></div>' +
+      '<div class="temp-pill temp-max"><span class="temp-label">Máx</span><span class="temp-value">' + d.tempMax + '°</span></div>' +
+      '<span class="temp-note">' + d.weatherMode + '</span>' +
+    '</div>';
+
+  const thumbHtml = d.img ? '<img class="itin-thumb" src="' + d.img + '" loading="lazy" alt="">' : '';
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  galleries[d.id] = gal;
+  const galleryHtml = gal.length
+    ? '<div class="detail-gallery">' + gal.map((u, gi) =>
+        '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
+
+  card.innerHTML =
+    '<div class="itin-head">' +
+      numHtml +
+      thumbHtml +
+      '<div class="card-title-wrap">' +
+        titleHtml +
+        metaHtml +
+      '</div>' +
+      flagImgHtml +
+      '<span class="itin-caret">▸</span>' +
+    '</div>' +
+    '<div class="card-detail">' +
+      galleryHtml +
+      '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
+      tempsHtml +
+      '<p class="card-intro">' + d.intro + '</p>' +
+      lodgingHtml(d.lodging) +
+      (d.activities.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="qh-body open">' +
+            CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+              '<div class="cat-group">' +
+                '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
+                '<ul class="card-list">' +
+                  d.activities.map((a, i) => [a, i]).filter(([a]) => a.cat === c).map(([a, i]) =>
+                    a.coords
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + a.text + '</li>'
+                  ).join('') +
+                '</ul>' +
+              '</div>'
+            ).join('') +
+          '</div>'
+        : '') +
+      dtHtml +
+    '</div>';
+  detailsList.appendChild(card);
+  cards[d.id] = card;
+
+  card.addEventListener('mouseenter', () => { highlightMarker(d.id); });
+  card.addEventListener('mouseleave', () => { unhighlightMarker(d.id); });
+
+  card.querySelector('.itin-head').addEventListener('click', () => {
+    const open = card.classList.toggle('open');
+    if (open) { markers[d.id].openPopup(); map.flyTo(d.coords, 8, { duration: 0.8 }); }
+  });
+
+  card.querySelector('.ficha-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openStopModal(d.id);
+  });
+
+  const qhToggle = card.querySelector('.qh-toggle');
+  if (qhToggle) {
+    qhToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const body = card.querySelector('.qh-body');
+      const open = body.classList.toggle('open');
+      qhToggle.classList.toggle('open', open);
+    });
+  }
+
+  card.querySelectorAll('.act-row').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const m = actMarkers[btn.dataset.act];
+      if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+    });
+  });
+
+  card.querySelectorAll('.dt-row').forEach(row => {
+    const dtId = row.dataset.dtId;
+    row.addEventListener('mouseenter', (e) => { e.stopPropagation(); highlightDaytrip(dtId); });
+    row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dtMarkers[dtId].openPopup();
+      const dt = d.daytrips.find(x => x.id === dtId);
+      map.flyTo(dt.coords, 9, { duration: 0.8 });
+    });
+  });
+});
+
+// Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
+const _lastDep = destinations[destinations.length - 1].departureLeg;
+if (_lastDep) {
+  const lt = MODE_STYLE[legType(_lastDep)];
+  const depRow = document.createElement('div');
+  depRow.className = 'leg-row leg-' + legType(_lastDep) + ' open';
+  depRow.innerHTML =
+    '<div class="leg-head">' +
+      '<span class="leg-mode">' + _lastDep.mode + '</span>' +
+      '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+      '<span class="leg-text"><strong>' + _lastDep.time + '</strong> · ' + _lastDep.detail + '</span>' +
+      '<span class="leg-chevron">▸</span>' +
+    '</div>' +
+    '<div class="leg-body">' + legSegsHtml(_lastDep) + '</div>';
+  depRow.querySelector('.leg-head').addEventListener('click', () => depRow.classList.toggle('open'));
+  detailsList.appendChild(depRow);
+}
+
+// Lugares guardados que no caen en ningún destino: tarjeta propia al final de la lista.
+if (orphanPlaces.length > 0) {
+  const oc = document.createElement('article');
+  oc.className = 'orphan-card';
+  oc.innerHTML =
+    '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa aparecen con anillo naranja.</p>' +
+    '<div class="orphan-list">' +
+      orphanPlaces.map(p =>
+        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
+      ).join('') +
+    '</div>';
+  detailsList.appendChild(oc);
+  oc.querySelectorAll('.saved-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const p = orphanPlaces.find(x => x.name === chip.textContent);
+      if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+    });
+  });
+}
+
+function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+
+// Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
+// "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
+// Ancla al top del bloque para que la carga de imágenes de abajo no descoloque el scroll.
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+// --- Deep-linking: ?stop=<id> abre y enfoca una parada (para compartir una vista). ---
+function shareUrl(kind, id) {
+  return location.origin + location.pathname + '?' + kind + '=' + encodeURIComponent(id);
+}
+function setView(kind, id) {  // kind: 'stop' | 'leg' | null
+  const u = new URL(location.href);
+  u.searchParams.delete('stop'); u.searchParams.delete('leg');
+  if (kind && id) u.searchParams.set(kind, id);
+  history.replaceState(null, '', u);
+}
+function hasViewParam() {
+  const s = new URLSearchParams(location.search);
+  return s.get('stop') || s.get('leg');
+}
+// --- Ficha individual por parada (modal): info condensada + mini-mapa con sus pines/rutas. ---
+let _smMap = null, _smLayer = null;
+function ensureStopModal() {
+  let el = document.getElementById('stop-modal');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stop-modal';
+  el.className = 'stop-modal';
+  el.hidden = true;
+  el.innerHTML =
+    '<div class="sm-backdrop"></div>' +
+    '<div class="sm-dialog" role="dialog" aria-modal="true">' +
+      '<div class="sm-topbar">' +
+        '<button type="button" class="sm-share" title="Copiar link a esta parada">🔗 Copiar link</button>' +
+        '<button type="button" class="sm-close" aria-label="Cerrar">×</button>' +
+      '</div>' +
+      '<div class="sm-content"></div>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('.sm-backdrop').addEventListener('click', closeStopModal);
+  el.querySelector('.sm-close').addEventListener('click', closeStopModal);
+  return el;
+}
+function closeStopModal() {
+  const el = document.getElementById('stop-modal');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.classList.remove('sm-open');
+  if (hasViewParam()) setView(null);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+
+function smBodyHtml(d) {
+  const cc = { '🇪🇸': 'es' };
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
+  const meta = d.type === 'fullday' ? (d.dates + ' · pasar el día') : (d.dates + ' · ' + d.nights + ' noches');
+  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
+  const acts = (d.activities && d.activities.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
+        CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+          '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
+            d.activities.filter(a => a.cat === c).map(a =>
+              a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
+                    : '<li class="act-row-plain">' + a.text + '</li>'
+            ).join('') +
+          '</ul></div>'
+        ).join('') +
+      '</div>'
+    : '';
+  const dts = (d.daytrips && d.daytrips.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
+        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+      '</ul></div>'
+    : '';
+  return (
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
+    hero +
+    '<div id="sm-map" class="sm-map"></div>' +
+    (d.intro ? '<p class="sm-intro">' + d.intro + '</p>' : '') +
+    lodgingHtml(d.lodging) + leg + acts + dts
+  );
+}
+function buildStopMiniMap(d, idx) {
+  const c = document.getElementById('sm-map');
+  if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const pts = [];
+  if (idx > 0 && d.leg) {  // tramo de llegada, por modo real
+    const a = destinations[idx - 1];
+    let subsegs;
+    if (d.leg.path) { let from = a.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+  }
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  pts.push(d.coords);
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  if (d.lodging && d.lodging.coords) { L.marker(d.lodging.coords, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging)); pts.push(d.lodging.coords); }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
+}
+function _wireShare(el, kind, id) {
+  const sb = el.querySelector('.sm-share');
+  sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link';
+  sb.onclick = () => {
+    const link = shareUrl(kind, id);
+    const done = () => { sb.classList.add('copied'); sb.innerHTML = '✓ Link copiado'; setTimeout(() => { sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link'; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(() => prompt('Copiá el link:', link));
+    else prompt('Copiá el link:', link);
+  };
+}
+function _showModal(el) { el.hidden = false; document.body.classList.add('sm-open'); el.querySelector('.sm-dialog').scrollTop = 0; }
+
+function openStopModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = smBodyHtml(d);
+  _wireShare(el, 'stop', d.id);
+  _showModal(el);
+  setView('stop', id);
+  buildStopMiniMap(d, idx);
+}
+
+// Ficha de un TRAMO de transporte: modo, duración, segmentos + mini-mapa de la ruta real.
+function legBodyHtml(d, idx) {
+  const prev = idx > 0 ? destinations[idx - 1] : null;
+  const t = legType(d.leg), lt = MODE_STYLE[t];
+  const origin = prev ? prev.short : 'Llegada';
+  const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] + '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+    : '');
+  const dir = dirHref ? '<a class="sm-act" href="' + dirHref + '" target="_blank" rel="noopener">' + (d.leg.dirLabel || 'Cómo llegar en Maps ↗') + '</a>' : '';
+  return (
+    '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
+      '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + ' · llega ' + segStartDate(d.dates) + '</div></div></div>' +
+    '<div id="sm-map" class="sm-map"></div>' +
+    '<p class="sm-intro">' + d.leg.detail + '</p>' +
+    (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
+    (dir ? '<div class="sm-sec">' + dir + '</div>' : '')
+  );
+}
+function buildLegMiniMap(d, idx) {
+  const c = document.getElementById('sm-map'); if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const prev = idx > 0 ? destinations[idx - 1] : null, pts = [];
+  if (prev) {
+    let subsegs;
+    if (d.leg.path) { let from = prev.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [prev.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+    [prev, d].forEach(node => { L.marker(node.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + node.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(node.short); pts.push(node.coords); });
+  } else {
+    L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(d.short); pts.push(d.coords);
+  }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 11 }); } catch (e) { _smMap.setView(d.coords, 8); } }, 60);
+}
+function openLegModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0 || !destinations[idx].leg) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = legBodyHtml(d, idx);
+  _wireShare(el, 'leg', d.id);
+  _showModal(el);
+  setView('leg', id);
+  buildLegMiniMap(d, idx);
+}
+function focusTrip(id) {
+  const card = cards[id];
+  if (!card) return;
+  card.classList.add('open');
+  if (legRows[id]) legRows[id].classList.add('open');  // expandir el módulo de transporte
+  const anchor = legRows[id] || card;
+  setTimeout(() => {
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(legRows[id]); flash(card);
+  }, 70);
+}
+
+Object.entries(markers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => { highlightMarker(id); if (cards[id]) cards[id].classList.add('active'); });
+  marker.on('mouseout', () => { unhighlightMarker(id); if (cards[id]) cards[id].classList.remove('active'); });
+  marker.on('click', () => focusTrip(id));
+});
+Object.entries(dtMarkers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => highlightDaytrip(id));
+  marker.on('mouseout', () => unhighlightDaytrip(id));
+});
+
+// Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
+// tramo (= fecha de inicio del nodo de destino). Click → abre la card del destino,
+// donde la fila de transporte (leg) está justo arriba.
+function segStartDate(s) {
+  const day = s.match(/^\s*(\d{1,2})/);
+  const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
+  return day && mon ? day[1] + ' ' + mon[1] : s;
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  const mid = [(a.coords[0] + b.coords[0]) / 2, (a.coords[1] + b.coords[1]) / 2];
+  const segIcon = L.divIcon({
+    html: '<div class="seg-date">' + segStartDate(b.dates) + '</div>',
+    className: '', iconSize: [40, 16], iconAnchor: [20, 8],
+  });
+  L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
+    .on('click', () => focusTrip(b.id));
+}
+
+// Toggles de capas — directos en el mapa (expandidos), ocultar/mostrar cada tipo.
+// Barra de toggles propia (abajo, pills). "Lugares" unifica actividades + day trips + guardados.
+const TOGGLES = [
+  { label: 'Destinos',   icon: '📍', layers: [destLayer] },
+  { label: 'Transporte', icon: '🚆', layers: [routeLayer] },
+  { label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
+  { label: 'Lugares',    icon: '⭐', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+];
+const togglesBar = document.createElement('div');
+togglesBar.className = 'map-toggles';
+TOGGLES.forEach(t => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mt active';
+  btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+  btn.addEventListener('click', () => {
+    const on = btn.classList.toggle('active');
+    t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  });
+  togglesBar.appendChild(btn);
+});
+map.getContainer().appendChild(togglesBar);
+L.DomEvent.disableClickPropagation(togglesBar);
+L.DomEvent.disableScrollPropagation(togglesBar);
+
+// Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
+(function () {
+  const s = new URLSearchParams(location.search);
+  const stop = s.get('stop'), leg = s.get('leg');
+  if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
+  else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
+})();
+
+// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+(function () {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lb-btn lb-close">×</span><span class="lb-btn lb-prev">‹</span>' +
+    '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img');
+  let cur = [], idx = 0;
+  const show = () => { img.src = cur[idx]; };
+  const close = () => { lb.classList.remove('open'); img.src = ''; };
+  const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
+  detailsList.addEventListener('click', (e) => {
+    const t = e.target.closest('.gallery-thumb');
+    if (!t) return;
+    e.stopPropagation();
+    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
+    show(); lb.classList.add('open');
+  });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+
+// CHART
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const avg = (range) => { const [lo, hi] = range.split('-').map(Number); return Math.round((lo + hi) / 2); };
+
+const weatherChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: destinations.map(d => d.short),
+    datasets: [
+      { label: 'Máx', data: destinations.map(d => avg(d.tempMax)), borderColor: '#D85A30', backgroundColor: 'rgba(216, 90, 48, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D85A30', borderWidth: 2, fill: '+1' },
+      { label: 'Mín', data: destinations.map(d => avg(d.tempMin)), borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#2563EB', borderWidth: 2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
+        callbacks: {
+          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + ' · ' + d.dates; },
+          label: (item) => { const d = destinations[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        const d = destinations[idx];
+        focusTrip(d.id);
+        map.flyTo(d.coords, 7, { duration: 0.8 });
+      }
+    },
+    onHover: (event, elements) => { event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default'; },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 8, suggestedMax: 34, ticks: { callback: (v) => v + '°', font: { size: 10 }, color: 'rgba(0,0,0,0.5)', padding: 4 }, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+      x: { ticks: { font: { size: 9 }, color: 'rgba(0,0,0,0.55)', maxRotation: 35, minRotation: 35, autoSkip: false }, grid: { display: false, drawBorder: false } }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Panel de temperatura colapsado por default; resize del chart al abrir (Chart.js
+// no dimensiona bien si el contenedor estaba display:none).
+(function () {
+  const tgl = document.getElementById('chart-toggle');
+  const wrap = document.getElementById('chart-wrap');
+  if (tgl && wrap) {
+    tgl.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      tgl.classList.toggle('open', open);
+      if (open) setTimeout(() => weatherChart.resize(), 30);
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japón + Corea · oct-nov 2026</title>
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="favicon-64.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  .site-header {
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; }
+  .header-title h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .header-title .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+  .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
+  .header-stats strong { color: #1a1a1a; font-weight: 600; }
+
+  main.dashboard {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; position: relative; }
+  .map-toggles { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 92%; }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-toggles .mt.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .map-toggles .mt:not(.active) { opacity: 0.92; }
+  .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+
+  .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+
+  .chart-section {
+    background: white;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; width: 100%; background: none; border: none; padding: 2px 0; cursor: pointer; }
+  .chart-header .qh-caret { transition: transform 0.15s; }
+  .chart-header.open .qh-caret { transform: rotate(90deg); }
+  .chart-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .chart-wrap { height: 200px; position: relative; display: none; }
+  .chart-wrap.open { display: block; }
+  .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .mini-pop { min-width: 150px; max-width: 210px; }
+  .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
+  .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
+  .mini-pop-maps:hover { color: #1D9E75; }
+
+  .details-section { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .details-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 4px 4px 10px; }
+
+  .flight-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .flight-card strong { color: #1a1a1a; font-weight: 600; }
+  .flight-card .flight-row { display: flex; justify-content: space-between; gap: 8px; }
+  .flight-card .flight-row + .flight-row { margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); }
+  .flight-card .flight-leg-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin: 0 0 6px; }
+  .flight-card .flight-leg-title + .flight-leg-title { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .flight-card a.flight-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 6px; margin: 0 -6px; border-radius: 6px; transition: background 0.12s; }
+  .flight-card a.flight-seg:hover { background: rgba(15, 110, 86, 0.07); }
+  .flight-card a.flight-seg .seg-route { color: #1a1a1a; font-weight: 600; }
+  .flight-card a.flight-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .flight-card a.flight-seg .seg-time { color: #666; font-size: 10px; text-align: right; }
+  .flight-card .flight-dir { border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: rgba(15,110,86,0.02); }
+  .flight-card .flight-dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .flight-card .flight-dir-label { font-size: 11px; font-weight: 700; color: #0F6E56; }
+  .flight-card .flight-dir-meta { font-size: 9px; color: #999; white-space: nowrap; }
+  .flight-card .seg-conn { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #b0b0b0; margin: 2px 0; }
+  .flight-card .seg-conn::before, .flight-card .seg-conn::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+  .flight-card .flight-note { font-size: 10px; color: #888; margin-top: 8px; line-height: 1.4; }
+
+  .dest-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dest-card:hover { border-color: rgba(15, 110, 86, 0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.active { border-color: #0F6E56; box-shadow: 0 2px 12px rgba(15, 110, 86, 0.15); }
+  .card-header { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .card-num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex-shrink: 0; }
+  .card-num.fullday { border-radius: 5px; background: #F0B84A; border-color: #B87814; color: #5A3A00; transform: rotate(45deg); }
+  .card-num.fullday span { transform: rotate(-45deg); display: block; }
+  .dest-card.fullday { border-style: dashed; border-color: rgba(184, 120, 20, 0.4); }
+  .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
+  .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
+  .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: #666; }
+  .card-temps { display: flex; gap: 6px; flex-shrink: 0; }
+  .temp-pill { display: flex; flex-direction: column; align-items: center; padding: 3px 8px; border-radius: 6px; min-width: 48px; font-size: 9px; line-height: 1.2; }
+  .temp-max { background: rgba(216, 90, 48, 0.12); color: #993C1D; }
+  .temp-min { background: rgba(29, 158, 117, 0.12); color: #0F6E56; }
+  .temp-label { font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .temp-value { font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+  .card-intro { font-size: 12px; color: #555; line-height: 1.5; margin: 0 0 10px; }
+  .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
+  .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
+  .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
+  .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
+  .leg-row:hover { background: rgba(0,0,0,0.03); }
+  .leg-head { display: flex; align-items: center; gap: 7px; }
+  .leg-air { border-left-color: #2563EB; } .leg-ferry { border-left-color: #15A6C9; }
+  .leg-train { border-left-color: #0F8A5F; } .leg-bus { border-left-color: #E08A1E; }
+  .leg-mode { font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .leg-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .leg-text { flex: 1; }
+  .leg-chevron { margin-left: auto; font-size: 10px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .leg-row.open .leg-chevron { transform: rotate(90deg); }
+  .leg-body { display: none; }
+  .leg-row.open .leg-body { display: block; }
+  .leg-actions { margin: 6px 0 1px 22px; }
+  .leg-segs { margin: 7px 0 2px 22px; padding: 6px 8px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 7px; }
+  .leg-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 5px 6px; margin: 0 -2px; border-radius: 5px; transition: background 0.12s; }
+  .leg-seg:hover { background: rgba(15,110,86,0.08); }
+  .leg-seg .seg-route { color: #1a1a1a; font-weight: 600; font-size: 12px; }
+  .leg-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .leg-seg .seg-time { color: #777; font-size: 10px; text-align: right; line-height: 1.5; }
+  .leg-layover { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #aaa; margin: 3px 0; }
+  .leg-layover::before, .leg-layover::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
+  .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
+  .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .leg-text strong { color: #555; font-weight: 600; }
+  .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
+  .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
+  .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
+  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
+  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
+  .lodging-sub { font-size: 11px; color: #666; }
+  .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
+  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-link { color: #1D9E75; text-decoration: underline; }
+  .lodging-link:hover { color: #0F6E56; }
+  .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
+  .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
+  .gallery-thumb:hover { opacity: 0.82; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
+  .lb-btn:hover { opacity: 1; }
+  .lb-close { top: 12px; right: 20px; font-size: 34px; line-height: 1; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); font-size: 48px; padding: 0 14px; }
+  .lb-prev { left: 2px; } .lb-next { right: 2px; }
+  .dest-card, .leg-row { scroll-margin-top: 14px; }
+  @keyframes cardflash { 0% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } 20% { box-shadow: 0 0 0 2px rgba(15,110,86,0.6); } 100% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } }
+  .flash { animation: cardflash 1.4s ease-out; }
+  .itin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .dest-flag { width: 28px; height: 19px; object-fit: cover; border-radius: 3px; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .itin-caret { font-size: 11px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .dest-card.open .itin-caret { transform: rotate(90deg); }
+  /* Modal de ficha individual por parada */
+  .stop-modal { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .stop-modal[hidden] { display: none; }
+  .sm-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.55); backdrop-filter: blur(2px); }
+  .sm-dialog { position: relative; background: #fbf9f5; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+  .sm-topbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(#fbf9f5, rgba(251,249,245,0.85)); }
+  .sm-share { border: 1px solid #d8d3c8; background: #fff; color: #0F6E56; cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; }
+  .sm-share:hover { background: #eef6f2; }
+  .sm-share.copied { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .sm-close { border: none; background: transparent; cursor: pointer; font-size: 24px; line-height: 1; color: #999; padding: 0 6px; }
+  .sm-close:hover { color: #333; }
+  .sm-content { padding: 0 18px 20px; }
+  .sm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sm-flag { width: 34px; height: 23px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
+  .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
+  .sm-sec { margin-bottom: 12px; }
+  .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
+  .sm-leg-mode { font-size: 15px; }
+  .sm-act { color: #0F6E56; text-decoration: none; }
+  .sm-act:hover { text-decoration: underline; }
+  .sm-dt-desc { font-size: 12px; color: #8a8478; line-height: 1.4; margin: 2px 0 6px; }
+  body.sm-open { overflow: hidden; }
+  .sm-leg-badge { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ficha-btn { width: 100%; border: 1px solid #cfe4db; background: #eef6f2; color: #0F6E56; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 8px; border-radius: 8px; margin-bottom: 10px; transition: background 0.15s; }
+  .ficha-btn:hover { background: #ddeee6; }
+  .leg-ficha { flex-shrink: 0; border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 5px; color: #999; opacity: 0.6; transition: opacity 0.15s, background 0.15s; }
+  .leg-head:hover .leg-ficha { opacity: 0.9; }
+  .leg-ficha:hover { opacity: 1; background: rgba(0,0,0,0.07); color: #444; }
+  .card-detail { display: none; margin-top: 10px; }
+  .dest-card.open .card-detail { display: block; }
+  .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
+  .cat-group { margin: 6px 0 2px; }
+  .cat-head { font-size: 11px; font-weight: 600; color: #0F6E56; margin: 6px 0 3px; }
+  .act-row { display: inline-block; width: 100%; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .act-row:hover { color: #1D9E75; }
+  .act-row-plain { font-size: 12px; line-height: 1.5; color: #444; padding: 1px 0; }
+  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row:hover .act-pin { opacity: 0.9; }
+  .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
+  .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .dt-row-name { font-size: 12px; font-weight: 500; }
+  .dt-row-time { font-size: 10px; color: #888; }
+  .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
+  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 1.5px solid #444; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, border-color 0.2s; }
+  .marker-dot.active { transform: scale(1.8); background: #fbbf77; border-color: #BA7517; }
+
+  /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
+  .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .marker-diamond { width: 26px; height: 26px; background: #F0B84A; border: 2px solid #B87814; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .marker-diamond span { transform: rotate(-45deg); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; color: #5A3A00; }
+  .marker-diamond.active { transform: rotate(45deg) scale(1.4); background: #E89B17; z-index: 1000 !important; }
+
+  /* Lugares guardados de Google Maps */
+  .saved-chip { font-size: 11px; color: #0F6E56; text-decoration: none; background: rgba(15, 110, 86, 0.07); border: 1px solid rgba(15, 110, 86, 0.15); border-radius: 12px; padding: 3px 9px; line-height: 1.3; transition: background 0.12s; }
+  .saved-chip:hover { background: rgba(15, 110, 86, 0.15); }
+  .saved-chip.no-coord { color: #999; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+
+  /* Sección de lugares sin destino, debajo de la lista */
+  .orphan-card { background: white; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); padding: 14px 16px; margin-bottom: 10px; }
+  .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
+  .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    main.dashboard { grid-template-columns: 1fr; grid-template-rows: 50vh auto; overflow: visible; }
+    .map-pane { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .content-pane { overflow: visible; }
+    .details-section { overflow: visible; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-title">
+    <h1>Japón + Corea</h1>
+    <span class="subtitle">6 oct – 18 nov 2026</span>
+  </div>
+  <div class="header-stats">
+    <span><strong>6/10</strong> salida BA</span>
+    <span><strong>40</strong> noches</span>
+    <span><strong>12</strong> nodos</span>
+    <span><strong>18/11</strong> regreso</span>
+  </div>
+</header>
+
+<main class="dashboard">
+  <div class="map-pane">
+    <div id="map"></div>
+  </div>
+
+  <div class="content-pane">
+    <div class="chart-section">
+      <button type="button" class="chart-header" id="chart-toggle">
+        <span class="chart-title">Temperatura por destino</span>
+        <span class="qh-caret">▸</span>
+      </button>
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="weatherChart"></canvas>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="details-title">Itinerario · click en un destino · los vuelos y transportes son los módulos entre paradas</div>
+      <div id="details-list"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+
+const destinations = [
+  {
+    id: 'tokio-llegada', n: 1, type: 'destino', name: 'Tokio (llegada)', short: 'Tokio', flag: '🇯🇵',
+    coords: [35.6762, 139.6503],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg'],
+    dates: '8-13 oct', nights: 5,
+    arrival: '8 oct (HANEDA/HND, llegada del vuelo desde Houston)', departure: '13 oct (día en Nikko de paso, sigue al norte)',
+    lodging: {
+      name: 'Shinoka c08 — studio en Shinjuku', type: 'Airbnb · studio (unidad entera)',
+      guests: '2 huéspedes · 1 cama · 1 baño',
+      area: '5-chōme-11-2 Shinjuku, Shinjuku City, Tokio 160-0022 · a 3 min a pie de la estación Shinjuku-sanchome (centro, zona comercial)',
+      coords: [35.69116, 139.70681],
+      checkIn: '8 oct', checkOut: '13 oct', nights: 5, booked: true,
+      url: 'https://www.airbnb.com/rooms/1105430570374679874',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=5-chome-11-2%20Shinjuku%2C%20Shinjuku%20City%2C%20Tokyo%20160-0022',
+      note: 'Airbnb. La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar). Falta cargar el costo total al sheet de gastos.'
+    },
+    leg: { mode: '✈️', time: '~30 h · 1 escala', detail: 'Ida EZE → Tokio Haneda · United Polaris business', segments: [
+      { route: 'EZE → IAH', no: 'UA818', when: '6 oct 21:00 → 7 oct 5:15', aircraft: 'B777-200 · 10h15', tracker: 'https://flightaware.com/live/flight/UAL818' },
+      { layover: 'escala Houston · 6 h 20' },
+      { route: 'IAH → HND', no: 'UA7937', when: '7 oct 11:35 → 8 oct 15:25', aircraft: 'B787-9 · op. ANA · 13h50', tracker: 'https://flightaware.com/live/flight/UAL7937' }
+    ] },
+    tempMax: '16-28', tempMin: '12-20', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Aterrizaje en Tokio (Haneda) el 8/10. 5 noches de aclimatación y jet lag para arrancar. Los clásicos de Tokio al empezar el viaje. Tokio se revisita al final (parada 13) como buffer pre-vuelo, así que los museos/teamLab/shopping pueden quedar para esa segunda tanda.',
+    activities: [
+      { text: 'Asakusa (Senso-ji) + Sumida River + Skytree', cat: 'templos' },
+      { text: 'Shibuya scramble + Harajuku + Meiji Jingu', cat: 'templos' },
+      { text: 'Akihabara + Jimbocho', cat: 'compras' },
+      { text: 'Tsukiji exterior, Toyosu, Ginza', cat: 'compras' },
+      { text: 'Golden Gai + Omoide Yokocho', cat: 'barrios' },
+      { text: 'Ayuntamiento de Tokio (mirador gratis)', cat: 'miradores', coords: [35.689496, 139.691709], url: "https://www.google.com/maps/search/?api=1&query=Ayuntamiento%20de%20Tokio" },
+      { text: '2 Chome-13-4 Uenosakuragi (Yanaka)', cat: 'miradores', coords: [35.722086, 139.770577], url: "https://www.google.com/maps/search/?api=1&query=2%20Chome-13-4%20Uenosakuragi" },
+      { text: 'Ohjo Building', cat: 'miradores', coords: [35.694404, 139.702496], url: "https://www.google.com/maps/search/?api=1&query=Ohjo%20Building" },
+      { text: 'Neo Tokyo Kart', cat: 'ocio', coords: [35.688742, 139.68794], url: "https://www.google.com/maps/search/?api=1&query=Neo%20Tokyo%20Kart" },
+      { text: 'STREET KART Tokyo', cat: 'ocio', coords: [35.637995, 139.824304], url: "https://www.google.com/maps/search/?api=1&query=STREET%20KART%20Tokyo" },
+      { text: 'stoop', cat: 'miradores', coords: [35.681455, 139.803403], url: "https://www.google.com/maps/search/?api=1&query=stoop" },
+      { text: '1-15 Udagawacho (Shibuya)', cat: 'miradores', coords: [35.664083, 139.697831], url: "https://www.google.com/maps/search/?api=1&query=1-15%20Udagawacho" },
+      { text: 'SCAI The Bathhouse (galería)', cat: 'museos', coords: [35.721797, 139.770482], url: "https://www.google.com/maps/search/?api=1&query=SCAI%20The%20Bathhouse" },
+      { text: 'Menchirashi (ramen)', cat: 'comida', coords: [35.666499, 139.705091], url: "https://www.google.com/maps/search/?api=1&query=Menchirashi" },
+      { text: '21_21 Design Sight', cat: 'museos', coords: [35.667525, 139.730521], url: "https://www.google.com/maps/search/?api=1&query=21_21%20Design%20Sight" },
+      { text: 'Tokyo Joypolis', cat: 'ocio', coords: [35.62866, 139.775364], url: "https://www.google.com/maps/search/?api=1&query=Tokyo%20Joypolis" },
+      { text: 'Shimokitazawa リバーストーンビル b1f', cat: 'compras', coords: [35.660843, 139.667667], url: "https://www.google.com/maps/search/?api=1&query=%E3%80%92155-0031%20Tokyo%2C%20Setagaya%20City%2C%20Kitazawa%2C%202-ch%C5%8Dme%E2%88%9212%E2%88%926%20%E3%83%AA%E3%83%90%E3%83%BC%E3%82%B9%E3%83%88%E3%83%BC%E3%83%B3%E3%83%93%E3%83%AB%20b1f" },
+      { text: 'Ramen Kagetsu Arashi', cat: 'comida', coords: [35.690173, 139.707069], url: "https://www.google.com/maps/search/?api=1&query=Ramen%20Kagetsu%20Arashi" },
+      { text: 'Ramen Kamo to Negi Shinjuku', cat: 'comida', coords: [35.690854, 139.700377], url: "https://www.google.com/maps/search/?api=1&query=Ramen%20Kamo%20to%20Negi%20Shinjuku" },
+      { text: 'Rokurinsha (Tokyo Ramen Street)', cat: 'comida', coords: [35.680036, 139.767847], url: "https://www.google.com/maps/search/?api=1&query=Rokurinsha%20Tokyo%20Ramen%20Street" },
+      { text: 'kindal Harajuku (second hand)', cat: 'compras', coords: [35.668262, 139.706521], url: "https://www.google.com/maps/search/?api=1&query=kindal%20harajuku%20second%20hand%20store" },
+      { text: 'NOT CONVENTIONAL Harajuku', cat: 'compras', coords: [35.66991, 139.707763], url: "https://www.google.com/maps/search/?api=1&query=NOT%20CONVENTIONAL%20Harajuku" },
+      { text: 'Nakano Broadway', cat: 'compras', coords: [35.709247, 139.665652], url: "https://www.google.com/maps/search/?api=1&query=Nakano%20Broadway" }
+    ],
+    daytrips: [
+      { id: 'kamakura', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/TsurugaokaHachiman-M8867.jpg/360px-TsurugaokaHachiman-M8867.jpg', name: 'Kamakura', coords: [35.3192, 139.5469], time: '1 h en JR Yokosuka', desc: 'Gran Buda, templo Hokoku-ji (bambú), playa Yuigahama.' },
+      { id: 'yokohama', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Minato_Mirai.jpg/360px-Minato_Mirai.jpg', name: 'Yokohama', coords: [35.4437, 139.6380], time: '30 min en JR', desc: 'Chinatown, puerto, Cup Noodle Museum, Sankeien Garden.' },
+      { id: 'kait', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Kanagawa_Institute_of_Technology.jpg/360px-Kanagawa_Institute_of_Technology.jpg', name: 'KAIT広場 + Kanagawa Inst. of Technology', coords: [35.486557, 139.343234], time: '1 h 15 a Atsugi', url: "https://www.google.com/maps/search/?api=1&query=%E7%A5%9E%E5%A5%88%E5%B7%9D%E5%B7%A5%E7%A7%91%E5%A4%A7%E5%AD%A6%20KAIT%E5%BA%83%E5%A0%B4", desc: 'Plaza KAIT de Junya Ishigami (arquitectura) en el campus de Atsugi, Kanagawa.' },
+      { id: 'fukazawa-museum', name: 'Fukazawa Tiny Museum', coords: [35.747306, 139.208255], time: '1 h al oeste (Hachioji)', url: "https://www.google.com/maps/search/?api=1&query=Fukazawa%20Tiny%20Museum", desc: 'Micro-museo en el oeste de Tokio.' },
+      { id: 'kazenooka', name: 'Kazenooka Jumokuso Cemetery', coords: [35.637556, 139.345684], time: '1 h a Fujisawa', url: "https://www.google.com/maps/search/?api=1&query=Kazenooka%20Jumokuso%20Cemetery", desc: 'Cementerio-bosque de Fumihiko Maki en Kanagawa.' },
+      { id: 'discharge-channel', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg/360px-Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg', name: 'Canal subterráneo de descarga (G-Cans)', coords: [35.996667, 139.811389], time: '1 h a Kasukabe, Saitama', url: "https://www.google.com/maps/search/?api=1&query=The%20Metropolitan%20Area%20Outer%20Underground%20Discharge%20Channel", desc: '"Catedral subterránea" anti-inundaciones. Tour con reserva previa.' }
+    ]
+  },
+  {
+    id: 'nikko', n: 2, type: 'fullday', name: 'Nikko', short: 'Nikko', flag: '🇯🇵',
+    coords: [36.7589, 139.6075],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/The_Three_Wise_Monkeys%2C_Nikk%C5%8D_T%C5%8Dsh%C5%8D-g%C5%AB%3B_April_2018.jpg/500px-The_Three_Wise_Monkeys%2C_Nikk%C5%8D_T%C5%8Dsh%C5%8D-g%C5%AB%3B_April_2018.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/The_Three_Wise_Monkeys%2C_Nikk%C5%8D_T%C5%8Dsh%C5%8D-g%C5%AB%3B_April_2018.jpg/500px-The_Three_Wise_Monkeys%2C_Nikk%C5%8D_T%C5%8Dsh%C5%8D-g%C5%AB%3B_April_2018.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Shinkyo_bridge_of_Nikko_-_January_2024.jpg/500px-Shinkyo_bridge_of_Nikko_-_January_2024.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Kegon_Falls_Elevator_entrance.jpg/500px-Kegon_Falls_Elevator_entrance.jpg'],
+    dates: '13 oct', nights: 0,
+    arrival: '13 oct (de paso desde Tokio, primer salto al norte)', departure: '13 oct tarde (sigue a Ichinoseki; duerme allí esta noche)', lodging: null,
+    leg: { mode: '🚆', time: '~2 h 30', detail: 'Tren Tobu/JR Tokio → Nikkō (Limited Express).' },
+    tempMax: '15-22', tempMin: '7-14', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Día de paso, sin pernocte: saliendo de Tokio hacia el norte se baja en Nikko para los santuarios UNESCO de Toshogu y (si da el tiempo) el lago Chuzenji + cataratas Kegon, con los primeros colores de otoño en altura. A la tarde/noche se sigue viaje a Ichinoseki (se duerme allí). Nikko es el pivote del salto al norte: Tokio → Nikko → Ichinoseki → Sendai → Sapporo, sin backtrack.',
+    activities: [
+      { text: 'Toshogu shrine (mausoleo Tokugawa Ieyasu)', cat: 'templos' },
+      { text: 'Rinno-ji + puente Shinkyo', cat: 'templos' },
+      { text: 'Lago Chuzenji + cataratas Kegon (si da el tiempo)', cat: 'parques' },
+      { text: 'Senjogahara (primeras hojas) si queda margen', cat: 'parques' },
+      { text: 'Centro de Nikkō (estación / casco)', cat: 'barrios', coords: [36.719758, 139.698139], url: "https://www.google.com/maps/search/?api=1&query=Nikk%C5%8D" }
+    ],
+    daytrips: [
+      { id: 'nonohana', name: 'Nonohana', coords: [33.074722, 131.156281], time: '1 h al norte', url: "https://www.google.com/maps/search/?api=1&query=Nonohana", desc: 'Parada guardada al norte de Nikkō, hacia Fukushima.' }
+    ]
+  },
+  {
+    id: 'ichinoseki', n: 3, type: 'destino', name: 'Ichinoseki', short: 'Ichinoseki', flag: '🇯🇵',
+    coords: [38.9344, 141.1267],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/230729_Geibikei_Ichinoseki_Iwate_pref_Japan04s3.jpg/500px-230729_Geibikei_Ichinoseki_Iwate_pref_Japan04s3.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/230729_Geibikei_Ichinoseki_Iwate_pref_Japan04s3.jpg/500px-230729_Geibikei_Ichinoseki_Iwate_pref_Japan04s3.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/230727_Genbikei_Ichinoseki_Iwate_pref_Japan01s3.jpg/500px-230727_Genbikei_Ichinoseki_Iwate_pref_Japan01s3.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Konjikido_%28Chusonji%29_01.jpg/500px-Konjikido_%28Chusonji%29_01.jpg'],
+    dates: '13-14 oct', nights: 1,
+    arrival: '13 oct noche (llega de Nikko; día largo Tokio → Nikko de paso → norte)', departure: '14 oct (Geibikei a la mañana en bote; sin horario límite — shinkansen corto ~40 min a Sendai; opcional escaparse a Chūson-ji)',
+    lodging: {
+      name: 'Airbnb Ichinoseki (Nihongi)', type: 'Airbnb · casa entera',
+      guests: '6 huéspedes · 2 dormitorios · 4 camas · 1 baño',
+      area: '2-1 Nihongi 2F, Ichinoseki, Iwate 021-0835 · a 3 min a pie de la estación de Ichinoseki (de ahí salen el Geibikei y el shinkansen a Sendai; ~17 min en auto a Chūson-ji)',
+      coords: [38.9274, 141.1417],
+      checkIn: '13 oct', checkOut: '14 oct', nights: 1, booked: true,
+      url: 'https://www.airbnb.com/rooms/1534431699681046944',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=2-1%20Nihongi%2C%20Ichinoseki%2C%20Iwate%20021-0835',
+      note: 'Airbnb · US$172.92 · pegado a la estación, ideal para el Geibikei a la mañana y el shinkansen a Sendai.'
+    },
+    leg: { mode: '🚄', time: '~3 h', detail: 'JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki.', via: [[36.5551, 139.898], [38.2602, 140.8821], [38.9344, 141.1267]] },
+    tempMax: '18-23', tempMin: '8-14', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Base cómoda del tramo norte (Iwate): Ichinoseki es el hub del shinkansen, con hoteles y servicios, y queda a 8 min en tren de Hiraizumi. Se llega de Nikko la noche del 13 (día largo Tokio → Nikko de paso → norte) y al otro día se sigue a Sendai sin horario límite (shinkansen corto, ~40 min). El foco es la garganta de Geibikei: paseo en bote chato de fondo plano con el botero que canta. Cerca está Genbikei (rápidos turquesa + el "dango volador" que llega por un cable). Comida fuerte de la zona: capital de la cocina de mochi (餅本膳) y la carne de Maesawa (前沢牛), un wagyu premium. Hiraizumi (Chūson-ji + el Pabellón Dorado/Konjikidō, Tesoro Nacional UNESCO) queda a 8 min y es un opcional lindo si el día da.',
+    activities: [
+      { text: 'Geibikei (paseo en bote por la garganta)', cat: 'parques', coords: [38.989448, 141.255452], url: "https://www.google.com/maps/search/?api=1&query=Geibikei%20Gorge" },
+      { text: 'Genbikei (rápidos + "dango volador" por el cable)', cat: 'comida', coords: [38.9469, 141.0556], url: "https://www.google.com/maps/search/?api=1&query=Genbikei" },
+      { text: 'Chūson-ji + Konjikidō (Pabellón Dorado, Tesoro Nacional UNESCO) — opcional, 8 min en Hiraizumi', cat: 'templos', coords: [38.9939, 141.0989], url: "https://www.google.com/maps/search/?api=1&query=Chusonji" },
+      { text: 'Mōtsū-ji (jardín Jōdo de la era Heian) — opcional, en Hiraizumi', cat: 'parques', coords: [38.9869, 141.1006], url: "https://www.google.com/maps/search/?api=1&query=M%C5%8Dts%C5%AB-ji" },
+      { text: 'Cena de carne de Maesawa (前沢牛) / cocina de mochi (餅本膳)', cat: 'comida' }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'sendai', n: 4, type: 'destino', name: 'Sendai', short: 'Sendai', flag: '🇯🇵',
+    coords: [38.2606, 140.8819],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Nehan-mon%2C_Zuihoden.jpg/500px-Nehan-mon%2C_Zuihoden.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Nehan-mon%2C_Zuihoden.jpg/500px-Nehan-mon%2C_Zuihoden.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/2005_Sendai_Pageant_of_Starlight_in_Jyozenji-dori_Avenue_01.jpg/500px-2005_Sendai_Pageant_of_Starlight_in_Jyozenji-dori_Avenue_01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sendai_statue_Date_Masamune.jpg/500px-Sendai_statue_Date_Masamune.jpg'],
+    dates: '14-15 oct', nights: 1,
+    arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (al aeropuerto de Sendai ~25 min + vuelo a Sapporo/New Chitose)',
+    lodging: {
+      name: 'Sendai Kokusai Hotel', type: 'Hotel · centro de Sendai',
+      guests: '2 personas · desayuno incluido',
+      area: 'Aoba-ku Chūō 4-6-1, Sendai (Miyagi) · a pasos de la estación: day-trips (Matsushima / Yamadera) + línea directa al aeropuerto',
+      coords: [38.2606, 140.8819],
+      checkIn: '14 oct (desde 15 h)', checkOut: '15 oct (hasta 11 h)', nights: 1, booked: true,
+      url: 'https://www.google.com/maps/search/?api=1&query=Sendai%20Kokusai%20Hotel',
+      note: 'Reservado por Booking (#5769665121) · ¥17.100 · cancelación gratis hasta el 11/10.'
+    },
+    leg: { mode: '🚄', time: '~45 min', detail: 'Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku).', via: [[38.2601, 140.8821]], path: [{ m: 'train', to: [38.2601, 140.8821] }] },
+    tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Base del tramo norte (reemplaza a Ginzan, decidido 2026-06-14: no conseguían buen hospedaje en Ginzan y era mucho trajín por una noche). Ciudad cómoda y bien conectada: la estación concentra todo — los day-trips (Matsushima al este ~30 min, Yamadera al oeste ~55 min) y la línea directa al aeropuerto. Se hace UN day-trip, gyutan a la noche, y al otro día vuelo a Sapporo sin estrés. El hotel está en Aoba-ku Chūō, en pleno centro.',
+    activities: [
+      { text: 'Gyutan (lengua de res a la parrilla) — "Gyutan Street" dentro de la estación', cat: 'comida' },
+      { text: 'Zuihōden — mausoleo dorado de Date Masamune entre cedros', cat: 'templos', coords: [38.2513, 140.8589], url: 'https://www.google.com/maps/search/?api=1&query=Zuihoden' },
+      { text: 'Jōzenji-dōri + arcades Ichibanchō (paseo y compras)', cat: 'barrios' },
+      { text: 'Ruinas del castillo de Aoba + estatua de Date Masamune (vista de la ciudad)', cat: 'miradores', coords: [38.2528, 140.8561], url: 'https://www.google.com/maps/search/?api=1&query=Aoba%20Castle%20Sendai' }
+    ],
+    daytrips: [
+      { id: 'matsushima', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Fukuura_Island%2C_Matsushima_Miyagi_Aerial_photograph.2015.jpg/500px-Fukuura_Island%2C_Matsushima_Miyagi_Aerial_photograph.2015.jpg', name: 'Matsushima', coords: [38.3741, 141.0686], time: '~30 min en JR', desc: 'Bahía de las "3 vistas de Japón": islotes con pinos, crucero, templo Zuiganji y ostras. Día escénico y relajado.' },
+      { id: 'yamadera', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/211029_Risshaku-ji_Yamagata_Yamagata_pref_Japan65s3.jpg/500px-211029_Risshaku-ji_Yamagata_Yamagata_pref_Japan65s3.jpg', name: 'Yamadera', coords: [38.3127, 140.4367], time: '~55 min en JR Senzan', desc: 'Templo Risshaku-ji encajado en el acantilado: ~1000 escalones y vista brutal al valle. Famoso por el soba.' }
+    ]
+  },
+  {
+    id: 'sapporo', n: 5, type: 'destino', name: 'Sapporo (Hokkaido)', short: 'Sapporo', flag: '🇯🇵',
+    coords: [43.0618, 141.3545],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Sapporo_TV_tower-20091013-RM-162316.jpg/500px-Sapporo_TV_tower-20091013-RM-162316.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg/500px-Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg'],
+    dates: '15-17 oct', nights: 2,
+    arrival: '15 oct (vuelo desde Sendai)', departure: '17 oct (vuelo New Chitose→Komatsu, sigue a Kanazawa)',
+    lodging: {
+      name: 'Airbnb Sapporo (Susukino)', type: 'Airbnb · departamento entero',
+      guests: '2 personas',
+      area: 'Glass Shiseikan (資生館) 301, Minami 4 Jōnishi, Chūō-ku, Sapporo 064-0804 · en pleno Susukino: comida (ramen miso, sopa de curry, jingisukan, mercado Nijō) y movida nocturna a pasos; sobre la línea de subte Namboku, a 1-2 paradas de la estación de Sapporo para el tren al aeropuerto New Chitose',
+      coords: [43.0554, 141.3525],
+      checkIn: '15 oct', checkOut: '17 oct', nights: 2, booked: true,
+      url: 'https://www.airbnb.com/rooms/667203897845859107',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Minami%204%20Jonishi%20Glass%20%E8%B3%87%E7%94%9F%E9%A4%A8%2C%20Chuo%20Ward%2C%20Sapporo%20064-0804',
+      note: 'Airbnb · US$135.94 · base céntrica en Susukino para los 2 días de Sapporo.'
+    },
+    leg: { mode: '🚌✈️', time: '~3 h 30', detail: 'Sendai → aeropuerto de Sendai (~25 min, línea Access) + vuelo a New Chitose (Sapporo).', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sendai%20to%20Sapporo', dirLabel: 'ver vuelos ↗', via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'bus', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }] },
+    tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Salto al norte al arranque del viaje, cuando Hokkaido todavía está templado (~17°/7° a mediados de octubre — chaqueta de otoño, no frío). Se llega de Sendai en avión (aeropuerto de Sendai → New Chitose) y se sigue volando a Komatsu para retomar Kanazawa. Es la parte más fresca del recorrido, pero a esta altura del calendario es disfrutable. Sapporo: comida (sopa de curry, ramen miso, mariscos del mercado), parques de Isamu Noguchi y el monte Moiwa al atardecer. El koyo en la montaña recién empieza.',
+    activities: [
+      { text: 'Mercado Nijo + ramen miso + sopa de curry (sopa curry)', cat: 'comida' },
+      { text: 'Parque Odori + torre de TV', cat: 'parques' },
+      { text: 'Antigua fábrica de cerveza Sapporo (museo + biergarten)', cat: 'comida' },
+      { text: 'Monte Moiwa (teleférico, vista nocturna de la ciudad)', cat: 'miradores', coords: [43.02308, 141.322368], url: "https://www.google.com/maps/search/?api=1&query=Mt.%20Moiwa" },
+      { text: 'Moerenuma Park (parque-escultura de Isamu Noguchi)', cat: 'museos', coords: [43.145522, 141.414341], url: "https://www.google.com/maps/search/?api=1&query=Moerenumakoen" },
+      { text: 'Sapporo Art Museum', cat: 'museos', coords: [42.942067, 141.342577], url: "https://www.google.com/maps/search/?api=1&query=Sapporo%20Art%20Museum" }
+    ],
+    daytrips: [
+      { id: 'otaru', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Otaru_Montage.jpg/360px-Otaru_Montage.jpg', name: 'Otaru', coords: [43.1907, 140.9947], time: '40 min en JR', desc: 'Pueblo portuario del canal, cristalería y sushi. Clásico day trip desde Sapporo.' }
+    ]
+  },
+  {
+    id: 'kanazawa', n: 6, type: 'destino', name: 'Kanazawa', short: 'Kanazawa', flag: '🇯🇵',
+    coords: [36.5613, 136.6562],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG/500px-Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG/500px-Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Higashi_Chaya_district%2C_Kanazawa_%283810723944%29.jpg/500px-Higashi_Chaya_district%2C_Kanazawa_%283810723944%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/20190705_Kanazawa_Castle-14.jpg/500px-20190705_Kanazawa_Castle-14.jpg'],
+    dates: '17-19 oct', nights: 2,
+    arrival: '17 oct (vuelo Sapporo→Komatsu, primera noche acá)', departure: '19 oct (vía Shirakawa-go de paso, sigue a Kioto)',
+    lodging: {
+      name: 'Airbnb Kanazawa (Kōrinbō)', type: 'Airbnb · departamento entero',
+      guests: '2 personas',
+      area: 'Kōrinbō, Kanazawa (Ishikawa) · zona céntrica caminable: a pasos del Kenroku-en, el castillo, Nagamachi (barrio samurái) y el Museo del Siglo XXI, con la mejor concentración de restaurantes/bares (Katamachi al lado). Dirección exacta pendiente — el host la manda unos días antes del check-in',
+      coords: [36.5612, 136.6553],
+      checkIn: '17 oct', checkOut: '19 oct', nights: 2, booked: true,
+      url: 'https://www.airbnb.com/rooms/27441365',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Korinbo%2C%20Kanazawa%2C%20Ishikawa',
+      note: 'Airbnb · US$165.43 · base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
+    },
+    leg: { mode: '✈️🚆', time: '~1 h 40 (vuelo)', detail: 'Vuelo New Chitose → Komatsu + tren a Kanazawa.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sapporo%20to%20Komatsu', dirLabel: 'ver vuelos ↗', via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'train', to: [36.5613, 136.6562] }] },
+    tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (vuelo New Chitose → Komatsu + tren), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
+    activities: [
+      { text: 'Jardín Kenroku-en (top 3 de Japón)', cat: 'parques' },
+      { text: 'Castillo de Kanazawa', cat: 'miradores' },
+      { text: 'Higashi Chaya (barrio geisha)', cat: 'barrios' },
+      { text: 'Mercado Omicho (mariscos)', cat: 'comida' },
+      { text: 'Museo del Siglo XXI', cat: 'museos' },
+      { text: 'Distrito samurái Nagamachi', cat: 'barrios' },
+      { text: 'Museo del Siglo XXI (21st Century Museum)', cat: 'museos', coords: [36.560871, 136.658525], url: "https://www.google.com/maps/search/?api=1&query=Kanazawa%2021st%20Century%20Museum%20of%20Contemporary%20Art" },
+      { text: 'Super 2nd Street Shimeno (second hand)', cat: 'compras', coords: [36.581172, 136.615598], url: "https://www.google.com/maps/search/?api=1&query=Super%202nd%20Street%20Kanazawa%20Shimeno" }
+    ],
+    daytrips: [
+      { id: 'echizen-daibutsu', name: 'Echizen Daibutsu', coords: [36.053649, 136.519213], time: '1 h al sur (Fukui)', url: "https://www.google.com/maps/search/?api=1&query=Echizen%20Daibutsu", desc: 'Gran Buda de Echizen en Katsuyama, Fukui.' }
+    ]
+  },
+  {
+    id: 'shirakawago', n: 7, type: 'fullday', name: 'Shirakawa-go', short: 'Shirakawa-go', flag: '🇯🇵',
+    coords: [36.2585, 136.9067],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Gassho-zukuri_farmhouse-01.jpg/500px-Gassho-zukuri_farmhouse-01.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Gassho-zukuri_farmhouse-01.jpg/500px-Gassho-zukuri_farmhouse-01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Shirakawa-go_002.jpg/500px-Shirakawa-go_002.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Ogimachi_Village-01.jpg/500px-Ogimachi_Village-01.jpg'],
+    dates: '19 oct', nights: 0,
+    arrival: '19 oct (de paso desde Kanazawa hacia Kioto)', departure: '19 oct tarde (sigue a Kioto; duerme allí esta noche)', lodging: null,
+    leg: { mode: '🚌', time: '~1 h 15', detail: 'Bus directo Kanazawa → Shirakawa-go (de paso).', dirUrl: 'https://japanbusonline.com/en', dirLabel: 'reservar bus ↗' },
+    tempMax: '14-24', tempMin: '6-15', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Día completo de paso entre Kanazawa y Kioto. Pueblo UNESCO con casas gassho-zukuri (techos de paja a dos aguas). Bus directo desde Kanazawa (~1h15), unas horas en el pueblo + mirador de Ogimachi, y se sigue a Kioto (bus + tren/Shinkansen). No se pernocta acá — la noche se duerme en Kioto.',
+    activities: [
+      { text: 'Mirador de Ogimachi (vista panorámica del valle de casas)', cat: 'parques' },
+      { text: 'Caminar el pueblo + casas gassho-zukuri abiertas a visita (Wada-ke)', cat: 'otros' },
+      { text: 'Puente Deai colgante sobre el río Shogawa', cat: 'parques' }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'kioto', n: 8, type: 'destino', name: 'Kioto', short: 'Kioto', flag: '🇯🇵',
+    coords: [35.0116, 135.7681],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg'],
+    dates: '19-25 oct', nights: 6,
+    arrival: '19 oct (llega de Shirakawa-go, primera noche acá)', departure: '25 oct (sigue a Koyasan)',
+    lodging: {
+      name: 'Airbnb Kioto (Shimogyō-ku)', type: 'Airbnb · departamento entero',
+      guests: '2 personas',
+      area: 'Shimogyō-ku, sobre Ayakōji-dōri · downtown sur, a pasos de Karasuma/Shijō — caminable a Nishiki y Pontocho, y cerca de la Estación de Kioto (clave para los daytrips por JR y la bajada a Koyasan). Dirección: 44 Shioyachō (Ayakōjidōri), Shimogyō-ku, Kyōto-shi 600-8052.',
+      coords: [34.9981, 135.7588],
+      checkIn: '19 oct', checkOut: '25 oct', nights: 6, booked: true,
+      url: 'https://www.airbnb.com/rooms/19373663',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=44%20Shioyach%C5%8D%20Ayak%C5%8Djid%C5%8Dri%20Shimogy%C5%8D-ku%20Kyoto%20600-8052',
+      note: 'Airbnb · US$1.078,41 · base downtown en Shimogyō-ku para las 6 noches (19-25/10). Reservado.'
+    },
+    leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }] },
+    tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y al final se baja a Koyasan (tren a Namba + Nankai + funicular). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 6 noches dan tiempo a cada zona sin atropello.',
+    activities: [
+      { text: 'Arashiyama al amanecer: bambú, Tenryu-ji, Otagi Nenbutsuji', cat: 'templos' },
+      { text: 'Templos del este: Kiyomizu, Yasaka, paseo de filósofos, Ginkaku-ji', cat: 'templos' },
+      { text: 'Fushimi Inari al amanecer (6 AM)', cat: 'templos' },
+      { text: 'Mercado Nishiki + Kamishichiken', cat: 'comida' },
+      { text: 'Kinkaku-ji o Ryoan-ji', cat: 'otros' },
+      { text: 'Pontocho de noche, kaiseki ryori', cat: 'comida' },
+      { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
+      { text: 'Bosque de Bambú de Arashiyama', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" },
+      { text: 'Hirobun (kawadoko / nagashi sōmen, Kibune)', cat: 'comida', coords: [35.125281, 135.7639], url: "https://www.google.com/maps/search/?api=1&query=Hirobun" },
+      { text: 'Garden of Fine Arts Kyoto (Tadao Ando)', cat: 'museos', coords: [35.050655, 135.765443], url: "https://www.google.com/maps/search/?api=1&query=Garden%20of%20Fine%20Arts%20Kyoto" }
+    ],
+    daytrips: [
+      { id: 'nara', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/T%C5%8Ddai-ji_Kon-d%C5%8D.jpg/360px-T%C5%8Ddai-ji_Kon-d%C5%8D.jpg', name: 'Nara', coords: [34.6851, 135.8048], time: '45 min en JR', desc: 'Todai-ji (Buda gigante), ciervos sueltos, jardín Yoshiki-en.' },
+      { id: 'murou', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Murouji%2C_hondou-3.jpg/360px-Murouji%2C_hondou-3.jpg', name: 'Murou-ji + Hasedera', coords: [34.5378, 136.0376], time: '1 h 30 min', desc: 'Templo + 400 escalones a Hasedera. Murou Art Forest (Dani Karavan).' },
+      { id: 'miho', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Miho_museum02n3872.jpg/360px-Miho_museum02n3872.jpg', name: 'MIHO MUSEUM', coords: [34.914917, 136.016215], time: '1 h 30 a Shigaraki', url: "https://www.google.com/maps/search/?api=1&query=MIHO%20MUSEUM", desc: 'Museo de I.M. Pei enterrado en la montaña de Shiga.' },
+      { id: 'uji', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Byodoin_Phoenix_Hall_Uji_2009.jpg/360px-Byodoin_Phoenix_Hall_Uji_2009.jpg', name: 'Uji', coords: [34.884513, 135.799704], time: '30 min en JR/Keihan', url: "https://www.google.com/maps/search/?api=1&query=Uji", desc: 'Byodo-in (moneda de 10 yenes) + casas de té matcha.' },
+      { id: 'hiei', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Sakura_MtHiei.jpg/360px-Sakura_MtHiei.jpg', name: 'Monte Hiei (Enryaku-ji)', coords: [35.070333, 135.840694], time: '1 h vía teleférico', url: "https://www.google.com/maps/search/?api=1&query=Monte%20Hiei", desc: 'Monasterio Tendai en la montaña entre Kioto y el lago Biwa.' }
+    ]
+  },
+  {
+    id: 'koyasan', n: 9, type: 'destino', name: 'Koyasan (shukubo)', short: 'Koyasan', flag: '🇯🇵',
+    coords: [34.2129, 135.5836],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg/500px-Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg/500px-Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg'],
+    dates: '25-26 oct', nights: 1,
+    arrival: '25 oct (de Kioto: tren a Namba + Nankai línea Koya + funicular, ~3h20)', departure: '26 oct (baja a Osaka/Namba por funicular + Nankai, ~2h30)',
+    lodging: {
+      name: 'Koyasan Shukubo Hōjō-in (宝城院)', type: 'Shukubo · alojamiento en templo ★★★',
+      guests: 'Habitación Familiar Deluxe · 2 personas · desayuno + cena (shojin ryori) incluidos',
+      area: 'Hōjō-in, 156 Koyasan, Koya, Ito District, Wakayama 648-0211 · baño compartido, tatami, vista al jardín',
+      coords: [34.2150716, 135.5794376],
+      checkIn: '25 oct (15–17 h)', checkOut: '26 oct (8–9 h)', nights: 1, booked: true,
+      img: 'img/koyasan-hojoin.jpg',
+      url: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
+      note: 'Check-in 15–17 h ESTRICTO: llegar después de las 17 h cuenta como cancelación con 100% de cargo. Cena 17–19 h · desayuno 6:30–7:30 (shojin ryori vegetariano, no contemplan alergias) · servicio matutino 6:30. Baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha). Tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
+    },
+    leg: { mode: '🚆🚠', time: '~3 h 20', detail: 'Tren Kioto → Namba + Nankai línea Koya + funicular a Koyasan.' },
+    tempMax: '11-20', tempMin: '4-13', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Monte sagrado del budismo Shingon, 800m altura. Shukubo: dormís 1 noche en un templo con cena vegetariana y ceremonia matutina opcional. Con una sola noche, el plan ideal es llegar a la tarde para Okunoin al atardecer y madrugar para la ceremonia + Okunoin vacío antes de seguir a Osaka.',
+    activities: [
+      { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos' },
+      { text: 'Okunoin antes del amanecer (vacío total)', cat: 'templos' },
+      { text: 'Kongobu-ji (templo principal)', cat: 'templos' },
+      { text: 'Garan (complejo central con pagoda)', cat: 'templos' },
+      { text: 'Cena shojin ryori (vegetariana budista)', cat: 'comida' },
+      { text: 'Ceremonia matutina del templo (5:30 AM)', cat: 'templos' }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'osaka', n: 10, type: 'destino', name: 'Osaka', short: 'Osaka', flag: '🇯🇵',
+    coords: [34.6937, 135.5023],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg'],
+    dates: '26-31 oct', nights: 5,
+    arrival: '26 oct (llega de Koyasan)', departure: '31 oct (Shinkansen a Fukuoka)', lodging: null,
+    leg: { mode: '🚠🚆', time: '~2 h 30', detail: 'Funicular + Nankai Koyasan → Osaka (Namba).' },
+    tempMax: '15-25', tempMin: '6-18', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Base para Naoshima + comida callejera. La energía contraria de Kioto. Se baja de Koyasan (funicular + Nankai a Namba, ~2h30) y se sigue a Fukuoka en Shinkansen (~2h30). 5 noches (subió de 3): da aire para Naoshima, un día de Kobe y recorrer barrios de Osaka sin apuro.',
+    activities: [
+      { text: '国境を越えて・祈り', cat: 'museos', coords: [34.468246, 134.069626], url: "https://www.google.com/maps/search/?api=1&query=%E5%9B%BD%E5%A2%83%E3%82%92%E8%B6%8A%E3%81%88%E3%81%A6%E3%83%BB%E7%A5%88%E3%82%8A" },
+      { text: 'Oretachino-curry ya', cat: 'comida', coords: [34.663269, 135.503521], url: "https://www.google.com/maps/search/?api=1&query=Oretachino-curry%20ya" },
+      { text: 'Dotonbori (luces, takoyaki, kushikatsu)', cat: 'ocio' },
+      { text: 'Shinsekai + Tsutenkaku tower', cat: 'miradores' },
+      { text: 'Castillo de Osaka + parque', cat: 'parques' },
+      { text: 'Umeda Sky Building al atardecer', cat: 'miradores' },
+      { text: 'Okonomiyaki y kushikatsu de barrio', cat: 'comida' },
+      { text: 'Barrios con calma: Nakazakicho (cafés vintage), Shinsaibashi, Amerika-mura', cat: 'barrios' },
+      { text: 'Kuromon Ichiba (mercado) + tienda de cuchillos en Sennichimae Doguyasuji', cat: 'comida' },
+      { text: 'SUPER NINTENDO WORLD (USJ)', cat: 'ocio', coords: [34.665826, 135.432312], url: "https://www.google.com/maps/search/?api=1&query=SUPER%20NINTENDO%20WORLD%E2%84%A2" },
+      { text: 'Katsudon Yoshibei (Namba, Doguyasuji)', cat: 'comida', coords: [34.664137, 135.503377], url: "https://www.google.com/maps/search/?api=1&query=Katsudon%20Yoshibei%20Namba%20Doguyasuji" },
+      { text: 'Sayamaike Museum (Tadao Ando)', cat: 'museos', coords: [34.507516, 135.551369], url: "https://www.google.com/maps/search/?api=1&query=Osaka%20Prefectural%20Sayamaike%20Museum" }
+    ],
+    daytrips: [
+      { id: 'naoshima', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg', name: 'Naoshima', coords: [34.4554, 133.9933], time: '3 h vía Okayama + ferry', desc: 'Isla de arte: Chichu, Benesse, pumpkin de Kusama.' },
+      { id: 'kobe', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg/360px-Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg', name: 'Kobe', coords: [34.6901, 135.1955], time: '30 min en tren', desc: 'Carne de Kobe, barrio Kitano (casas extranjeras), puerto y teleférico de Nunobiki. Aprovecha una de las noches extra.' },
+      { id: 'murou-art', name: 'Murou Art Forest', coords: [34.537082, 136.031622], time: '1 h 30 (Nara)', url: "https://www.google.com/maps/search/?api=1&query=Murou%20Art%20Forest", desc: 'Esculturas-land art de Dani Karavan en Murou.' },
+      { id: 'pl-tower', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Torre_da_Paz.jpg/360px-Torre_da_Paz.jpg', name: 'PL Tower (Great Peace Prayer Tower)', coords: [34.502226, 135.585919], time: '40 min a Tondabayashi', url: "https://www.google.com/maps/search/?api=1&query=PL%20Tower%20%28Great%20Peace%20Prayer%20Tower%29", desc: 'Torre de 180 m de la religión PL Kyodan, al sur de Osaka.' }
+    ]
+  },
+  {
+    id: 'fukuoka', n: 11, type: 'destino', name: 'Fukuoka', short: 'Fukuoka', flag: '🇯🇵',
+    coords: [33.5904, 130.4017],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/20100719_Dazaifu_Tenmangu_Shrine_3328.jpg/500px-20100719_Dazaifu_Tenmangu_Shrine_3328.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg/500px-Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg'],
+    dates: '31 oct–3 nov', nights: 3,
+    arrival: '31 oct (Shinkansen desde Osaka)', departure: '3 nov (ferry Beetle a Busan)', lodging: null,
+    leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Hakata (Nozomi).' },
+    tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Cuna del ramen tonkotsu. Se llega de Osaka en Shinkansen (Shin-Osaka → Hakata, ~2h30) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se toma el ferry rápido Beetle de Hakata a Busan (~3h20).',
+    activities: [
+      { text: 'Yatais (puestos callejeros) en Nakasu y Tenjin', cat: 'comida' },
+      { text: 'Ramen tonkotsu en Ichiran original o Hakata Issou', cat: 'comida' },
+      { text: 'Canal City Hakata + Ohori Park', cat: 'parques' },
+      { text: 'Compras en Tenjin', cat: 'compras' },
+      { text: 'Motsunabe (hot pot de tripas)', cat: 'comida' },
+      { text: 'Acros Fukuoka (terraza-jardín escalonada)', cat: 'parques', coords: [33.59159, 130.402352], url: "https://www.google.com/maps/search/?api=1&query=Acros%20Fukuoka" }
+    ],
+    daytrips: [
+      { id: 'dazaifu', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Dazaifu_City_Hall.JPG/360px-Dazaifu_City_Hall.JPG', name: 'Dazaifu', coords: [33.5104, 130.5417], time: '40 min en tren', desc: 'Santuario Tenmangu + museo nacional de Kyushu.' },
+      { id: 'yanagawa', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Yanagawa-kawakudari.jpg/360px-Yanagawa-kawakudari.jpg', name: 'Yanagawa', coords: [33.1657, 130.4061], time: '50 min en tren', desc: 'Pueblo de canales en barca + anguila al vapor (unagi seiro).' }
+    ]
+  },
+  {
+    id: 'busan', n: 12, type: 'destino', name: 'Busan + Gyeongju', short: 'Busan', flag: '🇰🇷',
+    coords: [35.1796, 129.0756],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/500px-Haeundae_Beach_in_Busan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Haedong_Yonggungsa_Temple_near_Busan.jpg/500px-Haedong_Yonggungsa_Temple_near_Busan.jpg'],
+    dates: '3-6 nov', nights: 3,
+    arrival: '3 nov (ferry Beetle desde Fukuoka)', departure: '6 nov (KTX a Seúl)', lodging: null,
+    leg: { mode: '⛴️', time: '~3 h 20 (ferry)', detail: 'Ferry rápido Hakata → Busan (Beetle/Kobee; alt: Camellia overnight).' },
+    tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Cruce desde Fukuoka por Beetle ferry (~3h20). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
+    activities: [
+      { text: 'Gamcheon Culture Village (favela artística colorida)', cat: 'barrios' },
+      { text: 'Mercado Jagalchi (pescado más grande de Corea)', cat: 'comida' },
+      { text: 'Haedong Yonggungsa (templo sobre el mar)', cat: 'templos' },
+      { text: 'Beomeosa (templo en la montaña)', cat: 'templos' },
+      { text: 'Haeundae Beach + Songdo', cat: 'parques' },
+      { text: 'Korean BBQ + soju + jjimjilbang', cat: 'ocio' }
+    ],
+    daytrips: [
+      { id: 'gyeongju', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Gyeongju_montage.png/360px-Gyeongju_montage.png', name: 'Gyeongju', coords: [35.8562, 129.2247], time: '30 min en KTX', desc: 'Capital antigua de Silla (UNESCO). Bulguksa, Seokguram, Anapji Pond.' }
+    ]
+  },
+  {
+    id: 'seul', n: 13, type: 'destino', name: 'Seúl', short: 'Seúl', flag: '🇰🇷',
+    coords: [37.5665, 126.9780],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg/500px-Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Namsan_Tower_sunset%2C_Seoul.jpg/500px-Namsan_Tower_sunset%2C_Seoul.jpg'],
+    dates: '6-10 nov', nights: 4,
+    arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (vuelo de vuelta a Japón)',
+    lodging: {
+      name: 'Hanok premium en Bukchon (Gahoe-dong)', type: 'Airbnb · hanok premium', rating: '★4.95',
+      guests: '2 dormitorios · 2 camas · 1 baño compartido',
+      area: 'Bukchon-ro 12-gil 35-9, Gahoe-dong, Jongno-gu, Seúl 03056 · corazón de la aldea hanok de Bukchon',
+      coords: [37.5823, 126.9858],
+      checkIn: '6 nov', checkOut: '10 nov', nights: 4, booked: true,
+      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MjI3MjQxMzM%3D/original/5498d161-c2fb-462c-8f3b-d7eae180fd8e.jpeg?im_w=720',
+      url: 'https://www.airbnb.com/rooms/22724133?check_in=2026-11-06&check_out=2026-11-10&adults=2',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056'
+    },
+    leg: { mode: '🚄', time: '~2 h 40', detail: 'KTX Busan → Seúl.' },
+    tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón (Seúl → Tokio Haneda/Narita + Romancecar): una última escala en Hakone (parada 14, onsen + Fuji) antes de cerrar en Tokio para el vuelo del 17/11.',
+    activities: [
+      { text: 'Palacio Gyeongbokgung (con hanbok gratis)', cat: 'templos' },
+      { text: 'Bukchon Hanok Village + Insadong', cat: 'compras' },
+      { text: 'Gwangjang Market (comida callejera)', cat: 'comida' },
+      { text: 'Hongdae + Yeonnam-dong + Seongsu', cat: 'compras' },
+      { text: 'Myeongdong de noche + Korean BBQ', cat: 'comida' },
+      { text: 'Namsan Tower + Namdaemun', cat: 'miradores' },
+      { text: 'Dongdaemun Design Plaza (DDP, Zaha Hadid)', cat: 'museos', coords: [37.566526, 127.009224], url: "https://www.google.com/maps/search/?api=1&query=Dongdaemun%20Design%20Plaza%20%28DDP%29" },
+      { text: 'Gwangjang Market', cat: 'comida', coords: [37.57004, 126.999604], url: "https://www.google.com/maps/search/?api=1&query=Gwangjang%20Market" },
+      { text: 'Ikseon-dong (hanok cafés)', cat: 'barrios', coords: [37.574348, 126.989706], url: "https://www.google.com/maps/search/?api=1&query=Ikseon-dong" },
+      { text: 'Museo de Arte Leeum', cat: 'museos', coords: [37.537939, 126.999275], url: "https://www.google.com/maps/search/?api=1&query=Museo%20de%20Arte%20Leeum" },
+      { text: 'GENTLE MONSTER (flagship)', cat: 'museos', coords: [37.550053, 126.920083], url: "https://www.google.com/maps/search/?api=1&query=GENTLE%20MONSTER" },
+      { text: 'HAUS NOWHERE Seoul', cat: 'museos', coords: [37.538065, 127.058949], url: "https://www.google.com/maps/search/?api=1&query=HAUS%20NOWHERE%20SEOUL" },
+      { text: 'Audeum Audio Museum', cat: 'museos', coords: [37.456668, 127.058918], url: "https://www.google.com/maps/search/?api=1&query=Audeum%20Audio%20Museum" },
+      { text: 'Le Chamber (bar de cócteles)', cat: 'comida', coords: [37.526218, 127.04104], url: "https://www.google.com/maps/search/?api=1&query=Le%20Chamber" },
+      { text: 'Seoul Forest Park', cat: 'parques', coords: [37.544388, 127.037442], url: "https://www.google.com/maps/search/?api=1&query=Seoul%20Forest%20Park" },
+      { text: 'Haneul Park (pampas en Mapo)', cat: 'parques', coords: [37.567453, 126.885478], url: "https://www.google.com/maps/search/?api=1&query=Haneul%20Park" },
+      { text: 'Eungbongsan Rock Climbing Park', cat: 'parques', coords: [37.548371, 127.030826], url: "https://www.google.com/maps/search/?api=1&query=Eungbongsan%20Rock%20Climbing%20Park" },
+      { text: 'Seoul Robot & AI Museum', cat: 'museos', coords: [37.6109, 127.0286], url: "https://www.google.com/maps/search/?api=1&query=SEOUL%20ROBOT%20%26%20AI%20MUSEUM" },
+      { text: '20 Samcheong-ro 5-gil (Bukchon)', cat: 'barrios', coords: [37.582816, 126.980777], url: "https://www.google.com/maps/search/?api=1&query=20%20Samcheong-ro%205-gil" }
+    ],
+    daytrips: [
+      { id: 'dmz', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/070401_Panmunjeom3.jpg/360px-070401_Panmunjeom3.jpg', name: 'DMZ Tour', coords: [37.9425, 126.6800], time: 'Bus desde el centro, 1 día', desc: 'Frontera con Corea del Norte. JSA, Dora Observatory. Reservar antes.' }
+    ]
+  },
+  {
+    id: 'hakone', n: 14, type: 'destino', name: 'Hakone (onsen + Fuji)', short: 'Hakone', flag: '🇯🇵',
+    coords: [35.2324, 139.1069],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg/500px-Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Owakudani_%40_Hakone_%2810621374853%29.jpg/500px-Owakudani_%40_Hakone_%2810621374853%29.jpg'],
+    dates: '10-12 nov', nights: 2,
+    arrival: '10 nov (vuelo Seúl→Tokio + Romancecar a Hakone)', departure: '12 nov (Romancecar/Shinkansen a Tokio)', lodging: null,
+    leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }] },
+    tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Última escala antes de Tokio: onsen + Fuji + otoño. Se llega de Seúl (vuelo a Tokio + Odakyu Romancecar a Hakone) y se cierra subiendo a Tokio en Romancecar/Shinkansen (~1h45). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
+    activities: [
+      { text: 'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)', cat: 'museos', coords: [35.24516, 139.050727], url: "https://www.google.com/maps/search/?api=1&query=Museo%20al%20Aire%20Libre%20de%20Hakone" },
+      { text: 'Owakudani (valle volcánico, huevos negros del azufre)', cat: 'parques' },
+      { text: 'Lago Ashi: barco pirata + torii del santuario de Hakone sobre el agua', cat: 'templos' },
+      { text: 'Onsen al atardecer en el ryokan', cat: 'onsen' },
+      { text: 'Vistas del monte Fuji (día despejado)', cat: 'miradores' },
+      { text: 'Castillo Odawara (puerta de entrada a Hakone)', cat: 'miradores', coords: [35.25055, 139.15355], url: "https://www.google.com/maps/search/?api=1&query=Castillo%20Odawara" }
+    ],
+    daytrips: [
+      { id: 'chureito', name: 'Chureito Pagoda', coords: [35.501263, 138.801385], time: '~1 h al norte (Yamanashi)', url: "https://www.google.com/maps/search/?api=1&query=Chureito%20Pagoda", desc: 'La pagoda con el monte Fuji de fondo, lado Yamanashi (Fujiyoshida). La postal clásica del Fuji.' }
+    ]
+  },
+  {
+    id: 'tokio-final', n: 15, type: 'destino', name: 'Tokio (final, pre-vuelo)', short: 'Tokio fin', flag: '🇯🇵',
+    coords: [35.6895, 139.7000],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Meiji_Jingu_Stadium_aerial_view.jpg/500px-Meiji_Jingu_Stadium_aerial_view.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg'],
+    dates: '12-17 nov', nights: 5,
+    arrival: '12 nov (desde Hakone)', departure: '17 nov 17:45 (vuelo UA6 desde Narita/NRT)', lodging: null,
+    leg: { mode: '🚆', time: '~1 h 45', detail: 'Romancecar/Shinkansen Hakone → Tokio.' },
+    departureLeg: { mode: '✈️', time: '~25 h · 1 escala', detail: 'Vuelta Tokio Narita → EZE · United Polaris business', segments: [
+      { route: 'NRT → IAH', no: 'UA6', when: '17 nov 17:45 → 17 nov 14:40', aircraft: 'B787-9 · 11h55', tracker: 'https://flightaware.com/live/flight/UAL6' },
+      { layover: 'escala Houston · 3 h 50' },
+      { route: 'IAH → EZE', no: 'UA831', when: '17 nov 18:30 → 18 nov 7:20', aircraft: 'B777-200 · 9h50', tracker: 'https://flightaware.com/live/flight/UAL831' }
+    ] },
+    tempMax: '11-24', tempMin: '4-14', weatherUpdated: '2026-07-10', weatherMode: 'climatología',
+    intro: 'Cierre del viaje: 5 noches de vuelta en Tokio (llega de Hakone en Romancecar/Shinkansen, ~1h45; última noche 16/11; el 17 es el día previo al vuelo de la tarde), como buffer pre-vuelo antes del UA6 que sale de Narita el 17/11 17:45. A mediados de noviembre Tokio entra en pico de ginkgo amarillo y koyo (Meiji Jingu Gaien, Rikugien, Koishikawa). Acá van los que quedaron del arranque: teamLab, museos, Yanaka y compras sin apuro.',
+    activities: [
+      { text: 'Ginkgos de Meiji Jingu Gaien + koyo en Rikugien / Koishikawa Korakuen', cat: 'parques' },
+      { text: 'TeamLab Planets/Borderless (reservar online)', cat: 'museos' },
+      { text: 'Yanaka + Nezu + Sendagi (Tokio "viejo")', cat: 'barrios' },
+      { text: 'Museo Ghibli si conseguís entrada', cat: 'museos' },
+      { text: 'Compras finales: Nakano Broadway, Harajuku, Ginza', cat: 'compras' },
+      { text: 'Última cena: Golden Gai u Omoide Yokocho', cat: 'comida' }
+    ],
+    daytrips: []
+  }
+];
+
+// Lugares guardados de Google Maps que no caen dentro de ningún destino (>60km o sin geocodificar): pins/chips sueltos.
+const orphanPlaces = [
+  { name: "Yakushima National Park", lat: 30.346433, lon: 130.505887, url: "https://www.google.com/maps/search/?api=1&query=Yakushima%20National%20Park" },
+  { name: "Tashirojima", lat: 38.294207, lon: 141.416446, url: "https://www.google.com/maps/search/?api=1&query=Tashirojima" },
+  { name: "Ōuchi-juku", lat: 37.334315, lon: 139.86078, url: "https://www.google.com/maps/search/?api=1&query=%C5%8Cuchi-juku" },
+  { name: "Goshikinuma Ponds", lat: 37.650875, lon: 140.073201, url: "https://www.google.com/maps/search/?api=1&query=Goshikinuma%20Ponds" },
+  { name: "Geibikei Gorge", lat: 38.989448, lon: 141.255452, url: "https://www.google.com/maps/search/?api=1&query=Geibikei%20Gorge" },
+  { name: "Takamatsu Pond", lat: 39.722766, lon: 141.14456, url: "https://www.google.com/maps/search/?api=1&query=Takamatsu%20Pond" },
+  { name: "Castillo de Aizuwakamatsu", lat: 37.48782, lon: 139.929666, url: "https://www.google.com/maps/search/?api=1&query=Castillo%20de%20Aizuwakamatsu" },
+  { name: "Parque Chansey", lat: null, lon: null, url: "https://www.google.com/maps/search/?api=1&query=Parque%20Chansey" },
+  { name: "Narai-juku", lat: 35.9683, lon: 137.814538, url: "https://www.google.com/maps/search/?api=1&query=Narai-juku" },
+  { name: "Kotakuji", lat: 35.482415, lon: 138.474794, url: "https://www.google.com/maps/search/?api=1&query=Kotakuji" },
+  { name: "Oirase keiryū Gorge", lat: 40.489962, lon: 140.952549, url: "https://www.google.com/maps/search/?api=1&query=Oirase%20keiry%C5%AB%20Gorge" },
+  { name: "Aomori Museum of Art", lat: 40.807416, lon: 140.70086, url: "https://www.google.com/maps/search/?api=1&query=Aomori%20Museum%20of%20Art" },
+  { name: "Aomori", lat: 40.82222, lon: 140.747352, url: "https://www.google.com/maps/search/?api=1&query=Aomori" },
+  { name: "Ginzan Onsen", lat: 38.570618, lon: 140.530546, url: "https://www.google.com/maps/search/?api=1&query=Ginzan%20Onsen" },
+  { name: "Chichu Art Museum", lat: 34.447748, lon: 133.984717, url: "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum" },
+  { name: "Benesse House Oval", lat: 34.446669, lon: 133.991399, url: "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Oval" },
+  { name: "Shirakawa", lat: 35.681455, lon: 139.803403, url: "https://www.google.com/maps/search/?api=1&query=Shirakawa" },
+];
+
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([36, 134], 5);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+const routeCoords = destinations.map(d => d.coords);
+
+// Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
+// se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
+const MODE_STYLE = {
+  air:   { color: '#2563EB', dash: '1, 7',         label: 'Vuelo', icon: '✈️', weight: 2 },  // azul, punteado fino
+  train: { color: '#0F8A5F', dash: null,           label: 'Tren',  icon: '🚆', weight: 4 },  // verde, sólido grueso
+  bus:   { color: '#E08A1E', dash: '11, 8',        label: 'Bus',   icon: '🚌', weight: 3 },  // naranja, guion largo
+  ferry: { color: '#15A6C9', dash: '2, 6, 10, 6',  label: 'Ferry', icon: '⛴️', weight: 3 },  // cyan, guion-punto
+};
+function legType(leg) {
+  const m = (leg && leg.mode) || '';
+  if (m.indexOf('✈️') !== -1) return 'air';
+  if (m.indexOf('⛴️') !== -1) return 'ferry';
+  if (m.indexOf('🚄') !== -1 || m.indexOf('🚆') !== -1) return 'train';
+  if (m.indexOf('🚌') !== -1) return 'bus';
+  return 'train';
+}
+// Sub-detalle de un tramo (segmentos: vuelos/tramos con nº, horarios, avión, tracker).
+function legSegsHtml(leg) {
+  if (!leg || !leg.segments || !leg.segments.length) return '';
+  return '<div class="leg-segs">' + leg.segments.map(s => {
+    if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
+    return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="seg-route">' + s.route + (s.no ? ' <span class="seg-no">' + s.no + '</span>' : '') + '</span>' +
+      '<span class="seg-time">' + (s.when || '') + (s.aircraft ? '<br>' + s.aircraft : '') + '</span>' +
+    '</a>';
+  }).join('') + '</div>';
+}
+
+// Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
+// con color/trazo según el modo. Cada segmento es clickeable (→ resalta el tramo
+// en el panel) y queda referenciado por id del nodo destino para el link inverso.
+const legSegments = {};
+const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
+const flightLayer = L.layerGroup().addTo(map);  // vuelos
+function styleFor(mode) {
+  const st = MODE_STYLE[mode];
+  return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
+  // dibuja con su modo (así los buses aparecen y los vuelos sólo en la parte aérea).
+  // Si no, una sola línea del modo primario (con waypoints `via` si los hay).
+  let subsegs;
+  if (b.leg && b.leg.path) {
+    let from = a.coords;
+    subsegs = b.leg.path.map(step => { const seg = { pts: [from, step.to], mode: step.m }; from = step.to; return seg; });
+  } else {
+    const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
+    subsegs = [{ pts: pts, mode: legType(b.leg) }];
+  }
+  const pls = subsegs.map(seg => {
+    const base = styleFor(seg.mode);
+    const pl = L.polyline(seg.pts, base).addTo(seg.mode === 'air' ? flightLayer : routeLayer);
+    pl.on('click', () => { focusTrip(b.id); highlightSegment(b.id); });  // mapa → panel
+    return { pl: pl, base: base };
+  });
+  legSegments[b.id] = pls;
+}
+
+// Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
+// de transporte del panel y por focusTrip. Resalta TODOS los sub-tramos del leg.
+function highlightSegment(id) {
+  const arr = legSegments[id];
+  if (!arr || !arr.length) return;
+  const bounds = L.latLngBounds([]);
+  arr.forEach(s => {
+    s.pl.setStyle({ color: '#D85A30', weight: 6, opacity: 1, dashArray: null });
+    s.pl.bringToFront();
+    bounds.extend(s.pl.getBounds());
+  });
+  try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
+  setTimeout(() => arr.forEach(s => s.pl.setStyle(s.base)), 1800);
+}
+
+// Aeropuertos usados en el viaje (markers ✈).
+const airports = [
+  { code: 'HND', name: 'Tokio Haneda', coords: [35.5494, 139.7798] },
+  { code: 'NRT', name: 'Tokio Narita', coords: [35.7720, 140.3929] },
+  { code: 'SDJ', name: 'Sendai', coords: [38.1397, 140.9171] },
+  { code: 'CTS', name: 'New Chitose · Sapporo', coords: [42.7752, 141.6923] },
+  { code: 'KMQ', name: 'Komatsu · Kanazawa', coords: [36.3946, 136.4076] },
+  { code: 'GMP', name: 'Seúl Gimpo', coords: [37.5583, 126.7906] },
+  // Américas plotadas con lng+360 para que el vuelo cruce el Pacífico por la DERECHA
+  // (en un mapa centrado en Asia, las Américas quedan al este). Si no, la línea daba
+  // la vuelta al mundo por el lado equivocado (Europa/África).
+  { code: 'IAH', name: 'Houston (escala)', coords: [29.9844, 264.6586] },
+  { code: 'EZE', name: 'Buenos Aires Ezeiza', coords: [-34.8222, 301.4642] }
+];
+// Aeropuertos en la MISMA capa que las líneas de vuelo (toggle "Vuelos" agrupa ambos).
+airports.forEach(ap => {
+  const icon = L.divIcon({ html: '<div class="airport-marker">✈</div>', className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
+  L.marker(ap.coords, { icon }).addTo(flightLayer)
+    .bindPopup('<div class="popup-title">✈ ' + ap.name + ' (' + ap.code + ')</div>');
+});
+
+// Vuelos internacionales de IDA y VUELTA graficados (en flightLayer). NO entran al
+// fitBounds para no achicar Japón; se ven al alejar el zoom.
+const _EZE = [-34.8222, 301.4642], _IAH = [29.9844, 264.6586], _HND = [35.5494, 139.7798], _NRT = [35.7720, 140.3929];
+const _intlStyle = { color: MODE_STYLE.air.color, weight: 2, opacity: 0.6, dashArray: '1, 7' };
+L.polyline([_EZE, _IAH, _HND, destinations[0].coords], _intlStyle).addTo(flightLayer)
+  .bindPopup('<div class="popup-title">✈ Ida · EZE → IAH → Tokio (6–8 oct)</div>');
+L.polyline([destinations[destinations.length - 1].coords, _NRT, _IAH, _EZE], _intlStyle).addTo(flightLayer)
+  .bindPopup('<div class="popup-title">✈ Vuelta · Tokio → IAH → EZE (17–18 nov)</div>');
+
+// Leyenda de modos de transporte (colores de las líneas).
+const routeLegend = L.control({ position: 'topright' });
+routeLegend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'route-legend');
+  div.innerHTML = ['air', 'train', 'bus', 'ferry'].map(k => {
+    const s = MODE_STYLE[k];
+    return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
+  }).join('');
+  return div;
+};
+routeLegend.addTo(map);
+
+// Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
+function gmapsFromName(name) {
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+}
+// Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
+function lodgingHtml(L) {
+  if (!L) return '';
+  const sub = [L.type, L.guests].filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
+  // Links explícitos: Airbnb (si url es de airbnb) y/o Google Maps (url de maps o mapsUrl de la dirección).
+  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(/airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps'));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  const inner =
+    (L.img ? '<img class="lodging-img" src="' + L.img + '" loading="lazy" alt="">' : '') +
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
+      (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
+      (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
+      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
+      '<div class="lodging-meta">' + meta + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div><div class="lodging-card">' + inner + '</div>';
+}
+
+// Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
+function lodgingPopupHtml(L) {
+  const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
+  let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
+  if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
+  if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
+  return h;
+}
+
+function miniPopup(img, title, sub, mapsUrl) {
+  return '<div class="mini-pop">' +
+    (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
+    '<div class="popup-title">' + title + '</div>' +
+    (sub ? '<div class="popup-dates">' + sub + '</div>' : '') +
+    (mapsUrl ? '<a class="mini-pop-maps" href="' + mapsUrl + '" target="_blank" rel="noopener">Ver en Google Maps →</a>' : '') +
+  '</div>';
+}
+
+const markers = {};
+const destLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const isFullday = d.type === 'fullday';
+  const icon = isFullday
+    ? L.divIcon({
+        html: '<div class="marker-diamond-wrap"><div class="marker-diamond" data-id="' + d.id + '"><span>' + d.n + '</span></div></div>',
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17],
+      })
+    : L.divIcon({
+        html: '<div class="marker-num" data-id="' + d.id + '">' + d.n + '</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+  const marker = L.marker(d.coords, { icon }).addTo(destLayer);
+  const datesLine = isFullday
+    ? d.dates + ' · pasar el día'
+    : d.dates + ' · ' + d.nights + ' noches';
+  marker.bindPopup(
+    miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+  );
+  markers[d.id] = marker;
+});
+
+const dtMarkers = {};
+const dtLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  d.daytrips.forEach(dt => {
+    const icon = L.divIcon({
+      html: '<div class="marker-dot" data-id="' + dt.id + '"></div>',
+      className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+    });
+    const marker = L.marker(dt.coords, { icon }).addTo(dtLayer);
+    marker.bindPopup(
+      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time, dt.url || gmapsFromName(dt.name))
+    );
+    dtMarkers[dt.id] = marker;
+  });
+});
+
+// LUGARES GUARDADOS (Google Maps) — puntitos sutiles dentro de cada destino,
+// y pins distintos (anillo naranja) para los orphans que no caen en ningún destino.
+function placePopup(p, sub) {
+  return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
+}
+
+// Categorías de "Qué hacer" (etiqueta + orden de despliegue).
+const CAT_LABELS = {
+  comida: '🍜 Comida', templos: '⛩️ Templos y santuarios', museos: '🏛️ Museos y arte',
+  parques: '🌳 Parques y naturaleza', barrios: '🏙️ Barrios y paseos', compras: '🛍️ Compras',
+  miradores: '🗼 Miradores y arquitectura', onsen: '♨️ Onsen', ocio: '🎢 Ocio', otros: '✨ Otros'
+};
+const CAT_ORDER = ['templos','museos','parques','miradores','barrios','comida','compras','onsen','ocio','otros'];
+
+// Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
+// vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
+const actMarkers = {};
+const savedPlaceLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  (d.activities || []).forEach((a, i) => {
+    if (!a.coords) return;
+    const m = L.circleMarker(a.coords, {
+      radius: 4, color: '#0F6E56', weight: 1.5, opacity: 0.95,
+      fillColor: '#1D9E75', fillOpacity: 0.85,
+    }).addTo(savedPlaceLayer);
+    m.bindPopup(
+      miniPopup(a.img, a.text, d.short + ' · ' + (CAT_LABELS[a.cat] || a.cat), a.url || gmapsFromName(a.text))
+    );
+    actMarkers[d.id + ':' + i] = m;
+  });
+});
+
+// Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+const lodgingLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const lodg = d.lodging;
+  if (!lodg || !lodg.coords) return;
+  const icon = L.divIcon({
+    html: '<div class="lodging-marker">🛏️</div>',
+    className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+  });
+  L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+    '<div class="mini-pop">' +
+      (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+      '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+      '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+        (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+      (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+    '</div>'
+  );
+});
+
+const orphanPlaceLayer = L.layerGroup().addTo(map);
+orphanPlaces.forEach(p => {
+  if (p.lat == null || p.lon == null) return;
+  L.circleMarker([p.lat, p.lon], {
+    radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
+    fillColor: '#fbbf77', fillOpacity: 0.6,
+  }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+});
+
+const placeCoords = destinations
+  .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
+  .concat(orphanPlaces.filter(p => p.lat != null).map(p => [p.lat, p.lon]));
+const allCoords = routeCoords
+  .concat(destinations.flatMap(d => d.daytrips.map(dt => dt.coords)))
+  .concat(destinations.filter(d => d.lodging && d.lodging.coords).map(d => d.lodging.coords))
+  .concat(placeCoords);
+map.fitBounds(L.latLngBounds(allCoords), { padding: [40, 40] });
+
+const detailsList = document.getElementById('details-list');
+const cards = {};
+const legRows = {};   // id -> la fila de transporte que precede a esa card
+const galleries = {}; // id -> array de URLs de fotos (para el lightbox)
+
+destinations.forEach((d, idx) => {
+  const isFullday = d.type === 'fullday';
+  const card = document.createElement('article');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '');
+  card.dataset.id = d.id;
+
+  const dtHtml = d.daytrips.length > 0
+    ? '<div class="card-section-title">Day trips</div>' +
+      d.daytrips.map(dt =>
+        '<div class="dt-row" data-dt-id="' + dt.id + '">' +
+          '<div class="dt-row-header">' +
+            '<span class="dt-row-name">' + dt.name + '</span>' +
+            '<span class="dt-row-time">' + dt.time + '</span>' +
+          '</div>' +
+          '<div class="dt-row-desc">' + dt.desc + '</div>' +
+        '</div>'
+      ).join('')
+    : '';
+
+  const numHtml = isFullday
+    ? '<div class="card-num fullday"><span>' + d.n + '</span></div>'
+    : '<div class="card-num">' + d.n + '</div>';
+  const flagCC = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const flagImgHtml = (d.flag && flagCC[d.flag])
+    ? '<img class="dest-flag" src="https://flagcdn.com/' + flagCC[d.flag] + '.svg" alt="' + d.flag + '">'
+    : '';
+  const titleHtml = isFullday
+    ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
+    : '<h2>' + d.name + '</h2>';
+  const metaHtml = isFullday
+    ? '<div class="card-meta">' + d.dates + ' · pasar el día</div>'
+    : '<div class="card-meta">' + d.dates + ' · ' + d.nights + ' noches</div>';
+
+  // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
+  if (d.leg) {
+    const legRow = document.createElement('div');
+    legRow.className = 'leg-row';
+    const prev = destinations[idx - 1];
+    // dirUrl explícito (vuelo→Google Flights, bus privado→japanbusonline, etc.);
+    // si no, Google Maps directions en transporte público entre los dos nodos.
+    const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] +
+        '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+      : '');
+    const dirLink = dirHref
+      ? '<a class="leg-dir" target="_blank" rel="noopener" href="' + dirHref + '">' +
+        (d.leg.dirLabel || 'cómo llegar ↗') + '</a>'
+      : '';
+    const t = legType(d.leg);
+    const lt = MODE_STYLE[t];
+    const isAir = t === 'air';
+    const bodyHtml = legSegsHtml(d.leg) + (dirLink ? '<div class="leg-actions">' + dirLink + '</div>' : '');
+    // Los vuelos arrancan expandidos (más espaciosos, como una tarjeta); el resto colapsado.
+    legRow.className = 'leg-row leg-' + t + (isAir ? ' open' : '');
+    legRow.innerHTML =
+      '<div class="leg-head">' +
+        '<span class="leg-mode">' + d.leg.mode + '</span>' +
+        '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+        '<span class="leg-text"><strong>' + d.leg.time + '</strong> · ' + d.leg.detail + '</span>' +
+        '<button type="button" class="leg-ficha" title="Ver ficha del tramo" aria-label="Ver ficha del tramo">⤢</button>' +
+        (bodyHtml ? '<span class="leg-chevron">▸</span>' : '') +
+      '</div>' +
+      (bodyHtml ? '<div class="leg-body">' + bodyHtml + '</div>' : '');
+    // Click en el header → expande/colapsa + resalta el tramo en el mapa (panel → mapa).
+    legRow.querySelector('.leg-head').addEventListener('click', (e) => {
+      if (e.target.closest('.leg-dir') || e.target.closest('.leg-seg') || e.target.closest('.leg-ficha')) return;
+      legRow.classList.toggle('open');
+      highlightSegment(d.id);
+    });
+    legRow.querySelector('.leg-ficha').addEventListener('click', (e) => { e.stopPropagation(); openLegModal(d.id); });
+    detailsList.appendChild(legRow);
+    legRows[d.id] = legRow;
+  }
+
+  const tempsHtml =
+    '<div class="detail-temps">' +
+      '<div class="temp-pill temp-min"><span class="temp-label">Mín</span><span class="temp-value">' + d.tempMin + '°</span></div>' +
+      '<div class="temp-pill temp-max"><span class="temp-label">Máx</span><span class="temp-value">' + d.tempMax + '°</span></div>' +
+      '<span class="temp-note">' + d.weatherMode + '</span>' +
+    '</div>';
+
+  const thumbHtml = d.img ? '<img class="itin-thumb" src="' + d.img + '" loading="lazy" alt="">' : '';
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  galleries[d.id] = gal;
+  const galleryHtml = gal.length
+    ? '<div class="detail-gallery">' + gal.map((u, gi) =>
+        '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
+
+  card.innerHTML =
+    '<div class="itin-head">' +
+      numHtml +
+      thumbHtml +
+      '<div class="card-title-wrap">' +
+        titleHtml +
+        metaHtml +
+      '</div>' +
+      flagImgHtml +
+      '<span class="itin-caret">▸</span>' +
+    '</div>' +
+    '<div class="card-detail">' +
+      galleryHtml +
+      '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
+      tempsHtml +
+      '<p class="card-intro">' + d.intro + '</p>' +
+      lodgingHtml(d.lodging) +
+      (d.activities.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="qh-body open">' +
+            CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+              '<div class="cat-group">' +
+                '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
+                '<ul class="card-list">' +
+                  d.activities.map((a, i) => [a, i]).filter(([a]) => a.cat === c).map(([a, i]) =>
+                    a.coords
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + a.text + '</li>'
+                  ).join('') +
+                '</ul>' +
+              '</div>'
+            ).join('') +
+          '</div>'
+        : '') +
+      dtHtml +
+    '</div>';
+  detailsList.appendChild(card);
+  cards[d.id] = card;
+
+  card.addEventListener('mouseenter', () => { highlightMarker(d.id); });
+  card.addEventListener('mouseleave', () => { unhighlightMarker(d.id); });
+
+  card.querySelector('.itin-head').addEventListener('click', () => {
+    const open = card.classList.toggle('open');
+    if (open) { markers[d.id].openPopup(); map.flyTo(d.coords, 8, { duration: 0.8 }); }
+  });
+
+  card.querySelector('.ficha-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openStopModal(d.id);
+  });
+
+  const qhToggle = card.querySelector('.qh-toggle');
+  if (qhToggle) {
+    qhToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const body = card.querySelector('.qh-body');
+      const open = body.classList.toggle('open');
+      qhToggle.classList.toggle('open', open);
+    });
+  }
+
+  card.querySelectorAll('.act-row').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const m = actMarkers[btn.dataset.act];
+      if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+    });
+  });
+
+  card.querySelectorAll('.dt-row').forEach(row => {
+    const dtId = row.dataset.dtId;
+    row.addEventListener('mouseenter', (e) => { e.stopPropagation(); highlightDaytrip(dtId); });
+    row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dtMarkers[dtId].openPopup();
+      const dt = d.daytrips.find(x => x.id === dtId);
+      map.flyTo(dt.coords, 9, { duration: 0.8 });
+    });
+  });
+});
+
+// Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
+const _lastDep = destinations[destinations.length - 1].departureLeg;
+if (_lastDep) {
+  const lt = MODE_STYLE[legType(_lastDep)];
+  const depRow = document.createElement('div');
+  depRow.className = 'leg-row leg-' + legType(_lastDep) + ' open';
+  depRow.innerHTML =
+    '<div class="leg-head">' +
+      '<span class="leg-mode">' + _lastDep.mode + '</span>' +
+      '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+      '<span class="leg-text"><strong>' + _lastDep.time + '</strong> · ' + _lastDep.detail + '</span>' +
+      '<span class="leg-chevron">▸</span>' +
+    '</div>' +
+    '<div class="leg-body">' + legSegsHtml(_lastDep) + '</div>';
+  depRow.querySelector('.leg-head').addEventListener('click', () => depRow.classList.toggle('open'));
+  detailsList.appendChild(depRow);
+}
+
+// Lugares guardados que no caen en ningún destino: tarjeta propia al final de la lista.
+if (orphanPlaces.length > 0) {
+  const oc = document.createElement('article');
+  oc.className = 'orphan-card';
+  oc.innerHTML =
+    '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa aparecen con anillo naranja.</p>' +
+    '<div class="orphan-list">' +
+      orphanPlaces.map(p =>
+        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
+      ).join('') +
+    '</div>';
+  detailsList.appendChild(oc);
+  oc.querySelectorAll('.saved-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const p = orphanPlaces.find(x => x.name === chip.textContent);
+      if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+    });
+  });
+}
+
+function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+
+// Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
+// "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
+// Ancla al top del bloque para que la carga de imágenes de abajo no descoloque el scroll.
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+// --- Deep-linking: ?stop=<id> abre y enfoca una parada (para compartir una vista). ---
+function shareUrl(kind, id) {
+  return location.origin + location.pathname + '?' + kind + '=' + encodeURIComponent(id);
+}
+function setView(kind, id) {  // kind: 'stop' | 'leg' | null
+  const u = new URL(location.href);
+  u.searchParams.delete('stop'); u.searchParams.delete('leg');
+  if (kind && id) u.searchParams.set(kind, id);
+  history.replaceState(null, '', u);
+}
+function hasViewParam() {
+  const s = new URLSearchParams(location.search);
+  return s.get('stop') || s.get('leg');
+}
+// --- Ficha individual por parada (modal): info condensada + mini-mapa con sus pines/rutas. ---
+let _smMap = null, _smLayer = null;
+function ensureStopModal() {
+  let el = document.getElementById('stop-modal');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stop-modal';
+  el.className = 'stop-modal';
+  el.hidden = true;
+  el.innerHTML =
+    '<div class="sm-backdrop"></div>' +
+    '<div class="sm-dialog" role="dialog" aria-modal="true">' +
+      '<div class="sm-topbar">' +
+        '<button type="button" class="sm-share" title="Copiar link a esta parada">🔗 Copiar link</button>' +
+        '<button type="button" class="sm-close" aria-label="Cerrar">×</button>' +
+      '</div>' +
+      '<div class="sm-content"></div>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('.sm-backdrop').addEventListener('click', closeStopModal);
+  el.querySelector('.sm-close').addEventListener('click', closeStopModal);
+  return el;
+}
+function closeStopModal() {
+  const el = document.getElementById('stop-modal');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.classList.remove('sm-open');
+  if (hasViewParam()) setView(null);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+
+function smBodyHtml(d) {
+  const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
+  const meta = d.type === 'fullday' ? (d.dates + ' · pasar el día') : (d.dates + ' · ' + d.nights + ' noches');
+  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
+  const acts = (d.activities && d.activities.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
+        CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+          '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
+            d.activities.filter(a => a.cat === c).map(a =>
+              a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
+                    : '<li class="act-row-plain">' + a.text + '</li>'
+            ).join('') +
+          '</ul></div>'
+        ).join('') +
+      '</div>'
+    : '';
+  const dts = (d.daytrips && d.daytrips.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
+        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+      '</ul></div>'
+    : '';
+  return (
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
+    hero +
+    '<div id="sm-map" class="sm-map"></div>' +
+    (d.intro ? '<p class="sm-intro">' + d.intro + '</p>' : '') +
+    lodgingHtml(d.lodging) + leg + acts + dts
+  );
+}
+function buildStopMiniMap(d, idx) {
+  const c = document.getElementById('sm-map');
+  if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const pts = [];
+  if (idx > 0 && d.leg) {  // tramo de llegada, por modo real
+    const a = destinations[idx - 1];
+    let subsegs;
+    if (d.leg.path) { let from = a.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+  }
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  pts.push(d.coords);
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  if (d.lodging && d.lodging.coords) { L.marker(d.lodging.coords, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging)); pts.push(d.lodging.coords); }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
+}
+function _wireShare(el, kind, id) {
+  const sb = el.querySelector('.sm-share');
+  sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link';
+  sb.onclick = () => {
+    const link = shareUrl(kind, id);
+    const done = () => { sb.classList.add('copied'); sb.innerHTML = '✓ Link copiado'; setTimeout(() => { sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link'; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(() => prompt('Copiá el link:', link));
+    else prompt('Copiá el link:', link);
+  };
+}
+function _showModal(el) { el.hidden = false; document.body.classList.add('sm-open'); el.querySelector('.sm-dialog').scrollTop = 0; }
+
+function openStopModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = smBodyHtml(d);
+  _wireShare(el, 'stop', d.id);
+  _showModal(el);
+  setView('stop', id);
+  buildStopMiniMap(d, idx);
+}
+
+// Ficha de un TRAMO de transporte: modo, duración, segmentos + mini-mapa de la ruta real.
+function legBodyHtml(d, idx) {
+  const prev = idx > 0 ? destinations[idx - 1] : null;
+  const t = legType(d.leg), lt = MODE_STYLE[t];
+  const origin = prev ? prev.short : 'Buenos Aires';
+  const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] + '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+    : '');
+  const dir = dirHref ? '<a class="sm-act" href="' + dirHref + '" target="_blank" rel="noopener">' + (d.leg.dirLabel || 'Cómo llegar en Maps ↗') + '</a>' : '';
+  return (
+    '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
+      '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + ' · llega ' + segStartDate(d.dates) + '</div></div></div>' +
+    '<div id="sm-map" class="sm-map"></div>' +
+    '<p class="sm-intro">' + d.leg.detail + '</p>' +
+    (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
+    (dir ? '<div class="sm-sec">' + dir + '</div>' : '')
+  );
+}
+function buildLegMiniMap(d, idx) {
+  const c = document.getElementById('sm-map'); if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const prev = idx > 0 ? destinations[idx - 1] : null, pts = [];
+  if (prev) {
+    let subsegs;
+    if (d.leg.path) { let from = prev.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [prev.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+    [prev, d].forEach(node => { L.marker(node.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + node.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(node.short); pts.push(node.coords); });
+  } else {
+    L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(d.short); pts.push(d.coords);
+  }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 11 }); } catch (e) { _smMap.setView(d.coords, 8); } }, 60);
+}
+function openLegModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0 || !destinations[idx].leg) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = legBodyHtml(d, idx);
+  _wireShare(el, 'leg', d.id);
+  _showModal(el);
+  setView('leg', id);
+  buildLegMiniMap(d, idx);
+}
+function focusTrip(id) {
+  const card = cards[id];
+  if (!card) return;
+  card.classList.add('open');
+  if (legRows[id]) legRows[id].classList.add('open');  // expandir el módulo de transporte
+  const anchor = legRows[id] || card;
+  setTimeout(() => {
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(legRows[id]); flash(card);
+  }, 70);
+}
+
+Object.entries(markers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => { highlightMarker(id); if (cards[id]) cards[id].classList.add('active'); });
+  marker.on('mouseout', () => { unhighlightMarker(id); if (cards[id]) cards[id].classList.remove('active'); });
+  marker.on('click', () => focusTrip(id));
+});
+Object.entries(dtMarkers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => highlightDaytrip(id));
+  marker.on('mouseout', () => unhighlightDaytrip(id));
+});
+
+// Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
+// tramo (= fecha de inicio del nodo de destino). Click → abre la card del destino,
+// donde la fila de transporte (leg) está justo arriba.
+function segStartDate(s) {
+  const day = s.match(/^\s*(\d{1,2})/);
+  const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
+  return day && mon ? day[1] + ' ' + mon[1] : s;
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  const mid = [(a.coords[0] + b.coords[0]) / 2, (a.coords[1] + b.coords[1]) / 2];
+  const segIcon = L.divIcon({
+    html: '<div class="seg-date">' + segStartDate(b.dates) + '</div>',
+    className: '', iconSize: [40, 16], iconAnchor: [20, 8],
+  });
+  L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
+    .on('click', () => focusTrip(b.id));
+}
+
+// Toggles de capas — directos en el mapa (expandidos), ocultar/mostrar cada tipo.
+// Barra de toggles propia (abajo, pills). "Lugares" unifica actividades + day trips + guardados.
+const TOGGLES = [
+  { label: 'Destinos',   icon: '📍', layers: [destLayer] },
+  { label: 'Transporte', icon: '🚆', layers: [routeLayer] },
+  { label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
+  { label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
+  { label: 'Lugares',    icon: '⭐', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+];
+const togglesBar = document.createElement('div');
+togglesBar.className = 'map-toggles';
+TOGGLES.forEach(t => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mt active';
+  btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+  btn.addEventListener('click', () => {
+    const on = btn.classList.toggle('active');
+    t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  });
+  togglesBar.appendChild(btn);
+});
+map.getContainer().appendChild(togglesBar);
+L.DomEvent.disableClickPropagation(togglesBar);
+L.DomEvent.disableScrollPropagation(togglesBar);
+
+// Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
+(function () {
+  const s = new URLSearchParams(location.search);
+  const stop = s.get('stop'), leg = s.get('leg');
+  if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
+  else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
+})();
+
+// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+(function () {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lb-btn lb-close">×</span><span class="lb-btn lb-prev">‹</span>' +
+    '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img');
+  let cur = [], idx = 0;
+  const show = () => { img.src = cur[idx]; };
+  const close = () => { lb.classList.remove('open'); img.src = ''; };
+  const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
+  detailsList.addEventListener('click', (e) => {
+    const t = e.target.closest('.gallery-thumb');
+    if (!t) return;
+    e.stopPropagation();
+    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
+    show(); lb.classList.add('open');
+  });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+
+// CHART
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const avg = (range) => { const [lo, hi] = range.split('-').map(Number); return Math.round((lo + hi) / 2); };
+
+const weatherChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: destinations.map(d => d.short),
+    datasets: [
+      { label: 'Máx', data: destinations.map(d => avg(d.tempMax)), borderColor: '#D85A30', backgroundColor: 'rgba(216, 90, 48, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D85A30', borderWidth: 2, fill: '+1' },
+      { label: 'Mín', data: destinations.map(d => avg(d.tempMin)), borderColor: '#1D9E75', backgroundColor: 'rgba(29, 158, 117, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#1D9E75', borderWidth: 2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
+        callbacks: {
+          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + ' · ' + d.dates; },
+          label: (item) => { const d = destinations[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        const d = destinations[idx];
+        focusTrip(d.id);
+        map.flyTo(d.coords, 7, { duration: 0.8 });
+      }
+    },
+    onHover: (event, elements) => { event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default'; },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 5, suggestedMax: 30, ticks: { callback: (v) => v + '°', font: { size: 10 }, color: 'rgba(0,0,0,0.5)', padding: 4 }, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+      x: { ticks: { font: { size: 9 }, color: 'rgba(0,0,0,0.55)', maxRotation: 35, minRotation: 35, autoSkip: false }, grid: { display: false, drawBorder: false } }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Panel de temperatura colapsado por default; resize del chart al abrir (Chart.js
+// no dimensiona bien si el contenedor estaba display:none).
+(function () {
+  const tgl = document.getElementById('chart-toggle');
+  const wrap = document.getElementById('chart-wrap');
+  if (tgl && wrap) {
+    tgl.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      tgl.classList.toggle('open', open);
+      if (open) setTimeout(() => weatherChart.resize(), 30);
+    });
+  }
+})();
+</script>
+</body>
+</html>

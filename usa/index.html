@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadtrip USA · costa a costa · 2026</title>
+<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="favicon-64.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  .site-header {
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; }
+  .header-title h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .header-title .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+  .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
+  .header-stats strong { color: #1a1a1a; font-weight: 600; }
+
+  main.dashboard {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; position: relative; }
+  .map-toggles { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 92%; }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-toggles .mt.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .map-toggles .mt:not(.active) { opacity: 0.92; }
+  .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+
+  .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+
+  .chart-section {
+    background: white;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; width: 100%; background: none; border: none; padding: 2px 0; cursor: pointer; }
+  .chart-header .qh-caret { transition: transform 0.15s; }
+  .chart-header.open .qh-caret { transform: rotate(90deg); }
+  .chart-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .chart-wrap { height: 200px; position: relative; display: none; }
+  .chart-wrap.open { display: block; }
+  .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .mini-pop { min-width: 150px; max-width: 210px; }
+  .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
+  .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
+  .mini-pop-maps:hover { color: #1D9E75; }
+
+  .details-section { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .details-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 4px 4px 10px; }
+
+  .flight-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .flight-card strong { color: #1a1a1a; font-weight: 600; }
+  .flight-card .flight-row { display: flex; justify-content: space-between; gap: 8px; }
+  .flight-card .flight-row + .flight-row { margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); }
+  .flight-card .flight-leg-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin: 0 0 6px; }
+  .flight-card .flight-leg-title + .flight-leg-title { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .flight-card a.flight-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 6px; margin: 0 -6px; border-radius: 6px; transition: background 0.12s; }
+  .flight-card a.flight-seg:hover { background: rgba(15, 110, 86, 0.07); }
+  .flight-card a.flight-seg .seg-route { color: #1a1a1a; font-weight: 600; }
+  .flight-card a.flight-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .flight-card a.flight-seg .seg-time { color: #666; font-size: 10px; text-align: right; }
+  .flight-card .flight-dir { border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: rgba(15,110,86,0.02); }
+  .flight-card .flight-dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .flight-card .flight-dir-label { font-size: 11px; font-weight: 700; color: #0F6E56; }
+  .flight-card .flight-dir-meta { font-size: 9px; color: #999; white-space: nowrap; }
+  .flight-card .seg-conn { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #b0b0b0; margin: 2px 0; }
+  .flight-card .seg-conn::before, .flight-card .seg-conn::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+  .flight-card .flight-note { font-size: 10px; color: #888; margin-top: 8px; line-height: 1.4; }
+
+  .dest-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dest-card:hover { border-color: rgba(15, 110, 86, 0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.active { border-color: #0F6E56; box-shadow: 0 2px 12px rgba(15, 110, 86, 0.15); }
+  .card-header { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .card-num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex-shrink: 0; }
+  .card-num.fullday { border-radius: 5px; background: #F0B84A; border-color: #B87814; color: #5A3A00; transform: rotate(45deg); }
+  .card-num.fullday span { transform: rotate(-45deg); display: block; }
+  .dest-card.fullday { border-style: dashed; border-color: rgba(184, 120, 20, 0.4); }
+  .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
+  .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
+  .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: #666; }
+  .card-temps { display: flex; gap: 6px; flex-shrink: 0; }
+  .temp-pill { display: flex; flex-direction: column; align-items: center; padding: 3px 8px; border-radius: 6px; min-width: 48px; font-size: 9px; line-height: 1.2; }
+  .temp-max { background: rgba(216, 90, 48, 0.12); color: #993C1D; }
+  .temp-min { background: rgba(29, 158, 117, 0.12); color: #0F6E56; }
+  .temp-label { font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .temp-value { font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+  .card-intro { font-size: 12px; color: #555; line-height: 1.5; margin: 0 0 10px; }
+  .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
+  .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
+  .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
+  .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
+  .leg-row:hover { background: rgba(0,0,0,0.03); }
+  .leg-head { display: flex; align-items: center; gap: 7px; }
+  .leg-air { border-left-color: #2563EB; } .leg-ferry { border-left-color: #15A6C9; }
+  .leg-train { border-left-color: #0F8A5F; } .leg-bus { border-left-color: #E08A1E; }
+  .leg-mode { font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .leg-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .leg-text { flex: 1; }
+  .leg-chevron { margin-left: auto; font-size: 10px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .leg-row.open .leg-chevron { transform: rotate(90deg); }
+  .leg-body { display: none; }
+  .leg-row.open .leg-body { display: block; }
+  .leg-actions { margin: 6px 0 1px 22px; }
+  .leg-segs { margin: 7px 0 2px 22px; padding: 6px 8px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 7px; }
+  .leg-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 5px 6px; margin: 0 -2px; border-radius: 5px; transition: background 0.12s; }
+  .leg-seg:hover { background: rgba(15,110,86,0.08); }
+  .leg-seg .seg-route { color: #1a1a1a; font-weight: 600; font-size: 12px; }
+  .leg-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .leg-seg .seg-time { color: #777; font-size: 10px; text-align: right; line-height: 1.5; }
+  .leg-layover { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #aaa; margin: 3px 0; }
+  .leg-layover::before, .leg-layover::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
+  .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
+  .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .leg-text strong { color: #555; font-weight: 600; }
+  .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
+  .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
+  .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
+  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
+  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
+  .lodging-sub { font-size: 11px; color: #666; }
+  .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
+  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-link { color: #1D9E75; text-decoration: underline; }
+  .lodging-link:hover { color: #0F6E56; }
+  .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
+  .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
+  .gallery-thumb:hover { opacity: 0.82; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
+  .lb-btn:hover { opacity: 1; }
+  .lb-close { top: 12px; right: 20px; font-size: 34px; line-height: 1; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); font-size: 48px; padding: 0 14px; }
+  .lb-prev { left: 2px; } .lb-next { right: 2px; }
+  .dest-card, .leg-row { scroll-margin-top: 14px; }
+  @keyframes cardflash { 0% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } 20% { box-shadow: 0 0 0 2px rgba(15,110,86,0.6); } 100% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } }
+  .flash { animation: cardflash 1.4s ease-out; }
+  .itin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .dest-flag { width: 28px; height: 19px; object-fit: cover; border-radius: 3px; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .itin-caret { font-size: 11px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .dest-card.open .itin-caret { transform: rotate(90deg); }
+  /* Modal de ficha individual por parada */
+  .stop-modal { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .stop-modal[hidden] { display: none; }
+  .sm-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.55); backdrop-filter: blur(2px); }
+  .sm-dialog { position: relative; background: #fbf9f5; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+  .sm-topbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(#fbf9f5, rgba(251,249,245,0.85)); }
+  .sm-share { border: 1px solid #d8d3c8; background: #fff; color: #0F6E56; cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; }
+  .sm-share:hover { background: #eef6f2; }
+  .sm-share.copied { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .sm-close { border: none; background: transparent; cursor: pointer; font-size: 24px; line-height: 1; color: #999; padding: 0 6px; }
+  .sm-close:hover { color: #333; }
+  .sm-content { padding: 0 18px 20px; }
+  .sm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sm-flag { width: 34px; height: 23px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
+  .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
+  .sm-sec { margin-bottom: 12px; }
+  .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
+  .sm-leg-mode { font-size: 15px; }
+  .sm-act { color: #0F6E56; text-decoration: none; }
+  .sm-act:hover { text-decoration: underline; }
+  .sm-dt-desc { font-size: 12px; color: #8a8478; line-height: 1.4; margin: 2px 0 6px; }
+  body.sm-open { overflow: hidden; }
+  .sm-leg-badge { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ficha-btn { width: 100%; border: 1px solid #cfe4db; background: #eef6f2; color: #0F6E56; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 8px; border-radius: 8px; margin-bottom: 10px; transition: background 0.15s; }
+  .ficha-btn:hover { background: #ddeee6; }
+  .leg-ficha { flex-shrink: 0; border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 5px; color: #999; opacity: 0.6; transition: opacity 0.15s, background 0.15s; }
+  .leg-head:hover .leg-ficha { opacity: 0.9; }
+  .leg-ficha:hover { opacity: 1; background: rgba(0,0,0,0.07); color: #444; }
+  .card-detail { display: none; margin-top: 10px; }
+  .dest-card.open .card-detail { display: block; }
+  .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
+  .cat-group { margin: 6px 0 2px; }
+  .cat-head { font-size: 11px; font-weight: 600; color: #0F6E56; margin: 6px 0 3px; }
+  .act-row { display: inline-block; width: 100%; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .act-row:hover { color: #1D9E75; }
+  .act-row-plain { font-size: 12px; line-height: 1.5; color: #444; padding: 1px 0; }
+  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row:hover .act-pin { opacity: 0.9; }
+  .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
+  .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .dt-row-name { font-size: 12px; font-weight: 500; }
+  .dt-row-time { font-size: 10px; color: #888; }
+  .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
+  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 1.5px solid #444; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, border-color 0.2s; }
+  .marker-dot.active { transform: scale(1.8); background: #fbbf77; border-color: #BA7517; }
+
+  /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
+  .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .marker-diamond { width: 26px; height: 26px; background: #F0B84A; border: 2px solid #B87814; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .marker-diamond span { transform: rotate(-45deg); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; color: #5A3A00; }
+  .marker-diamond.active { transform: rotate(45deg) scale(1.4); background: #E89B17; z-index: 1000 !important; }
+
+  /* Lugares guardados de Google Maps */
+  .saved-chip { font-size: 11px; color: #0F6E56; text-decoration: none; background: rgba(15, 110, 86, 0.07); border: 1px solid rgba(15, 110, 86, 0.15); border-radius: 12px; padding: 3px 9px; line-height: 1.3; transition: background 0.12s; }
+  .saved-chip:hover { background: rgba(15, 110, 86, 0.15); }
+  .saved-chip.no-coord { color: #999; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+
+  /* Sección de lugares sin destino, debajo de la lista */
+  .orphan-card { background: white; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); padding: 14px 16px; margin-bottom: 10px; }
+  .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
+  .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    main.dashboard { grid-template-columns: 1fr; grid-template-rows: 50vh auto; overflow: visible; }
+    .map-pane { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .content-pane { overflow: visible; }
+    .details-section { overflow: visible; }
+    .header-stats { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-title">
+    <h1>Roadtrip USA · costa a costa</h1>
+    <span class="subtitle">5 sep – 4 oct 2026</span>
+  </div>
+  <div class="header-stats">
+    <span><strong>Atlántico</strong> Nueva York</span>
+    <span><strong>29</strong> noches</span>
+    <span><strong>15</strong> paradas</span>
+    <span><strong>~4.360 mi</strong> manejando</span>
+    <span><strong>Pacífico</strong> San Francisco</span>
+  </div>
+</header>
+
+<main class="dashboard">
+  <div class="map-pane">
+    <div id="map"></div>
+  </div>
+
+  <div class="content-pane">
+    <div class="chart-section">
+      <button type="button" class="chart-header" id="chart-toggle">
+        <span class="chart-title">Temperatura por destino</span>
+        <span class="qh-caret">▸</span>
+      </button>
+      <div class="chart-wrap" id="chart-wrap">
+        <canvas id="weatherChart"></canvas>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="details-title">Itinerario · click en una parada · los tramos de manejo son los módulos entre paradas</div>
+      <div id="details-list"></div>
+    </div>
+  </div>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module">
+import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+
+const destinations = [
+  {
+    id: 'nyc', n: 1, type: 'destino', name: 'Nueva York', short: 'Nueva York',
+    coords: [40.7128, -74.0060],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Above%20Gotham.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Above%20Gotham.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Central%20Park%20New%20York%20City%20New%20York%204.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Brooklyn%20Bridge%20Manhattan.jpg?width=500'
+    ],
+    dates: '5-8 sep', nights: 3,
+    arrival: '5 sep · punto de partida, costa Atlántica', departure: '8 sep · arranca el manejo hacia el oeste',
+    lodging: {
+      name: 'Hotel en Midtown Manhattan', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Zona Midtown / Times Square: base céntrica a pasos del subte, ideal para las 3 primeras noches antes de agarrar el auto.',
+      coords: [40.7549, -73.9840],
+      checkIn: '5 sep', checkOut: '8 sep', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Midtown%20Manhattan%20hotels',
+      note: 'Sugerencia editable. Conviene sacar el auto de alquiler recién el día de salida (parking en Manhattan es caro).'
+    },
+    tempMax: '21-36', tempMin: '12-23', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Arranque en la costa Atlántica. 3 noches para los clásicos de Manhattan antes de cruzar el país en auto: Midtown, el Village, Brooklyn y Central Park. El auto se retira el día de la partida — moverse en subte dentro de la ciudad.',
+    activities: [
+      { text: 'Central Park (Bethesda Terrace, The Mall)', cat: 'parques', coords: [40.7742, -73.9713] },
+      { text: 'Times Square + Broadway', cat: 'barrios', coords: [40.7580, -73.9855] },
+      { text: 'Empire State Building (mirador)', cat: 'miradores', coords: [40.7484, -73.9857] },
+      { text: 'Top of the Rock / Rockefeller Center', cat: 'miradores', coords: [40.7587, -73.9787] },
+      { text: 'Puente de Brooklyn + DUMBO', cat: 'barrios', coords: [40.7061, -73.9969] },
+      { text: 'The Metropolitan Museum of Art', cat: 'museos', coords: [40.7794, -73.9632] },
+      { text: 'High Line + Chelsea Market', cat: 'comida', coords: [40.7480, -74.0048] },
+      { text: 'Estatua de la Libertad (ferry desde Battery Park)', cat: 'miradores', coords: [40.6892, -74.0445] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'pittsburgh', n: 2, type: 'destino', name: 'Pittsburgh', short: 'Pittsburgh',
+    coords: [40.4406, -79.9959],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Pittsburgh%20skyline%20panorama%20daytime.jpg?width=500',
+    imgs: ['https://commons.wikimedia.org/wiki/Special:FilePath/Pittsburgh%20skyline%20panorama%20daytime.jpg?width=500'],
+    dates: '8-9 sep', nights: 1,
+    arrival: '8 sep · desde Nueva York por la PA Turnpike', departure: '9 sep · sigue hacia Chicago',
+    leg: { mode: '🚗', time: '~6 h 10', dist: '372 mi · 599 km', detail: 'I-78 W → I-76 (Pennsylvania Turnpike)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Nueva York → Pittsburgh', when: '372 mi · 599 km · ~6 h 10 manejando', road: 'I-78 W · I-76 (PA Turnpike) · US-30' }
+    ] },
+    lodging: {
+      name: 'Hotel en downtown Pittsburgh', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Downtown / Golden Triangle, en la confluencia de los tres ríos. Parada técnica de 1 noche para cortar el tramo NY → Chicago.',
+      coords: [40.4419, -80.0022],
+      checkIn: '8 sep', checkOut: '9 sep', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Downtown%20Pittsburgh%20hotels'
+    },
+    tempMax: '20-31', tempMin: '8-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Primera noche en ruta. Ciudad de acero reconvertida, en la confluencia de tres ríos y con funiculares centenarios. Parada corta para estirar las piernas, ver el skyline desde el Monte Washington y seguir viaje.',
+    activities: [
+      { text: 'Duquesne Incline (funicular + mirador del skyline)', cat: 'miradores', coords: [40.4396, -80.0176] },
+      { text: 'Point State Park (confluencia de los ríos)', cat: 'parques', coords: [40.4417, -80.0119] },
+      { text: 'Andy Warhol Museum', cat: 'museos', coords: [40.4485, -80.0028] },
+      { text: 'Strip District (mercados y comida)', cat: 'comida', coords: [40.4506, -79.9787] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'chicago', n: 3, type: 'destino', name: 'Chicago', short: 'Chicago',
+    coords: [41.8781, -87.6298],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chicago%20sunrise%201.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Chicago%20sunrise%201.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/The%20Bean%20and%20McCormick%20Tribune%20Plaza.jpg?width=640'
+    ],
+    dates: '9-11 sep', nights: 2,
+    arrival: '9 sep · desde Pittsburgh por la I-80', departure: '11 sep · empieza el cruce del Medio Oeste',
+    leg: { mode: '🚗', time: '~7 h 00', dist: '461 mi · 742 km', detail: 'I-76 W → I-80 W → I-90', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Pittsburgh → Chicago', when: '461 mi · 742 km · ~7 h 00 manejando', road: 'I-76 W · I-80 W · I-90 (Indiana Toll Rd)' }
+    ] },
+    lodging: {
+      name: 'Hotel en The Loop', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'The Loop / Millennium Park: a pasos del lago Michigan, el Art Institute y Michigan Avenue.',
+      coords: [41.8836, -87.6270],
+      checkIn: '9 sep', checkOut: '11 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Loop%20Chicago%20hotels'
+    },
+    tempMax: '18-30', tempMin: '12-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Última gran ciudad antes de las llanuras. 2 noches para arquitectura, deep-dish pizza y la costanera del lago Michigan. Después empiezan los grandes tramos del Oeste.',
+    activities: [
+      { text: 'Millennium Park + Cloud Gate ("The Bean")', cat: 'barrios', coords: [41.8827, -87.6233] },
+      { text: 'Art Institute of Chicago', cat: 'museos', coords: [41.8796, -87.6237] },
+      { text: 'Skydeck Willis Tower (mirador)', cat: 'miradores', coords: [41.8789, -87.6359] },
+      { text: 'Navy Pier + costanera del lago', cat: 'barrios', coords: [41.8917, -87.6086] },
+      { text: 'Riverwalk + tour de arquitectura en barco', cat: 'miradores', coords: [41.8880, -87.6270] },
+      { text: 'Deep-dish pizza (Lou Malnati’s / Giordano’s)', cat: 'comida', coords: [41.8905, -87.6330] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'minneapolis', n: 4, type: 'destino', name: 'Minneapolis', short: 'Minneapolis',
+    coords: [44.9778, -93.2650],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Minneapolis_Skyline_looking_south.jpg?width=640',
+    imgs: ['https://commons.wikimedia.org/wiki/Special:FilePath/Minneapolis_Skyline_looking_south.jpg?width=640'],
+    dates: '11-12 sep', nights: 1,
+    arrival: '11 sep · desde Chicago por la I-94', departure: '12 sep · rumbo a las Badlands',
+    leg: { mode: '🚗', time: '~6 h 20', dist: '408 mi · 657 km', detail: 'I-90 W → I-94 W (cruce de Wisconsin)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Chicago → Minneapolis', when: '408 mi · 657 km · ~6 h 20 manejando', road: 'I-90 W · I-94 W' }
+    ] },
+    lodging: {
+      name: 'Hotel en downtown Minneapolis', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Downtown, cerca del río Mississippi y Stone Arch Bridge. Parada de 1 noche antes del salto a Dakota del Sur.',
+      coords: [44.9795, -93.2690],
+      checkIn: '11 sep', checkOut: '12 sep', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Downtown%20Minneapolis%20hotels'
+    },
+    tempMax: '16-30', tempMin: '4-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'La puerta al Oeste. Ciudad de lagos y molinos harineros sobre el Mississippi. Noche de transición antes del tramo largo por la I-90 hacia las praderas de Dakota del Sur.',
+    activities: [
+      { text: 'Stone Arch Bridge + St. Anthony Falls', cat: 'miradores', coords: [44.9808, -93.2569] },
+      { text: 'Minneapolis Sculpture Garden (Spoonbridge and Cherry)', cat: 'museos', coords: [44.9694, -93.2894] },
+      { text: 'Chain of Lakes (Bde Maka Ska)', cat: 'parques', coords: [44.9438, -93.3110] },
+      { text: 'Mall of America', cat: 'compras', coords: [44.8548, -93.2422] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'badlands', n: 5, type: 'destino', name: 'Badlands + Mount Rushmore', short: 'Badlands',
+    coords: [43.8554, -102.3397],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/MK00609_Badlands.jpg?width=640',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/MK00609_Badlands.jpg?width=640',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Mount%20Rushmore%20detail%20view%20%28100MP%29.jpg?width=500'
+    ],
+    dates: '12-14 sep', nights: 2,
+    arrival: '12 sep · desde Minneapolis por la I-90 (tramo largo)', departure: '14 sep · sube hacia Wyoming',
+    leg: { mode: '🚗', time: '~8 h 20', dist: '560 mi · 901 km', detail: 'I-90 W a través de Dakota del Sur (tramo largo)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Minneapolis → Rapid City', when: '560 mi · 901 km · ~8 h 20 manejando', road: 'I-90 W (Sioux Falls · Mitchell · Wall)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Rapid City', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Rapid City, base cómoda entre el Badlands National Park (~1 h) y las Black Hills / Mount Rushmore (~40 min).',
+      coords: [44.0805, -103.2310],
+      checkIn: '12 sep', checkOut: '14 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Rapid%20City%20hotels'
+    },
+    tempMax: '21-33', tempMin: '8-20', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Primer gran parque del viaje. Las Badlands son un laberinto de picos erosionados y pastizales con bisontes; a 1 h y media están las Black Hills con Mount Rushmore. 2 noches con base en Rapid City para hacer los dos.',
+    activities: [
+      { text: 'Badlands Loop Road (Hwy 240) + miradores', cat: 'parques', coords: [43.8554, -102.3397] },
+      { text: 'Notch Trail + Door/Window Trails', cat: 'parques', coords: [43.7435, -101.9410] },
+      { text: 'Wall Drug Store (clásico de la ruta)', cat: 'ruta', coords: [43.9928, -102.2410] },
+      { text: 'Mount Rushmore National Memorial', cat: 'miradores', coords: [43.8791, -103.4591] },
+      { text: 'Iron Mountain Road + Needles Highway (Custer SP)', cat: 'miradores', coords: [43.7644, -103.4222] }
+    ],
+    daytrips: [
+      { id: 'crazyhorse', name: 'Crazy Horse Memorial', coords: [43.8367, -103.6236], time: '1 h desde Rapid City', desc: 'Escultura de montaña en construcción dedicada al líder lakota, más grande que Mount Rushmore. Buen combo con Custer State Park.' },
+      { id: 'custer', name: 'Custer State Park (Wildlife Loop)', coords: [43.7494, -103.4130], time: '1 h desde Rapid City', desc: 'Manada libre de bisontes, burros y la escénica Wildlife Loop Road en las Black Hills.' }
+    ]
+  },
+  {
+    id: 'cody', n: 6, type: 'destino', name: 'Cody', short: 'Cody',
+    coords: [44.5263, -109.0565],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Scout_by_Gertrude_Vanderbilt_Whitney.jpg?width=640',
+    imgs: ['https://commons.wikimedia.org/wiki/Special:FilePath/The_Scout_by_Gertrude_Vanderbilt_Whitney.jpg?width=640'],
+    dates: '14-15 sep', nights: 1,
+    arrival: '14 sep · desde Rapid City cruzando las Bighorn Mountains', departure: '15 sep · entra a Yellowstone por la puerta Este',
+    leg: { mode: '🚗', time: '~7 h 00', dist: '431 mi · 694 km', detail: 'I-90 W → US-14 por las Bighorn Mountains (Shell Canyon)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Rapid City → Cody', when: '431 mi · 694 km · ~7 h 00 manejando', road: 'I-90 W · US-14 (Bighorn Mtns / Shell Canyon)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Cody', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Cody, la ciudad fundada por Buffalo Bill: puerta Este de Yellowstone. Noche de paso para cortar el tramo desde las Black Hills.',
+      coords: [44.5263, -109.0565],
+      checkIn: '14 sep', checkOut: '15 sep', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Cody%20Wyoming%20hotels'
+    },
+    tempMax: '17-29', tempMin: '7-13', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Ciudad del Viejo Oeste fundada por Buffalo Bill, gateway Este de Yellowstone. El tramo desde Rapid City cruza las Bighorn Mountains por Shell Canyon: una de las rutas de montaña más lindas del país. Rodeo nocturno en temporada.',
+    activities: [
+      { text: 'Buffalo Bill Center of the West (5 museos)', cat: 'museos', coords: [44.5236, -109.0729] },
+      { text: 'Cody Nite Rodeo (temporada de verano)', cat: 'ocio', coords: [44.5133, -109.0847] },
+      { text: 'Buffalo Bill State Park + reservorio', cat: 'parques', coords: [44.5000, -109.1833] },
+      { text: 'Shell Canyon / US-14 (mirador escénico de las Bighorn)', cat: 'ruta', coords: [44.5480, -107.7620] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'yellowstone', n: 7, type: 'destino', name: 'Yellowstone', short: 'Yellowstone',
+    coords: [44.4605, -110.8281],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Aerial_image_of_Grand_Prismatic_Spring_%28view_from_the_south%29.jpg?width=640',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Aerial_image_of_Grand_Prismatic_Spring_%28view_from_the_south%29.jpg?width=640',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Yellowstone_National_Park_%28WY%2C_USA%29%2C_Old_Faithful_Geyser_--_2022_--_2599.jpg?width=640'
+    ],
+    dates: '15-18 sep', nights: 3,
+    arrival: '15 sep · entrada Este, manejando por el interior del parque', departure: '18 sep · baja a Grand Teton por el sur',
+    leg: { mode: '🚗', time: '~4 h 30', dist: '178 mi · 286 km', detail: 'Puerta Este de Yellowstone, manejando por el interior del parque', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Cody → West Yellowstone', when: '178 mi · 286 km · ~4 h 30 manejando', road: 'US-14/16/20 (East Entrance) · Grand Loop Rd' }
+    ] },
+    lodging: {
+      name: 'Lodge en West Yellowstone', type: 'Lodge / hotel · sugerencia (sin reserva)',
+      area: 'West Yellowstone (Montana), sobre la puerta Oeste: base práctica para 3 días entrando y saliendo del parque. En temporada conviene reservar con mucha anticipación.',
+      coords: [44.6621, -111.1041],
+      checkIn: '15 sep', checkOut: '18 sep', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=West%20Yellowstone%20lodging'
+    },
+    tempMax: '7-23', tempMin: '1-11', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'El corazón del viaje: el primer parque nacional del mundo. Géiseres, aguas termales de colores imposibles, cañones y manadas de bisontes y alces. 3 noches para el Grand Loop: Old Faithful, Grand Prismatic, Mammoth y el Gran Cañón de Yellowstone. Frío de madrugada en septiembre.',
+    activities: [
+      { text: 'Old Faithful + Upper Geyser Basin', cat: 'parques', coords: [44.4605, -110.8281] },
+      { text: 'Grand Prismatic Spring (Midway Geyser Basin)', cat: 'parques', coords: [44.5250, -110.8380] },
+      { text: 'Grand Canyon of the Yellowstone (Artist Point)', cat: 'miradores', coords: [44.7203, -110.4966] },
+      { text: 'Mammoth Hot Springs (terrazas)', cat: 'parques', coords: [44.9766, -110.7036] },
+      { text: 'Lamar Valley (bisontes, lobos, osos al amanecer)', cat: 'parques', coords: [44.8986, -110.2270] },
+      { text: 'Hayden Valley + Yellowstone Lake', cat: 'miradores', coords: [44.6600, -110.4680] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'grand-teton', n: 8, type: 'destino', name: 'Grand Teton', short: 'Grand Teton',
+    coords: [43.7904, -110.6818],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Grand_Teton_National_Park.jpg?width=640',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Barns%20grand%20tetons.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Adams_The_Tetons_and_the_Snake_River.jpg?width=640'
+    ],
+    dates: '18-20 sep', nights: 2,
+    arrival: '18 sep · desde Yellowstone por la John D. Rockefeller Pkwy', departure: '20 sep · baja a Salt Lake City',
+    leg: { mode: '🚗', time: '~2 h 45', dist: '120 mi · 193 km', detail: 'US-89/191/287 hacia el sur (John D. Rockefeller Jr. Pkwy)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Yellowstone → Jackson', when: '120 mi · 193 km · ~2 h 45 manejando', road: 'US-89 · US-191 · US-287 (por Jackson Lake)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Jackson (Jackson Hole)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Jackson, el pueblo al pie del valle de Jackson Hole: base para Grand Teton (~20 min) con buena gastronomía y el arco de astas de alce en la plaza.',
+      coords: [43.4799, -110.7624],
+      checkIn: '18 sep', checkOut: '20 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jackson%20Wyoming%20hotels'
+    },
+    tempMax: '8-21', tempMin: '2-7', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Los picos más fotogénicos de las Rocosas se levantan sin estribaciones sobre el valle de Jackson Hole. 2 noches para lagos de espejo, la ruta escénica de Teton Park Road y el pueblo de Jackson. En septiembre empiezan los amarillos de los álamos.',
+    activities: [
+      { text: 'Jenny Lake (paseo + ferry a Hidden Falls)', cat: 'parques', coords: [43.7645, -110.7217] },
+      { text: 'Oxbow Bend (reflejo del Monte Moran)', cat: 'miradores', coords: [43.8663, -110.5497] },
+      { text: 'Schwabacher Landing (amanecer)', cat: 'miradores', coords: [43.8100, -110.6790] },
+      { text: 'Mormon Row (graneros históricos)', cat: 'miradores', coords: [43.6663, -110.6620] },
+      { text: 'Signal Mountain Summit Road (mirador del valle)', cat: 'miradores', coords: [43.8419, -110.6180] },
+      { text: 'Town Square de Jackson (arcos de astas)', cat: 'barrios', coords: [43.4799, -110.7624] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'slc', n: 9, type: 'destino', name: 'Salt Lake City', short: 'Salt Lake City',
+    coords: [40.7608, -111.8910],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/SLC_Skyline_2024.jpg?width=640',
+    imgs: ['https://commons.wikimedia.org/wiki/Special:FilePath/SLC_Skyline_2024.jpg?width=640'],
+    dates: '20-21 sep', nights: 1,
+    arrival: '20 sep · desde Jackson por la US-89 y la I-15', departure: '21 sep · entra al país de los cañones de Utah',
+    leg: { mode: '🚗', time: '~4 h 45', dist: '285 mi · 459 km', detail: 'US-89 → I-15 S (bajando de las Rocosas)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Jackson → Salt Lake City', when: '285 mi · 459 km · ~4 h 45 manejando', road: 'US-89 · US-26 · I-15 S' }
+    ] },
+    lodging: {
+      name: 'Hotel en downtown Salt Lake City', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Downtown, cerca de Temple Square. Noche de reabastecimiento entre las Rocosas y los parques del sur de Utah.',
+      coords: [40.7690, -111.8880],
+      checkIn: '20 sep', checkOut: '21 sep', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Downtown%20Salt%20Lake%20City%20hotels'
+    },
+    tempMax: '17-30', tempMin: '5-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Capital de Utah entre montañas y el Gran Lago Salado. Parada de 1 noche para cortar el viaje, reabastecer y ver Temple Square antes de meterse en el país de los cañones rojos del sur.',
+    activities: [
+      { text: 'Temple Square', cat: 'barrios', coords: [40.7702, -111.8925] },
+      { text: 'Utah State Capitol (mirador de la ciudad)', cat: 'miradores', coords: [40.7773, -111.8880] },
+      { text: 'Great Salt Lake (Antelope Island)', cat: 'parques', coords: [41.0630, -112.2280] },
+      { text: 'Mercado y cervecerías de downtown', cat: 'comida', coords: [40.7660, -111.8910] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'zion', n: 10, type: 'destino', name: 'Zion + Bryce', short: 'Zion',
+    coords: [37.2982, -113.0263],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Zion_angels_landing_view.jpg?width=640',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Zion_angels_landing_view.jpg?width=640',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Inspiration_Point_Bryce_Canyon_November_2018_panorama.jpg?width=640'
+    ],
+    dates: '21-23 sep', nights: 2,
+    arrival: '21 sep · desde Salt Lake City por la I-15 y la UT-9', departure: '23 sep · cruza a Arizona hacia el Gran Cañón',
+    leg: { mode: '🚗', time: '~4 h 30', dist: '308 mi · 496 km', detail: 'I-15 S → UT-9 E (hacia el sur de Utah)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Salt Lake City → Springdale', when: '308 mi · 496 km · ~4 h 30 manejando', road: 'I-15 S · UT-9 E' }
+    ] },
+    lodging: {
+      name: 'Hotel en Springdale', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Springdale, el pueblo en la boca del cañón de Zion: shuttle directo a la entrada del parque. Base ideal para Zion y el day trip a Bryce.',
+      coords: [37.1889, -112.9986],
+      checkIn: '21 sep', checkOut: '23 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Springdale%20Utah%20hotels'
+    },
+    tempMax: '18-28', tempMin: '6-14', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Primer parque del sur de Utah: paredes de arenisca roja de 600 m sobre el río Virgin. Se recorre en shuttle. 2 noches para Zion y un day trip a Bryce Canyon, con sus anfiteatros de hoodoos anaranjados a 1 h y media.',
+    activities: [
+      { text: 'Zion Canyon Scenic Drive (shuttle)', cat: 'parques', coords: [37.2690, -112.9480] },
+      { text: 'The Narrows (caminata por el río)', cat: 'parques', coords: [37.2850, -112.9480] },
+      { text: 'Angels Landing (cadenas, permiso previo)', cat: 'miradores', coords: [37.2690, -112.9490] },
+      { text: 'Emerald Pools Trail', cat: 'parques', coords: [37.2540, -112.9580] },
+      { text: 'Canyon Overlook Trail (Zion-Mt. Carmel Hwy)', cat: 'miradores', coords: [37.2130, -112.9410] }
+    ],
+    daytrips: [
+      { id: 'bryce', name: 'Bryce Canyon National Park', coords: [37.5930, -112.1871], time: '1 h 30 desde Springdale', desc: 'Anfiteatros de hoodoos (agujas de roca) anaranjados. Sunrise Point, Sunset Point y el Navajo Loop. El más alto y fresco de los parques de Utah.' }
+    ]
+  },
+  {
+    id: 'grand-canyon', n: 11, type: 'destino', name: 'Gran Cañón', short: 'Gran Cañón',
+    coords: [36.0587, -112.1090],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Grand%20Canyon%20view%20from%20Pima%20Point%202010.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Grand%20Canyon%20view%20from%20Pima%20Point%202010.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Dawn%20on%20the%20S%20rim%20of%20the%20Grand%20Canyon%20%288645178272%29.jpg?width=500'
+    ],
+    dates: '23-25 sep', nights: 2,
+    arrival: '23 sep · desde Zion cruzando los Vermilion Cliffs', departure: '25 sep · baja a Las Vegas por Hoover Dam',
+    leg: { mode: '🚗', time: '~4 h 15', dist: '250 mi · 402 km', detail: 'UT-9 → US-89 S cruzando los Vermilion Cliffs y Marble Canyon', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Zion → South Rim', when: '250 mi · 402 km · ~4 h 15 manejando', road: 'US-89A · US-89 · AZ-64 (Vermilion Cliffs · Marble Canyon)' }
+    ] },
+    lodging: {
+      name: 'Lodge en Grand Canyon Village (South Rim)', type: 'Lodge / hotel · sugerencia (sin reserva)',
+      area: 'Borde Sur (South Rim), dentro o junto al parque (Grand Canyon Village / Tusayan). Dormir en el borde permite atardecer y amanecer sobre el cañón. Reservar con mucha anticipación.',
+      coords: [36.0544, -112.1401],
+      checkIn: '23 sep', checkOut: '25 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Grand%20Canyon%20Village%20lodging'
+    },
+    tempMax: '17-28', tempMin: '7-14', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Una de las siete maravillas naturales: 450 km de cañón y 1,6 km de profundidad. 2 noches en el Borde Sur para el atardecer en Hopi Point, el amanecer en Mather Point y el Rim Trail. La ruta desde Zion cruza los Vermilion Cliffs y Marble Canyon.',
+    activities: [
+      { text: 'Mather Point (mirador clásico + amanecer)', cat: 'miradores', coords: [36.0614, -112.1085] },
+      { text: 'Rim Trail (Village → Hermits Rest)', cat: 'parques', coords: [36.0570, -112.1400] },
+      { text: 'Hopi Point + Desert View Drive (atardecer)', cat: 'miradores', coords: [36.0723, -112.1560] },
+      { text: 'Desert View Watchtower', cat: 'miradores', coords: [36.0441, -111.8265] },
+      { text: 'Bright Angel Trail (bajada parcial al cañón)', cat: 'parques', coords: [36.0576, -112.1440] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'las-vegas', n: 12, type: 'destino', name: 'Las Vegas', short: 'Las Vegas',
+    coords: [36.1699, -115.1398],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Las%20Vegas%20strip.jpg?width=500',
+    imgs: ['https://commons.wikimedia.org/wiki/Special:FilePath/Las%20Vegas%20strip.jpg?width=500'],
+    dates: '25-27 sep', nights: 2,
+    arrival: '25 sep · desde el Gran Cañón por la US-93 (Hoover Dam)', departure: '27 sep · cruza el Mojave rumbo a Los Ángeles',
+    leg: { mode: '🚗', time: '~4 h 30', dist: '278 mi · 447 km', detail: 'AZ-64 → I-40 W → US-93 N (pasa por Hoover Dam)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Gran Cañón → Las Vegas', when: '278 mi · 447 km · ~4 h 30 manejando', road: 'AZ-64 · I-40 W · US-93 N (Hoover Dam)' }
+    ] },
+    lodging: {
+      name: 'Hotel-casino en el Strip', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Las Vegas Strip: cualquiera de los grandes resorts sobre Las Vegas Boulevard. Contraste total tras los parques — luces, shows y buffets.',
+      coords: [36.1147, -115.1728],
+      checkIn: '25 sep', checkOut: '27 sep', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Las%20Vegas%20Strip%20hotels'
+    },
+    tempMax: '30-39', tempMin: '20-23', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'El contraste después de tanta naturaleza: neón, casinos y shows en pleno desierto de Mojave. 2 noches para el Strip, un salto al Hoover Dam de camino y descanso antes del último tramo hacia la costa del Pacífico.',
+    activities: [
+      { text: 'The Strip de noche (Bellagio, fuentes)', cat: 'barrios', coords: [36.1126, -115.1767] },
+      { text: 'Fremont Street Experience (Downtown)', cat: 'ocio', coords: [36.1699, -115.1430] },
+      { text: 'Hoover Dam (de camino desde el cañón)', cat: 'ruta', coords: [36.0161, -114.7377] },
+      { text: 'Red Rock Canyon (scenic loop)', cat: 'parques', coords: [36.1358, -115.4270] },
+      { text: 'Show del Cirque du Soleil / buffets', cat: 'ocio', coords: [36.1024, -115.1745] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'los-angeles', n: 13, type: 'destino', name: 'Los Ángeles', short: 'Los Ángeles',
+    coords: [34.0522, -118.2437],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Echo%20Park%20Lake%20with%20Downtown%20Los%20Angeles%20Skyline.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Echo%20Park%20Lake%20with%20Downtown%20Los%20Angeles%20Skyline.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Santa_Monica_Pier.jpg?width=640'
+    ],
+    dates: '27-30 sep', nights: 3,
+    arrival: '27 sep · desde Las Vegas cruzando el Mojave (Route 66)', departure: '30 sep · sube por la costa del Pacífico',
+    leg: { mode: '🚗', time: '~4 h 15', dist: '270 mi · 435 km', detail: 'I-15 S cruzando el desierto de Mojave (tramos de Route 66)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Las Vegas → Los Ángeles', when: '270 mi · 435 km · ~4 h 15 manejando', road: 'I-15 S (Mojave · Barstow · Route 66)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Santa Monica / Westside', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Zona Santa Monica / Westside: cerca de la playa y buen punto de partida para la Pacific Coast Highway. LA es de auto — conviene base con parking.',
+      coords: [34.0195, -118.4912],
+      checkIn: '27 sep', checkOut: '30 sep', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Santa%20Monica%20hotels'
+    },
+    tempMax: '22-41', tempMin: '14-20', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Llegada al Pacífico. 3 noches para Hollywood, las playas de Santa Monica y Venice, museos y comida de todo el mundo. La ruta desde Las Vegas cruza el Mojave con tramos históricos de la Route 66 cerca de Barstow.',
+    activities: [
+      { text: 'Griffith Observatory (mirador + cartel de Hollywood)', cat: 'miradores', coords: [34.1184, -118.3004] },
+      { text: 'Santa Monica Pier + Venice Beach', cat: 'barrios', coords: [34.0083, -118.4988] },
+      { text: 'Hollywood Boulevard + Walk of Fame', cat: 'barrios', coords: [34.1016, -118.3410] },
+      { text: 'Getty Center (arte + arquitectura)', cat: 'museos', coords: [34.0780, -118.4741] },
+      { text: 'Downtown LA (Broadway, Grand Central Market)', cat: 'comida', coords: [34.0505, -118.2489] },
+      { text: 'Route 66 en el Mojave (Barstow, Bagdad Cafe)', cat: 'ruta', coords: [34.8639, -116.8592] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'big-sur', n: 14, type: 'destino', name: 'Big Sur + Monterey', short: 'Big Sur',
+    coords: [36.2704, -121.8081],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Bixby%20Creek%20Bridge%2C%20California%2C%20USA%20-%20May%202013.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Bixby%20Creek%20Bridge%2C%20California%2C%20USA%20-%20May%202013.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/McWay_Falls_Big_Sur_September_2012_002.jpg?width=640'
+    ],
+    dates: '30 sep-1 oct', nights: 1,
+    arrival: '30 sep · desde Los Ángeles por la US-101 y la CA-1', departure: '1 oct · último tramo por la costa a San Francisco',
+    leg: { mode: '🚗', time: '~6 h 30', dist: '320 mi · 515 km', detail: 'US-101 → CA-1 N (Pacific Coast Highway por Big Sur)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Los Ángeles → Monterey', when: '320 mi · 515 km · ~6 h 30 manejando', road: 'US-101 · CA-1 N (Big Sur · Bixby Bridge)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Monterey', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Monterey, al norte de Big Sur: base cómoda para la costa (Big Sur queda 40 min al sur). Noche escénica sobre la Pacific Coast Highway.',
+      coords: [36.6002, -121.8947],
+      checkIn: '30 sep', checkOut: '1 oct', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Monterey%20California%20hotels'
+    },
+    tempMax: '15-33', tempMin: '12-26', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'El tramo más escénico del viaje: la Pacific Coast Highway (CA-1) serpentea acantilados sobre el Pacífico. Big Sur, el puente de Bixby Creek y las cataratas de McWay. Noche en Monterey, con su acuario y la 17-Mile Drive.',
+    activities: [
+      { text: 'Bixby Creek Bridge', cat: 'miradores', coords: [36.3714, -121.9022] },
+      { text: 'McWay Falls (Julia Pfeiffer Burns SP)', cat: 'parques', coords: [36.1577, -121.6716] },
+      { text: 'Pfeiffer Big Sur State Park', cat: 'parques', coords: [36.2480, -121.7870] },
+      { text: 'Monterey Bay Aquarium + Cannery Row', cat: 'ocio', coords: [36.6182, -121.9018] },
+      { text: '17-Mile Drive (Pebble Beach)', cat: 'miradores', coords: [36.5698, -121.9657] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'san-francisco', n: 15, type: 'destino', name: 'San Francisco', short: 'San Francisco',
+    coords: [37.7749, -122.4194],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/GoldenGateBridge-001.jpg?width=500',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/GoldenGateBridge-001.jpg?width=500',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/San%20Francisco%20skyline%20from%20Coit%20Tower.jpg?width=500'
+    ],
+    dates: '1-4 oct', nights: 3,
+    arrival: '1 oct · desde Monterey por la costa (Santa Cruz)', departure: '4 oct · fin del viaje en la costa del Pacífico',
+    leg: { mode: '🚗', time: '~2 h 45', dist: '120 mi · 193 km', detail: 'CA-1 N → US-101 por la costa (Santa Cruz)', dirLabel: 'ruta en Maps ↗', segments: [
+      { route: 'Monterey → San Francisco', when: '120 mi · 193 km · ~2 h 45 manejando', road: 'CA-1 N · US-101 (Santa Cruz · Half Moon Bay)' }
+    ] },
+    lodging: {
+      name: 'Hotel en San Francisco', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Zona Union Square / Embarcadero: céntrica y bien conectada. Cierre del viaje sobre la bahía. Conviene devolver el auto acá (garages céntricos).',
+      coords: [37.7880, -122.4074],
+      checkIn: '1 oct', checkOut: '4 oct', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=San%20Francisco%20Union%20Square%20hotels'
+    },
+    tempMax: '18-38', tempMin: '12-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    intro: 'Fin del coast-to-coast, del Atlántico al Pacífico. 3 noches para el Golden Gate, los tranvías, Alcatraz y los barrios de colinas. Cierre del viaje sobre la bahía de San Francisco.',
+    activities: [
+      { text: 'Golden Gate Bridge (mirador Battery Spencer)', cat: 'miradores', coords: [37.8324, -122.4795] },
+      { text: 'Alcatraz (ferry desde Pier 33)', cat: 'ocio', coords: [37.8267, -122.4230] },
+      { text: 'Fisherman’s Wharf + Pier 39', cat: 'barrios', coords: [37.8080, -122.4177] },
+      { text: 'Lombard Street + Coit Tower', cat: 'miradores', coords: [37.8021, -122.4187] },
+      { text: 'Painted Ladies (Alamo Square)', cat: 'barrios', coords: [37.7764, -122.4329] },
+      { text: 'Ferry Building Marketplace (comida)', cat: 'comida', coords: [37.7955, -122.3937] }
+    ],
+    daytrips: []
+  }
+];
+
+// Lugares guardados sueltos: desvíos y clásicos de la ruta que no caen dentro de una parada base.
+const orphanPlaces = [
+  { name: "Corn Palace (Mitchell, SD)", lat: 43.7130, lon: -98.0270, url: "https://www.google.com/maps/search/?api=1&query=Corn%20Palace%20Mitchell%20SD" },
+  { name: "Devils Tower (WY)", lat: 44.5902, lon: -104.7146, url: "https://www.google.com/maps/search/?api=1&query=Devils%20Tower%20National%20Monument" },
+  { name: "Antelope Canyon (Page, AZ)", lat: 36.8619, lon: -111.3743, url: "https://www.google.com/maps/search/?api=1&query=Antelope%20Canyon%20Page%20AZ" },
+  { name: "Horseshoe Bend (Page, AZ)", lat: 36.8791, lon: -111.5104, url: "https://www.google.com/maps/search/?api=1&query=Horseshoe%20Bend%20Page%20AZ" },
+  { name: "Monument Valley (UT/AZ)", lat: 36.9980, lon: -110.0985, url: "https://www.google.com/maps/search/?api=1&query=Monument%20Valley" },
+  { name: "Death Valley National Park (CA)", lat: 36.5323, lon: -116.9325, url: "https://www.google.com/maps/search/?api=1&query=Death%20Valley%20National%20Park" }
+];
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([39.5, -98.5], 4);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+const routeCoords = destinations.map(d => d.coords);
+
+// Modo de transporte de un tramo → estilo de línea + etiqueta. En este viaje todo
+// es en auto; se deja soporte para vuelo/ferry por si se agrega algún tramo.
+const MODE_STYLE = {
+  car:   { color: '#D85A30', dash: null,           label: 'En auto', icon: '🚗', weight: 4 },  // naranja terracota, sólido
+  air:   { color: '#2563EB', dash: '1, 7',         label: 'Vuelo', icon: '✈️', weight: 2 },  // azul, punteado fino
+  ferry: { color: '#15A6C9', dash: '2, 6, 10, 6',  label: 'Ferry', icon: '⛴️', weight: 3 },  // cyan, guion-punto
+};
+function legType(leg) {
+  const m = (leg && leg.mode) || '';
+  if (m.indexOf('✈️') !== -1) return 'air';
+  if (m.indexOf('⛴️') !== -1) return 'ferry';
+  return 'car';
+}
+// Sub-detalle de un tramo (segmentos: vuelos/tramos con nº, horarios, avión, tracker).
+function legSegsHtml(leg) {
+  if (!leg || !leg.segments || !leg.segments.length) return '';
+  return '<div class="leg-segs">' + leg.segments.map(s => {
+    if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
+    return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="seg-route">' + s.route + (s.no ? ' <span class="seg-no">' + s.no + '</span>' : '') + '</span>' +
+      '<span class="seg-time">' + (s.when || '') + (s.road ? '<br>' + s.road : '') + (s.aircraft ? '<br>' + s.aircraft : '') + '</span>' +
+    '</a>';
+  }).join('') + '</div>';
+}
+
+// Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
+// con color/trazo según el modo. Cada segmento es clickeable (→ resalta el tramo
+// en el panel) y queda referenciado por id del nodo destino para el link inverso.
+const legSegments = {};
+const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
+const flightLayer = L.layerGroup().addTo(map);  // vuelos
+function styleFor(mode) {
+  const st = MODE_STYLE[mode];
+  return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
+  // dibuja con su modo (así los buses aparecen y los vuelos sólo en la parte aérea).
+  // Si no, una sola línea del modo primario (con waypoints `via` si los hay).
+  let subsegs;
+  if (b.leg && b.leg.path) {
+    let from = a.coords;
+    subsegs = b.leg.path.map(step => { const seg = { pts: [from, step.to], mode: step.m }; from = step.to; return seg; });
+  } else {
+    const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
+    subsegs = [{ pts: pts, mode: legType(b.leg) }];
+  }
+  const pls = subsegs.map(seg => {
+    const base = styleFor(seg.mode);
+    const pl = L.polyline(seg.pts, base).addTo(seg.mode === 'air' ? flightLayer : routeLayer);
+    pl.on('click', () => { focusTrip(b.id); highlightSegment(b.id); });  // mapa → panel
+    return { pl: pl, base: base };
+  });
+  legSegments[b.id] = pls;
+}
+
+// Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
+// de transporte del panel y por focusTrip. Resalta TODOS los sub-tramos del leg.
+function highlightSegment(id) {
+  const arr = legSegments[id];
+  if (!arr || !arr.length) return;
+  const bounds = L.latLngBounds([]);
+  arr.forEach(s => {
+    s.pl.setStyle({ color: '#D85A30', weight: 6, opacity: 1, dashArray: null });
+    s.pl.bringToFront();
+    bounds.extend(s.pl.getBounds());
+  });
+  try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
+  setTimeout(() => arr.forEach(s => s.pl.setStyle(s.base)), 1800);
+}
+
+// Leyenda de modos de transporte (colores de las líneas).
+const routeLegend = L.control({ position: 'topright' });
+routeLegend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'route-legend');
+  div.innerHTML = ['car'].map(k => {
+    const s = MODE_STYLE[k];
+    return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
+  }).join('');
+  return div;
+};
+routeLegend.addTo(map);
+
+// Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
+function gmapsFromName(name) {
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+}
+// Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
+function lodgingHtml(L) {
+  if (!L) return '';
+  const sub = [L.type, L.guests].filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
+  // Links explícitos: Airbnb (si url es de airbnb) y/o Google Maps (url de maps o mapsUrl de la dirección).
+  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(/airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps'));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  const inner =
+    (L.img ? '<img class="lodging-img" src="' + L.img + '" loading="lazy" alt="">' : '') +
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
+      (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
+      (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
+      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
+      '<div class="lodging-meta">' + meta + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div><div class="lodging-card">' + inner + '</div>';
+}
+
+// Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
+function lodgingPopupHtml(L) {
+  const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
+  let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
+  if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
+  if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
+  return h;
+}
+
+function miniPopup(img, title, sub, mapsUrl) {
+  return '<div class="mini-pop">' +
+    (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
+    '<div class="popup-title">' + title + '</div>' +
+    (sub ? '<div class="popup-dates">' + sub + '</div>' : '') +
+    (mapsUrl ? '<a class="mini-pop-maps" href="' + mapsUrl + '" target="_blank" rel="noopener">Ver en Google Maps →</a>' : '') +
+  '</div>';
+}
+
+const markers = {};
+const destLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const isFullday = d.type === 'fullday';
+  const icon = isFullday
+    ? L.divIcon({
+        html: '<div class="marker-diamond-wrap"><div class="marker-diamond" data-id="' + d.id + '"><span>' + d.n + '</span></div></div>',
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17],
+      })
+    : L.divIcon({
+        html: '<div class="marker-num" data-id="' + d.id + '">' + d.n + '</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+  const marker = L.marker(d.coords, { icon }).addTo(destLayer);
+  const datesLine = isFullday
+    ? d.dates + ' · pasar el día'
+    : d.dates + ' · ' + d.nights + ' noches';
+  marker.bindPopup(
+    miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+  );
+  markers[d.id] = marker;
+});
+
+const dtMarkers = {};
+const dtLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  d.daytrips.forEach(dt => {
+    const icon = L.divIcon({
+      html: '<div class="marker-dot" data-id="' + dt.id + '"></div>',
+      className: '', iconSize: [12, 12], iconAnchor: [6, 6],
+    });
+    const marker = L.marker(dt.coords, { icon }).addTo(dtLayer);
+    marker.bindPopup(
+      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time, dt.url || gmapsFromName(dt.name))
+    );
+    dtMarkers[dt.id] = marker;
+  });
+});
+
+// LUGARES GUARDADOS (Google Maps) — puntitos sutiles dentro de cada destino,
+// y pins distintos (anillo naranja) para los orphans que no caen en ningún destino.
+function placePopup(p, sub) {
+  return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
+}
+
+// Categorías de "Qué hacer" (etiqueta + orden de despliegue).
+const CAT_LABELS = {
+  parques: '🏞️ Parques y naturaleza', miradores: '🌄 Miradores y escénico', barrios: '🏙️ Barrios y centro',
+  museos: '🏛️ Museos y cultura', comida: '🍔 Comida', ocio: '🎢 Ocio y música',
+  compras: '🛍️ Compras', ruta: '🛣️ En ruta', otros: '✨ Otros'
+};
+const CAT_ORDER = ['parques','miradores','barrios','museos','comida','ocio','compras','ruta','otros'];
+
+// Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
+// vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
+const actMarkers = {};
+const savedPlaceLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  (d.activities || []).forEach((a, i) => {
+    if (!a.coords) return;
+    const m = L.circleMarker(a.coords, {
+      radius: 4, color: '#0F6E56', weight: 1.5, opacity: 0.95,
+      fillColor: '#1D9E75', fillOpacity: 0.85,
+    }).addTo(savedPlaceLayer);
+    m.bindPopup(
+      miniPopup(a.img, a.text, d.short + ' · ' + (CAT_LABELS[a.cat] || a.cat), a.url || gmapsFromName(a.text))
+    );
+    actMarkers[d.id + ':' + i] = m;
+  });
+});
+
+// Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+const lodgingLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const lodg = d.lodging;
+  if (!lodg || !lodg.coords) return;
+  const icon = L.divIcon({
+    html: '<div class="lodging-marker">🛏️</div>',
+    className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+  });
+  L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+    '<div class="mini-pop">' +
+      (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+      '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+      '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+        (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+      (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+    '</div>'
+  );
+});
+
+const orphanPlaceLayer = L.layerGroup().addTo(map);
+orphanPlaces.forEach(p => {
+  if (p.lat == null || p.lon == null) return;
+  L.circleMarker([p.lat, p.lon], {
+    radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
+    fillColor: '#fbbf77', fillOpacity: 0.6,
+  }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+});
+
+const placeCoords = destinations
+  .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
+  .concat(orphanPlaces.filter(p => p.lat != null).map(p => [p.lat, p.lon]));
+const allCoords = routeCoords
+  .concat(destinations.flatMap(d => d.daytrips.map(dt => dt.coords)))
+  .concat(destinations.filter(d => d.lodging && d.lodging.coords).map(d => d.lodging.coords))
+  .concat(placeCoords);
+map.fitBounds(L.latLngBounds(allCoords), { padding: [40, 40] });
+
+const detailsList = document.getElementById('details-list');
+const cards = {};
+const legRows = {};   // id -> la fila de transporte que precede a esa card
+const galleries = {}; // id -> array de URLs de fotos (para el lightbox)
+
+destinations.forEach((d, idx) => {
+  const isFullday = d.type === 'fullday';
+  const card = document.createElement('article');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '');
+  card.dataset.id = d.id;
+
+  const dtHtml = d.daytrips.length > 0
+    ? '<div class="card-section-title">Day trips</div>' +
+      d.daytrips.map(dt =>
+        '<div class="dt-row" data-dt-id="' + dt.id + '">' +
+          '<div class="dt-row-header">' +
+            '<span class="dt-row-name">' + dt.name + '</span>' +
+            '<span class="dt-row-time">' + dt.time + '</span>' +
+          '</div>' +
+          '<div class="dt-row-desc">' + dt.desc + '</div>' +
+        '</div>'
+      ).join('')
+    : '';
+
+  const numHtml = isFullday
+    ? '<div class="card-num fullday"><span>' + d.n + '</span></div>'
+    : '<div class="card-num">' + d.n + '</div>';
+  const flagCC = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const flagImgHtml = (d.flag && flagCC[d.flag])
+    ? '<img class="dest-flag" src="https://flagcdn.com/' + flagCC[d.flag] + '.svg" alt="' + d.flag + '">'
+    : '';
+  const titleHtml = isFullday
+    ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
+    : '<h2>' + d.name + '</h2>';
+  const metaHtml = isFullday
+    ? '<div class="card-meta">' + d.dates + ' · pasar el día</div>'
+    : '<div class="card-meta">' + d.dates + ' · ' + d.nights + ' noches</div>';
+
+  // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
+  if (d.leg) {
+    const legRow = document.createElement('div');
+    legRow.className = 'leg-row';
+    const prev = destinations[idx - 1];
+    // dirUrl explícito si lo hay; si no, Google Maps directions en auto entre las dos paradas.
+    const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] +
+        '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=driving'
+      : '');
+    const dirLink = dirHref
+      ? '<a class="leg-dir" target="_blank" rel="noopener" href="' + dirHref + '">' +
+        (d.leg.dirLabel || 'cómo llegar ↗') + '</a>'
+      : '';
+    const t = legType(d.leg);
+    const lt = MODE_STYLE[t];
+    const isAir = t === 'air';
+    const bodyHtml = legSegsHtml(d.leg) + (dirLink ? '<div class="leg-actions">' + dirLink + '</div>' : '');
+    // Los vuelos arrancan expandidos (más espaciosos, como una tarjeta); el resto colapsado.
+    legRow.className = 'leg-row leg-' + t + (isAir ? ' open' : '');
+    legRow.innerHTML =
+      '<div class="leg-head">' +
+        '<span class="leg-mode">' + d.leg.mode + '</span>' +
+        '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+        '<span class="leg-text"><strong>' + d.leg.time + '</strong>' + (d.leg.dist ? ' · ' + d.leg.dist : '') + ' · ' + d.leg.detail + '</span>' +
+        '<button type="button" class="leg-ficha" title="Ver ficha del tramo" aria-label="Ver ficha del tramo">⤢</button>' +
+        (bodyHtml ? '<span class="leg-chevron">▸</span>' : '') +
+      '</div>' +
+      (bodyHtml ? '<div class="leg-body">' + bodyHtml + '</div>' : '');
+    // Click en el header → expande/colapsa + resalta el tramo en el mapa (panel → mapa).
+    legRow.querySelector('.leg-head').addEventListener('click', (e) => {
+      if (e.target.closest('.leg-dir') || e.target.closest('.leg-seg') || e.target.closest('.leg-ficha')) return;
+      legRow.classList.toggle('open');
+      highlightSegment(d.id);
+    });
+    legRow.querySelector('.leg-ficha').addEventListener('click', (e) => { e.stopPropagation(); openLegModal(d.id); });
+    detailsList.appendChild(legRow);
+    legRows[d.id] = legRow;
+  }
+
+  const tempsHtml =
+    '<div class="detail-temps">' +
+      '<div class="temp-pill temp-min"><span class="temp-label">Mín</span><span class="temp-value">' + d.tempMin + '°</span></div>' +
+      '<div class="temp-pill temp-max"><span class="temp-label">Máx</span><span class="temp-value">' + d.tempMax + '°</span></div>' +
+      '<span class="temp-note">' + d.weatherMode + '</span>' +
+    '</div>';
+
+  const thumbHtml = d.img ? '<img class="itin-thumb" src="' + d.img + '" loading="lazy" alt="">' : '';
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  galleries[d.id] = gal;
+  const galleryHtml = gal.length
+    ? '<div class="detail-gallery">' + gal.map((u, gi) =>
+        '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
+
+  card.innerHTML =
+    '<div class="itin-head">' +
+      numHtml +
+      thumbHtml +
+      '<div class="card-title-wrap">' +
+        titleHtml +
+        metaHtml +
+      '</div>' +
+      flagImgHtml +
+      '<span class="itin-caret">▸</span>' +
+    '</div>' +
+    '<div class="card-detail">' +
+      galleryHtml +
+      '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
+      tempsHtml +
+      '<p class="card-intro">' + d.intro + '</p>' +
+      lodgingHtml(d.lodging) +
+      (d.activities.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="qh-body open">' +
+            CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+              '<div class="cat-group">' +
+                '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
+                '<ul class="card-list">' +
+                  d.activities.map((a, i) => [a, i]).filter(([a]) => a.cat === c).map(([a, i]) =>
+                    a.coords
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + a.text + '</li>'
+                  ).join('') +
+                '</ul>' +
+              '</div>'
+            ).join('') +
+          '</div>'
+        : '') +
+      dtHtml +
+    '</div>';
+  detailsList.appendChild(card);
+  cards[d.id] = card;
+
+  card.addEventListener('mouseenter', () => { highlightMarker(d.id); });
+  card.addEventListener('mouseleave', () => { unhighlightMarker(d.id); });
+
+  card.querySelector('.itin-head').addEventListener('click', () => {
+    const open = card.classList.toggle('open');
+    if (open) { markers[d.id].openPopup(); map.flyTo(d.coords, 8, { duration: 0.8 }); }
+  });
+
+  card.querySelector('.ficha-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openStopModal(d.id);
+  });
+
+  const qhToggle = card.querySelector('.qh-toggle');
+  if (qhToggle) {
+    qhToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const body = card.querySelector('.qh-body');
+      const open = body.classList.toggle('open');
+      qhToggle.classList.toggle('open', open);
+    });
+  }
+
+  card.querySelectorAll('.act-row').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const m = actMarkers[btn.dataset.act];
+      if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+    });
+  });
+
+  card.querySelectorAll('.dt-row').forEach(row => {
+    const dtId = row.dataset.dtId;
+    row.addEventListener('mouseenter', (e) => { e.stopPropagation(); highlightDaytrip(dtId); });
+    row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dtMarkers[dtId].openPopup();
+      const dt = d.daytrips.find(x => x.id === dtId);
+      map.flyTo(dt.coords, 9, { duration: 0.8 });
+    });
+  });
+});
+
+// Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
+const _lastDep = destinations[destinations.length - 1].departureLeg;
+if (_lastDep) {
+  const lt = MODE_STYLE[legType(_lastDep)];
+  const depRow = document.createElement('div');
+  depRow.className = 'leg-row leg-' + legType(_lastDep) + ' open';
+  depRow.innerHTML =
+    '<div class="leg-head">' +
+      '<span class="leg-mode">' + _lastDep.mode + '</span>' +
+      '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+      '<span class="leg-text"><strong>' + _lastDep.time + '</strong> · ' + _lastDep.detail + '</span>' +
+      '<span class="leg-chevron">▸</span>' +
+    '</div>' +
+    '<div class="leg-body">' + legSegsHtml(_lastDep) + '</div>';
+  depRow.querySelector('.leg-head').addEventListener('click', () => depRow.classList.toggle('open'));
+  detailsList.appendChild(depRow);
+}
+
+// Lugares guardados que no caen en ningún destino: tarjeta propia al final de la lista.
+if (orphanPlaces.length > 0) {
+  const oc = document.createElement('article');
+  oc.className = 'orphan-card';
+  oc.innerHTML =
+    '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa aparecen con anillo naranja.</p>' +
+    '<div class="orphan-list">' +
+      orphanPlaces.map(p =>
+        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
+      ).join('') +
+    '</div>';
+  detailsList.appendChild(oc);
+  oc.querySelectorAll('.saved-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const p = orphanPlaces.find(x => x.name === chip.textContent);
+      if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+    });
+  });
+}
+
+function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+
+// Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
+// "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
+// Ancla al top del bloque para que la carga de imágenes de abajo no descoloque el scroll.
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+// --- Deep-linking: ?stop=<id> abre y enfoca una parada (para compartir una vista). ---
+function shareUrl(kind, id) {
+  return location.origin + location.pathname + '?' + kind + '=' + encodeURIComponent(id);
+}
+function setView(kind, id) {  // kind: 'stop' | 'leg' | null
+  const u = new URL(location.href);
+  u.searchParams.delete('stop'); u.searchParams.delete('leg');
+  if (kind && id) u.searchParams.set(kind, id);
+  history.replaceState(null, '', u);
+}
+function hasViewParam() {
+  const s = new URLSearchParams(location.search);
+  return s.get('stop') || s.get('leg');
+}
+// --- Ficha individual por parada (modal): info condensada + mini-mapa con sus pines/rutas. ---
+let _smMap = null, _smLayer = null;
+function ensureStopModal() {
+  let el = document.getElementById('stop-modal');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stop-modal';
+  el.className = 'stop-modal';
+  el.hidden = true;
+  el.innerHTML =
+    '<div class="sm-backdrop"></div>' +
+    '<div class="sm-dialog" role="dialog" aria-modal="true">' +
+      '<div class="sm-topbar">' +
+        '<button type="button" class="sm-share" title="Copiar link a esta parada">🔗 Copiar link</button>' +
+        '<button type="button" class="sm-close" aria-label="Cerrar">×</button>' +
+      '</div>' +
+      '<div class="sm-content"></div>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('.sm-backdrop').addEventListener('click', closeStopModal);
+  el.querySelector('.sm-close').addEventListener('click', closeStopModal);
+  return el;
+}
+function closeStopModal() {
+  const el = document.getElementById('stop-modal');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.classList.remove('sm-open');
+  if (hasViewParam()) setView(null);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+
+function smBodyHtml(d) {
+  const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
+  const meta = d.type === 'fullday' ? (d.dates + ' · pasar el día') : (d.dates + ' · ' + d.nights + ' noches');
+  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
+  const acts = (d.activities && d.activities.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
+        CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+          '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
+            d.activities.filter(a => a.cat === c).map(a =>
+              a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
+                    : '<li class="act-row-plain">' + a.text + '</li>'
+            ).join('') +
+          '</ul></div>'
+        ).join('') +
+      '</div>'
+    : '';
+  const dts = (d.daytrips && d.daytrips.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
+        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+      '</ul></div>'
+    : '';
+  return (
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
+    hero +
+    '<div id="sm-map" class="sm-map"></div>' +
+    (d.intro ? '<p class="sm-intro">' + d.intro + '</p>' : '') +
+    lodgingHtml(d.lodging) + leg + acts + dts
+  );
+}
+function buildStopMiniMap(d, idx) {
+  const c = document.getElementById('sm-map');
+  if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const pts = [];
+  if (idx > 0 && d.leg) {  // tramo de llegada, por modo real
+    const a = destinations[idx - 1];
+    let subsegs;
+    if (d.leg.path) { let from = a.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+  }
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  pts.push(d.coords);
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  if (d.lodging && d.lodging.coords) { L.marker(d.lodging.coords, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging)); pts.push(d.lodging.coords); }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
+}
+function _wireShare(el, kind, id) {
+  const sb = el.querySelector('.sm-share');
+  sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link';
+  sb.onclick = () => {
+    const link = shareUrl(kind, id);
+    const done = () => { sb.classList.add('copied'); sb.innerHTML = '✓ Link copiado'; setTimeout(() => { sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link'; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(() => prompt('Copiá el link:', link));
+    else prompt('Copiá el link:', link);
+  };
+}
+function _showModal(el) { el.hidden = false; document.body.classList.add('sm-open'); el.querySelector('.sm-dialog').scrollTop = 0; }
+
+function openStopModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = smBodyHtml(d);
+  _wireShare(el, 'stop', d.id);
+  _showModal(el);
+  setView('stop', id);
+  buildStopMiniMap(d, idx);
+}
+
+// Ficha de un TRAMO de transporte: modo, duración, segmentos + mini-mapa de la ruta real.
+function legBodyHtml(d, idx) {
+  const prev = idx > 0 ? destinations[idx - 1] : null;
+  const t = legType(d.leg), lt = MODE_STYLE[t];
+  const origin = prev ? prev.short : 'inicio';
+  const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] + '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=driving'
+    : '');
+  const dir = dirHref ? '<a class="sm-act" href="' + dirHref + '" target="_blank" rel="noopener">' + (d.leg.dirLabel || 'Cómo llegar en Maps ↗') + '</a>' : '';
+  return (
+    '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
+      '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + (d.leg.dist ? ' · ' + d.leg.dist : '') + ' · llega ' + segStartDate(d.dates) + '</div></div></div>' +
+    '<div id="sm-map" class="sm-map"></div>' +
+    '<p class="sm-intro">' + d.leg.detail + '</p>' +
+    (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
+    (dir ? '<div class="sm-sec">' + dir + '</div>' : '')
+  );
+}
+function buildLegMiniMap(d, idx) {
+  const c = document.getElementById('sm-map'); if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const prev = idx > 0 ? destinations[idx - 1] : null, pts = [];
+  if (prev) {
+    let subsegs;
+    if (d.leg.path) { let from = prev.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [prev.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+    [prev, d].forEach(node => { L.marker(node.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + node.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(node.short); pts.push(node.coords); });
+  } else {
+    L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(d.short); pts.push(d.coords);
+  }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 11 }); } catch (e) { _smMap.setView(d.coords, 8); } }, 60);
+}
+function openLegModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0 || !destinations[idx].leg) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = legBodyHtml(d, idx);
+  _wireShare(el, 'leg', d.id);
+  _showModal(el);
+  setView('leg', id);
+  buildLegMiniMap(d, idx);
+}
+function focusTrip(id) {
+  const card = cards[id];
+  if (!card) return;
+  card.classList.add('open');
+  if (legRows[id]) legRows[id].classList.add('open');  // expandir el módulo de transporte
+  const anchor = legRows[id] || card;
+  setTimeout(() => {
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(legRows[id]); flash(card);
+  }, 70);
+}
+
+Object.entries(markers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => { highlightMarker(id); if (cards[id]) cards[id].classList.add('active'); });
+  marker.on('mouseout', () => { unhighlightMarker(id); if (cards[id]) cards[id].classList.remove('active'); });
+  marker.on('click', () => focusTrip(id));
+});
+Object.entries(dtMarkers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => highlightDaytrip(id));
+  marker.on('mouseout', () => unhighlightDaytrip(id));
+});
+
+// Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
+// tramo (= fecha de inicio del nodo de destino). Click → abre la card del destino,
+// donde la fila de transporte (leg) está justo arriba.
+function segStartDate(s) {
+  const day = s.match(/^\s*(\d{1,2})/);
+  const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
+  return day && mon ? day[1] + ' ' + mon[1] : s;
+}
+for (let i = 0; i < destinations.length - 1; i++) {
+  const a = destinations[i], b = destinations[i + 1];
+  const mid = [(a.coords[0] + b.coords[0]) / 2, (a.coords[1] + b.coords[1]) / 2];
+  const segIcon = L.divIcon({
+    html: '<div class="seg-date">' + segStartDate(b.dates) + '</div>',
+    className: '', iconSize: [40, 16], iconAnchor: [20, 8],
+  });
+  L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
+    .on('click', () => focusTrip(b.id));
+}
+
+// Toggles de capas — directos en el mapa (expandidos), ocultar/mostrar cada tipo.
+// Barra de toggles propia (abajo, pills). "Lugares" unifica actividades + day trips + guardados.
+const TOGGLES = [
+  { label: 'Paradas',    icon: '📍', layers: [destLayer] },
+  { label: 'Ruta',       icon: '🚗', layers: [routeLayer] },
+  { label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
+  { label: 'Lugares',    icon: '⭐', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+];
+const togglesBar = document.createElement('div');
+togglesBar.className = 'map-toggles';
+TOGGLES.forEach(t => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mt active';
+  btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+  btn.addEventListener('click', () => {
+    const on = btn.classList.toggle('active');
+    t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  });
+  togglesBar.appendChild(btn);
+});
+map.getContainer().appendChild(togglesBar);
+L.DomEvent.disableClickPropagation(togglesBar);
+L.DomEvent.disableScrollPropagation(togglesBar);
+
+// Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
+(function () {
+  const s = new URLSearchParams(location.search);
+  const stop = s.get('stop'), leg = s.get('leg');
+  if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
+  else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
+})();
+
+// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+(function () {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lb-btn lb-close">×</span><span class="lb-btn lb-prev">‹</span>' +
+    '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img');
+  let cur = [], idx = 0;
+  const show = () => { img.src = cur[idx]; };
+  const close = () => { lb.classList.remove('open'); img.src = ''; };
+  const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
+  detailsList.addEventListener('click', (e) => {
+    const t = e.target.closest('.gallery-thumb');
+    if (!t) return;
+    e.stopPropagation();
+    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
+    show(); lb.classList.add('open');
+  });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+})();
+
+// CHART
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const avg = (range) => { const [lo, hi] = range.split('-').map(Number); return Math.round((lo + hi) / 2); };
+
+const weatherChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: destinations.map(d => d.short),
+    datasets: [
+      { label: 'Máx', data: destinations.map(d => avg(d.tempMax)), borderColor: '#D85A30', backgroundColor: 'rgba(216, 90, 48, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D85A30', borderWidth: 2, fill: '+1' },
+      { label: 'Mín', data: destinations.map(d => avg(d.tempMin)), borderColor: '#1D9E75', backgroundColor: 'rgba(29, 158, 117, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#1D9E75', borderWidth: 2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
+        callbacks: {
+          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + ' · ' + d.dates; },
+          label: (item) => { const d = destinations[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        const d = destinations[idx];
+        focusTrip(d.id);
+        map.flyTo(d.coords, 7, { duration: 0.8 });
+      }
+    },
+    onHover: (event, elements) => { event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default'; },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 5, suggestedMax: 30, ticks: { callback: (v) => v + '°', font: { size: 10 }, color: 'rgba(0,0,0,0.5)', padding: 4 }, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+      x: { ticks: { font: { size: 9 }, color: 'rgba(0,0,0,0.55)', maxRotation: 35, minRotation: 35, autoSkip: false }, grid: { display: false, drawBorder: false } }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Panel de temperatura colapsado por default; resize del chart al abrir (Chart.js
+// no dimensiona bien si el contenedor estaba display:none).
+(function () {
+  const tgl = document.getElementById('chart-toggle');
+  const wrap = document.getElementById('chart-wrap');
+  if (tgl && wrap) {
+    tgl.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      tgl.classList.toggle('open', open);
+      if (open) setTimeout(() => weatherChart.resize(), 30);
+    });
+  }
+})();
+</script>
+</body>
+</html>
