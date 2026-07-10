@@ -55,7 +55,7 @@
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     transform: translateY(-2px);
   }
-  .trip-flag { font-size: 30px; line-height: 1; margin-bottom: 12px; }
+  .trip-flag { width: 40px; height: 27px; border-radius: 4px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.18); object-fit: cover; display: block; }
   .trip-card h2 { font-size: 16px; font-weight: 600; margin: 0 0 3px; line-height: 1.25; }
   .trip-dates { font-size: 12px; color: #0F6E56; font-weight: 600; margin: 0 0 10px; }
   .trip-route { font-size: 12px; color: #666; line-height: 1.5; margin: 0 0 14px; flex: 1; }
@@ -83,7 +83,7 @@
 
     <div class="grid">
       <a class="trip-card" href="japon/">
-        <div class="trip-flag">🇯🇵</div>
+        <img class="trip-flag" src="https://flagcdn.com/jp.svg" alt="Japón" loading="lazy">
         <h2>Japón + Corea<span class="trip-badge live">live</span></h2>
         <p class="trip-dates">6 oct – 18 nov 2026</p>
         <p class="trip-route">40 noches, Tokio → Seúl. Clima y lugares de Maps actualizados a diario.</p>
@@ -91,7 +91,7 @@
       </a>
 
       <a class="trip-card" href="usa/">
-        <div class="trip-flag">🇺🇸</div>
+        <img class="trip-flag" src="https://flagcdn.com/us.svg" alt="USA" loading="lazy">
         <h2>Roadtrip USA</h2>
         <p class="trip-dates">5 sep – 4 oct 2026</p>
         <p class="trip-route">Costa a costa, 15 paradas de Nueva York a San Francisco, con tramos de manejo.</p>
@@ -99,7 +99,7 @@
       </a>
 
       <a class="trip-card" href="china/">
-        <div class="trip-flag">🇨🇳</div>
+        <img class="trip-flag" src="https://flagcdn.com/cn.svg" alt="China" loading="lazy">
         <h2>China, un mes</h2>
         <p class="trip-dates">10 oct – 8 nov 2026</p>
         <p class="trip-route">De norte a sur, 11 paradas de Beijing a Hong Kong. Tren bala, vuelos y crucero por el Yangtsé.</p>
@@ -107,7 +107,7 @@
       </a>
 
       <a class="trip-card" href="espana/">
-        <div class="trip-flag">🇪🇸</div>
+        <img class="trip-flag" src="https://flagcdn.com/es.svg" alt="España" loading="lazy">
         <h2>España en tren<span class="trip-badge">demo</span></h2>
         <p class="trip-dates">12 – 30 may</p>
         <p class="trip-route">18 noches recorriendo España en tren. Itinerario de demostración del molde.</p>
