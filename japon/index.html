@@ -162,6 +162,7 @@
   .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
   .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
   .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .route-legend .rl-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #999; }
   .leg-text strong { color: #555; font-weight: 600; }
   .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
   .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
@@ -319,6 +320,7 @@
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data/reels.js"></script>
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 
@@ -946,7 +948,8 @@ routeLegend.onAdd = function () {
   div.innerHTML = ['air', 'train', 'bus', 'ferry'].map(k => {
     const s = MODE_STYLE[k];
     return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
-  }).join('');
+  }).join('') +
+  '<span class="rl-item"><span class="rl-dot" style="background:#E1306C;border-color:#B0225C"></span>Reels</span>';
   return div;
 };
 routeLegend.addTo(map);
@@ -1096,6 +1099,27 @@ orphanPlaces.forEach(p => {
     radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
     fillColor: '#fbbf77', fillOpacity: 0.6,
   }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+});
+
+// Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
+// regenerado por el pipeline ig-reels). Pin magenta; popup con nota + links.
+const reelLayer = L.layerGroup().addTo(map);
+(window.REEL_PLACES || []).forEach(p => {
+  const m = L.circleMarker([p.lat, p.lon], {
+    radius: 4.5, color: '#B0225C', weight: 1.5, opacity: 0.95,
+    fillColor: '#E1306C', fillOpacity: 0.75,
+  }).addTo(reelLayer);
+  const links = (p.reels || []).map((r, i) =>
+    '<a class="mini-pop-maps" href="' + r.url + '" target="_blank" rel="noopener">🎬 ' +
+    ((p.reels.length > 1 ? 'Reel ' + (i + 1) : 'Ver reel') + (r.owner ? ' · @' + r.owner : '')) + ' →</a>'
+  ).join(' ');
+  m.bindPopup('<div class="mini-pop">' +
+    '<div class="popup-title">' + p.name + '</div>' +
+    '<div class="popup-dates">' + [p.area, CAT_LABELS[p.cat] || p.cat].filter(Boolean).join(' · ') + '</div>' +
+    (p.note ? '<div class="popup-dates">' + p.note + '</div>' : '') +
+    links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
+    '" target="_blank" rel="noopener">Google Maps →</a>' +
+  '</div>');
 });
 
 const placeCoords = destinations
