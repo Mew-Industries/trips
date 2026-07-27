@@ -130,12 +130,12 @@
   .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
   .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
   .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
-  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
-  .qh-toggle .card-section-title { margin: 0; }
+  .qh-toggle, .reels-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title, .reels-toggle .card-section-title { margin: 0; }
   .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
-  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
-  .qh-body { display: none; }
-  .qh-body.open { display: block; }
+  .qh-toggle.open .qh-caret, .reels-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body, .reels-body { display: none; }
+  .qh-body.open, .reels-body.open { display: block; }
   .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
   .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
   .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
@@ -266,6 +266,13 @@
   .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
   .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
   .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .reel-li { display: flex; align-items: baseline; gap: 6px; }
+  .reel-li .act-row { flex: 1; width: auto; color: #B0225C; }
+  .reel-li .act-row:hover { color: #E1306C; }
+  .reel-link { font-size: 11px; text-decoration: none; opacity: 0.8; }
+  .reel-link:hover { opacity: 1; }
+  .reel-chip { color: #B0225C; background: rgba(176, 34, 92, 0.07); border-color: rgba(176, 34, 92, 0.18); }
+  .reel-chip:hover { background: rgba(176, 34, 92, 0.16); }
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
@@ -1104,6 +1111,7 @@ orphanPlaces.forEach(p => {
 // Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
 // regenerado por el pipeline ig-reels). Pin magenta; popup con nota + links.
 const reelLayer = L.layerGroup().addTo(map);
+const reelMarkers = [];
 (window.REEL_PLACES || []).forEach(p => {
   const m = L.circleMarker([p.lat, p.lon], {
     radius: 4.5, color: '#B0225C', weight: 1.5, opacity: 0.95,
@@ -1120,7 +1128,38 @@ const reelLayer = L.layerGroup().addTo(map);
     links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
     '" target="_blank" rel="noopener">Google Maps →</a>' +
   '</div>');
+  reelMarkers.push(m);
 });
+
+// Reels ⇄ paradas: cada lugar de reel se asigna a la parada cuyo `short` prefija su
+// `area`, o si no a la más cercana (<30 km). Sin match → tarjeta propia al final.
+function kmBetween(lat1, lon1, lat2, lon2) {
+  const rad = Math.PI / 180;
+  const a = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
+    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lon2 - lon1) * rad / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+const reelsByDest = {};
+const reelOrphans = [];
+(window.REEL_PLACES || []).forEach((p, ri) => {
+  let dest = destinations.find(d =>
+    p.area === d.short || (p.area || '').indexOf(d.short + ' ') === 0);
+  if (!dest && p.lat != null) {
+    let bestKm = 30;
+    destinations.forEach(d => {
+      const km = kmBetween(p.lat, p.lon, d.coords[0], d.coords[1]);
+      if (km < bestKm) { bestKm = km; dest = d; }
+    });
+  }
+  if (dest) (reelsByDest[dest.id] = reelsByDest[dest.id] || []).push(ri);
+  else reelOrphans.push(ri);
+});
+function reelLinksHtml(p) {
+  return (p.reels || []).map(r =>
+    '<a class="reel-link" href="' + r.url + '" target="_blank" rel="noopener" title="' +
+    (r.owner ? '@' + r.owner : 'reel') + '">🎬</a>'
+  ).join('');
+}
 
 const placeCoords = destinations
   .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
@@ -1259,6 +1298,15 @@ destinations.forEach((d, idx) => {
             ).join('') +
           '</div>'
         : '') +
+      ((reelsByDest[d.id] || []).length > 0
+        ? '<button type="button" class="reels-toggle"><span class="card-section-title">De reels 🎬 · ' + reelsByDest[d.id].length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="reels-body"><ul class="card-list">' +
+            reelsByDest[d.id].map(ri => {
+              const p = window.REEL_PLACES[ri];
+              return '<li class="reel-li"><button type="button" class="act-row" data-reel="' + ri + '">' + p.name + '<span class="act-pin">📍</span></button>' + reelLinksHtml(p) + '</li>';
+            }).join('') +
+          '</ul></div>'
+        : '') +
       dtHtml +
     '</div>';
   detailsList.appendChild(card);
@@ -1290,10 +1338,19 @@ destinations.forEach((d, idx) => {
   card.querySelectorAll('.act-row').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const m = actMarkers[btn.dataset.act];
+      const m = btn.dataset.reel != null ? reelMarkers[btn.dataset.reel] : actMarkers[btn.dataset.act];
       if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
     });
   });
+
+  const reelsToggle = card.querySelector('.reels-toggle');
+  if (reelsToggle) {
+    reelsToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = card.querySelector('.reels-body').classList.toggle('open');
+      reelsToggle.classList.toggle('open', open);
+    });
+  }
 
   card.querySelectorAll('.dt-row').forEach(row => {
     const dtId = row.dataset.dtId;
@@ -1343,6 +1400,29 @@ if (orphanPlaces.length > 0) {
     chip.addEventListener('click', (e) => {
       const p = orphanPlaces.find(x => x.name === chip.textContent);
       if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+    });
+  });
+}
+
+// Lugares de reels lejos de toda parada: tarjeta propia, chips → pin magenta.
+if (reelOrphans.length > 0) {
+  const rc = document.createElement('article');
+  rc.className = 'orphan-card';
+  rc.innerHTML =
+    '<h3>Lugares de reels 🎬 (' + reelOrphans.length + ')</h3>' +
+    '<p class="orphan-sub">Fuera de las paradas del recorrido · pin magenta en el mapa.</p>' +
+    '<div class="orphan-list">' +
+      reelOrphans.map(ri => {
+        const p = window.REEL_PLACES[ri];
+        return '<a class="saved-chip reel-chip" data-reel="' + ri + '" href="' +
+          ((p.reels && p.reels[0]) ? p.reels[0].url : '#') + '" target="_blank" rel="noopener">' + p.name + '</a>';
+      }).join('') +
+    '</div>';
+  detailsList.appendChild(rc);
+  rc.querySelectorAll('.reel-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      const m = reelMarkers[chip.dataset.reel];
+      if (m) { e.preventDefault(); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
     });
   });
 }
