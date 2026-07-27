@@ -273,6 +273,16 @@
   .reel-link:hover { opacity: 1; }
   .reel-chip { color: #B0225C; background: rgba(176, 34, 92, 0.07); border-color: rgba(176, 34, 92, 0.18); }
   .reel-chip:hover { background: rgba(176, 34, 92, 0.16); }
+  /* Modo discreto (🙈 / tecla d): pares .dx (real) / .dm (enmascarado) alternados por CSS */
+  body:not(.discrete) .dm { display: none !important; }
+  body.discrete .dx { display: none !important; }
+  body.discrete .seg-date { display: none; }
+  body.discrete .leg-seg { pointer-events: none; }
+  .discrete-btn { border: none; background: transparent; cursor: pointer; font-size: 15px; line-height: 1; padding: 3px 6px; border-radius: 7px; opacity: 0.4; transition: opacity 0.15s, background 0.15s; }
+  .discrete-btn:hover { opacity: 0.85; }
+  body.discrete .discrete-btn { opacity: 1; background: rgba(15,110,86,0.12); }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
@@ -293,13 +303,16 @@
 <header class="site-header">
   <div class="header-title">
     <h1>Japón + Corea</h1>
-    <span class="subtitle">6 oct – 18 nov 2026</span>
+    <span class="subtitle"><span class="dx">6 oct – 18 nov 2026</span><span class="dm">43 días</span></span>
   </div>
-  <div class="header-stats">
-    <span><strong>6/10</strong> salida BA</span>
-    <span><strong>40</strong> noches</span>
-    <span><strong>12</strong> nodos</span>
-    <span><strong>18/11</strong> regreso</span>
+  <div class="header-right">
+    <div class="header-stats">
+      <span class="dx"><strong>6/10</strong> salida BA</span>
+      <span><strong>40</strong> noches</span>
+      <span><strong>12</strong> nodos</span>
+      <span class="dx"><strong>18/11</strong> regreso</span>
+    </div>
+    <button type="button" class="discrete-btn" id="discrete-toggle" title="Modo discreto (d)">🙈</button>
   </div>
 </header>
 
@@ -843,6 +856,31 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
 
 const routeCoords = destinations.map(d => d.coords);
 
+// --- Modo discreto: enmascara fechas concretas, hospedajes y vuelos identificables
+// para poder mostrar la app sin exponer datos rastreables. Toggle 🙈 en el header o
+// tecla `d`; persiste en localStorage. DX(real, masked) emite el par .dx/.dm que el
+// CSS alterna según body.discrete; con un solo argumento, en discreto no se muestra nada.
+const DISCRETE_KEY = 'japon-discrete';
+const isDiscrete = () => document.body.classList.contains('discrete');
+const DX = (real, masked) => '<span class="dx">' + real + '</span>' + (masked ? '<span class="dm">' + masked + '</span>' : '');
+// Posición genérica del pin de cama en discreto: cerca del centro de la parada,
+// con un corrimiento fijo para no tapar el marcador numerado.
+const maskedLodgingCoords = d => [d.coords[0] + 0.02, d.coords[1] + 0.025];
+// Borra fechas/horas puntuales de un texto libre (intros) sin tocar duraciones (~1h45, 8 min).
+const _MONTH_RE = '(?:ene|feb|mar|abr|may|jun|jul|ago|sept?|oct|nov|dic)';
+function maskDates(t) {
+  return String(t)
+    .replace(/\d{4}-\d{2}-\d{2}/g, '···')
+    .replace(new RegExp('\\b\\d{1,2}\\s*[-–]\\s*\\d{1,2}\\s+(?:de\\s+)?' + _MONTH_RE + '\\b', 'gi'), '···')
+    .replace(new RegExp('\\b\\d{1,2}\\s+(?:de\\s+)?' + _MONTH_RE + '\\b', 'gi'), '···')
+    .replace(/\b\d{1,2}\s*\/\s*\d{1,2}\b/g, '···')
+    .replace(/\b\d{1,2}:\d{2}\b/g, '···')
+    .replace(/\b[A-Z]{2}\d{1,4}\b/g, '···')
+    .replace(/\b(?:el|del)\s+···/g, '···')
+    .replace(/\b(?:el|del)\s+\d{1,2}\b(?!\s*(?:h\b|%|°))/g, '···')
+    .replace(/···(?:[\s·,;]*···)+/g, '···');
+}
+
 // Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
 // se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
 const MODE_STYLE = {
@@ -865,8 +903,8 @@ function legSegsHtml(leg) {
   return '<div class="leg-segs">' + leg.segments.map(s => {
     if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
     return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
-      '<span class="seg-route">' + s.route + (s.no ? ' <span class="seg-no">' + s.no + '</span>' : '') + '</span>' +
-      '<span class="seg-time">' + (s.when || '') + (s.aircraft ? '<br>' + s.aircraft : '') + '</span>' +
+      '<span class="seg-route">' + s.route + (s.no ? DX(' <span class="seg-no">' + s.no + '</span>') : '') + '</span>' +
+      '<span class="seg-time">' + (s.when ? DX(s.when + (s.aircraft ? '<br>' : '')) : '') + (s.aircraft || '') + '</span>' +
     '</a>';
   }).join('') + '</div>';
 }
@@ -944,9 +982,9 @@ airports.forEach(ap => {
 const _EZE = [-34.8222, 301.4642], _IAH = [29.9844, 264.6586], _HND = [35.5494, 139.7798], _NRT = [35.7720, 140.3929];
 const _intlStyle = { color: MODE_STYLE.air.color, weight: 2, opacity: 0.6, dashArray: '1, 7' };
 L.polyline([_EZE, _IAH, _HND, destinations[0].coords], _intlStyle).addTo(flightLayer)
-  .bindPopup('<div class="popup-title">✈ Ida · EZE → IAH → Tokio (6–8 oct)</div>');
+  .bindPopup('<div class="popup-title">✈ Ida · EZE → IAH → Tokio' + DX(' (6–8 oct)') + '</div>');
 L.polyline([destinations[destinations.length - 1].coords, _NRT, _IAH, _EZE], _intlStyle).addTo(flightLayer)
-  .bindPopup('<div class="popup-title">✈ Vuelta · Tokio → IAH → EZE (17–18 nov)</div>');
+  .bindPopup('<div class="popup-title">✈ Vuelta · Tokio → IAH → EZE' + DX(' (17–18 nov)') + '</div>');
 
 // Leyenda de modos de transporte (colores de las líneas).
 const routeLegend = L.control({ position: 'topright' });
@@ -967,7 +1005,8 @@ function gmapsFromName(name) {
     encodeURIComponent(name.split('(')[0].split('/')[0].trim());
 }
 // Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
-function lodgingHtml(L) {
+// En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fechas).
+function lodgingHtml(L, city) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
   const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
@@ -986,16 +1025,24 @@ function lodgingHtml(L) {
       (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
       '<div class="lodging-meta">' + meta + '</div>' +
     '</div>';
-  return '<div class="card-section-title">🛏️ Hospedaje</div><div class="lodging-card">' + inner + '</div>';
+  const masked =
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">Reservado</div>' +
+      '<div class="lodging-sub">' + [city, L.nights ? L.nights + ' noches' : ''].filter(Boolean).join(' · ') + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div>' +
+    '<div class="lodging-card dx">' + inner + '</div>' +
+    '<div class="lodging-card dm">' + masked + '</div>';
 }
 
 // Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
-function lodgingPopupHtml(L) {
+function lodgingPopupHtml(L, city) {
   const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
   let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
   if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
   if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
-  return h;
+  const masked = '<div class="popup-title">🛏️ Reservado</div>' + (city ? '<div class="popup-dates">' + city + '</div>' : '');
+  return '<div class="dx">' + h + '</div><div class="dm">' + masked + '</div>';
 }
 
 function miniPopup(img, title, sub, mapsUrl) {
@@ -1022,8 +1069,8 @@ destinations.forEach(d => {
       });
   const marker = L.marker(d.coords, { icon }).addTo(destLayer);
   const datesLine = isFullday
-    ? d.dates + ' · pasar el día'
-    : d.dates + ' · ' + d.nights + ' noches';
+    ? DX(d.dates + ' · ') + 'pasar el día'
+    : DX(d.dates + ' · ') + d.nights + ' noches';
   marker.bindPopup(
     miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
   );
@@ -1079,7 +1126,9 @@ destinations.forEach(d => {
 });
 
 // Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+// En modo discreto el pin se corre al centro de la parada y el popup solo dice "Reservado".
 const lodgingLayer = L.layerGroup().addTo(map);
+const lodgingPins = [];
 destinations.forEach(d => {
   const lodg = d.lodging;
   if (!lodg || !lodg.coords) return;
@@ -1087,16 +1136,23 @@ destinations.forEach(d => {
     html: '<div class="lodging-marker">🛏️</div>',
     className: '', iconSize: [28, 28], iconAnchor: [14, 14],
   });
-  L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+  const mk = L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
     '<div class="mini-pop">' +
-      (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
-      '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
-      '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
-        (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
-      (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
-      (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+      '<div class="dx">' +
+        (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+        '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+        '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+          (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+        (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+        (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+      '</div>' +
+      '<div class="dm">' +
+        '<div class="popup-title">🛏️ Reservado</div>' +
+        '<div class="popup-dates">' + d.short + (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      '</div>' +
     '</div>'
   );
+  lodgingPins.push({ mk, real: lodg.coords, masked: maskedLodgingCoords(d) });
 });
 
 const orphanPlaceLayer = L.layerGroup().addTo(map);
@@ -1205,8 +1261,8 @@ destinations.forEach((d, idx) => {
     ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
     : '<h2>' + d.name + '</h2>';
   const metaHtml = isFullday
-    ? '<div class="card-meta">' + d.dates + ' · pasar el día</div>'
-    : '<div class="card-meta">' + d.dates + ' · ' + d.nights + ' noches</div>';
+    ? '<div class="card-meta">' + DX(d.dates + ' · ') + 'pasar el día</div>'
+    : '<div class="card-meta">' + DX(d.dates + ' · ') + d.nights + ' noches</div>';
 
   // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
   if (d.leg) {
@@ -1279,8 +1335,8 @@ destinations.forEach((d, idx) => {
       galleryHtml +
       '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
       tempsHtml +
-      '<p class="card-intro">' + d.intro + '</p>' +
-      lodgingHtml(d.lodging) +
+      '<p class="card-intro">' + DX(d.intro, maskDates(d.intro)) + '</p>' +
+      lodgingHtml(d.lodging, d.short) +
       (d.activities.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
@@ -1490,7 +1546,7 @@ function smBodyHtml(d) {
   const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
   const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
   const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
-  const meta = d.type === 'fullday' ? (d.dates + ' · pasar el día') : (d.dates + ' · ' + d.nights + ' noches');
+  const meta = d.type === 'fullday' ? (DX(d.dates + ' · ') + 'pasar el día') : (DX(d.dates + ' · ') + d.nights + ' noches');
   const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
   const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
   const acts = (d.activities && d.activities.length)
@@ -1514,8 +1570,8 @@ function smBodyHtml(d) {
     '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
     hero +
     '<div id="sm-map" class="sm-map"></div>' +
-    (d.intro ? '<p class="sm-intro">' + d.intro + '</p>' : '') +
-    lodgingHtml(d.lodging) + leg + acts + dts
+    (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskDates(d.intro)) + '</p>' : '') +
+    lodgingHtml(d.lodging, d.short) + leg + acts + dts
   );
 }
 function buildStopMiniMap(d, idx) {
@@ -1537,7 +1593,7 @@ function buildStopMiniMap(d, idx) {
   pts.push(d.coords);
   (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
   (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
-  if (d.lodging && d.lodging.coords) { L.marker(d.lodging.coords, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging)); pts.push(d.lodging.coords); }
+  if (d.lodging && d.lodging.coords) { const lc = isDiscrete() ? maskedLodgingCoords(d) : d.lodging.coords; L.marker(lc, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging, d.short)); pts.push(lc); }
   setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
 }
 function _wireShare(el, kind, id) {
@@ -1576,7 +1632,7 @@ function legBodyHtml(d, idx) {
   return (
     '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
       '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
-      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + ' · llega ' + segStartDate(d.dates) + '</div></div></div>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + DX(' · llega ' + segStartDate(d.dates)) + '</div></div></div>' +
     '<div id="sm-map" class="sm-map"></div>' +
     '<p class="sm-intro">' + d.leg.detail + '</p>' +
     (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
@@ -1737,7 +1793,7 @@ const weatherChart = new Chart(ctx, {
       legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
       tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
         callbacks: {
-          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + ' · ' + d.dates; },
+          title: (items) => { const d = destinations[items[0].dataIndex]; return d.short + (isDiscrete() ? '' : ' · ' + d.dates); },
           label: (item) => { const d = destinations[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
         }
       }
@@ -1771,6 +1827,33 @@ const weatherChart = new Chart(ctx, {
       if (open) setTimeout(() => weatherChart.resize(), 30);
     });
   }
+})();
+
+// Toggle del modo discreto: botón 🙈 del header o tecla `d`; persiste en localStorage.
+// Mueve los pines de cama al centro de su parada y re-renderiza la ficha si está abierta
+// (los pares .dx/.dm del resto de la UI se alternan solos por CSS).
+(function () {
+  const btn = document.getElementById('discrete-toggle');
+  function applyDiscrete(on) {
+    document.body.classList.toggle('discrete', on);
+    lodgingPins.forEach(p => p.mk.setLatLng(on ? p.masked : p.real));
+    map.closePopup();
+    try { localStorage.setItem(DISCRETE_KEY, on ? '1' : '0'); } catch (e) {}
+    const s = new URLSearchParams(location.search);
+    if (s.get('stop')) openStopModal(s.get('stop'));
+    else if (s.get('leg')) openLegModal(s.get('leg'));
+  }
+  btn.addEventListener('click', () => applyDiscrete(!isDiscrete()));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'd' && e.key !== 'D') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    applyDiscrete(!isDiscrete());
+  });
+  let saved = null;
+  try { saved = localStorage.getItem(DISCRETE_KEY); } catch (e) {}
+  if (saved === '1') applyDiscrete(true);
 })();
 </script>
 </body>
