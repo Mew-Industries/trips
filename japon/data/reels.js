@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 196 lugares de la colección IG "japon mew" · 2026-07-27T16:42:47+00:00
+// 196 lugares de la colección IG "japon mew" · 2026-07-28T16:37:54+00:00
 window.REEL_PLACES = [
  {
   "name": "& OIMO TOKYO CAFE",
