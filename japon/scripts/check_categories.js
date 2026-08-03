@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+/**
+ * Verifica la categorización de TODOS los lugares del mapa (task 474).
+ *
+ *   node japon/scripts/check_categories.js
+ *
+ * Chequea que cada lugar (actividades geolocalizadas + guardados sin destino +
+ * day trips + lugares de reels) resuelva a exactamente una categoría de la
+ * taxonomía de data/categories.js, imprime el desglose por fuente y avisa de
+ * overrides que ya no matchean nada (nombres que cambiaron aguas arriba).
+ * Sale 1 si algo queda sin categoría válida.
+ */
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
+const DIR = path.join(__dirname, '..');
+const html = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
+
+function arrayLiteral(name) {
+  const head = 'const ' + name + ' = [';
+  const i = html.indexOf(head);
+  if (i < 0) throw new Error('no se encontró el array ' + name + ' en index.html');
+  const j = html.indexOf('\n];\n', i);
+  return vm.runInNewContext(html.slice(i + head.length - 1, j + 3));
+}
+
+const sandbox = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/categories.js'), 'utf8'), sandbox);
+vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/reels.js'), 'utf8'), sandbox);
+const { PLACE_TAXONOMY, PLACE_CAT_LEGACY, PLACE_CAT_OVERRIDES, REEL_PLACES } = sandbox.window;
+
+const catKey = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const byName = {};
+Object.keys(PLACE_CAT_OVERRIDES).forEach(n => { byName[catKey(n)] = PLACE_CAT_OVERRIDES[n]; });
+const usedOverride = new Set();
+
+function catOf(name, legacy) {
+  const k = catKey(name);
+  const own = byName[k];
+  if (own && PLACE_TAXONOMY.meta[own]) { usedOverride.add(k); return own; }
+  const mapped = PLACE_CAT_LEGACY[legacy];
+  return (mapped && PLACE_TAXONOMY.meta[mapped]) ? mapped : 'otro';
+}
+
+const destinations = arrayLiteral('destinations');
+const orphanPlaces = arrayLiteral('orphanPlaces');
+
+const places = [];
+destinations.forEach(d => {
+  (d.activities || []).forEach(a => places.push({
+    src: a.coords ? 'maps · actividad con pin' : 'itinerario · idea sin pin', name: a.text, legacy: a.cat, pin: !!a.coords }));
+  (d.daytrips || []).forEach(t => places.push({ src: 'day trip', name: t.name, legacy: t.cat, pin: !!t.coords }));
+});
+orphanPlaces.forEach(p => places.push({
+  src: 'maps · guardado sin destino', name: p.name, legacy: p.cat, pin: p.lat != null }));
+(REEL_PLACES || []).forEach(p => places.push({ src: 'reel IG', name: p.name, legacy: p.cat, pin: p.lat != null }));
+
+let bad = 0;
+const bySrc = {}, byCat = {};
+places.forEach(p => {
+  const c = catOf(p.name, p.legacy);
+  if (!PLACE_TAXONOMY.meta[c]) { console.error('SIN CATEGORÍA: [' + p.src + '] ' + p.name); bad++; return; }
+  p.cat = c;
+  bySrc[p.src] = bySrc[p.src] || {};
+  bySrc[p.src][c] = (bySrc[p.src][c] || 0) + 1;
+  byCat[c] = (byCat[c] || 0) + 1;
+});
+
+console.log('Lugares: ' + places.length + ' (' + places.filter(p => p.pin).length + ' con pin en el mapa)' +
+  ' · categorías: ' + PLACE_TAXONOMY.order.join(', ') + '\n');
+Object.keys(bySrc).sort().forEach(src => {
+  const total = Object.values(bySrc[src]).reduce((a, b) => a + b, 0);
+  console.log(src + ' (' + total + ')');
+  PLACE_TAXONOMY.order.forEach(c => { if (bySrc[src][c]) console.log('    ' + c.padEnd(13) + bySrc[src][c]); });
+});
+console.log('\nTotal por categoría');
+PLACE_TAXONOMY.order.forEach(c => console.log('  ' + c.padEnd(13) + (byCat[c] || 0)));
+
+const stale = Object.keys(PLACE_CAT_OVERRIDES).filter(n => !usedOverride.has(catKey(n)));
+if (stale.length) console.log('\nOverrides que no matchean ningún lugar (¿nombre cambiado?):\n  ' + stale.join('\n  '));
+
+if (bad) { console.error('\n✗ ' + bad + ' lugar(es) sin categoría válida'); process.exit(1); }
+console.log('\n✓ todos los lugares tienen exactamente una categoría de la taxonomía');

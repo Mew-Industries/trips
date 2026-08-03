@@ -40,11 +40,22 @@
 
   .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
   #map { height: 100%; width: 100%; position: relative; }
-  .map-toggles { position: absolute; left: 50%; transform: translateX(-50%); bottom: 12px; z-index: 1000; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; max-width: 92%; }
+  .map-bars { position: absolute; left: 10px; right: 10px; bottom: 12px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; }
+  .map-bars > * { pointer-events: auto; max-width: 100%; }
+  .map-toggles { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
   .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
   .map-toggles .mt.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
   .map-toggles .mt:not(.active) { opacity: 0.92; }
   .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+
+  /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
+  .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .map-cats .mc { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #3a3a3a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 5px; transition: color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-cats .mc-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+  .map-cats .mc.off { color: #b4b4b4; }
+  .map-cats .mc.off .mc-dot { background: transparent; border: 1.5px solid #cfcfcf; }
+  .map-cats .mc-all { color: #0F6E56; border-color: rgba(15,110,86,0.35); }
+  .map-cats .mc-all[hidden] { display: none; }
 
   .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
 
@@ -163,6 +174,9 @@
   .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
   .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
   .route-legend .rl-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #999; }
+  .route-legend .rl-save { background: #8a8a8a; border-color: #6a6a6a; }
+  .route-legend .rl-reel { background: #8a8a8a; border-color: #6a6a6a; border-radius: 1px; transform: rotate(45deg); }
+  .route-legend .rl-dt { background: #fff; border-width: 2.5px; border-color: #6a6a6a; }
   .leg-text strong { color: #555; font-weight: 600; }
   .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
   .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
@@ -247,8 +261,16 @@
 
   .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
-  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 1.5px solid #444; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, border-color 0.2s; }
-  .marker-dot.active { transform: scale(1.8); background: #fbbf77; border-color: #BA7517; }
+  /* Day trip: anillo hueco del color de su categoría. */
+  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 2.5px solid var(--c, #444); box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; }
+  .marker-dot.active { transform: scale(1.8); background: var(--c, #fbbf77); }
+
+  /* Lugares: color = categoría, forma = fuente (● guardado de Maps, ◆ reel de IG) */
+  .pp { width: 11px; height: 11px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.92); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; }
+  .pp-save { border-radius: 50%; margin: 1px; }
+  .pp-reel { border-radius: 2px; transform: rotate(45deg); margin: 1px; }
+  .pp-save:hover { transform: scale(1.35); }
+  .pp-reel:hover { transform: rotate(45deg) scale(1.35); }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -295,6 +317,12 @@
     .content-pane { overflow: visible; }
     .details-section { overflow: visible; }
     .header-stats { display: none; }
+    /* En mobile las dos barras del mapa van en una sola línea scrolleable, para
+       no comerse el mapa (que ya es media pantalla). */
+    .map-bars { left: 0; right: 0; bottom: 8px; gap: 4px; }
+    .map-cats, .map-toggles { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
+    .map-cats::-webkit-scrollbar, .map-toggles::-webkit-scrollbar { display: none; }
+    .map-cats .mc, .map-toggles .mt { flex: none; font-size: 10px; padding: 4px 8px; }
   }
 </style>
 </head>
@@ -340,6 +368,7 @@
 </main>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data/categories.js"></script>
 <script src="data/reels.js"></script>
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
@@ -994,7 +1023,9 @@ routeLegend.onAdd = function () {
     const s = MODE_STYLE[k];
     return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
   }).join('') +
-  '<span class="rl-item"><span class="rl-dot" style="background:#E1306C;border-color:#B0225C"></span>Reels</span>';
+  '<span class="rl-item"><span class="rl-dot rl-save"></span>guardado</span>' +
+  '<span class="rl-item"><span class="rl-dot rl-reel"></span>reel</span>' +
+  '<span class="rl-item"><span class="rl-dot rl-dt"></span>day trip</span>';
   return div;
 };
 routeLegend.addTo(map);
@@ -1054,6 +1085,47 @@ function miniPopup(img, title, sub, mapsUrl) {
   '</div>';
 }
 
+// Categorías de lugares — taxonomía única para reels, guardados de Maps, day
+// trips y la lista "Qué hacer" (data/categories.js). `catOf(nombre, catLegacy)`
+// resuelve: override por nombre → mapeo del `cat` viejo → 'otro'.
+const CAT_META = window.PLACE_TAXONOMY.meta;
+const CAT_ORDER = window.PLACE_TAXONOMY.order;
+const CAT_LABELS = {};
+CAT_ORDER.forEach(c => { CAT_LABELS[c] = CAT_META[c].icon + ' ' + CAT_META[c].label; });
+const catColor = c => (CAT_META[c] || CAT_META.otro).color;
+const catKey = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const CAT_BY_NAME = {};
+Object.keys(window.PLACE_CAT_OVERRIDES).forEach(n => { CAT_BY_NAME[catKey(n)] = window.PLACE_CAT_OVERRIDES[n]; });
+function catOf(name, legacy) {
+  const own = CAT_BY_NAME[catKey(name)];
+  if (own && CAT_META[own]) return own;
+  const mapped = window.PLACE_CAT_LEGACY[legacy];
+  return (mapped && CAT_META[mapped]) ? mapped : 'otro';
+}
+const catOfAct = a => catOf(a.text, a.cat);
+
+// Pins de lugares: el COLOR dice la categoría, la FORMA de dónde salió
+// (● guardado de Google Maps · ◆ reel de IG · ◎ day trip). Cada pin queda
+// registrado en `placePins` para poder filtrarlo por categoría sin romper los
+// toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
+const placePins = [];
+function placeIcon(cat, kind, id) {
+  const cls = kind === 'dt' ? 'marker-dot' : 'pp pp-' + kind;
+  const size = kind === 'dt' ? 12 : 13;
+  return L.divIcon({
+    html: '<div class="' + cls + '" style="--c:' + catColor(cat) + '"' + (id ? ' data-id="' + id + '"' : '') + '></div>',
+    className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+  });
+}
+function placePin(coords, cat, kind, layer, id) {
+  // Guardados y reels quedan por debajo de los marcadores de parada / cama
+  // (antes eran circleMarkers, que viven en un panel inferior al de markers).
+  const m = L.marker(coords, { icon: placeIcon(cat, kind, id), zIndexOffset: kind === 'dt' ? 0 : -1000 }).addTo(layer);
+  placePins.push({ m: m, layer: layer, cat: cat });
+  return m;
+}
+
 const markers = {};
 const destLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
@@ -1081,13 +1153,10 @@ const dtMarkers = {};
 const dtLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
   d.daytrips.forEach(dt => {
-    const icon = L.divIcon({
-      html: '<div class="marker-dot" data-id="' + dt.id + '"></div>',
-      className: '', iconSize: [12, 12], iconAnchor: [6, 6],
-    });
-    const marker = L.marker(dt.coords, { icon }).addTo(dtLayer);
+    const cat = catOf(dt.name, dt.cat);
+    const marker = placePin(dt.coords, cat, 'dt', dtLayer, dt.id);
     marker.bindPopup(
-      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time, dt.url || gmapsFromName(dt.name))
+      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time + ' · ' + CAT_LABELS[cat], dt.url || gmapsFromName(dt.name))
     );
     dtMarkers[dt.id] = marker;
   });
@@ -1099,13 +1168,6 @@ function placePopup(p, sub) {
   return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
 }
 
-// Categorías de "Qué hacer" (etiqueta + orden de despliegue).
-const CAT_LABELS = {
-  comida: '🍜 Comida', templos: '⛩️ Templos y santuarios', museos: '🏛️ Museos y arte',
-  parques: '🌳 Parques y naturaleza', barrios: '🏙️ Barrios y paseos', compras: '🛍️ Compras',
-  miradores: '🗼 Miradores y arquitectura', onsen: '♨️ Onsen', ocio: '🎢 Ocio', otros: '✨ Otros'
-};
-const CAT_ORDER = ['templos','museos','parques','miradores','barrios','comida','compras','onsen','ocio','otros'];
 
 // Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
 // vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
@@ -1114,12 +1176,10 @@ const savedPlaceLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
   (d.activities || []).forEach((a, i) => {
     if (!a.coords) return;
-    const m = L.circleMarker(a.coords, {
-      radius: 4, color: '#0F6E56', weight: 1.5, opacity: 0.95,
-      fillColor: '#1D9E75', fillOpacity: 0.85,
-    }).addTo(savedPlaceLayer);
+    const cat = catOfAct(a);
+    const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     m.bindPopup(
-      miniPopup(a.img, a.text, d.short + ' · ' + (CAT_LABELS[a.cat] || a.cat), a.url || gmapsFromName(a.text))
+      miniPopup(a.img, a.text, d.short + ' · ' + CAT_LABELS[cat], a.url || gmapsFromName(a.text))
     );
     actMarkers[d.id + ':' + i] = m;
   });
@@ -1158,28 +1218,26 @@ destinations.forEach(d => {
 const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
-  L.circleMarker([p.lat, p.lon], {
-    radius: 5, color: '#BA7517', weight: 2, opacity: 0.95,
-    fillColor: '#fbbf77', fillOpacity: 0.6,
-  }).addTo(orphanPlaceLayer).bindPopup(placePopup(p, 'Lugar guardado · sin destino asignado'));
+  const cat = catOf(p.name, p.cat);
+  placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer)
+    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · guardado sin destino asignado'));
 });
 
 // Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
-// regenerado por el pipeline ig-reels). Pin magenta; popup con nota + links.
+// regenerado por el pipeline ig-reels). Pin rombo, color por categoría; popup
+// con nota + links.
 const reelLayer = L.layerGroup().addTo(map);
 const reelMarkers = [];
 (window.REEL_PLACES || []).forEach(p => {
-  const m = L.circleMarker([p.lat, p.lon], {
-    radius: 4.5, color: '#B0225C', weight: 1.5, opacity: 0.95,
-    fillColor: '#E1306C', fillOpacity: 0.75,
-  }).addTo(reelLayer);
+  const cat = catOf(p.name, p.cat);
+  const m = placePin([p.lat, p.lon], cat, 'reel', reelLayer);
   const links = (p.reels || []).map((r, i) =>
     '<a class="mini-pop-maps" href="' + r.url + '" target="_blank" rel="noopener">🎬 ' +
     ((p.reels.length > 1 ? 'Reel ' + (i + 1) : 'Ver reel') + (r.owner ? ' · @' + r.owner : '')) + ' →</a>'
   ).join(' ');
   m.bindPopup('<div class="mini-pop">' +
     '<div class="popup-title">' + p.name + '</div>' +
-    '<div class="popup-dates">' + [p.area, CAT_LABELS[p.cat] || p.cat].filter(Boolean).join(' · ') + '</div>' +
+    '<div class="popup-dates">' + [p.area, CAT_LABELS[cat]].filter(Boolean).join(' · ') + '</div>' +
     (p.note ? '<div class="popup-dates">' + p.note + '</div>' : '') +
     links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
     '" target="_blank" rel="noopener">Google Maps →</a>' +
@@ -1340,11 +1398,11 @@ destinations.forEach((d, idx) => {
       (d.activities.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
-            CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+            CAT_ORDER.filter(c => d.activities.some(a => catOfAct(a) === c)).map(c =>
               '<div class="cat-group">' +
                 '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
                 '<ul class="card-list">' +
-                  d.activities.map((a, i) => [a, i]).filter(([a]) => a.cat === c).map(([a, i]) =>
+                  d.activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c).map(([a, i]) =>
                     a.coords
                       ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
                       : '<li class="act-row-plain">' + a.text + '</li>'
@@ -1445,7 +1503,7 @@ if (orphanPlaces.length > 0) {
   oc.className = 'orphan-card';
   oc.innerHTML =
     '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
-    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa aparecen con anillo naranja.</p>' +
+    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa son círculos del color de su categoría.</p>' +
     '<div class="orphan-list">' +
       orphanPlaces.map(p =>
         '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
@@ -1460,13 +1518,13 @@ if (orphanPlaces.length > 0) {
   });
 }
 
-// Lugares de reels lejos de toda parada: tarjeta propia, chips → pin magenta.
+// Lugares de reels lejos de toda parada: tarjeta propia, chips → su pin en el mapa.
 if (reelOrphans.length > 0) {
   const rc = document.createElement('article');
   rc.className = 'orphan-card';
   rc.innerHTML =
     '<h3>Lugares de reels 🎬 (' + reelOrphans.length + ')</h3>' +
-    '<p class="orphan-sub">Fuera de las paradas del recorrido · pin magenta en el mapa.</p>' +
+    '<p class="orphan-sub">Fuera de las paradas del recorrido · rombo del color de su categoría en el mapa.</p>' +
     '<div class="orphan-list">' +
       reelOrphans.map(ri => {
         const p = window.REEL_PLACES[ri];
@@ -1551,9 +1609,9 @@ function smBodyHtml(d) {
   const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
   const acts = (d.activities && d.activities.length)
     ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
-        CAT_ORDER.filter(c => d.activities.some(a => a.cat === c)).map(c =>
+        CAT_ORDER.filter(c => d.activities.some(a => catOfAct(a) === c)).map(c =>
           '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
-            d.activities.filter(a => a.cat === c).map(a =>
+            d.activities.filter(a => catOfAct(a) === c).map(a =>
               a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
                     : '<li class="act-row-plain">' + a.text + '</li>'
             ).join('') +
@@ -1591,8 +1649,8 @@ function buildStopMiniMap(d, idx) {
   }
   L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + d.n + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
   pts.push(d.coords);
-  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: '#D85A30', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
-  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: '#2563EB', weight: 2, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: catColor(catOfAct(a)), weight: 2, fillColor: catColor(catOfAct(a)), fillOpacity: 0.85 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: catColor(catOf(t.name, t.cat)), weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
   if (d.lodging && d.lodging.coords) { const lc = isDiscrete() ? maskedLodgingCoords(d) : d.lodging.coords; L.marker(lc, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging, d.short)); pts.push(lc); }
   setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
 }
@@ -1731,9 +1789,65 @@ TOGGLES.forEach(t => {
   });
   togglesBar.appendChild(btn);
 });
-map.getContainer().appendChild(togglesBar);
-L.DomEvent.disableClickPropagation(togglesBar);
-L.DomEvent.disableScrollPropagation(togglesBar);
+const barsWrap = document.createElement('div');
+barsWrap.className = 'map-bars';
+map.getContainer().appendChild(barsWrap);
+L.DomEvent.disableClickPropagation(barsWrap);
+L.DomEvent.disableScrollPropagation(barsWrap);
+
+// Filtro por categoría — los chips son a la vez la leyenda de color de los pines.
+// Con todo prendido, un click aísla esa categoría; después cada click suma o saca.
+// El estado va a la URL (?cat=comida,bar-noche) para poder compartir la vista.
+const activeCats = new Set(CAT_ORDER);
+const catBar = document.createElement('div');
+catBar.className = 'map-cats';
+const catBtns = {};
+CAT_ORDER.forEach(c => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mc';
+  btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
+  btn.addEventListener('click', () => {
+    if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
+    else if (activeCats.has(c)) activeCats.delete(c);
+    else activeCats.add(c);
+    applyCatFilter();
+  });
+  catBtns[c] = btn;
+  catBar.appendChild(btn);
+});
+const allCatsBtn = document.createElement('button');
+allCatsBtn.type = 'button';
+allCatsBtn.className = 'mc mc-all';
+allCatsBtn.textContent = 'Todo';
+allCatsBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
+catBar.appendChild(allCatsBtn);
+barsWrap.appendChild(catBar);
+barsWrap.appendChild(togglesBar);   // los chips van arriba de los toggles de capa
+
+function applyCatFilter(skipUrl) {
+  placePins.forEach(p => {
+    const on = activeCats.has(p.cat);
+    if (on && !p.layer.hasLayer(p.m)) p.layer.addLayer(p.m);
+    else if (!on && p.layer.hasLayer(p.m)) p.layer.removeLayer(p.m);
+  });
+  CAT_ORDER.forEach(c => catBtns[c].classList.toggle('off', !activeCats.has(c)));
+  allCatsBtn.hidden = activeCats.size === CAT_ORDER.length;
+  if (skipUrl) return;
+  const u = new URL(location.href);
+  if (activeCats.size === CAT_ORDER.length) u.searchParams.delete('cat');
+  else u.searchParams.set('cat', CAT_ORDER.filter(c => activeCats.has(c)).join(','));
+  history.replaceState(null, '', u);
+}
+(function () {  // deep-link: ?cat=comida,bar-noche aterriza ya filtrado
+  const s = new URLSearchParams(location.search);
+  if (s.has('cat')) {
+    const want = s.get('cat').split(',').map(c => c.trim()).filter(c => CAT_META[c]);
+    activeCats.clear();
+    want.forEach(c => activeCats.add(c));
+  }
+  applyCatFilter(true);
+})();
 
 // Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
 (function () {

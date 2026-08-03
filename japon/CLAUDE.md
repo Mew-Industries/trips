@@ -26,7 +26,26 @@ Hoy el array `destinations` en `index.html` ya tiene `n/type/name/coords/dates/n
 
 **Modelo de `lodging`** (2026-06-03): cada nodo puede tener `lodging` (antes `null`) = objeto `{ name, type, rating?, guests?, area?, checkIn, checkOut, nights?, img?, url }`. Se renderiza como tarjeta "🛏️ Hospedaje" en el detalle (después del intro, antes de "Qué hacer") vía `lodgingHtml()`. La foto sale del og:image del listing (Airbnb CDN muscache es hotlinkable); nombre/zona del og:title/og:description. Primero cargado: Seúl (hanok en Bukchon). Para sumar un hospedaje a otro destino: completar su `lodging` (fetchear el og: del link de Airbnb/booking con curl + UA de browser).
 
-**Modelo de `activities`** (refactor 2026-06-02): cada actividad es un objeto `{ text, cat, coords?, url? }`. `cat` es la categoría (uno de: templos, museos, parques, miradores, barrios, comida, compras, onsen, ocio, otros) — la lista "Qué hacer" se renderiza **agrupada por categoría** en ese orden (CAT_ORDER/CAT_LABELS en el JS). `coords: [lat,lon]` + `url` (Google Maps) están presentes en las actividades que vienen de un lugar guardado (53 de ellas); esas se muestran como ítem clickeable que **vuela al punto en el mapa y abre su popup** (el link a Google Maps vive en el popup del punto, NO en el ítem de la lista). Las actividades escritas a mano sin lugar guardado (~70) van como texto plano bajo su categoría (sin pin). El viejo array paralelo `activityPlaces` (puntitos anónimos) fue **eliminado** y fundido acá. Para recategorizar algo, editá el `cat` de esa actividad; para darle pin a una idea a mano, agregale `coords` + `url`.
+**Modelo de `activities`** (refactor 2026-06-02): cada actividad es un objeto `{ text, cat, coords?, url? }`. `cat` es la categoría **legacy** (templos, museos, parques, miradores, barrios, comida, compras, onsen, ocio, otros); desde 2026-08-03 se traduce a la taxonomía única de `data/categories.js` — ver "Categorías de lugares" abajo — y la lista "Qué hacer" se renderiza **agrupada por esa taxonomía** (CAT_ORDER/CAT_LABELS salen de ahí). `coords: [lat,lon]` + `url` (Google Maps) están presentes en las actividades que vienen de un lugar guardado (53 de ellas); esas se muestran como ítem clickeable que **vuela al punto en el mapa y abre su popup** (el link a Google Maps vive en el popup del punto, NO en el ítem de la lista). Las actividades escritas a mano sin lugar guardado (~70) van como texto plano bajo su categoría (sin pin). El viejo array paralelo `activityPlaces` (puntitos anónimos) fue **eliminado** y fundido acá. Para recategorizar algo, agregalo a `PLACE_CAT_OVERRIDES` en `data/categories.js` (el `cat` legacy podés dejarlo como está); para darle pin a una idea a mano, agregale `coords` + `url`.
+
+
+## Categorías de lugares (taxonomía única, 2026-08-03 · task 474)
+
+Todos los lugares del mapa —reels de IG, guardados de Google Maps (actividades con `coords` + `orphanPlaces`) y day trips— comparten **una sola taxonomía**: `comida · bar-noche · parque · templo-museo · actividad · compras · barrio · otro`. Vive en **`data/categories.js`** (archivo de datos versionado, se edita a mano):
+
+- `PLACE_TAXONOMY` — orden, etiqueta, ícono y **color** de cada categoría.
+- `PLACE_CAT_LEGACY` — mapeo de las categorías viejas (las que emite el pipeline de reels y el `cat` de `activities`) a la taxonomía nueva.
+- `PLACE_CAT_OVERRIDES` — categoría explícita por nombre de lugar; gana sobre el mapeo legacy. El match ignora mayúsculas, acentos y puntuación.
+
+`catOf(nombre, catLegacy)` en `index.html` resuelve override → legacy → `otro`. **Por qué aguas abajo:** `build_reels_js.py` (workspace, fuera de este repo) sigue escribiendo su `cat` viejo en `data/reels.js` y el sync de Maps no toca `index.html`, así que regenerar reels nunca resetea una categoría.
+
+En el mapa: **el color del pin es la categoría y la forma es la fuente** (● guardado de Maps · ◆ reel · ◎ day trip; la leyenda de formas está arriba a la derecha con la de transportes). Los **chips de categoría** abajo del mapa filtran y hacen de leyenda de color a la vez: con todo prendido un click aísla esa categoría, después cada click suma/saca, y el chip "Todo" vuelve al estado completo. El estado va a la URL (`?cat=comida,bar-noche`), así que un deep-link aterriza ya filtrado.
+
+Verificación (cada lugar tiene exactamente una categoría de la taxonomía, y avisa de overrides que dejaron de matchear):
+
+```
+node japon/scripts/check_categories.js
+```
 
 ⚠️ El script `scripts/update_weather.py` parsea los nodos por regex esperando el formato `id: '...', n: N, type: '...', name: '...'` con comillas simples — NO convertir el array a JSON ni cambiar ese estilo o se rompe el updater de clima.
 
