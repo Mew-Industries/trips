@@ -40,7 +40,9 @@
 
   .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
   #map { height: 100%; width: 100%; position: relative; }
-  .map-bars { position: absolute; left: 10px; right: 10px; bottom: 12px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; }
+  /* Los 54px de cada lado dejan libre la esquina del botón de "mi ubicación"
+     (y mantienen las barras centradas respecto del mapa). */
+  .map-bars { position: absolute; left: 54px; right: 54px; bottom: 12px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; }
   .map-bars > * { pointer-events: auto; max-width: 100%; }
   .map-toggles { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
   .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
@@ -56,6 +58,37 @@
   .map-cats .mc.off .mc-dot { background: transparent; border: 1.5px solid #cfcfcf; }
   .map-cats .mc-all { color: #0F6E56; border-color: rgba(15,110,86,0.35); }
   .map-cats .mc-all[hidden] { display: none; }
+
+  /* Mi ubicación — botón en la esquina inferior derecha del mapa. Tres estados:
+     apagado (gris) · con fix (verde) · siguiendo (verde lleno). Sin leyendas. */
+  .me-btn { position: absolute; right: 10px; bottom: 12px; z-index: 1000; width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); transition: background 0.12s, color 0.12s, border-color 0.12s; }
+  .me-btn svg { width: 19px; height: 19px; display: block; }
+  .me-btn.on { color: #0F6E56; }
+  .me-btn.follow { background: #0F6E56; border-color: #0F6E56; color: #fff; }
+  .me-btn.wait { color: #0F6E56; animation: me-pulse 1.1s ease-in-out infinite; }
+  .me-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+  @keyframes me-pulse { 50% { opacity: 0.35; } }
+  /* El botón se come la esquina donde vive la atribución: la corremos a su izquierda. */
+  .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-right: 52px; }
+  .me-dot { width: 16px; height: 16px; border-radius: 50%; background: #1F7AE0; border: 2.5px solid #fff; box-shadow: 0 0 0 1px rgba(31,122,224,0.45), 0 1px 4px rgba(0,0,0,0.35); cursor: pointer; }
+
+  /* "Cerca tuyo": los 5 puntos visibles más próximos, en el popup del punto azul. */
+  .near { min-width: 186px; }
+  .near-row { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 2px; background: none; border: none; border-top: 1px solid rgba(0,0,0,0.07); font: inherit; font-size: 12px; color: #1a1a1a; text-align: left; cursor: pointer; }
+  .near-row:first-child { border-top: none; }
+  .near-row:hover { color: #0F6E56; }
+  .near-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .near-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .near-km { font-size: 11px; color: #888; flex: none; font-variant-numeric: tabular-nums; }
+  .near-empty { font-size: 11px; color: #888; }
+  .popup-dist { font-size: 11px; font-weight: 600; color: #1F7AE0; margin-top: 5px; }
+
+  .map-toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: 78px; z-index: 1100; max-width: 82%; padding: 7px 13px; border-radius: 14px; background: rgba(26,26,26,0.9); color: #fff; font-size: 11px; font-weight: 500; line-height: 1.35; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.28); opacity: 0; pointer-events: none; transition: opacity 0.18s; }
+  .map-toast.show { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .me-btn.wait { animation: none; opacity: 0.6; }
+  }
 
   .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
 
@@ -319,7 +352,9 @@
     .header-stats { display: none; }
     /* En mobile las dos barras del mapa van en una sola línea scrolleable, para
        no comerse el mapa (que ya es media pantalla). */
-    .map-bars { left: 0; right: 0; bottom: 8px; gap: 4px; }
+    .map-bars { left: 0; right: 46px; bottom: 8px; gap: 4px; }
+    .me-btn { right: 8px; bottom: 10px; width: 34px; height: 34px; }
+    .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-right: 48px; }
     .map-cats, .map-toggles { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
     .map-cats::-webkit-scrollbar, .map-toggles::-webkit-scrollbar { display: none; }
     .map-cats .mc, .map-toggles .mt { flex: none; font-size: 10px; padding: 4px 8px; }
@@ -1127,6 +1162,14 @@ const catOfAct = a => catOf(a.text, a.cat);
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
 // toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
 const placePins = [];
+// Índice de puntos con coords para "cerca tuyo" y para la distancia en el popup
+// (bloque "Mi ubicación", al final del script). `masked` es la etiqueta que se
+// muestra en modo discreto.
+const nearPts = [];
+function nearAdd(m, label, color, masked) {
+  nearPts.push({ m: m, label: label, color: color, masked: masked || null });
+  return m;
+}
 // Ir a un lugar desde la lista cuando su categoría está apagada dejaba el mapa
 // en el punto correcto pero sin pin (el marker está fuera de su layerGroup y el
 // openPopup no hace nada). Volvemos a prender su categoría: el pin aparece y los
@@ -1175,6 +1218,7 @@ destinations.forEach(d => {
     miniPopup(d.img, d.n + '. ' + d.short + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
   );
   markers[d.id] = marker;
+  nearAdd(marker, d.n + '. ' + d.short, '#0F6E56');
 });
 
 const dtMarkers = {};
@@ -1187,6 +1231,7 @@ destinations.forEach(d => {
       miniPopup(dt.img, escHtml(dt.name), 'Day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time) + ' · ' + CAT_LABELS[cat], dt.url || gmapsFromName(dt.name))
     );
     dtMarkers[dt.id] = marker;
+    nearAdd(marker, dt.name, catColor(cat));
   });
 });
 
@@ -1210,6 +1255,7 @@ destinations.forEach(d => {
       miniPopup(a.img, escHtml(a.text), escHtml(d.short) + ' · ' + CAT_LABELS[cat], a.url || gmapsFromName(a.text))
     );
     actMarkers[d.id + ':' + i] = m;
+    nearAdd(m, a.text, catColor(cat));
   });
 });
 
@@ -1241,14 +1287,15 @@ destinations.forEach(d => {
     '</div>'
   );
   lodgingPins.push({ mk, real: lodg.coords, masked: maskedLodgingCoords(d) });
+  nearAdd(mk, lodg.name, '#7A4FB0', 'Hospedaje · ' + d.short);
 });
 
 const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
   const cat = catOf(p.name, p.cat);
-  placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer)
-    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · guardado sin destino asignado'));
+  nearAdd(placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer)
+    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · guardado sin destino asignado')), p.name, catColor(cat));
 });
 
 // Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
@@ -1271,6 +1318,7 @@ const reelMarkers = [];
     '" target="_blank" rel="noopener">Google Maps →</a>' +
   '</div>');
   reelMarkers.push(m);
+  nearAdd(m, p.name, catColor(cat));
 });
 
 // Reels ⇄ paradas: cada lugar de reel se asigna a la parada cuyo `short` prefija su
@@ -2000,6 +2048,204 @@ const weatherChart = new Chart(ctx, {
   let saved = null;
   try { saved = localStorage.getItem(DISCRETE_KEY); } catch (e) {}
   if (saved === '1') applyDiscrete(true);
+})();
+
+// ── Mi ubicación ────────────────────────────────────────────────────────────
+// Punto azul + círculo de precisión sobre el mapa del viaje, para caminar por
+// Tokio o Busan y ver qué pin del viaje tenés al lado. El permiso se pide SOLO
+// al tocar el botón (nunca al cargar) y la posición vive en memoria: no se
+// guarda en localStorage ni sale de la página.
+//
+// Botón (esquina inferior derecha): tap 1 = prender · tap 2 = seguir (el mapa se
+// centra en cada update) · tap 3 = apagar. Arrastrar el mapa sale del modo seguir.
+// Con fix activo, cada popup de punto suma "a X m/km" y el punto azul abre la
+// lista de los 5 lugares visibles más cercanos.
+(function () {
+  const meLayer = L.layerGroup().addTo(map);
+  let meMarker = null, meCircle = null, mePos = null, meWatch = null, meState = 'off';
+  let stampTarget = null, nearShown = [];
+
+  const meBtn = document.createElement('button');
+  meBtn.type = 'button';
+  meBtn.className = 'me-btn';
+  meBtn.title = 'Mi ubicación';
+  meBtn.setAttribute('aria-label', 'Mi ubicación');
+  meBtn.setAttribute('aria-pressed', 'false');
+  meBtn.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="7"/><path d="M12 1.5v3M12 19.5v3M22.5 12h-3M4.5 12h-3"/>' +
+      '<circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/>' +
+    '</svg>';
+  map.getContainer().appendChild(meBtn);
+  L.DomEvent.disableClickPropagation(meBtn);
+
+  const toastEl = document.createElement('div');
+  toastEl.className = 'map-toast';
+  toastEl.setAttribute('role', 'status');
+  map.getContainer().appendChild(toastEl);
+  let toastT = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toastEl.classList.remove('show'), 2800);
+  }
+
+  function fmtDist(km) {
+    if (km < 1) return Math.round(km * 1000) + ' m';
+    return (km < 10 ? km.toFixed(1) : Math.round(km)) + ' km';
+  }
+
+  // "Cerca tuyo" mira sólo lo que está EN el mapa: respeta los toggles de capa y
+  // el filtro por categoría, así la lista siempre coincide con los pines visibles.
+  function nearest(n) {
+    if (!mePos) return [];
+    return nearPts
+      .filter(p => map.hasLayer(p.m))
+      .map(p => {
+        const ll = p.m.getLatLng();
+        return { p: p, km: kmBetween(mePos.lat, mePos.lng, ll.lat, ll.lng) };
+      })
+      .sort((a, b) => a.km - b.km)
+      .slice(0, n);
+  }
+  function nearLabel(p) { return (isDiscrete() && p.masked) ? p.masked : p.label; }
+  function nearHtml() {
+    nearShown = nearest(5);
+    if (!nearShown.length) return '<div class="near"><div class="near-empty">Sin puntos del viaje cerca</div></div>';
+    return '<div class="near">' + nearShown.map((e, i) =>
+      '<button type="button" class="near-row" data-i="' + i + '">' +
+        '<span class="near-dot" style="background:' + e.p.color + '"></span>' +
+        '<span class="near-name">' + escHtml(nearLabel(e.p)) + '</span>' +
+        '<span class="near-km">' + fmtDist(e.km) + '</span>' +
+      '</button>').join('') + '</div>';
+  }
+  function wireNear(popup) {
+    const el = popup && popup.getElement();
+    if (!el) return;
+    el.querySelectorAll('.near-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const it = nearShown[Number(btn.dataset.i)];
+        if (!it) return;
+        map.closePopup();
+        map.flyTo(it.p.m.getLatLng(), Math.max(map.getZoom(), 15), { duration: 0.7 });
+        it.p.m.openPopup();
+      });
+    });
+  }
+
+  // Distancia en el popup de cada punto: se estampa al abrir y se refresca con
+  // cada update de posición. El popup se re-renderiza de su HTML original al
+  // reabrirse, así que no hay que limpiar nada.
+  function stampDist(popup) {
+    const el = popup && popup.getElement && popup.getElement();
+    if (!el) return;
+    const wrap = el.querySelector('.mini-pop') || el.querySelector('.leaflet-popup-content');
+    if (!wrap) return;
+    let tag = wrap.querySelector('.popup-dist');
+    const ll = popup.getLatLng && popup.getLatLng();
+    if (!mePos || !ll) { if (tag) tag.remove(); return; }
+    if (!tag) {
+      tag = document.createElement('div');
+      tag.className = 'popup-dist';
+      wrap.appendChild(tag);
+    }
+    tag.textContent = 'a ' + fmtDist(kmBetween(mePos.lat, mePos.lng, ll.lat, ll.lng));
+  }
+  nearPts.forEach(p => p.m.on('popupopen', e => { stampTarget = e.popup; stampDist(e.popup); }));
+  map.on('popupclose', e => { if (e.popup === stampTarget) stampTarget = null; });
+
+  function setState(s) {
+    meState = s;
+    meBtn.classList.toggle('wait', s === 'wait');
+    meBtn.classList.toggle('on', s === 'on');
+    meBtn.classList.toggle('follow', s === 'follow');
+    meBtn.setAttribute('aria-pressed', String(s !== 'off'));
+  }
+
+  function meOff() {
+    if (meWatch != null) navigator.geolocation.clearWatch(meWatch);
+    meWatch = null;
+    mePos = null;
+    meLayer.clearLayers();
+    meMarker = null;
+    meCircle = null;
+    nearShown = [];
+    setState('off');
+    if (stampTarget) stampDist(stampTarget);
+  }
+
+  function drawMe(ll, acc) {
+    if (meMarker) {
+      meMarker.setLatLng(ll);
+      meCircle.setLatLng(ll).setRadius(acc);
+      return;
+    }
+    meMarker = L.marker(ll, {
+      icon: L.divIcon({ html: '<div class="me-dot"></div>', className: '', iconSize: [16, 16], iconAnchor: [8, 8] }),
+      zIndexOffset: 1200, keyboard: false, title: 'Estás acá',
+    }).addTo(meLayer);
+    // El autoPanPadding saca la lista de abajo de la leyenda de modos (arriba) y
+    // de las barras de chips (abajo): son controles, y siempre van sobre el popup.
+    meMarker.bindPopup(nearHtml, {
+      closeButton: false, offset: [0, -2], minWidth: 186, maxWidth: 250,
+      autoPanPaddingTopLeft: [12, 82], autoPanPaddingBottomRight: [12, 72],
+    });
+    meMarker.on('popupopen', e => wireNear(e.popup));
+    meCircle = L.circle(ll, {
+      radius: acc, color: '#1F7AE0', weight: 1, opacity: 0.35,
+      fillColor: '#1F7AE0', fillOpacity: 0.1, interactive: false,
+    }).addTo(meLayer);
+    meCircle.bringToBack();
+  }
+
+  function onFix(pos) {
+    const ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
+    const first = !mePos;
+    mePos = ll;
+    drawMe(ll, pos.coords.accuracy || 0);
+    if (meState === 'wait') setState('on');
+    // El mapa arranca mostrando el viaje entero: al primer fix acercamos a
+    // escala de barrio, si no el punto azul se pierde entre los pines. Si ya
+    // estabas mirando de cerca tu zona, no te movemos la vista.
+    if (first) {
+      if (map.getZoom() < 12 || !map.getBounds().contains(ll)) map.setView(ll, Math.max(map.getZoom(), 14));
+    } else if (meState === 'follow') {
+      map.panTo(ll);   // seguir = mantener el punto centrado, sin tocarte el zoom
+    }
+    if (stampTarget) stampDist(stampTarget);
+    if (meMarker.isPopupOpen()) {
+      meMarker.setPopupContent(nearHtml());
+      wireNear(meMarker.getPopup());
+    }
+  }
+
+  function onErr(err) {
+    // Con un fix ya obtenido, un timeout suelto del watch no apaga nada.
+    if (mePos && err.code !== 1) return;
+    meOff();
+    toast(err.code === 1
+      ? 'Ubicación bloqueada — habilitala en el navegador'
+      : 'No se pudo obtener tu ubicación');
+  }
+
+  meBtn.addEventListener('click', () => {
+    if (meState === 'off') {
+      if (!navigator.geolocation) { toast('Este navegador no comparte ubicación'); return; }
+      setState('wait');
+      meWatch = navigator.geolocation.watchPosition(onFix, onErr,
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+      return;
+    }
+    if (meState === 'wait') { meOff(); return; }            // cancelar mientras busca
+    if (meState === 'on') {                                  // prendido → seguir
+      setState('follow');
+      if (mePos) map.setView(mePos, Math.max(map.getZoom(), 15));
+      return;
+    }
+    meOff();                                                 // siguiendo → apagado
+  });
+  map.on('dragstart', () => { if (meState === 'follow') setState('on'); });
 })();
 </script>
 </body>
