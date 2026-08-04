@@ -17,12 +17,31 @@ const vm = require('vm');
 const DIR = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(DIR, 'index.html'), 'utf8');
 
+// Recorta el literal `const <name> = [ ... ]` de index.html balanceando
+// corchetes (salteando strings y comentarios), en vez de buscar un cierre con
+// un formato concreto: así no se rompe si cambia la indentación del archivo.
 function arrayLiteral(name) {
   const head = 'const ' + name + ' = [';
   const i = html.indexOf(head);
   if (i < 0) throw new Error('no se encontró el array ' + name + ' en index.html');
-  const j = html.indexOf('\n];\n', i);
-  return vm.runInNewContext(html.slice(i + head.length - 1, j + 3));
+  const start = i + head.length - 1;   // el '[' de apertura
+  let depth = 0, quote = null;
+  for (let j = start; j < html.length; j++) {
+    const c = html[j];
+    if (quote) {
+      if (c === '\\') j++;
+      else if (c === quote) quote = null;
+      continue;
+    }
+    if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
+    if (c === '/' && html[j + 1] === '/') { j = html.indexOf('\n', j); if (j < 0) break; continue; }
+    if (c === '/' && html[j + 1] === '*') { const e = html.indexOf('*/', j); if (e < 0) break; j = e + 1; continue; }
+    if (c === '[' || c === '{' || c === '(') depth++;
+    else if (c === ']' || c === '}' || c === ')') {
+      if (--depth === 0) return vm.runInNewContext(html.slice(start, j + 1));
+    }
+  }
+  throw new Error('no se pudo cerrar el literal de ' + name + ' en index.html');
 }
 
 const sandbox = { window: {} };

@@ -1077,6 +1077,13 @@ function lodgingPopupHtml(L, city) {
   return '<div class="dx">' + h + '</div><div class="dm">' + masked + '</div>';
 }
 
+// Nombres y notas de lugares vienen del dato (captions de IG, títulos de Maps) y
+// se inyectan como HTML: sin escapar, un "<USD 10" abre una etiqueta falsa y se
+// come el resto de la línea del popup.
+const escHtml = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 function miniPopup(img, title, sub, mapsUrl) {
   return '<div class="mini-pop">' +
     (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
@@ -1157,16 +1164,16 @@ destinations.forEach(d => {
     const cat = catOf(dt.name, dt.cat);
     const marker = placePin(dt.coords, cat, 'dt', dtLayer, dt.id);
     marker.bindPopup(
-      miniPopup(dt.img, dt.name, 'Day trip desde ' + d.short + ' · ' + dt.time + ' · ' + CAT_LABELS[cat], dt.url || gmapsFromName(dt.name))
+      miniPopup(dt.img, escHtml(dt.name), 'Day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time) + ' · ' + CAT_LABELS[cat], dt.url || gmapsFromName(dt.name))
     );
     dtMarkers[dt.id] = marker;
   });
 });
 
-// LUGARES GUARDADOS (Google Maps) — puntitos sutiles dentro de cada destino,
-// y pins distintos (anillo naranja) para los orphans que no caen en ningún destino.
+// LUGARES GUARDADOS (Google Maps) — círculos del color de su categoría, tanto
+// los de cada destino como los orphans que no caen en ninguno.
 function placePopup(p, sub) {
-  return miniPopup(p.img, p.name, sub, p.url || gmapsFromName(p.name));
+  return miniPopup(p.img, escHtml(p.name), sub, p.url || gmapsFromName(p.name));
 }
 
 
@@ -1180,7 +1187,7 @@ destinations.forEach(d => {
     const cat = catOfAct(a);
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     m.bindPopup(
-      miniPopup(a.img, a.text, d.short + ' · ' + CAT_LABELS[cat], a.url || gmapsFromName(a.text))
+      miniPopup(a.img, escHtml(a.text), escHtml(d.short) + ' · ' + CAT_LABELS[cat], a.url || gmapsFromName(a.text))
     );
     actMarkers[d.id + ':' + i] = m;
   });
@@ -1234,12 +1241,12 @@ const reelMarkers = [];
   const m = placePin([p.lat, p.lon], cat, 'reel', reelLayer);
   const links = (p.reels || []).map((r, i) =>
     '<a class="mini-pop-maps" href="' + r.url + '" target="_blank" rel="noopener">🎬 ' +
-    ((p.reels.length > 1 ? 'Reel ' + (i + 1) : 'Ver reel') + (r.owner ? ' · @' + r.owner : '')) + ' →</a>'
+    ((p.reels.length > 1 ? 'Reel ' + (i + 1) : 'Ver reel') + (r.owner ? ' · @' + escHtml(r.owner) : '')) + ' →</a>'
   ).join(' ');
   m.bindPopup('<div class="mini-pop">' +
-    '<div class="popup-title">' + p.name + '</div>' +
-    '<div class="popup-dates">' + [p.area, CAT_LABELS[cat]].filter(Boolean).join(' · ') + '</div>' +
-    (p.note ? '<div class="popup-dates">' + p.note + '</div>' : '') +
+    '<div class="popup-title">' + escHtml(p.name) + '</div>' +
+    '<div class="popup-dates">' + [escHtml(p.area), CAT_LABELS[cat]].filter(Boolean).join(' · ') + '</div>' +
+    (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') +
     links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
     '" target="_blank" rel="noopener">Google Maps →</a>' +
   '</div>');
@@ -1842,12 +1849,15 @@ function applyCatFilter(skipUrl) {
 }
 (function () {  // deep-link: ?cat=comida,bar-noche aterriza ya filtrado
   const s = new URLSearchParams(location.search);
+  let stale = false;
   if (s.has('cat')) {
     const want = s.get('cat').split(',').map(c => c.trim()).filter(c => CAT_META[c]);
-    activeCats.clear();
-    want.forEach(c => activeCats.add(c));
+    if (want.length) { activeCats.clear(); want.forEach(c => activeCats.add(c)); }
+    // Ninguna categoría válida (link viejo, categoría renombrada): mostrar todo
+    // en vez de un mapa vacío, y limpiar el parámetro muerto de la URL.
+    else stale = true;
   }
-  applyCatFilter(true);
+  applyCatFilter(!stale);
 })();
 
 // Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
