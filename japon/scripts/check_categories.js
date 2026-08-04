@@ -4,7 +4,7 @@
  *
  *   node japon/scripts/check_categories.js
  *
- * Chequea que cada lugar (actividades geolocalizadas + guardados sin destino +
+ * Chequea que cada lugar (todas las activities[] + guardados sin destino +
  * day trips + lugares de reels) resuelva a exactamente una categoría de la
  * taxonomía de data/categories.js, imprime el desglose por fuente y avisa de
  * overrides que ya no matchean nada (nombres que cambiaron aguas arriba).
@@ -59,6 +59,7 @@ function catOf(name, legacy) {
   const k = catKey(name);
   const own = byName[k];
   if (own && PLACE_TAXONOMY.meta[own]) { usedOverride.add(k); return own; }
+  if (PLACE_TAXONOMY.meta[legacy]) return legacy;
   const mapped = PLACE_CAT_LEGACY[legacy];
   return (mapped && PLACE_TAXONOMY.meta[mapped]) ? mapped : 'otro';
 }
@@ -66,10 +67,22 @@ function catOf(name, legacy) {
 const destinations = arrayLiteral('destinations');
 const orphanPlaces = arrayLiteral('orphanPlaces');
 
+let activityTotal = 0;
+let activityCovered = 0;
+const activityUncovered = [];
+const activityNonGeoloc = [];
+destinations.forEach(d => (d.activities || []).forEach(a => {
+  activityTotal++;
+  const category = catOf(a.text, a.cat);
+  if (a.coords && PLACE_TAXONOMY.meta[category]) activityCovered++;
+  else if (a.nonGeoloc && PLACE_TAXONOMY.meta[category]) activityNonGeoloc.push({ destination: d.name, name: a.text });
+  else activityUncovered.push({ destination: d.name, name: a.text, coords: !!a.coords, category });
+}));
+
 const places = [];
 destinations.forEach(d => {
   (d.activities || []).forEach(a => places.push({
-    src: a.coords ? 'maps · actividad con pin' : 'itinerario · idea sin pin', name: a.text, legacy: a.cat, pin: !!a.coords }));
+    src: a.coords ? 'actividad con pin' : 'actividad no geolocalizable', name: a.text, legacy: a.cat, pin: !!a.coords }));
   (d.daytrips || []).forEach(t => places.push({ src: 'day trip', name: t.name, legacy: t.cat, pin: !!t.coords }));
 });
 orphanPlaces.forEach(p => places.push({
@@ -97,8 +110,17 @@ Object.keys(bySrc).sort().forEach(src => {
 console.log('\nTotal por categoría');
 PLACE_TAXONOMY.order.forEach(c => console.log('  ' + c.padEnd(13) + (byCat[c] || 0)));
 
+console.log('\nCobertura activities[]: ' + activityCovered + '/' + activityTotal + ' con coord+categoría · ' +
+  activityNonGeoloc.length + ' no geolocalizable(s) declarado(s)');
+activityUncovered.forEach(a => console.log('  SIN PIN [' + a.destination + '] ' + a.name));
+activityNonGeoloc.forEach(a => console.log('  NO GEOLOCALIZABLE [' + a.destination + '] ' + a.name));
+
 const stale = Object.keys(PLACE_CAT_OVERRIDES).filter(n => !usedOverride.has(catKey(n)));
 if (stale.length) console.log('\nOverrides que no matchean ningún lugar (¿nombre cambiado?):\n  ' + stale.join('\n  '));
 
-if (bad) { console.error('\n✗ ' + bad + ' lugar(es) sin categoría válida'); process.exit(1); }
+if (bad || activityUncovered.length) {
+  if (bad) console.error('\n✗ ' + bad + ' lugar(es) sin categoría válida');
+  if (activityUncovered.length) console.error('\n✗ ' + activityUncovered.length + ' actividad(es) sin coord+categoría');
+  process.exit(1);
+}
 console.log('\n✓ todos los lugares tienen exactamente una categoría de la taxonomía');

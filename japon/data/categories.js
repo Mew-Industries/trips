@@ -80,9 +80,6 @@ window.PLACE_CAT_OVERRIDES = {
 
   // --- Actividades del itinerario (index.html) ---
   'Dotonbori (luces, takoyaki, kushikatsu)': 'barrio',
-  'Korean BBQ + soju + jjimjilbang': 'comida',
-  'Caminar el pueblo + casas gassho-zukuri abiertas a visita (Wada-ke)': 'barrio',
-  'Kinkaku-ji o Ryoan-ji': 'templo-museo',
 
   // --- Guardados de Maps sin destino asignado (orphanPlaces) ---
   'Yakushima National Park': 'parque',

@@ -42,12 +42,12 @@
   #map { height: 100%; width: 100%; position: relative; }
   /* Los 54px de cada lado dejan libre la esquina del botón de "mi ubicación"
      (y mantienen las barras centradas respecto del mapa). */
-  .map-bars { position: absolute; left: 54px; right: 54px; bottom: 12px; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; }
+  .map-bars { position: absolute; left: 54px; right: 54px; bottom: 12px; z-index: 1000; display: flex; justify-content: center; pointer-events: none; }
   .map-bars > * { pointer-events: auto; max-width: 100%; }
-  .map-toggles { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
-  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 4px; transition: background 0.12s, color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
-  .map-toggles .mt.active { background: #0F6E56; color: #fff; border-color: #0F6E56; }
-  .map-toggles .mt:not(.active) { opacity: 0.92; }
+  .map-toggles { display: grid; background: rgba(255,255,255,0.96); border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.28); backdrop-filter: blur(3px); }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 7px 9px; border: 0; border-bottom: 1px solid rgba(0,0,0,0.08); background: transparent; color: #a6a6a6; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.12s, color 0.12s; }
+  .map-toggles .mt:last-child { border-bottom: 0; }
+  .map-toggles .mt.active { background: rgba(15,110,86,0.09); color: #0F6E56; }
   .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
 
   /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
@@ -294,16 +294,9 @@
 
   .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
-  /* Day trip: anillo hueco del color de su categoría. */
-  .marker-dot { width: 12px; height: 12px; border-radius: 50%; background: white; border: 2.5px solid var(--c, #444); box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; }
-  .marker-dot.active { transform: scale(1.8); background: var(--c, #fbbf77); }
-
-  /* Lugares: color = categoría, forma = fuente (● guardado de Maps, ◆ reel de IG) */
-  .pp { width: 11px; height: 11px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.92); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; }
-  .pp-save { border-radius: 50%; margin: 1px; }
-  .pp-reel { border-radius: 2px; transform: rotate(45deg); margin: 1px; }
-  .pp-save:hover { transform: scale(1.35); }
-  .pp-reel:hover { transform: rotate(45deg) scale(1.35); }
+  /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual. */
+  .pp { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; margin: 1px; }
+  .pp:hover, .pp.active { transform: scale(1.45); }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -350,14 +343,14 @@
     .content-pane { overflow: visible; }
     .details-section { overflow: visible; }
     .header-stats { display: none; }
-    /* En mobile las dos barras del mapa van en una sola línea scrolleable, para
-       no comerse el mapa (que ya es media pantalla). */
     .map-bars { left: 0; right: 46px; bottom: 8px; gap: 4px; }
     .me-btn { right: 8px; bottom: 10px; width: 34px; height: 34px; }
     .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-right: 48px; }
-    .map-cats, .map-toggles { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
-    .map-cats::-webkit-scrollbar, .map-toggles::-webkit-scrollbar { display: none; }
-    .map-cats .mc, .map-toggles .mt { flex: none; font-size: 10px; padding: 4px 8px; }
+    .map-cats { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
+    .map-cats::-webkit-scrollbar { display: none; }
+    .map-cats .mc { flex: none; font-size: 10px; padding: 4px 8px; }
+    .map-toggles .mt { font-size: 0; padding: 8px; }
+    .map-toggles .mt-ic { font-size: 13px; }
   }
 </style>
 </head>
@@ -434,11 +427,19 @@ const destinations = [
     tempMax: '16-28', tempMin: '12-20', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Aterrizaje en Tokio (Haneda) el 8/10. 5 noches de aclimatación y jet lag para arrancar. Los clásicos de Tokio al empezar el viaje. Tokio se revisita al final (parada 13) como buffer pre-vuelo, así que los museos/teamLab/shopping pueden quedar para esa segunda tanda.',
     activities: [
-      { text: 'Asakusa (Senso-ji) + Sumida River + Skytree', cat: 'templos' },
-      { text: 'Shibuya scramble + Harajuku + Meiji Jingu', cat: 'templos' },
-      { text: 'Akihabara + Jimbocho', cat: 'compras' },
-      { text: 'Tsukiji exterior, Toyosu, Ginza', cat: 'compras' },
-      { text: 'Golden Gai + Omoide Yokocho', cat: 'barrios' },
+      { text: 'Senso-ji (Asakusa)', group: 'Asakusa + Sumida River + Skytree', cat: 'templos', coords: [35.714084, 139.79711] },
+      { text: 'Sumida River Walk', group: 'Asakusa + Sumida River + Skytree', cat: 'parques', coords: [35.711929, 139.801151] },
+      { text: 'Tokyo Skytree', group: 'Asakusa + Sumida River + Skytree', cat: 'miradores', coords: [35.710063, 139.8107] },
+      { text: 'Shibuya Scramble', group: 'Shibuya + Harajuku + Meiji Jingu', cat: 'barrios', coords: [35.65963, 139.700638] },
+      { text: 'Harajuku', group: 'Shibuya + Harajuku + Meiji Jingu', cat: 'barrios', coords: [35.670045, 139.702759] },
+      { text: 'Meiji Jingu', group: 'Shibuya + Harajuku + Meiji Jingu', cat: 'templos', coords: [35.67427, 139.700445] },
+      { text: 'Akihabara', group: 'Akihabara + Jimbocho', cat: 'compras', coords: [35.699647, 139.77137] },
+      { text: 'Jimbocho Book Town', group: 'Akihabara + Jimbocho', cat: 'compras', coords: [35.695879, 139.757238] },
+      { text: 'Tsukiji Outer Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.664848, 139.7702] },
+      { text: 'Toyosu Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.644091, 139.784281] },
+      { text: 'Ginza', group: 'Tsukiji + Toyosu + Ginza', cat: 'compras', coords: [35.669612, 139.764666] },
+      { text: 'Golden Gai', group: 'Golden Gai + Omoide Yokocho', cat: 'bar-noche', coords: [35.694095, 139.704752] },
+      { text: 'Omoide Yokocho', group: 'Golden Gai + Omoide Yokocho', cat: 'bar-noche', coords: [35.692757, 139.699717] },
       { text: 'Ayuntamiento de Tokio (mirador gratis)', cat: 'miradores', coords: [35.689496, 139.691709], url: "https://www.google.com/maps/search/?api=1&query=Ayuntamiento%20de%20Tokio" },
       { text: '2 Chome-13-4 Uenosakuragi (Yanaka)', cat: 'miradores', coords: [35.722086, 139.770577], url: "https://www.google.com/maps/search/?api=1&query=2%20Chome-13-4%20Uenosakuragi" },
       { text: 'Ohjo Building', cat: 'miradores', coords: [35.694404, 139.702496], url: "https://www.google.com/maps/search/?api=1&query=Ohjo%20Building" },
@@ -478,10 +479,12 @@ const destinations = [
     tempMax: '15-22', tempMin: '7-14', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Día de paso, sin pernocte: saliendo de Tokio hacia el norte se baja en Nikko para los santuarios UNESCO de Toshogu y (si da el tiempo) el lago Chuzenji + cataratas Kegon, con los primeros colores de otoño en altura. A la tarde/noche se sigue viaje a Ichinoseki (se duerme allí). Nikko es el pivote del salto al norte: Tokio → Nikko → Ichinoseki → Sendai → Sapporo, sin backtrack.',
     activities: [
-      { text: 'Toshogu shrine (mausoleo Tokugawa Ieyasu)', cat: 'templos' },
-      { text: 'Rinno-ji + puente Shinkyo', cat: 'templos' },
-      { text: 'Lago Chuzenji + cataratas Kegon (si da el tiempo)', cat: 'parques' },
-      { text: 'Senjogahara (primeras hojas) si queda margen', cat: 'parques' },
+      { text: 'Toshogu shrine (mausoleo Tokugawa Ieyasu)', cat: 'templos', coords: [36.758088, 139.598747] },
+      { text: 'Rinno-ji', group: 'Rinno-ji + puente Shinkyo', cat: 'templos', coords: [36.755168, 139.600531] },
+      { text: 'Puente Shinkyo', group: 'Rinno-ji + puente Shinkyo', cat: 'templos', coords: [36.75337, 139.604003] },
+      { text: 'Lago Chuzenji', group: 'Lago Chuzenji + cataratas Kegon', cat: 'parques', coords: [36.732904, 139.482199] },
+      { text: 'Cataratas Kegon', group: 'Lago Chuzenji + cataratas Kegon', cat: 'parques', coords: [36.738056, 139.5025] },
+      { text: 'Senjogahara (primeras hojas) si queda margen', cat: 'parques', coords: [36.7712, 139.4412] },
       { text: 'Centro de Nikkō (estación / casco)', cat: 'barrios', coords: [36.719758, 139.698139], url: "https://www.google.com/maps/search/?api=1&query=Nikk%C5%8D" }
     ],
     daytrips: [
@@ -513,7 +516,7 @@ const destinations = [
       { text: 'Genbikei (rápidos + "dango volador" por el cable)', cat: 'comida', coords: [38.9469, 141.0556], url: "https://www.google.com/maps/search/?api=1&query=Genbikei" },
       { text: 'Chūson-ji + Konjikidō (Pabellón Dorado, Tesoro Nacional UNESCO) — opcional, 8 min en Hiraizumi', cat: 'templos', coords: [38.9939, 141.0989], url: "https://www.google.com/maps/search/?api=1&query=Chusonji" },
       { text: 'Mōtsū-ji (jardín Jōdo de la era Heian) — opcional, en Hiraizumi', cat: 'parques', coords: [38.9869, 141.1006], url: "https://www.google.com/maps/search/?api=1&query=M%C5%8Dts%C5%AB-ji" },
-      { text: 'Cena de carne de Maesawa (前沢牛) / cocina de mochi (餅本膳)', cat: 'comida' }
+      { text: 'Cena de carne de Maesawa (前沢牛) / cocina de mochi (餅本膳)', cat: 'comida', coords: [38.9264, 141.1388] }
     ],
     daytrips: []
   },
@@ -537,9 +540,10 @@ const destinations = [
     tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Base del tramo norte (reemplaza a Ginzan, decidido 2026-06-14: no conseguían buen hospedaje en Ginzan y era mucho trajín por una noche). Ciudad cómoda y bien conectada: la estación concentra todo — los day-trips (Matsushima al este ~30 min, Yamadera al oeste ~55 min) y la línea directa al aeropuerto. Se hace UN day-trip, gyutan a la noche, y al otro día vuelo a Sapporo sin estrés. El hotel está en Aoba-ku Chūō, en pleno centro.',
     activities: [
-      { text: 'Gyutan (lengua de res a la parrilla) — "Gyutan Street" dentro de la estación', cat: 'comida' },
+      { text: 'Gyutan Street (estación de Sendai)', cat: 'comida', coords: [38.260914, 140.881668] },
       { text: 'Zuihōden — mausoleo dorado de Date Masamune entre cedros', cat: 'templos', coords: [38.2513, 140.8589], url: 'https://www.google.com/maps/search/?api=1&query=Zuihoden' },
-      { text: 'Jōzenji-dōri + arcades Ichibanchō (paseo y compras)', cat: 'barrios' },
+      { text: 'Jōzenji-dōri', group: 'Jōzenji-dōri + arcades Ichibanchō', cat: 'barrios', coords: [38.266223, 140.87141] },
+      { text: 'Arcades Ichibanchō', group: 'Jōzenji-dōri + arcades Ichibanchō', cat: 'compras', coords: [38.259215, 140.872447] },
       { text: 'Ruinas del castillo de Aoba + estatua de Date Masamune (vista de la ciudad)', cat: 'miradores', coords: [38.2528, 140.8561], url: 'https://www.google.com/maps/search/?api=1&query=Aoba%20Castle%20Sendai' }
     ],
     daytrips: [
@@ -568,9 +572,12 @@ const destinations = [
     tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Salto al norte al arranque del viaje, cuando Hokkaido todavía está templado (~17°/7° a mediados de octubre — chaqueta de otoño, no frío). Se llega de Sendai en avión (aeropuerto de Sendai → New Chitose) y se sigue volando a Komatsu para retomar Kanazawa. Es la parte más fresca del recorrido, pero a esta altura del calendario es disfrutable. Sapporo: comida (sopa de curry, ramen miso, mariscos del mercado), parques de Isamu Noguchi y el monte Moiwa al atardecer. El koyo en la montaña recién empieza.',
     activities: [
-      { text: 'Mercado Nijo + ramen miso + sopa de curry (sopa curry)', cat: 'comida' },
-      { text: 'Parque Odori + torre de TV', cat: 'parques' },
-      { text: 'Antigua fábrica de cerveza Sapporo (museo + biergarten)', cat: 'comida' },
+      { text: 'Mercado Nijo', group: 'Mercado Nijo + ramen miso + sopa de curry', cat: 'comida', coords: [43.058259, 141.358037] },
+      { text: 'Ganso Ramen Yokocho (ramen miso)', group: 'Mercado Nijo + ramen miso + sopa de curry', cat: 'comida', coords: [43.054785, 141.353457] },
+      { text: 'Soup Curry GARAKU', group: 'Mercado Nijo + ramen miso + sopa de curry', cat: 'comida', coords: [43.058353, 141.358824] },
+      { text: 'Parque Odori', group: 'Parque Odori + torre de TV', cat: 'parques', coords: [43.060479, 141.354526] },
+      { text: 'Torre de TV de Sapporo', group: 'Parque Odori + torre de TV', cat: 'miradores', coords: [43.061069, 141.35622] },
+      { text: 'Sapporo Beer Museum + biergarten', cat: 'museos', coords: [43.071467, 141.368912] },
       { text: 'Monte Moiwa (teleférico, vista nocturna de la ciudad)', cat: 'miradores', coords: [43.02308, 141.322368], url: "https://www.google.com/maps/search/?api=1&query=Mt.%20Moiwa" },
       { text: 'Moerenuma Park (parque-escultura de Isamu Noguchi)', cat: 'museos', coords: [43.145522, 141.414341], url: "https://www.google.com/maps/search/?api=1&query=Moerenumakoen" },
       { text: 'Sapporo Art Museum', cat: 'museos', coords: [42.942067, 141.342577], url: "https://www.google.com/maps/search/?api=1&query=Sapporo%20Art%20Museum" }
@@ -600,12 +607,12 @@ const destinations = [
     tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (vuelo New Chitose → Komatsu + tren), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
     activities: [
-      { text: 'Jardín Kenroku-en (top 3 de Japón)', cat: 'parques' },
-      { text: 'Castillo de Kanazawa', cat: 'miradores' },
-      { text: 'Higashi Chaya (barrio geisha)', cat: 'barrios' },
-      { text: 'Mercado Omicho (mariscos)', cat: 'comida' },
-      { text: 'Museo del Siglo XXI', cat: 'museos' },
-      { text: 'Distrito samurái Nagamachi', cat: 'barrios' },
+      { text: 'Jardín Kenroku-en (top 3 de Japón)', cat: 'parques', coords: [36.562128, 136.662652] },
+      { text: 'Castillo de Kanazawa', cat: 'miradores', coords: [36.565961, 136.659608] },
+      { text: 'Higashi Chaya (barrio geisha)', cat: 'barrios', coords: [36.572582, 136.66656] },
+      { text: 'Mercado Omicho (mariscos)', cat: 'comida', coords: [36.571241, 136.656339] },
+      { text: 'Museo del Siglo XXI', cat: 'museos', coords: [36.560871, 136.658525] },
+      { text: 'Distrito samurái Nagamachi', cat: 'barrios', coords: [36.563627, 136.651333] },
       { text: 'Museo del Siglo XXI (21st Century Museum)', cat: 'museos', coords: [36.560871, 136.658525], url: "https://www.google.com/maps/search/?api=1&query=Kanazawa%2021st%20Century%20Museum%20of%20Contemporary%20Art" },
       { text: 'Super 2nd Street Shimeno (second hand)', cat: 'compras', coords: [36.581172, 136.615598], url: "https://www.google.com/maps/search/?api=1&query=Super%202nd%20Street%20Kanazawa%20Shimeno" }
     ],
@@ -624,9 +631,10 @@ const destinations = [
     tempMax: '14-24', tempMin: '6-15', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Día completo de paso entre Kanazawa y Kioto. Pueblo UNESCO con casas gassho-zukuri (techos de paja a dos aguas). Bus directo desde Kanazawa (~1h15), unas horas en el pueblo + mirador de Ogimachi, y se sigue a Kioto (bus + tren/Shinkansen). No se pernocta acá — la noche se duerme en Kioto.',
     activities: [
-      { text: 'Mirador de Ogimachi (vista panorámica del valle de casas)', cat: 'parques' },
-      { text: 'Caminar el pueblo + casas gassho-zukuri abiertas a visita (Wada-ke)', cat: 'otros' },
-      { text: 'Puente Deai colgante sobre el río Shogawa', cat: 'parques' }
+      { text: 'Mirador de Ogimachi (vista panorámica del valle de casas)', cat: 'parques', coords: [36.263003, 136.908558] },
+      { text: 'Ogimachi (pueblo gassho-zukuri)', group: 'Pueblo + casas gassho-zukuri', cat: 'barrios', coords: [36.2585, 136.9067] },
+      { text: 'Wada-ke', group: 'Pueblo + casas gassho-zukuri', cat: 'museos', coords: [36.259905, 136.907635] },
+      { text: 'Puente Deai colgante sobre el río Shogawa', cat: 'parques', coords: [36.256507, 136.903795] }
     ],
     daytrips: []
   },
@@ -651,12 +659,19 @@ const destinations = [
     tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y al final se baja a Koyasan (tren a Namba + Nankai + funicular). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 6 noches dan tiempo a cada zona sin atropello.',
     activities: [
-      { text: 'Arashiyama al amanecer: bambú, Tenryu-ji, Otagi Nenbutsuji', cat: 'templos' },
-      { text: 'Templos del este: Kiyomizu, Yasaka, paseo de filósofos, Ginkaku-ji', cat: 'templos' },
-      { text: 'Fushimi Inari al amanecer (6 AM)', cat: 'templos' },
-      { text: 'Mercado Nishiki + Kamishichiken', cat: 'comida' },
-      { text: 'Kinkaku-ji o Ryoan-ji', cat: 'otros' },
-      { text: 'Pontocho de noche, kaiseki ryori', cat: 'comida' },
+      { text: 'Bosque de bambú de Arashiyama', group: 'Arashiyama al amanecer', cat: 'parques', coords: [35.016492, 135.670337] },
+      { text: 'Tenryu-ji', group: 'Arashiyama al amanecer', cat: 'templos', coords: [35.015987, 135.673826] },
+      { text: 'Otagi Nenbutsuji', group: 'Arashiyama al amanecer', cat: 'templos', coords: [35.030943, 135.661777] },
+      { text: 'Kiyomizu-dera', group: 'Templos del este', cat: 'templos', coords: [34.994358, 135.785238] },
+      { text: 'Yasaka Shrine', group: 'Templos del este', cat: 'templos', coords: [35.003656, 135.778553] },
+      { text: 'Paseo del Filósofo', group: 'Templos del este', cat: 'parques', coords: [35.026538, 135.795462] },
+      { text: 'Ginkaku-ji', group: 'Templos del este', cat: 'templos', coords: [35.027021, 135.798206] },
+      { text: 'Fushimi Inari al amanecer (6 AM)', cat: 'templos', coords: [34.99761, 135.773968] },
+      { text: 'Mercado Nishiki', group: 'Mercado Nishiki + Kamishichiken', cat: 'comida', coords: [35.0051, 135.766188] },
+      { text: 'Kamishichiken', group: 'Mercado Nishiki + Kamishichiken', cat: 'barrios', coords: [35.030161, 135.736681] },
+      { text: 'Kinkaku-ji', group: 'Kinkaku-ji o Ryoan-ji', cat: 'templos', coords: [35.040035, 135.728514] },
+      { text: 'Ryoan-ji', group: 'Kinkaku-ji o Ryoan-ji', cat: 'templos', coords: [35.03213, 135.719516] },
+      { text: 'Pontocho de noche, kaiseki ryori', cat: 'comida', coords: [35.003935, 135.771032] },
       { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
       { text: 'Bosque de Bambú de Arashiyama', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" },
       { text: 'Hirobun (kawadoko / nagashi sōmen, Kibune)', cat: 'comida', coords: [35.125281, 135.7639], url: "https://www.google.com/maps/search/?api=1&query=Hirobun" },
@@ -691,12 +706,12 @@ const destinations = [
     tempMax: '11-20', tempMin: '4-13', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Monte sagrado del budismo Shingon, 800m altura. Shukubo: dormís 1 noche en un templo con cena vegetariana y ceremonia matutina opcional. Con una sola noche, el plan ideal es llegar a la tarde para Okunoin al atardecer y madrugar para la ceremonia + Okunoin vacío antes de seguir a Osaka.',
     activities: [
-      { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos' },
-      { text: 'Okunoin antes del amanecer (vacío total)', cat: 'templos' },
-      { text: 'Kongobu-ji (templo principal)', cat: 'templos' },
-      { text: 'Garan (complejo central con pagoda)', cat: 'templos' },
-      { text: 'Cena shojin ryori (vegetariana budista)', cat: 'comida' },
-      { text: 'Ceremonia matutina del templo (5:30 AM)', cat: 'templos' }
+      { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
+      { text: 'Okunoin antes del amanecer (vacío total)', cat: 'templos', coords: [34.217693, 135.605053] },
+      { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
+      { text: 'Garan (complejo central con pagoda)', cat: 'templos', coords: [34.213465, 135.579969] },
+      { text: 'Cena shojin ryori (vegetariana budista)', cat: 'comida', coords: [34.215072, 135.579438] },
+      { text: 'Ceremonia matutina del templo (5:30 AM)', cat: 'templos', coords: [34.215072, 135.579438] }
     ],
     daytrips: []
   },
@@ -723,13 +738,17 @@ const destinations = [
     activities: [
       { text: '国境を越えて・祈り', cat: 'museos', coords: [34.468246, 134.069626], url: "https://www.google.com/maps/search/?api=1&query=%E5%9B%BD%E5%A2%83%E3%82%92%E8%B6%8A%E3%81%88%E3%81%A6%E3%83%BB%E7%A5%88%E3%82%8A" },
       { text: 'Oretachino-curry ya', cat: 'comida', coords: [34.663269, 135.503521], url: "https://www.google.com/maps/search/?api=1&query=Oretachino-curry%20ya" },
-      { text: 'Dotonbori (luces, takoyaki, kushikatsu)', cat: 'ocio' },
-      { text: 'Shinsekai + Tsutenkaku tower', cat: 'miradores' },
-      { text: 'Castillo de Osaka + parque', cat: 'parques' },
-      { text: 'Umeda Sky Building al atardecer', cat: 'miradores' },
-      { text: 'Okonomiyaki y kushikatsu de barrio', cat: 'comida' },
-      { text: 'Barrios con calma: Nakazakicho (cafés vintage), Shinsaibashi, Amerika-mura', cat: 'barrios' },
-      { text: 'Kuromon Ichiba (mercado) + tienda de cuchillos en Sennichimae Doguyasuji', cat: 'comida' },
+      { text: 'Dotonbori (luces, takoyaki, kushikatsu)', cat: 'ocio', coords: [34.668731, 135.501291] },
+      { text: 'Shinsekai', group: 'Shinsekai + Tsutenkaku', cat: 'barrios', coords: [34.652196, 135.50602] },
+      { text: 'Tsutenkaku tower', group: 'Shinsekai + Tsutenkaku', cat: 'miradores', coords: [34.652527, 135.506333] },
+      { text: 'Castillo de Osaka + parque', cat: 'parques', coords: [34.687257, 135.525855] },
+      { text: 'Umeda Sky Building al atardecer', cat: 'miradores', coords: [34.705287, 135.489653] },
+      { text: 'Okonomiyaki y kushikatsu de barrio', cat: 'comida', coords: [34.668731, 135.501291] },
+      { text: 'Nakazakicho (cafés vintage)', group: 'Barrios con calma', cat: 'barrios', coords: [34.70688, 135.50591] },
+      { text: 'Shinsaibashi', group: 'Barrios con calma', cat: 'barrios', coords: [34.672425, 135.501036] },
+      { text: 'Amerika-mura', group: 'Barrios con calma', cat: 'barrios', coords: [34.671932, 135.49885] },
+      { text: 'Kuromon Ichiba (mercado)', group: 'Kuromon + Sennichimae Doguyasuji', cat: 'comida', coords: [34.665536, 135.507085] },
+      { text: 'Sennichimae Doguyasuji (cuchillos)', group: 'Kuromon + Sennichimae Doguyasuji', cat: 'compras', coords: [34.664014, 135.503506] },
       { text: 'SUPER NINTENDO WORLD (USJ)', cat: 'ocio', coords: [34.665826, 135.432312], url: "https://www.google.com/maps/search/?api=1&query=SUPER%20NINTENDO%20WORLD%E2%84%A2" },
       { text: 'Katsudon Yoshibei (Namba, Doguyasuji)', cat: 'comida', coords: [34.664137, 135.503377], url: "https://www.google.com/maps/search/?api=1&query=Katsudon%20Yoshibei%20Namba%20Doguyasuji" },
       { text: 'Sayamaike Museum (Tadao Ando)', cat: 'museos', coords: [34.507516, 135.551369], url: "https://www.google.com/maps/search/?api=1&query=Osaka%20Prefectural%20Sayamaike%20Museum" }
@@ -752,11 +771,14 @@ const destinations = [
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Cuna del ramen tonkotsu. Se llega de Osaka en Shinkansen (Shin-Osaka → Hakata, ~2h30) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se toma el ferry rápido Beetle de Hakata a Busan (~3h20).',
     activities: [
-      { text: 'Yatais (puestos callejeros) en Nakasu y Tenjin', cat: 'comida' },
-      { text: 'Ramen tonkotsu en Ichiran original o Hakata Issou', cat: 'comida' },
-      { text: 'Canal City Hakata + Ohori Park', cat: 'parques' },
-      { text: 'Compras en Tenjin', cat: 'compras' },
-      { text: 'Motsunabe (hot pot de tripas)', cat: 'comida' },
+      { text: 'Yatais de Nakasu', group: 'Yatais en Nakasu y Tenjin', cat: 'comida', coords: [33.590448, 130.408181] },
+      { text: 'Yatais de Tenjin', group: 'Yatais en Nakasu y Tenjin', cat: 'comida', coords: [33.587654, 130.401384] },
+      { text: 'Ichiran original', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.593241, 130.404597] },
+      { text: 'Hakata Issou', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.589782, 130.419012] },
+      { text: 'Canal City Hakata', group: 'Canal City + Ohori Park', cat: 'compras', coords: [33.590781, 130.410738] },
+      { text: 'Ohori Park', group: 'Canal City + Ohori Park', cat: 'parques', coords: [33.589168, 130.376262] },
+      { text: 'Compras en Tenjin', cat: 'compras', coords: [33.591616, 130.399409] },
+      { text: 'Motsunabe (hot pot de tripas)', cat: 'comida', coords: [33.587633, 130.391014] },
       { text: 'Acros Fukuoka (terraza-jardín escalonada)', cat: 'parques', coords: [33.59159, 130.402352], url: "https://www.google.com/maps/search/?api=1&query=Acros%20Fukuoka" }
     ],
     daytrips: [
@@ -784,13 +806,15 @@ const destinations = [
     tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Cruce desde Fukuoka por Beetle ferry (~3h20). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
     activities: [
-      { text: 'Gamcheon Culture Village (favela artística colorida)', cat: 'barrios' },
-      { text: 'Mercado Jagalchi (pescado más grande de Corea)', cat: 'comida' },
-      { text: 'Haedong Yonggungsa (templo sobre el mar)', cat: 'templos' },
-      { text: 'Beomeosa (templo en la montaña)', cat: 'templos' },
-      { text: 'Haeundae Beach + Songdo', cat: 'parques' },
-      { text: 'Korean BBQ + soju + jjimjilbang', cat: 'ocio' },
-      { text: 'Ideas de Cata — TikTok «Qué hacer en Busan» pt 2 (pt 1 en el perfil de @paovelazquezz0)', cat: 'otros', url: 'https://vt.tiktok.com/ZS4fw8b8Q/' }
+      { text: 'Gamcheon Culture Village (favela artística colorida)', cat: 'barrios', coords: [35.09739, 129.010592] },
+      { text: 'Mercado Jagalchi (pescado más grande de Corea)', cat: 'comida', coords: [35.096634, 129.030797] },
+      { text: 'Haedong Yonggungsa (templo sobre el mar)', cat: 'templos', coords: [35.188454, 129.223111] },
+      { text: 'Beomeosa (templo en la montaña)', cat: 'templos', coords: [35.28399, 129.068764] },
+      { text: 'Haeundae Beach', group: 'Haeundae + Songdo', cat: 'parques', coords: [35.158698, 129.160384] },
+      { text: 'Songdo Beach', group: 'Haeundae + Songdo', cat: 'parques', coords: [35.075455, 129.016761] },
+      { text: 'Korean BBQ + soju', group: 'Korean BBQ + soju + jjimjilbang', cat: 'comida', coords: [35.1531, 129.0642] },
+      { text: 'Hurshimchung Spa (jjimjilbang)', group: 'Korean BBQ + soju + jjimjilbang', cat: 'onsen', coords: [35.221008, 129.082636] },
+      { text: 'Ideas de Cata — TikTok «Qué hacer en Busan» pt 2 (pt 1 en el perfil de @paovelazquezz0)', cat: 'otros', nonGeoloc: true, url: 'https://vt.tiktok.com/ZS4fw8b8Q/' }
     ],
     daytrips: [
       { id: 'gyeongju', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Gyeongju_montage.png/360px-Gyeongju_montage.png', name: 'Gyeongju', coords: [35.8562, 129.2247], time: '30 min en KTX', desc: 'Capital antigua de Silla (UNESCO). Bulguksa, Seokguram, Anapji Pond.' }
@@ -817,12 +841,16 @@ const destinations = [
     tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón (Seúl → Tokio Haneda/Narita + Romancecar): una última escala en Hakone (parada 14, onsen + Fuji) antes de cerrar en Tokio para el vuelo del 17/11.',
     activities: [
-      { text: 'Palacio Gyeongbokgung (con hanbok gratis)', cat: 'templos' },
-      { text: 'Bukchon Hanok Village + Insadong', cat: 'compras' },
-      { text: 'Gwangjang Market (comida callejera)', cat: 'comida' },
-      { text: 'Hongdae + Yeonnam-dong + Seongsu', cat: 'compras' },
-      { text: 'Myeongdong de noche + Korean BBQ', cat: 'comida' },
-      { text: 'Namsan Tower + Namdaemun', cat: 'miradores' },
+      { text: 'Palacio Gyeongbokgung (con hanbok gratis)', cat: 'templos', coords: [37.579617, 126.977041] },
+      { text: 'Bukchon Hanok Village', group: 'Bukchon + Insadong', cat: 'barrios', coords: [37.58147, 126.984952] },
+      { text: 'Insadong', group: 'Bukchon + Insadong', cat: 'compras', coords: [37.571655, 126.986233] },
+      { text: 'Gwangjang Market (comida callejera)', cat: 'comida', coords: [37.57004, 126.999604] },
+      { text: 'Hongdae', group: 'Hongdae + Yeonnam-dong + Seongsu', cat: 'barrios', coords: [37.556197, 126.925034] },
+      { text: 'Yeonnam-dong', group: 'Hongdae + Yeonnam-dong + Seongsu', cat: 'barrios', coords: [37.562744, 126.921409] },
+      { text: 'Seongsu-dong', group: 'Hongdae + Yeonnam-dong + Seongsu', cat: 'compras', coords: [37.547266, 127.06539] },
+      { text: 'Myeongdong de noche + Korean BBQ', cat: 'comida', coords: [37.563741, 126.983742] },
+      { text: 'N Seoul Tower', group: 'Namsan Tower + Namdaemun', cat: 'miradores', coords: [37.551169, 126.988227] },
+      { text: 'Namdaemun Market', group: 'Namsan Tower + Namdaemun', cat: 'compras', coords: [37.559456, 126.976979] },
       { text: 'Dongdaemun Design Plaza (DDP, Zaha Hadid)', cat: 'museos', coords: [37.566526, 127.009224], url: "https://www.google.com/maps/search/?api=1&query=Dongdaemun%20Design%20Plaza%20%28DDP%29" },
       { text: 'Gwangjang Market', cat: 'comida', coords: [37.57004, 126.999604], url: "https://www.google.com/maps/search/?api=1&query=Gwangjang%20Market" },
       { text: 'Ikseon-dong (hanok cafés)', cat: 'barrios', coords: [37.574348, 126.989706], url: "https://www.google.com/maps/search/?api=1&query=Ikseon-dong" },
@@ -862,10 +890,11 @@ const destinations = [
     intro: 'Última escala antes de Tokio: onsen + Fuji + otoño. Se llega de Seúl (vuelo a Tokio + Odakyu Romancecar a Hakone) y se cierra subiendo a Tokio en Romancecar/Shinkansen (~1h45). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
     activities: [
       { text: 'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)', cat: 'museos', coords: [35.24516, 139.050727], url: "https://www.google.com/maps/search/?api=1&query=Museo%20al%20Aire%20Libre%20de%20Hakone" },
-      { text: 'Owakudani (valle volcánico, huevos negros del azufre)', cat: 'parques' },
-      { text: 'Lago Ashi: barco pirata + torii del santuario de Hakone sobre el agua', cat: 'templos' },
-      { text: 'Onsen al atardecer en el ryokan', cat: 'onsen' },
-      { text: 'Vistas del monte Fuji (día despejado)', cat: 'miradores' },
+      { text: 'Owakudani (valle volcánico, huevos negros del azufre)', cat: 'parques', coords: [35.244083, 139.020638] },
+      { text: 'Barco pirata por el lago Ashi', group: 'Lago Ashi + torii de Hakone', cat: 'actividad', coords: [35.237441, 138.99449] },
+      { text: 'Torii del santuario de Hakone sobre el agua', group: 'Lago Ashi + torii de Hakone', cat: 'templos', coords: [35.204003, 139.025246] },
+      { text: 'Onsen al atardecer en Yoshiike Ryokan', cat: 'onsen', coords: [35.230682, 139.099964] },
+      { text: 'Vistas del monte Fuji desde el lago Ashi (día despejado)', cat: 'miradores', coords: [35.237441, 138.99449] },
       { text: 'Castillo Odawara (puerta de entrada a Hakone)', cat: 'miradores', coords: [35.25055, 139.15355], url: "https://www.google.com/maps/search/?api=1&query=Castillo%20Odawara" }
     ],
     daytrips: [
@@ -888,12 +917,20 @@ const destinations = [
     tempMax: '11-24', tempMin: '4-14', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Cierre del viaje: 5 noches de vuelta en Tokio (llega de Hakone en Romancecar/Shinkansen, ~1h45; última noche 16/11; el 17 es el día previo al vuelo de la tarde), como buffer pre-vuelo antes del UA6 que sale de Narita el 17/11 17:45. A mediados de noviembre Tokio entra en pico de ginkgo amarillo y koyo (Meiji Jingu Gaien, Rikugien, Koishikawa). Acá van los que quedaron del arranque: teamLab, museos, Yanaka y compras sin apuro.',
     activities: [
-      { text: 'Ginkgos de Meiji Jingu Gaien + koyo en Rikugien / Koishikawa Korakuen', cat: 'parques' },
-      { text: 'TeamLab Planets/Borderless (reservar online)', cat: 'museos' },
-      { text: 'Yanaka + Nezu + Sendagi (Tokio "viejo")', cat: 'barrios' },
-      { text: 'Museo Ghibli si conseguís entrada', cat: 'museos' },
-      { text: 'Compras finales: Nakano Broadway, Harajuku, Ginza', cat: 'compras' },
-      { text: 'Última cena: Golden Gai u Omoide Yokocho', cat: 'comida' }
+      { text: 'Ginkgos de Meiji Jingu Gaien', group: 'Ginkgos + koyo', cat: 'parques', coords: [35.672715, 139.720569] },
+      { text: 'Koyo en Rikugien', group: 'Ginkgos + koyo', cat: 'parques', coords: [35.733446, 139.747423] },
+      { text: 'Koyo en Koishikawa Korakuen', group: 'Ginkgos + koyo', cat: 'parques', coords: [35.705063, 139.749471] },
+      { text: 'teamLab Planets', group: 'teamLab Planets / Borderless', cat: 'museos', coords: [35.648786, 139.790114] },
+      { text: 'teamLab Borderless', group: 'teamLab Planets / Borderless', cat: 'museos', coords: [35.662069, 139.743267] },
+      { text: 'Yanaka Ginza', group: 'Yanaka + Nezu + Sendagi', cat: 'barrios', coords: [35.727692, 139.765537] },
+      { text: 'Nezu Shrine', group: 'Yanaka + Nezu + Sendagi', cat: 'templos', coords: [35.720134, 139.76077] },
+      { text: 'Sendagi', group: 'Yanaka + Nezu + Sendagi', cat: 'barrios', coords: [35.726155, 139.76345] },
+      { text: 'Museo Ghibli si conseguís entrada', cat: 'museos', coords: [35.695532, 139.569948] },
+      { text: 'Nakano Broadway', group: 'Compras finales', cat: 'compras', coords: [35.70893, 139.665777] },
+      { text: 'Harajuku', group: 'Compras finales', cat: 'compras', coords: [35.671039, 139.705177] },
+      { text: 'Ginza', group: 'Compras finales', cat: 'compras', coords: [35.669612, 139.764666] },
+      { text: 'Golden Gai', group: 'Última cena', cat: 'bar-noche', coords: [35.694095, 139.704752] },
+      { text: 'Omoide Yokocho', group: 'Última cena', cat: 'comida', coords: [35.692757, 139.699717] }
     ],
     daytrips: []
   }
@@ -1067,10 +1104,7 @@ routeLegend.onAdd = function () {
   div.innerHTML = ['air', 'train', 'bus', 'ferry'].map(k => {
     const s = MODE_STYLE[k];
     return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
-  }).join('') +
-  '<span class="rl-item"><span class="rl-dot rl-save"></span>guardado</span>' +
-  '<span class="rl-item"><span class="rl-dot rl-reel"></span>reel</span>' +
-  '<span class="rl-item"><span class="rl-dot rl-dt"></span>day trip</span>';
+  }).join('');
   return div;
 };
 routeLegend.addTo(map);
@@ -1152,13 +1186,14 @@ Object.keys(window.PLACE_CAT_OVERRIDES).forEach(n => { CAT_BY_NAME[catKey(n)] = 
 function catOf(name, legacy) {
   const own = CAT_BY_NAME[catKey(name)];
   if (own && CAT_META[own]) return own;
+  if (CAT_META[legacy]) return legacy;
   const mapped = window.PLACE_CAT_LEGACY[legacy];
   return (mapped && CAT_META[mapped]) ? mapped : 'otro';
 }
 const catOfAct = a => catOf(a.text, a.cat);
 
-// Pins de lugares: el COLOR dice la categoría, la FORMA de dónde salió
-// (● guardado de Google Maps · ◆ reel de IG · ◎ day trip). Cada pin queda
+// Pins de lugares: el color dice la categoría y todos comparten la misma forma.
+// La fuente sólo vive en el popup. Cada pin queda
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
 // toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
 const placePins = [];
@@ -1182,17 +1217,16 @@ function revealPin(m) {
   if (p) revealCat(p.cat);
 }
 function placeIcon(cat, kind, id) {
-  const cls = kind === 'dt' ? 'marker-dot' : 'pp pp-' + kind;
-  const size = kind === 'dt' ? 12 : 13;
+  const size = 14;
   return L.divIcon({
-    html: '<div class="' + cls + '" style="--c:' + catColor(cat) + '"' + (id ? ' data-id="' + id + '"' : '') + '></div>',
+    html: '<div class="pp" style="--c:' + catColor(cat) + '"' + (id ? ' data-id="' + id + '"' : '') + '></div>',
     className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
   });
 }
 function placePin(coords, cat, kind, layer, id) {
   // Guardados y reels quedan por debajo de los marcadores de parada / cama
   // (antes eran circleMarkers, que viven en un panel inferior al de markers).
-  const m = L.marker(coords, { icon: placeIcon(cat, kind, id), zIndexOffset: kind === 'dt' ? 0 : -1000 }).addTo(layer);
+  const m = L.marker(coords, { icon: placeIcon(cat, kind, id), zIndexOffset: -1000 }).addTo(layer);
   placePins.push({ m: m, layer: layer, cat: cat });
   return m;
 }
@@ -1228,7 +1262,7 @@ destinations.forEach(d => {
     const cat = catOf(dt.name, dt.cat);
     const marker = placePin(dt.coords, cat, 'dt', dtLayer, dt.id);
     marker.bindPopup(
-      miniPopup(dt.img, escHtml(dt.name), 'Day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time) + ' · ' + CAT_LABELS[cat], dt.url || gmapsFromName(dt.name))
+      miniPopup(dt.img, escHtml(dt.name), CAT_LABELS[cat] + ' · day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time), dt.url || gmapsFromName(dt.name))
     );
     dtMarkers[dt.id] = marker;
     nearAdd(marker, dt.name, catColor(cat));
@@ -1252,7 +1286,7 @@ destinations.forEach(d => {
     const cat = catOfAct(a);
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     m.bindPopup(
-      miniPopup(a.img, escHtml(a.text), escHtml(d.short) + ' · ' + CAT_LABELS[cat], a.url || gmapsFromName(a.text))
+      miniPopup(a.img, escHtml(a.text), escHtml(d.short) + ' · ' + CAT_LABELS[cat] + ' · ' + (a.source || (a.url ? 'Google Maps' : 'itinerario')), a.url || gmapsFromName(a.text))
     );
     actMarkers[d.id + ':' + i] = m;
     nearAdd(m, a.text, catColor(cat));
@@ -1295,7 +1329,7 @@ orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
   const cat = catOf(p.name, p.cat);
   nearAdd(placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer)
-    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · guardado sin destino asignado')), p.name, catColor(cat));
+    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · Google Maps · sin destino asignado')), p.name, catColor(cat));
 });
 
 // Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
@@ -1312,7 +1346,7 @@ const reelMarkers = [];
   ).join(' ');
   m.bindPopup('<div class="mini-pop">' +
     '<div class="popup-title">' + escHtml(p.name) + '</div>' +
-    '<div class="popup-dates">' + [escHtml(p.area), CAT_LABELS[cat]].filter(Boolean).join(' · ') + '</div>' +
+    '<div class="popup-dates">' + [escHtml(p.area), CAT_LABELS[cat], 'reel'].filter(Boolean).join(' · ') + '</div>' +
     (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') +
     links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
     '" target="_blank" rel="noopener">Google Maps →</a>' +
@@ -1620,8 +1654,8 @@ if (reelOrphans.length > 0) {
 
 function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
 function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
-function highlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
-function unhighlightDaytrip(id) { const el = document.querySelector('.marker-dot[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.pp[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.pp[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
 
 // Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
 // "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
@@ -1844,28 +1878,45 @@ for (let i = 0; i < destinations.length - 1; i++) {
     .on('click', () => focusTrip(b.id));
 }
 
-// Toggles de capas — directos en el mapa (expandidos), ocultar/mostrar cada tipo.
-// Barra de toggles propia (abajo, pills). "Lugares" unifica actividades + day trips + guardados.
+// Capas estructurales del viaje: control Leaflet propio, separado espacial y
+// visualmente de las categorías de lugares que viven abajo.
 const TOGGLES = [
-  { label: 'Destinos',   icon: '📍', layers: [destLayer] },
-  { label: 'Transporte', icon: '🚆', layers: [routeLayer] },
-  { label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
-  { label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
-  { label: 'Lugares',    icon: '⭐', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+  { key: 'destinos', label: 'Destinos',   icon: '📍', layers: [destLayer] },
+  { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer] },
+  { key: 'vuelos', label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
+  { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
 ];
-const togglesBar = document.createElement('div');
-togglesBar.className = 'map-toggles';
-TOGGLES.forEach(t => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'mt active';
-  btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
-  btn.addEventListener('click', () => {
-    const on = btn.classList.toggle('active');
-    t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+const inactiveLayers = new Set((new URLSearchParams(location.search).get('layersOff') || '').split(',')
+  .filter(k => TOGGLES.some(t => t.key === k)));
+const layersControl = L.control({ position: 'topright' });
+layersControl.onAdd = function () {
+  const togglesBar = L.DomUtil.create('div', 'map-toggles');
+  TOGGLES.forEach(t => {
+    const btn = document.createElement('button');
+    const onAtLoad = !inactiveLayers.has(t.key);
+    btn.type = 'button';
+    btn.className = 'mt' + (onAtLoad ? ' active' : '');
+    btn.title = t.label;
+    btn.setAttribute('aria-pressed', String(onAtLoad));
+    btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+    if (!onAtLoad) t.layers.forEach(l => map.removeLayer(l));
+    btn.addEventListener('click', () => {
+      const on = btn.classList.toggle('active');
+      btn.setAttribute('aria-pressed', String(on));
+      t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+      on ? inactiveLayers.delete(t.key) : inactiveLayers.add(t.key);
+      const u = new URL(location.href);
+      if (inactiveLayers.size) u.searchParams.set('layersOff', TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(','));
+      else u.searchParams.delete('layersOff');
+      history.replaceState(null, '', u);
+    });
+    togglesBar.appendChild(btn);
   });
-  togglesBar.appendChild(btn);
-});
+  L.DomEvent.disableClickPropagation(togglesBar);
+  L.DomEvent.disableScrollPropagation(togglesBar);
+  return togglesBar;
+};
+layersControl.addTo(map);
 const barsWrap = document.createElement('div');
 barsWrap.className = 'map-bars';
 map.getContainer().appendChild(barsWrap);
@@ -1900,7 +1951,6 @@ allCatsBtn.textContent = 'Todo';
 allCatsBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
 catBar.appendChild(allCatsBtn);
 barsWrap.appendChild(catBar);
-barsWrap.appendChild(togglesBar);   // los chips van arriba de los toggles de capa
 
 function applyCatFilter(skipUrl) {
   placePins.forEach(p => {
