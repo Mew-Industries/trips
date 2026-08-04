@@ -735,7 +735,16 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/500px-Haeundae_Beach_in_Busan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Haedong_Yonggungsa_Temple_near_Busan.jpg/500px-Haedong_Yonggungsa_Temple_near_Busan.jpg'],
     dates: '3-6 nov', nights: 3,
-    arrival: '3 nov (ferry Beetle desde Fukuoka)', departure: '6 nov (KTX a Seúl)', lodging: null,
+    arrival: '3 nov (ferry Beetle desde Fukuoka)', departure: '6 nov (KTX a Seúl)',
+    lodging: {
+      name: 'Stay On Thing 스테이온띵 (Airbnb)', type: 'Airbnb · casa entera privada',
+      guests: 'reserva a nombre de 1 adulto (máx 6)',
+      area: 'Seomyeon/Jeonpo (서면•전포), Busanjin-gu — a 5 min de la estación Jeonpo, el barrio de cafés y movida de Busan.',
+      coords: [35.1531, 129.0642],
+      checkIn: '3 nov (desde 16:00)', checkOut: '6 nov (hasta 11:00)', nights: 3, booked: true,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=19%20Dongseong-ro%2025beon-gil%20Busanjin-gu%20Busan',
+      note: 'Reservado por Airbnb (código HMS8XPDH8N) · US$440,72 total (146,91/noche × 3) · pagado US$220,34 el 3/8 (Visa 3841), resto US$220,38 se cobra el 19/10 · reembolso parcial cancelando antes del 27/10 16:00 (hora local) · host 지연 (Jiyeon) · tel +82 10-4321-9722 · dirección: 19 Dongseong-ro 25beon-gil, Busanjin-gu.'
+    },
     leg: { mode: '⛴️', time: '~3 h 20 (ferry)', detail: 'Ferry rápido Hakata → Busan (Beetle/Kobee; alt: Camellia overnight).' },
     tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-08-03', weatherMode: 'climatología',
     intro: 'Cruce desde Fukuoka por Beetle ferry (~3h20). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
@@ -1118,6 +1127,17 @@ const catOfAct = a => catOf(a.text, a.cat);
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
 // toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
 const placePins = [];
+// Ir a un lugar desde la lista cuando su categoría está apagada dejaba el mapa
+// en el punto correcto pero sin pin (el marker está fuera de su layerGroup y el
+// openPopup no hace nada). Volvemos a prender su categoría: el pin aparece y los
+// chips quedan sincronizados con lo que se ve.
+function revealCat(cat) {
+  if (cat && !activeCats.has(cat)) { activeCats.add(cat); applyCatFilter(); }
+}
+function revealPin(m) {
+  const p = placePins.find(x => x.m === m);
+  if (p) revealCat(p.cat);
+}
 function placeIcon(cat, kind, id) {
   const cls = kind === 'dt' ? 'marker-dot' : 'pp pp-' + kind;
   const size = kind === 'dt' ? 12 : 13;
@@ -1278,8 +1298,8 @@ const reelOrphans = [];
 });
 function reelLinksHtml(p) {
   return (p.reels || []).map(r =>
-    '<a class="reel-link" href="' + r.url + '" target="_blank" rel="noopener" title="' +
-    (r.owner ? '@' + r.owner : 'reel') + '">🎬</a>'
+    '<a class="reel-link" href="' + escHtml(r.url) + '" target="_blank" rel="noopener" title="' +
+    (r.owner ? '@' + escHtml(r.owner) : 'reel') + '">🎬</a>'
   ).join('');
 }
 
@@ -1412,8 +1432,8 @@ destinations.forEach((d, idx) => {
                 '<ul class="card-list">' +
                   d.activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c).map(([a, i]) =>
                     a.coords
-                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + a.text + '<span class="act-pin">📍</span></button></li>'
-                      : '<li class="act-row-plain">' + a.text + '</li>'
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + escHtml(a.text) + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + escHtml(a.text) + '</li>'
                   ).join('') +
                 '</ul>' +
               '</div>'
@@ -1425,7 +1445,7 @@ destinations.forEach((d, idx) => {
           '<div class="reels-body"><ul class="card-list">' +
             reelsByDest[d.id].map(ri => {
               const p = window.REEL_PLACES[ri];
-              return '<li class="reel-li"><button type="button" class="act-row" data-reel="' + ri + '">' + p.name + '<span class="act-pin">📍</span></button>' + reelLinksHtml(p) + '</li>';
+              return '<li class="reel-li"><button type="button" class="act-row" data-reel="' + ri + '">' + escHtml(p.name) + '<span class="act-pin">📍</span></button>' + reelLinksHtml(p) + '</li>';
             }).join('') +
           '</ul></div>'
         : '') +
@@ -1461,7 +1481,7 @@ destinations.forEach((d, idx) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const m = btn.dataset.reel != null ? reelMarkers[btn.dataset.reel] : actMarkers[btn.dataset.act];
-      if (m) { map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+      if (m) { revealPin(m); map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
     });
   });
 
@@ -1480,6 +1500,7 @@ destinations.forEach((d, idx) => {
     row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
     row.addEventListener('click', (e) => {
       e.stopPropagation();
+      revealPin(dtMarkers[dtId]);
       dtMarkers[dtId].openPopup();
       const dt = d.daytrips.find(x => x.id === dtId);
       map.flyTo(dt.coords, 9, { duration: 0.8 });
@@ -1514,14 +1535,14 @@ if (orphanPlaces.length > 0) {
     '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa son círculos del color de su categoría.</p>' +
     '<div class="orphan-list">' +
       orphanPlaces.map(p =>
-        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + p.url + '" target="_blank" rel="noopener">' + p.name + '</a>'
+        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + escHtml(p.url) + '" target="_blank" rel="noopener">' + escHtml(p.name) + '</a>'
       ).join('') +
     '</div>';
   detailsList.appendChild(oc);
   oc.querySelectorAll('.saved-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       const p = orphanPlaces.find(x => x.name === chip.textContent);
-      if (p && p.lat != null) { e.preventDefault(); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
+      if (p && p.lat != null) { e.preventDefault(); revealCat(catOf(p.name, p.cat)); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
     });
   });
 }
@@ -1537,14 +1558,14 @@ if (reelOrphans.length > 0) {
       reelOrphans.map(ri => {
         const p = window.REEL_PLACES[ri];
         return '<a class="saved-chip reel-chip" data-reel="' + ri + '" href="' +
-          ((p.reels && p.reels[0]) ? p.reels[0].url : '#') + '" target="_blank" rel="noopener">' + p.name + '</a>';
+          escHtml((p.reels && p.reels[0]) ? p.reels[0].url : '#') + '" target="_blank" rel="noopener">' + escHtml(p.name) + '</a>';
       }).join('') +
     '</div>';
   detailsList.appendChild(rc);
   rc.querySelectorAll('.reel-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
       const m = reelMarkers[chip.dataset.reel];
-      if (m) { e.preventDefault(); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
+      if (m) { e.preventDefault(); revealPin(m); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
     });
   });
 }
