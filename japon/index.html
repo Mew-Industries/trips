@@ -226,6 +226,25 @@
   .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
   .lodging-link { color: #1D9E75; text-decoration: underline; }
   .lodging-link:hover { color: #0F6E56; }
+  /* "Tu reserva": los datos que se usan parado en el mostrador (número, horarios,
+     teléfono). Barra verde a la izquierda para despegarlo de la ficha del hotel. */
+  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 8px 10px 9px; margin: -4px 0 10px; }
+  .resv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .resv-prov { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #0F6E56; }
+  .resv-ref { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 2px 0 0; text-align: left; cursor: pointer; transition: color 0.12s; }
+  .resv-ref:hover { color: #0F6E56; }
+  .resv-ref.copied { color: #1D9E75; }
+  .resv-ref.copied::after { content: ' ✓ copiado'; font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0; }
+  .resv-ref2 { font-size: 10px; color: #888; margin-top: 2px; }
+  .resv-open { flex-shrink: 0; margin-top: 2px; font-size: 11px; font-weight: 600; color: #1D9E75; text-decoration: underline; white-space: nowrap; }
+  .resv-open:hover { color: #0F6E56; }
+  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 7px; }
+  .resv-row { display: flex; gap: 7px; font-size: 11px; line-height: 1.5; }
+  .resv-k { flex-shrink: 0; min-width: 66px; color: #999; }
+  .resv-v { min-width: 0; color: #444; }
+  .resv-tel { color: #0F6E56; font-weight: 600; text-decoration: none; border-bottom: 1px dotted rgba(15,110,86,0.45); }
+  .resv-tel:hover { border-bottom-style: solid; }
+  .resv-warn { margin-top: 7px; font-size: 11px; line-height: 1.45; color: #A3462B; }
   .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
@@ -422,7 +441,9 @@ const destinations = [
       checkIn: '8 oct', checkOut: '13 oct', nights: 5, booked: true,
       url: 'https://www.airbnb.com/rooms/1105430570374679874',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=5-chome-11-2%20Shinjuku%2C%20Shinjuku%20City%2C%20Tokyo%20160-0022',
-      note: 'Airbnb. La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar). Falta cargar el costo total al sheet de gastos.'
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '8 oct', checkOut: '13 oct' },
+      note: 'La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar). Falta cargar el costo total al sheet de gastos.'
     },
     leg: { mode: '✈️', time: '~30 h · 1 escala', detail: 'Ida EZE → Tokio Haneda · United Polaris business', segments: [
       { route: 'EZE → IAH', no: 'UA818', when: '6 oct 21:00 → 7 oct 5:15', aircraft: 'B777-200 · 10h15', tracker: 'https://flightaware.com/live/flight/UAL818' },
@@ -511,7 +532,9 @@ const destinations = [
       checkIn: '13 oct', checkOut: '14 oct', nights: 1, booked: true,
       url: 'https://www.airbnb.com/rooms/1534431699681046944',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=2-1%20Nihongi%2C%20Ichinoseki%2C%20Iwate%20021-0835',
-      note: 'Airbnb · US$172.92 · pegado a la estación, ideal para el Geibikei a la mañana y el shinkansen a Sendai.'
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '13 oct', checkOut: '14 oct', total: 'US$172,92' },
+      note: 'Pegado a la estación, ideal para el Geibikei a la mañana y el shinkansen a Sendai.'
     },
     leg: { mode: '🚄', time: '~3 h', detail: 'JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki.', via: [[36.5551, 139.898], [38.2602, 140.8821], [38.9344, 141.1267]] },
     tempMax: '18-23', tempMin: '8-14', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -534,15 +557,25 @@ const destinations = [
     arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (al aeropuerto de Sendai ~25 min + vuelo a Sapporo/New Chitose)',
     lodging: {
       name: 'Sendai Kokusai Hotel', type: 'Hotel · centro de Sendai',
-      guests: '2 personas · desayuno buffet incluido',
+      guests: '2 personas',
       area: 'Aoba-ku Chūō 4-6-1, Sendai (Miyagi) · a pasos de la estación: day-trips (Matsushima / Yamadera) + línea directa al aeropuerto',
       coords: [38.2606, 140.8819],
-      checkIn: '14 oct (desde 15 h)', checkOut: '15 oct (hasta 11 h)', nights: 1, booked: true,
+      checkIn: '14 oct', checkOut: '15 oct', nights: 1, booked: true,
       img: 'img/sendai-kokusai-exterior.jpg',
       imgs: ['img/sendai-kokusai-exterior.jpg', 'img/sendai-kokusai-twin.jpg', 'img/sendai-kokusai-double.jpg', 'img/sendai-kokusai-desayuno.jpg'],
+      // La ficha pública del hotel está en Rakuten; la reserva es de Booking. Son cosas distintas.
       url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/912',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai%20Kokusai%20Hotel',
-      note: 'Reservado por Booking (#5769665121) · ¥17.100 · cancelación gratis hasta el 11/10. Cuartos de 17-21 m² (doble o twin) con baño privado; todo el hotel es no fumador. Desayuno buffet (japonés/occidental/chino) 7:00-9:30 en el Coffee House del 1º piso.'
+      booking: {
+        provider: 'booking', ref: '5769665121',
+        // pin: el PIN de Booking NO va acá. El sitio es público y con nº + PIN la reserva
+        // se abre (y se cancela) sin login. Vive en projects/japan-trip/notes.md.
+        pin: '',
+        checkIn: '14 oct · desde 15:00', checkOut: '15 oct · hasta 11:00',
+        cancel: 'Gratis hasta el 11/10', includes: 'Desayuno buffet 7:00–9:30 (Coffee House, 1º piso)',
+        total: '¥17.100', phone: '+81 22-268-1111'
+      },
+      note: 'Cuartos de 17-21 m² (doble o twin) con baño privado; todo el hotel es no fumador. El buffet del desayuno mezcla japonés, occidental y chino.'
     },
     leg: { mode: '🚄', time: '~45 min', detail: 'Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku).', via: [[38.2601, 140.8821]], path: [{ m: 'train', to: [38.2601, 140.8821] }] },
     tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -574,7 +607,9 @@ const destinations = [
       checkIn: '15 oct', checkOut: '17 oct', nights: 2, booked: true,
       url: 'https://www.airbnb.com/rooms/667203897845859107',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Minami%204%20Jonishi%20Glass%20%E8%B3%87%E7%94%9F%E9%A4%A8%2C%20Chuo%20Ward%2C%20Sapporo%20064-0804',
-      note: 'Airbnb · US$135.94 · base céntrica en Susukino para los 2 días de Sapporo.'
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '15 oct', checkOut: '17 oct', total: 'US$135,94' },
+      note: 'Base céntrica en Susukino para los 2 días de Sapporo.'
     },
     leg: { mode: '🚌✈️', time: '~3 h 30', detail: 'Sendai → aeropuerto de Sendai (~25 min, línea Access) + vuelo a New Chitose (Sapporo).', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sendai%20to%20Sapporo', dirLabel: 'ver vuelos ↗', via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'bus', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }] },
     tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -609,7 +644,9 @@ const destinations = [
       checkIn: '17 oct', checkOut: '19 oct', nights: 2, booked: true,
       url: 'https://www.airbnb.com/rooms/27441365',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Korinbo%2C%20Kanazawa%2C%20Ishikawa',
-      note: 'Airbnb · US$165.43 · base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '17 oct', checkOut: '19 oct', total: 'US$165,43' },
+      note: 'Base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
     },
     leg: { mode: '✈️🚆', time: '~1 h 40 (vuelo)', detail: 'Vuelo New Chitose → Komatsu + tren a Kanazawa.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sapporo%20to%20Komatsu', dirLabel: 'ver vuelos ↗', via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'train', to: [36.5613, 136.6562] }] },
     tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -661,7 +698,9 @@ const destinations = [
       checkIn: '19 oct', checkOut: '25 oct', nights: 6, booked: true,
       url: 'https://www.airbnb.com/rooms/19373663',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=44%20Shioyach%C5%8D%20Ayak%C5%8Djid%C5%8Dri%20Shimogy%C5%8D-ku%20Kyoto%20600-8052',
-      note: 'Airbnb · US$1.078,41 · base downtown en Shimogyō-ku para las 6 noches (19-25/10). Reservado.'
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '19 oct', checkOut: '25 oct', total: 'US$1.078,41' },
+      note: 'Base downtown en Shimogyō-ku para las 6 noches.'
     },
     leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }] },
     tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -702,15 +741,24 @@ const destinations = [
     arrival: '25 oct (de Kioto: tren a Namba + Nankai línea Koya + funicular, ~3h20)', departure: '26 oct (baja a Osaka/Namba por funicular + Nankai, ~2h30)',
     lodging: {
       name: 'Koyasan Shukubo Hōjō-in (宝城院)', type: 'Shukubo · alojamiento en templo ★★★',
-      guests: 'Habitación Familiar Deluxe · 2 personas · desayuno + cena (shojin ryori) incluidos',
+      guests: 'Habitación Familiar Deluxe · 2 personas',
       area: 'Hōjō-in, 156 Koyasan, Koya, Ito District, Wakayama 648-0211 · baño compartido, tatami, vista al jardín',
       coords: [34.2150716, 135.5794376],
-      checkIn: '25 oct (15–17 h)', checkOut: '26 oct (8–9 h)', nights: 1, booked: true,
+      checkIn: '25 oct', checkOut: '26 oct', nights: 1, booked: true,
       img: 'img/koyasan-hojoin-exterior.jpg',
       imgs: ['img/koyasan-hojoin-exterior.jpg', 'img/koyasan-hojoin-cuarto.jpg', 'img/koyasan-hojoin-shojin.jpg', 'img/koyasan-hojoin-hondo.jpg'],
+      // Ficha pública en Rakuten; la reserva se hizo por Booking (junio 2026).
       url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/184602',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
-      note: 'Check-in 15–17 h ESTRICTO: llegar después de las 17 h cuenta como cancelación con 100% de cargo. Cena 17–19 h · desayuno 6:30–7:30 (shojin ryori vegetariano, no contemplan alergias) · servicio matutino 6:30. Baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha). Tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
+      booking: {
+        // ref pendiente: falta rescatar el número del mail de confirmación de Booking.
+        provider: 'booking', ref: null,
+        checkIn: '25 oct · 15:00–17:00', checkOut: '26 oct · 8:00–9:00',
+        includes: 'Cena shojin ryori 17–19 h + desayuno 6:30–7:30',
+        total: '¥99.000', phone: '+81 736-56-2431',
+        warn: 'Check-in estricto: llegar después de las 17 h cuenta como cancelación con 100% de cargo.'
+      },
+      note: 'Servicio matutino 6:30 · baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha) · shojin ryori vegetariano, no contemplan alergias · tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
     },
     leg: { mode: '🚆🚠', time: '~3 h 20', detail: 'Tren Kioto → Namba + Nankai línea Koya + funicular a Koyasan.' },
     tempMax: '11-20', tempMin: '4-13', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -737,10 +785,16 @@ const destinations = [
       guests: '2 adultos · tatami · cama doble',
       area: 'Shimanouchi, Chūō-ku (〒542-0082) · entre Dotonbori y Nihonbashi, caminable a Namba — pleno centro de la movida de Osaka.',
       coords: [34.6718, 135.5065],
-      checkIn: '26 oct (desde 16:00)', checkOut: '31 oct (hasta 10:00)', nights: 5, booked: true,
+      checkIn: '26 oct', checkOut: '31 oct', nights: 5, booked: true,
       url: 'https://www.airbnb.com/rooms/832299366583259197',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Shimanouchi%20Ch%C5%AB%C5%8D-ku%20Osaka%20542-0082',
-      note: 'Reservado por Airbnb (código HMC28MCWF3) · US$498,89 total, pago programado 18/9 (Visa 3841) · cancelación gratis hasta el 26/9 16:00 (hora local), reembolso parcial hasta el 19/10 · host 川house道頓堀 · tel +81 70-8924-2407.'
+      booking: {
+        provider: 'airbnb', ref: 'HMC28MCWF3',
+        checkIn: '26 oct · desde 16:00', checkOut: '31 oct · hasta 10:00',
+        cancel: 'Gratis hasta el 26/9 16:00 · reembolso parcial hasta el 19/10',
+        total: 'US$498,89 (pago programado 18/9)', phone: '+81 70-8924-2407'
+      },
+      note: 'Depto entero de 40 m² con tatami y cama doble, entre Dotonbori y Nihonbashi. Host 川house道頓堀.'
     },
     leg: { mode: '🚠🚆', time: '~2 h 30', detail: 'Funicular + Nankai Koyasan → Osaka (Namba).' },
     tempMax: '15-25', tempMin: '6-18', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -782,12 +836,20 @@ const destinations = [
       guests: '2 adultos',
       area: 'Nakasu (5-6 Nakasu, Hakata-ku) — la isla de los yatais, entre Tenjin y Hakata; a pasos del río Naka.',
       coords: [33.5936, 130.4053],
-      checkIn: '31 oct (15:00–23:00)', checkOut: '3 nov (hasta 11:00)', nights: 3, booked: true,
+      checkIn: '31 oct', checkOut: '3 nov', nights: 3, booked: true,
       img: 'img/fukuoka-canvas-cuarto.jpg',
       imgs: ['img/fukuoka-canvas-cuarto.jpg', 'img/fukuoka-canvas-exterior.jpg', 'img/fukuoka-canvas-onsen.jpg', 'img/fukuoka-canvas-rooftop.jpg'],
       url: 'https://www.royalparkhotels.co.jp/canvas/fukuokanakasu/',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Royal%20Park%20Canvas%20Fukuoka%20Nakasu',
-      note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023. Reservado por Rakuten Travel (Booking ID 21315095689160, reserva 22315090733082) · US$709,47 total (¥112.473, FX fijado al reservar; descuento multi-noche −US$147,46 + cupón −US$126,16) · Visa 3841 · room only · accommodation tax ¥500/noche se paga en el hotel · cancelación gratis hasta 23/10 23:59 JST (después 40%/80%/100%) · tel +81 92-291-1188.'
+      booking: {
+        provider: 'rakuten', ref: '21315095689160',
+        ref2: '22315090733082', ref2Label: 'Reserva',
+        checkIn: '31 oct · 15:00–23:00', checkOut: '3 nov · hasta 11:00',
+        cancel: 'Gratis hasta el 23/10 23:59 JST (después 40% / 80% / 100%)',
+        includes: 'Room only, sin comidas', payThere: 'Accommodation tax ¥500/noche',
+        total: 'US$709,47 (¥112.473, FX fijado al reservar)', phone: '+81 92-291-1188'
+      },
+      note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023.'
     },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Hakata (Nozomi).' },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -820,9 +882,15 @@ const destinations = [
       guests: 'reserva a nombre de 1 adulto (máx 6)',
       area: 'Seomyeon/Jeonpo (서면•전포), Busanjin-gu — a 5 min de la estación Jeonpo, el barrio de cafés y movida de Busan.',
       coords: [35.1531, 129.0642],
-      checkIn: '3 nov (desde 16:00)', checkOut: '6 nov (hasta 11:00)', nights: 3, booked: true,
+      checkIn: '3 nov', checkOut: '6 nov', nights: 3, booked: true,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=19%20Dongseong-ro%2025beon-gil%20Busanjin-gu%20Busan',
-      note: 'Reservado por Airbnb (código HMS8XPDH8N) · US$440,72 total (146,91/noche × 3) · pagado US$220,34 el 3/8 (Visa 3841), resto US$220,38 se cobra el 19/10 · reembolso parcial cancelando antes del 27/10 16:00 (hora local) · host 지연 (Jiyeon) · tel +82 10-4321-9722 · dirección: 19 Dongseong-ro 25beon-gil, Busanjin-gu.'
+      booking: {
+        provider: 'airbnb', ref: 'HMS8XPDH8N',
+        checkIn: '3 nov · desde 16:00', checkOut: '6 nov · hasta 11:00',
+        cancel: 'Reembolso parcial hasta el 27/10 16:00',
+        total: 'US$440,72 (US$220,34 pagados · resto el 19/10)', phone: '+82 10-4321-9722'
+      },
+      note: 'Casa entera privada a 5 min de la estación Jeonpo · dirección 19 Dongseong-ro 25beon-gil, Busanjin-gu · host 지연 (Jiyeon). La reserva figura a nombre de 1 adulto: falta sumar a Cata como huésped.'
     },
     leg: { mode: '⛴️', time: '~3 h 20 (ferry)', detail: 'Ferry rápido Hakata → Busan (Beetle/Kobee; alt: Camellia overnight).' },
     tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -857,7 +925,9 @@ const destinations = [
       checkIn: '6 nov', checkOut: '10 nov', nights: 4, booked: true,
       img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MjI3MjQxMzM%3D/original/5498d161-c2fb-462c-8f3b-d7eae180fd8e.jpeg?im_w=720',
       url: 'https://www.airbnb.com/rooms/22724133?check_in=2026-11-06&check_out=2026-11-10&adults=2',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056'
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056',
+      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
+      booking: { provider: 'airbnb', ref: null, checkIn: '6 nov', checkOut: '10 nov', total: 'US$844' }
     },
     leg: { mode: '🚄', time: '~2 h 40', detail: 'KTX Busan → Seúl.' },
     tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -900,7 +970,7 @@ const destinations = [
     arrival: '10 nov (vuelo Seúl→Tokio + Romancecar a Hakone)', departure: '12 nov (Romancecar/Shinkansen a Tokio)',
     lodging: {
       name: 'Yoshiike Ryokan', type: 'Ryokan ★★★★ · onsen',
-      guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa · sin comidas',
+      guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa',
       area: '597 Yumoto, Hakone (Kanagawa) · ~7 min a pie de la estación Hakone-Yumoto (terminal del Romancecar) · jardín japonés propio, baños termales interiores y al aire libre',
       coords: [35.2286, 139.1058],
       checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: true,
@@ -908,7 +978,15 @@ const destinations = [
       imgs: ['img/yoshiike-exterior.jpg', 'img/yoshiike-cuarto.jpg', 'img/yoshiike-rotenburo.jpg', 'img/yoshiike-onsen.jpg'],
       url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/108157',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yoshiike%20Ryokan%20Hakone%20Yumoto',
-      note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Reservado por Rakuten Travel (RYa0n6tgtr) · ¥108.680 impuestos incl. (cupón 5% aplicado) · cancelación gratis hasta el 2/11 23:59, después escalonada (7d 10% → día 100%) · habitación «Chisen-no-ma» del ala del estanque, frente al jardín Sangetsuen · check-in declarado 16:00 (avisar si llegan más tarde) · sin plan de comidas → cenar en Yumoto o sumar cena del ryokan aparte · tel +81 460 85 5711.'
+      booking: {
+        provider: 'rakuten', ref: 'RYa0n6tgtr',
+        checkIn: '10 nov · declarado 16:00', checkOut: '12 nov',
+        cancel: 'Gratis hasta el 2/11 23:59 (después escalonada: 7 días 10% → el día 100%)',
+        includes: 'Sin plan de comidas', total: '¥108.680 impuestos incl. (cupón 5% aplicado)',
+        phone: '+81 460-85-5711',
+        warn: 'Avisar por teléfono si llegan más tarde de las 16:00 declaradas.'
+      },
+      note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido: la habitación es «Chisen-no-ma», del ala del estanque, frente al Sangetsuen. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Sin comidas incluidas → cenar en Yumoto o sumar la cena del ryokan aparte.'
     },
     leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }] },
     tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -1139,15 +1217,60 @@ function gmapsFromName(name) {
   return 'https://www.google.com/maps/search/?api=1&query=' +
     encodeURIComponent(name.split('(')[0].split('/')[0].trim());
 }
-// Etiqueta del link del alojamiento según de dónde salga la ficha. Los hoteles/ryokan
-// no-Airbnb tienen `url` a su página pública (Rakuten/Booking/oficial) y el mapa aparte
-// en `mapsUrl`; antes cualquier url no-Airbnb se rotulaba "Ver en Google Maps".
-function lodgingLinkLabel(u) {
-  if (/airbnb/i.test(u)) return 'Ver en Airbnb';
-  if (/google\.[^/]*\/maps/i.test(u)) return 'Ver en Google Maps';
-  if (/rakuten/i.test(u)) return 'Ver en Rakuten';
-  if (/booking\.com/i.test(u)) return 'Ver en Booking';
-  return 'Ver el alojamiento';
+// `lodging.url` es SIEMPRE la ficha pública del alojamiento (Airbnb, Rakuten, sitio
+// oficial): informativa, no es la reserva. Se rotula por lo que es y no por el dominio
+// — rotularla con el nombre de la OTA hacía que Sendai (reservado en Booking, ficha en
+// Rakuten) dijera "Ver en Rakuten" y se leyera como "acá está mi reserva".
+const HOTEL_LINK_LABEL = 'Ficha del alojamiento';
+
+// De dónde salió la reserva. El dato canónico es `booking.provider`, no la url.
+// `home` = página de reservas de la cuenta: no expone nada sin la sesión de Martín.
+const RESV_PROVIDER = {
+  airbnb:  { label: 'Airbnb',          home: 'https://www.airbnb.com/trips/v1' },
+  booking: { label: 'Booking',         home: 'https://secure.booking.com/mytrips' },
+  rakuten: { label: 'Rakuten Travel',  home: 'https://travel.rakuten.com/USA/en-US/hotel_reservation/list/?category=UPCOMING' }
+};
+
+// Link a la reserva de Martín. Airbnb abre el itinerario concreto cuando sabemos el
+// código; el resto cae en la lista de reservas de la cuenta (todo detrás de login).
+function resvUrl(b) {
+  if (b.url) return b.url;
+  if (b.provider === 'airbnb' && b.ref) return 'https://www.airbnb.com/reservation/itinerary?code=' + encodeURIComponent(b.ref);
+  const p = RESV_PROVIDER[b.provider];
+  return p ? p.home : '';
+}
+
+// Bloque "Tu reserva": lo que hace falta para resolver algo en el mostrador — número,
+// link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
+// Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
+// El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
+// campo `pin` de Booking en los datos).
+function resvHtml(L) {
+  const b = L && L.booking;
+  if (!b) return '';
+  const p = RESV_PROVIDER[b.provider];
+  const href = resvUrl(b);
+  const rows = [];
+  const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
+  if (b.checkIn) row('Check-in', escHtml(b.checkIn));
+  if (b.checkOut) row('Check-out', escHtml(b.checkOut));
+  if (b.cancel) row('Cancelación', escHtml(b.cancel));
+  if (b.includes) row('Incluye', escHtml(b.includes));
+  if (b.payThere) row('Se paga allá', escHtml(b.payThere));
+  if (b.total) row('Total', escHtml(b.total));
+  if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
+  return '<div class="resv dx">' +
+    '<div class="resv-head">' +
+      '<div>' +
+        '<div class="resv-prov">' + (p ? 'Mi reserva en ' + p.label : 'Mi reserva') + '</div>' +
+        (b.ref ? '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' : '') +
+        (b.ref2 ? '<div class="resv-ref2">' + escHtml((b.ref2Label || 'Reserva') + ' ' + b.ref2) + '</div>' : '') +
+      '</div>' +
+      (href ? '<a class="resv-open" href="' + href + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
+    '</div>' +
+    (rows.length ? '<div class="resv-grid">' + rows.join('') + '</div>' : '') +
+    (b.warn ? '<div class="resv-warn">' + escHtml(b.warn) + '</div>' : '') +
+  '</div>';
 }
 
 // Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
@@ -1156,13 +1279,17 @@ function lodgingLinkLabel(u) {
 function lodgingHtml(L, city, galId) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
-  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
+  const nightsStr = L.nights ? L.nights + (L.nights === 1 ? ' noche' : ' noches') : '';
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (nightsStr ? ' · ' + nightsStr : '')) : '';
   // Links explícitos: ficha del alojamiento (Airbnb/Rakuten/Booking/oficial) y/o Google Maps.
   const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
   const links = [];
-  if (L.url) links.push(lnk(L.url, lodgingLinkLabel(L.url)));
+  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
   if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
-  const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  // Con bloque "Tu reserva" las fechas y el "✓ Reservado" ya están abajo, con hora: acá
+  // solo van las noches y los links, para no decir dos veces lo mismo en la misma tarjeta.
+  const meta = (L.booking ? [nightsStr] : [dateStr].concat(L.booked ? ['✓ Reservado'] : []))
+    .concat(links).filter(Boolean).join(' · ');
   // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª es la miniatura de la
   // tarjeta; el resto va en una tira debajo, igual que la galería del destino.
   const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
@@ -1190,11 +1317,12 @@ function lodgingHtml(L, city, galId) {
   const masked =
     '<div class="lodging-body">' +
       '<div class="lodging-name">Reservado</div>' +
-      '<div class="lodging-sub">' + [city, L.nights ? L.nights + ' noches' : ''].filter(Boolean).join(' · ') + '</div>' +
+      '<div class="lodging-sub">' + [city, nightsStr].filter(Boolean).join(' · ') + '</div>' +
     '</div>';
   return '<div class="card-section-title">🛏️ Hospedaje</div>' +
     '<div class="lodging-card dx">' + inner + '</div>' +
     strip +
+    resvHtml(L) +
     '<div class="lodging-card dm">' + masked + '</div>';
 }
 
@@ -1202,7 +1330,7 @@ function lodgingHtml(L, city, galId) {
 function lodgingPopupHtml(L, city) {
   const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
   let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
-  if (L.url) h += lnk(L.url, lodgingLinkLabel(L.url));
+  if (L.url) h += lnk(L.url, HOTEL_LINK_LABEL);
   if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
   const masked = '<div class="popup-title">🛏️ Reservado</div>' + (city ? '<div class="popup-dates">' + city + '</div>' : '');
   return '<div class="dx">' + h + '</div><div class="dm">' + masked + '</div>';
@@ -2039,6 +2167,26 @@ function applyCatFilter(skipUrl) {
   if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
   else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
 })();
+
+// Número de reserva: tap para copiarlo. Es el dato que se dice en el mostrador y
+// tipearlo de un teléfono es justo lo que no se quiere hacer parado en un lobby.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.resv-ref');
+  if (!btn) return;
+  e.stopPropagation();
+  const txt = btn.dataset.copy || btn.textContent;
+  const ok = () => { btn.classList.add('copied'); setTimeout(() => btn.classList.remove('copied'), 1400); };
+  // Sin Clipboard API (Safari viejo, contexto no seguro): seleccionar + execCommand. Si
+  // tampoco copia, el número queda seleccionado y se copia con el menú del sistema — pero
+  // no se dice "copiado", que sería mentira.
+  const fallback = () => {
+    const r = document.createRange(); r.selectNodeContents(btn);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    try { if (document.execCommand('copy')) ok(); } catch (err) {}
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fallback);
+  else fallback();
+});
 
 // Lightbox para las galerías de fotos (click en una miniatura → se expande).
 (function () {
