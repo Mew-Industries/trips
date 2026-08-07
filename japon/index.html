@@ -563,8 +563,10 @@ const destinations = [
       checkIn: '14 oct', checkOut: '15 oct', nights: 1, booked: true,
       img: 'img/sendai-kokusai-exterior.jpg',
       imgs: ['img/sendai-kokusai-exterior.jpg', 'img/sendai-kokusai-twin.jpg', 'img/sendai-kokusai-double.jpg', 'img/sendai-kokusai-desayuno.jpg'],
-      // La ficha pública del hotel está en Rakuten; la reserva es de Booking. Son cosas distintas.
-      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/912',
+      // La ficha va en la MISMA plataforma que la reserva (acá Booking): es el mismo cuarto,
+      // las mismas fotos y las mismas condiciones que se compraron. Una ficha de otra OTA
+      // muestra otras tarifas y se lee como si la reserva estuviera ahí.
+      url: 'https://www.booking.com/hotel/jp/sendai-kokusai.html',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai%20Kokusai%20Hotel',
       booking: {
         provider: 'booking', ref: '5769665121',
@@ -747,8 +749,8 @@ const destinations = [
       checkIn: '25 oct', checkOut: '26 oct', nights: 1, booked: true,
       img: 'img/koyasan-hojoin-exterior.jpg',
       imgs: ['img/koyasan-hojoin-exterior.jpg', 'img/koyasan-hojoin-cuarto.jpg', 'img/koyasan-hojoin-shojin.jpg', 'img/koyasan-hojoin-hondo.jpg'],
-      // Ficha pública en Rakuten; la reserva se hizo por Booking (junio 2026).
-      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/184602',
+      // Reservado por Booking (junio 2026) → la ficha también es la de Booking.
+      url: 'https://www.booking.com/hotel/jp/gao-ye-shan-su-fang-bao-cheng-yuan.html',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
       booking: {
         // ref pendiente: falta rescatar el número del mail de confirmación de Booking.
@@ -839,7 +841,8 @@ const destinations = [
       checkIn: '31 oct', checkOut: '3 nov', nights: 3, booked: true,
       img: 'img/fukuoka-canvas-cuarto.jpg',
       imgs: ['img/fukuoka-canvas-cuarto.jpg', 'img/fukuoka-canvas-exterior.jpg', 'img/fukuoka-canvas-onsen.jpg', 'img/fukuoka-canvas-rooftop.jpg'],
-      url: 'https://www.royalparkhotels.co.jp/canvas/fukuokanakasu/',
+      // Reservado por Rakuten → ficha de Rakuten (no la home institucional de la cadena).
+      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/187109',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Royal%20Park%20Canvas%20Fukuoka%20Nakasu',
       booking: {
         provider: 'rakuten', ref: '21315095689160',
@@ -1225,9 +1228,20 @@ const HOTEL_LINK_LABEL = 'Ficha del alojamiento';
 
 // De dónde salió la reserva. El dato canónico es `booking.provider`, no la url.
 // `home` = página de reservas de la cuenta: no expone nada sin la sesión de Martín.
+// Cada `home` está probada con browser real (ver la tabla de verificación de la task 491):
+//  · airbnb  → 200, redirige al login conservando el destino /trips.
+//  · booking → 202 (código anti-bot de Booking), redirige a account.booking.com/sign-in.
+//    OJO: `secure.booking.com/mytrips` era 404 — ese fue el link roto que reportó Martín.
+//  · rakuten → la URL que el propio mail de confirmación de Rakuten usa para "Go to
+//    reservation list". No se puede probar desde este host (el origen Akamai bloquea la IP
+//    del datacenter: el TLS cierra pero la respuesta nunca llega), así que la evidencia acá
+//    es la procedencia, no un status. Es la cuenta global (travel.rakuten.com), que es
+//    donde están hechas Fukuoka y Hakone — el 予約確認 del sitio japonés no las muestra.
+// Un provider sin link usable va sin `home`: la tarjeta muestra el número de reserva y
+// ningún botón (mejor sin botón que con botón roto).
 const RESV_PROVIDER = {
   airbnb:  { label: 'Airbnb',          home: 'https://www.airbnb.com/trips/v1' },
-  booking: { label: 'Booking',         home: 'https://secure.booking.com/mytrips' },
+  booking: { label: 'Booking',         home: 'https://secure.booking.com/myreservations.html' },
   rakuten: { label: 'Rakuten Travel',  home: 'https://travel.rakuten.com/USA/en-US/hotel_reservation/list/?category=UPCOMING' }
 };
 
@@ -1237,7 +1251,7 @@ function resvUrl(b) {
   if (b.url) return b.url;
   if (b.provider === 'airbnb' && b.ref) return 'https://www.airbnb.com/reservation/itinerary?code=' + encodeURIComponent(b.ref);
   const p = RESV_PROVIDER[b.provider];
-  return p ? p.home : '';
+  return (p && p.home) || '';
 }
 
 // Bloque "Tu reserva": lo que hace falta para resolver algo en el mostrador — número,
