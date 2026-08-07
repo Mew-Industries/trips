@@ -841,11 +841,12 @@ const destinations = [
       checkIn: '31 oct', checkOut: '3 nov', nights: 3, booked: true,
       img: 'img/fukuoka-canvas-cuarto.jpg',
       imgs: ['img/fukuoka-canvas-cuarto.jpg', 'img/fukuoka-canvas-exterior.jpg', 'img/fukuoka-canvas-onsen.jpg', 'img/fukuoka-canvas-rooftop.jpg'],
-      // Reservado por Rakuten → ficha de Rakuten (no la home institucional de la cadena).
-      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/187109',
+      // Reservado en Rakuten Travel GLOBAL (travel.rakuten.com, en USD) → la ficha es la de
+      // ese sitio, no la del japonés: mismo hotel, pero otra plataforma y otras tarifas.
+      url: 'https://travel.rakuten.com/usa/en-us/hotel_info_item/cnt_japan/sub_fukuoka_prefecture/cty_fukuoka_city/10123456932972/',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Royal%20Park%20Canvas%20Fukuoka%20Nakasu',
       booking: {
-        provider: 'rakuten', ref: '21315095689160',
+        provider: 'rakuten', ref: '21315095689160', refLabel: 'Booking ID',
         ref2: '22315090733082', ref2Label: 'Reserva',
         checkIn: '31 oct · 15:00–23:00', checkOut: '3 nov · hasta 11:00',
         cancel: 'Gratis hasta el 23/10 23:59 JST (después 40% / 80% / 100%)',
@@ -881,11 +882,13 @@ const destinations = [
     dates: '3-6 nov', nights: 3,
     arrival: '3 nov (ferry Beetle desde Fukuoka)', departure: '6 nov (KTX a Seúl)',
     lodging: {
-      name: 'Stay On Thing 스테이온띵 (Airbnb)', type: 'Airbnb · casa entera privada',
-      guests: 'reserva a nombre de 1 adulto (máx 6)',
+      name: 'Stay On Thing 스테이온띵 (Airbnb)', type: 'Airbnb · casa entera privada', rating: '★4.72',
+      guests: '2 dormitorios · 3 camas · 1 baño · reserva a nombre de 1 adulto (máx 6)',
       area: 'Seomyeon/Jeonpo (서면•전포), Busanjin-gu — a 5 min de la estación Jeonpo, el barrio de cafés y movida de Busan.',
       coords: [35.1531, 129.0642],
       checkIn: '3 nov', checkOut: '6 nov', nights: 3, booked: true,
+      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-862619519052635111/original/5aee295c-b84e-4fef-bbbc-0dff9ef45fc3.jpeg?im_w=720',
+      url: 'https://www.airbnb.com/rooms/862619519052635111',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=19%20Dongseong-ro%2025beon-gil%20Busanjin-gu%20Busan',
       booking: {
         provider: 'airbnb', ref: 'HMS8XPDH8N',
@@ -979,10 +982,11 @@ const destinations = [
       checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: true,
       img: 'img/yoshiike-exterior.jpg',
       imgs: ['img/yoshiike-exterior.jpg', 'img/yoshiike-cuarto.jpg', 'img/yoshiike-rotenburo.jpg', 'img/yoshiike-onsen.jpg'],
+      // Reservado en Rakuten Travel JAPÓN (travel.rakuten.co.jp) → ficha del sitio japonés.
       url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/108157',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yoshiike%20Ryokan%20Hakone%20Yumoto',
       booking: {
-        provider: 'rakuten', ref: 'RYa0n6tgtr',
+        provider: 'rakuten-jp', ref: 'RYa0n6tgtr', refLabel: '予約受付番号',
         checkIn: '10 nov · declarado 16:00', checkOut: '12 nov',
         cancel: 'Gratis hasta el 2/11 23:59 (después escalonada: 7 días 10% → el día 100%)',
         includes: 'Sin plan de comidas', total: '¥108.680 impuestos incl. (cupón 5% aplicado)',
@@ -1229,20 +1233,24 @@ const HOTEL_LINK_LABEL = 'Ficha del alojamiento';
 // De dónde salió la reserva. El dato canónico es `booking.provider`, no la url.
 // `home` = página de reservas de la cuenta: no expone nada sin la sesión de Martín.
 // Cada `home` está probada con browser real (ver la tabla de verificación de la task 491):
-//  · airbnb  → 200, redirige al login conservando el destino /trips.
-//  · booking → 202 (código anti-bot de Booking), redirige a account.booking.com/sign-in.
+//  · airbnb     → 200, redirige al login conservando el destino /trips.
+//  · booking    → 200/202 (Booking devuelve 202 cuando su anti-bot se activa; la página
+//    renderiza igual), redirige a account.booking.com/sign-in.
 //    OJO: `secure.booking.com/mytrips` era 404 — ese fue el link roto que reportó Martín.
-//  · rakuten → la URL que el propio mail de confirmación de Rakuten usa para "Go to
-//    reservation list". No se puede probar desde este host (el origen Akamai bloquea la IP
-//    del datacenter: el TLS cierra pero la respuesta nunca llega), así que la evidencia acá
-//    es la procedencia, no un status. Es la cuenta global (travel.rakuten.com), que es
-//    donde están hechas Fukuoka y Hakone — el 予約確認 del sitio japonés no las muestra.
+//  · rakuten    → 200, "Sign in with your Rakuten account". Es el link que el propio mail
+//    de confirmación de Fukuoka usa para "Go to reservation list".
+//  · rakuten-jp → 200, redirige al SSO de Rakuten. Es el link del mail 予約完了メール.
+// Rakuten son DOS plataformas con cuentas separadas: el sitio global (travel.rakuten.com,
+// USD — ahí está Fukuoka) y el japonés (travel.rakuten.co.jp, yenes + puntos — ahí está
+// Hakone). La lista de reservas de una NO muestra las de la otra; mandar la de Hakone al
+// sitio global fue exactamente lo que hizo que Martín no encontrara su reserva.
 // Un provider sin link usable va sin `home`: la tarjeta muestra el número de reserva y
 // ningún botón (mejor sin botón que con botón roto).
 const RESV_PROVIDER = {
-  airbnb:  { label: 'Airbnb',          home: 'https://www.airbnb.com/trips/v1' },
-  booking: { label: 'Booking',         home: 'https://secure.booking.com/myreservations.html' },
-  rakuten: { label: 'Rakuten Travel',  home: 'https://travel.rakuten.com/USA/en-US/hotel_reservation/list/?category=UPCOMING' }
+  airbnb:       { label: 'Airbnb',        home: 'https://www.airbnb.com/trips/v1' },
+  booking:      { label: 'Booking',       home: 'https://secure.booking.com/myreservations.html' },
+  rakuten:      { label: 'Rakuten',       home: 'https://travel.rakuten.com/USA/en-US/hotel_reservation/list/?category=UPCOMING' },
+  'rakuten-jp': { label: 'Rakuten Japón', home: 'https://my.travel.rakuten.co.jp/mytravel/' }
 };
 
 // Link a la reserva de Martín. Airbnb abre el itinerario concreto cuando sabemos el
@@ -1273,12 +1281,15 @@ function resvHtml(L) {
   if (b.payThere) row('Se paga allá', escHtml(b.payThere));
   if (b.total) row('Total', escHtml(b.total));
   if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
+  // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
+  // Booking ID en el global) y el segundo número cuando la reserva tiene dos.
+  const refNote = [b.refLabel, b.ref2 ? (b.ref2Label || 'Reserva') + ' ' + b.ref2 : ''].filter(Boolean).join(' · ');
   return '<div class="resv dx">' +
     '<div class="resv-head">' +
       '<div>' +
         '<div class="resv-prov">' + (p ? 'Mi reserva en ' + p.label : 'Mi reserva') + '</div>' +
         (b.ref ? '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' : '') +
-        (b.ref2 ? '<div class="resv-ref2">' + escHtml((b.ref2Label || 'Reserva') + ' ' + b.ref2) + '</div>' : '') +
+        (refNote ? '<div class="resv-ref2">' + escHtml(refNote) + '</div>' : '') +
       '</div>' +
       (href ? '<a class="resv-open" href="' + href + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
     '</div>' +
