@@ -120,6 +120,7 @@ export function transfersOf(dests) {
 export function clustersOf(node) {
   const out = [], byGroup = new Map();
   for (const a of node.activities || []) {
+    if (a.at) continue;   // ya tiene día y hora: es un evento del día, no una sugerencia
     if (a.group) {
       if (!byGroup.has(a.group)) { const c = { label: a.group, items: [] }; byGroup.set(a.group, c); out.push(c); }
       byGroup.get(a.group).items.push(a);
