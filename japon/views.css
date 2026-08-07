@@ -1,0 +1,152 @@
+/* views.css — las cuatro vistas laterales del itinerario (task 499).
+   Todo lo nuevo vive acá: sacar el <link> devuelve el site al estado anterior.
+   Paleta y tipografías son las del site (crema #f5f4f0, tarjeta blanca, verde
+   #0F6E56, ámbar #B87814 para los nodos de paso). */
+
+.shell { flex: 1; display: flex; min-height: 0; }
+.views { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Riel de tabs — vertical en desktop, barra horizontal en el celular. */
+.tab-rail {
+  flex: none; width: 132px; background: #fff; border-right: 1px solid rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; padding: 10px 0; gap: 2px; z-index: 20;
+}
+.tab-rail[hidden] { display: none; }
+.tab-btn {
+  display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 12px;
+  border: 0; border-left: 3px solid transparent; background: none; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 600; color: #8d8878; text-align: left;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.tab-btn:hover { color: #1a1a1a; background: rgba(0,0,0,0.03); }
+.tab-btn.on { color: #0F6E56; border-left-color: #0F6E56; background: rgba(15,110,86,0.07); }
+.tab-ic { font-size: 15px; line-height: 1; flex: none; }
+.tab-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: -2px; }
+
+.view-pane { flex: 1; overflow-y: auto; padding: 16px 18px 40px; }
+.view-pane[hidden] { display: none; }
+.view-inner { max-width: 900px; margin: 0 auto; }
+
+/* Encabezado de sección: el mismo rótulo chico y espaciado del resto del site. */
+.v-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 0 2px 12px; display: flex; gap: 10px; align-items: baseline; }
+.v-title span { letter-spacing: 0; text-transform: none; color: #b3aea0; font-weight: 500; }
+
+.v-card { background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); margin-bottom: 8px; }
+.v-empty { font-size: 12px; color: #a8a397; }
+.v-tbd { color: #b0aa9c; font-style: italic; }
+
+/* --------------------------------------------------------------- hospedajes */
+
+.lg-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px 14px; }
+.lg-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.lg-dates { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.25; }
+.lg-nights { font-size: 11px; color: #8d8878; margin-top: 2px; }
+.lg-city { font-size: 10px; color: #0F6E56; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+.lg-main { min-width: 0; display: flex; gap: 12px; }
+.lg-img { width: 78px; height: 78px; object-fit: cover; border-radius: 7px; flex: none; background: #ece9e2; }
+.lg-body { min-width: 0; flex: 1; }
+.lg-name { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.lg-sub { font-size: 11px; color: #777; margin-top: 1px; }
+.lg-area { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 3px; }
+.lg-hours { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.lg-h { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 11px; background: rgba(15,110,86,0.09); color: #0F6E56; white-space: nowrap; }
+.lg-h.out { background: rgba(0,0,0,0.045); color: #6e6a5f; }
+.lg-h.tbd { background: rgba(0,0,0,0.03); color: #b0aa9c; font-weight: 500; font-style: italic; }
+.lg-links { margin-top: 7px; font-size: 11px; display: flex; flex-wrap: wrap; gap: 10px; }
+.lg-links a { color: #1D9E75; text-decoration: underline; }
+.lg-links a:hover { color: #0F6E56; }
+.lg-cost { font-size: 11.5px; font-weight: 600; color: #0F6E56; margin-top: 6px; }
+.lg-pending { border-style: dashed; border-color: rgba(184,120,20,0.45); background: rgba(240,184,74,0.06); }
+.lg-pending .lg-name { color: #8A5A0E; }
+.lg-row .resv { margin: 8px 0 0; }
+
+/* -------------------------------------------------------------- transportes */
+
+.tr-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px 14px; border-left: 3px solid #d3cdbf; border-radius: 10px; }
+.tr-air { border-left-color: #2563EB; } .tr-ferry { border-left-color: #15A6C9; }
+.tr-train { border-left-color: #0F8A5F; } .tr-bus { border-left-color: #E08A1E; }
+.tr-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.tr-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.tr-wd { font-size: 11px; color: #8d8878; text-transform: capitalize; }
+.tr-mode { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+.tr-main { min-width: 0; }
+.tr-route { font-size: 14px; font-weight: 600; line-height: 1.3; }
+.tr-arrow { color: #b3aea0; margin: 0 5px; font-weight: 400; }
+.tr-detail { font-size: 11.5px; color: #777; line-height: 1.45; margin-top: 2px; }
+.tr-times { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+.tr-t { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 11px; background: rgba(0,0,0,0.045); color: #444; white-space: nowrap; }
+.tr-t b { font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.tr-t.go { background: rgba(15,110,86,0.1); color: #0F6E56; }
+.tr-t.tbd { color: #b0aa9c; font-weight: 500; font-style: italic; }
+.tr-t.dur { background: none; color: #999; padding-left: 2px; }
+.tr-dl { margin-top: 8px; padding: 7px 10px; border-radius: 8px; background: rgba(216,90,48,0.07); border: 1px solid rgba(216,90,48,0.18); font-size: 11.5px; line-height: 1.45; color: #93381B; }
+.tr-dl b { font-variant-numeric: tabular-nums; }
+.tr-why { margin: 8px 0 0; padding: 0 0 0 15px; }
+.tr-why li { font-size: 11.5px; line-height: 1.5; color: #6e6a5f; margin-bottom: 1px; }
+.tr-why li::marker { color: #cfc9bb; }
+.tr-segs { margin-top: 8px; padding: 6px 9px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; }
+.tr-seg { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 5px; border-radius: 5px; }
+.tr-seg:hover { background: rgba(15,110,86,0.07); }
+.tr-seg .s-route { font-size: 12.5px; font-weight: 600; color: #1a1a1a; }
+.tr-seg .s-no { font-size: 10px; font-weight: 600; color: #0F6E56; margin-left: 6px; }
+.tr-seg .s-time { font-size: 11px; color: #666; text-align: right; font-variant-numeric: tabular-nums; }
+.tr-seg .s-ac { font-size: 10px; color: #a8a397; display: block; }
+.tr-lay { display: flex; align-items: center; gap: 7px; font-size: 9.5px; color: #b3aea0; margin: 2px 0; }
+.tr-lay::before, .tr-lay::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+.tr-dir { display: inline-block; margin-top: 8px; font-size: 11px; color: #0F6E56; text-decoration: none; border-bottom: 1px dotted rgba(15,110,86,0.45); }
+.tr-dir:hover { color: #1D9E75; }
+.tr-lodge { font-size: 11.5px; color: #6e6a5f; margin-top: 8px; line-height: 1.45; }
+.tr-lodge b { color: #1a1a1a; font-weight: 600; }
+
+/* --------------------------------------------------------------------- días */
+
+.dy-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 11px 14px; }
+.dy-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.dy-num { font-size: 9px; color: #c4bfb2; font-weight: 700; letter-spacing: 0.06em; }
+.dy-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.dy-wd { font-size: 11px; color: #8d8878; text-transform: capitalize; }
+.dy-main { min-width: 0; }
+.dy-where { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.dy-role { font-size: 10px; font-weight: 600; color: #8d8878; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 5px; }
+.dy-role.paso { color: #8A5A0E; }
+.dy-sleep { font-size: 11px; color: #8d8878; margin-top: 2px; }
+.dy-sleep b { color: #0F6E56; font-weight: 600; }
+.dy-ev { margin-top: 8px; display: grid; gap: 3px; }
+.dy-e { display: grid; grid-template-columns: 46px 1fr; gap: 8px; font-size: 11.5px; line-height: 1.45; align-items: baseline; }
+.dy-time { font-variant-numeric: tabular-nums; font-weight: 700; color: #0F6E56; font-size: 12px; }
+.dy-time.none { color: #cfc9bb; font-weight: 500; }
+.dy-etext { color: #444; }
+.dy-etext .ek { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #b3aea0; margin-right: 6px; }
+.dy-e.resv .dy-etext { color: #0F6E56; font-weight: 600; }
+.dy-note { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 1px; }
+.dy-sug { margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
+.dy-cl { font-size: 11.5px; line-height: 1.5; color: #444; margin-bottom: 3px; }
+.dy-cl b { font-weight: 600; color: #1a1a1a; }
+.dy-cl .dy-from { font-size: 10px; color: #b3aea0; }
+.dy-free { font-size: 11.5px; color: #b0aa9c; font-style: italic; margin-top: 8px; }
+.dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
+.dy-flight .dy-date { color: #2563EB; }
+
+/* En modo discreto la vista de hospedajes es la más sensible: sin nombres, sin
+   direcciones, sin números de reserva. Reusa los pares .dx/.dm del site. */
+body.discrete .lg-img, body.discrete .lg-area, body.discrete .lg-links { display: none; }
+
+@media (max-width: 900px) {
+  .shell { flex-direction: column; min-height: 0; }
+  .tab-rail {
+    width: 100%; flex-direction: row; padding: 0; gap: 0; position: sticky; top: 0;
+    border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08);
+    overflow-x: auto; scrollbar-width: none; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .tab-rail::-webkit-scrollbar { display: none; }
+  .tab-btn { width: auto; flex: 1 0 auto; justify-content: center; gap: 6px; padding: 11px 14px; border-left: 0; border-bottom: 3px solid transparent; font-size: 12px; }
+  .tab-btn.on { border-left-color: transparent; border-bottom-color: #0F6E56; }
+  .views { overflow: visible; }
+  .view-pane { overflow: visible; padding: 12px 10px 32px; }
+  .lg-row, .tr-row, .dy-row { grid-template-columns: 1fr; gap: 8px; }
+  .lg-when, .tr-when, .dy-when { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.07); padding: 0 0 7px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .lg-city, .tr-mode, .dy-num { margin-top: 0; }
+  .lg-main { gap: 10px; }
+  .lg-img { width: 62px; height: 62px; }
+  .dy-e { grid-template-columns: 42px 1fr; }
+}

@@ -9,6 +9,7 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="favicon-64.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="views.css" />
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
@@ -396,7 +397,13 @@
   </div>
 </header>
 
-<main class="dashboard">
+<!-- Riel de tabs + panes de las cuatro vistas (task 499). El <main> de abajo es,
+     sin un solo cambio, la vista "Resumen"; views.js cuelga las otras tres. -->
+<div class="shell">
+<nav class="tab-rail" id="tab-rail" aria-label="Vistas del itinerario"></nav>
+<div class="views" id="views">
+
+<main class="dashboard" id="view-resumen">
   <div class="map-pane">
     <div id="map"></div>
   </div>
@@ -419,11 +426,15 @@
   </div>
 </main>
 
+</div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data/categories.js"></script>
 <script src="data/reels.js"></script>
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+import { mountViews } from './views.js';
 
 const destinations = [
   {
@@ -2596,6 +2607,28 @@ const weatherChart = new Chart(ctx, {
   });
   map.on('dragstart', () => { if (meState === 'follow') setState('on'); });
 })();
+
+// ---- Vistas laterales (task 499) -------------------------------------------
+// Las tres vistas nuevas leen el mismo `destinations` y reusan los bloques que ya
+// existen acá (reserva, categorías, escape de HTML). Si esto falla, el resumen
+// —que es todo lo que había antes— tiene que seguir funcionando igual.
+try {
+  mountViews(destinations, {
+    escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
+    catOf, catOfAct, CAT_META, legType, MODE_STYLE, maskDates, DX,
+    onResumen: () => map.invalidateSize(),
+    focusTrip, openStopModal,
+    wire: (pane) => {
+      pane.addEventListener('click', (e) => {
+        const jump = e.target.closest('[data-goto]');
+        if (jump) { document.querySelector('.tab-btn[data-tab="resumen"]').click(); focusTrip(jump.dataset.goto); }
+      });
+    }
+  });
+} catch (err) {
+  console.error('vistas laterales:', err);
+  document.getElementById('tab-rail').hidden = true;
+}
 </script>
 </body>
 </html>
