@@ -52,6 +52,21 @@ Sobre esa base, los campos de horario (todos opcionales; **lo que no está decid
 
 **`itinerary.js`** es la capa derivada: recibe `destinations` y devuelve `{ days, transfers, lodgings }`. No tiene datos propios ni un segundo registro del viaje — un cambio en `destinations` se refleja solo. La única regla con criterio propio es cómo reparte las sugerencias del día: agrupa las actividades por su `group` (que en los datos ya significa "esto se hace en la misma salida"), las sueltas van de a una, y los clusters se reparten en orden sobre los **días completos** del nodo (ni llegada ni salida); cuando un nodo no tiene ninguno —de paso, o una sola noche— se usan todos sus días.
 
+## Las cuatro vistas (2026-08-07 · task 499)
+
+El site tiene un **riel de tabs lateral** (barra horizontal en el celular) con cuatro cortes del **mismo** itinerario. No hay un segundo registro en ningún lado: las cuatro leen `destinations`.
+
+1. **Resumen** — el dashboard de siempre (mapa + itinerario colapsable). Es el `<main class="dashboard">` de `index.html`, sin un solo cambio: `views.js` solo lo muestra y lo esconde.
+2. **Hospedajes** — las 13 paradas donde se duerme, en orden, con la ventana de check-in/out y el bloque "Tu reserva" (reusa `resvHtml()`, no lo copia). La que no tiene reserva aparece igual, marcada.
+3. **Transportes** — los 16 saltos (15 `leg` + el `departureLeg`), con horario o "a definir", las `why` de cada uno, las `deadline` y el check-in que espera del otro lado.
+4. **Días** — las 44 jornadas del primer despegue al último aterrizaje: dónde estás, dónde dormís, qué hay con hora y las sugerencias del nodo.
+
+Archivos: **`views.css`** (todo el estilo nuevo, un `<link>` en el head) + **`views.js`** (riel, ruteo y las tres vistas nuevas) + **`itinerary.js`** (la capa derivada). En `index.html` solo se agregaron el `<link>`, un `import`, el wrapper `.shell`/`.views` alrededor del `<main>` y la llamada a `mountViews(destinations, ctx)` al final del módulo — envuelta en `try/catch`: si una vista explota, el resumen sigue funcionando.
+
+Ruteo por URL: `?tab=hospedajes|transportes|dias` (sin parámetro = resumen), con `pushState`, así que back/forward andan y el link es compartible. Un `?tab=` desconocido cae en resumen. Al volver al resumen se llama `map.invalidateSize()` (Leaflet dibuja mal si lo redimensionan escondido).
+
+**Reversibilidad**: las vistas son 4 commits (shell, hospedajes, transportes, días) sobre 2 de modelo. `git revert` del rango de las vistas deja el árbol idéntico al del commit de datos y el site anda igual que antes — probado. Revertir las vistas **no** toca el modelo extendido (`start`/`end`, horarios, `why`), que sirve por sí solo.
+
 ## Categorías de lugares (taxonomía única, 2026-08-03 · task 474)
 
 Todos los lugares del mapa —reels de IG, guardados de Google Maps (actividades con `coords` + `orphanPlaces`) y day trips— comparten **una sola taxonomía**: `comida · bar-noche · parque · templo-museo · actividad · compras · barrio · otro`. Vive en **`data/categories.js`** (archivo de datos versionado, se edita a mano):
