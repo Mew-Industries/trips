@@ -8,7 +8,7 @@
 // Todo lo nuevo vive en este archivo + views.css: revertir los commits de las vistas
 // devuelve el site exactamente al estado anterior.
 
-import { buildItinerary } from './itinerary.js';
+import { buildItinerary, fmtRange, fmtDate, nightsWord } from './itinerary.js';
 
 const TABS = [
   { id: 'resumen', label: 'Resumen', icon: '🗺️' },
@@ -20,6 +20,73 @@ const TABS = [
 // id de tab -> función que devuelve el HTML de la vista. "resumen" no está acá:
 // su pane es el <main class="dashboard"> que ya existe en index.html.
 const RENDER = {};
+
+// Ventana de horario como chip. Sin dato no se inventa: la tarjeta dice, una sola
+// vez, que las horas todavía no están (típico de los Airbnb, que no las declaran).
+function hourChip(label, from, to, cls) {
+  const v = from && to ? from + '–' + to : from ? 'desde ' + from : 'hasta ' + to;
+  return '<span class="lg-h ' + cls + '">' + label + ' ' + v + '</span>';
+}
+function hoursHtml(L) {
+  const chips = [];
+  if (L.checkInFrom || L.checkInTo) chips.push(hourChip('Check-in', L.checkInFrom, L.checkInTo, ''));
+  if (L.checkOutFrom || L.checkOutBy) chips.push(hourChip('Check-out', L.checkOutFrom, L.checkOutBy, 'out'));
+  if (!chips.length) chips.push('<span class="lg-h tbd">Horarios a definir</span>');
+  // El bloque "Tu reserva" ya trae las horas cuando las hay: no repetirlas arriba.
+  const b = L.booking;
+  if (b && /\d:\d\d/.test((b.checkIn || '') + (b.checkOut || ''))) return '';
+  return '<div class="lg-hours">' + chips.join('') + '</div>';
+}
+
+// ------------------------------------------------------------- 2 · hospedajes
+// Las 13 paradas donde se duerme, en orden. La que todavía no tiene reserva
+// aparece igual: el hueco es parte de la información.
+
+RENDER.hospedajes = (it, ctx) => {
+  const esc = ctx.escHtml;
+  const rows = it.lodgings.map(({ node, lodging: L, start, end, nights }) => {
+    const when =
+      '<div class="lg-when">' +
+        '<div class="lg-dates">' + fmtRange(start, end) + '</div>' +
+        '<div class="lg-nights">' + nightsWord(nights) + '</div>' +
+        '<button type="button" class="lg-city v-goto" data-goto="' + node.id + '">' + esc(node.short) + '</button>' +
+      '</div>';
+
+    if (!L) {
+      return '<div class="v-card lg-pending"><div class="lg-row">' + when +
+        '<div class="lg-main"><div class="lg-body">' +
+          '<div class="lg-name">Sin reservar</div>' +
+          '<div class="lg-sub">' + esc(node.name) + ' · ' + nightsWord(nights) + '</div>' +
+        '</div></div></div></div>';
+    }
+
+    const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
+    const links = [];
+    if (L.url) links.push('<a href="' + L.url + '" target="_blank" rel="noopener">' + ctx.HOTEL_LINK_LABEL + ' ↗</a>');
+    if (L.mapsUrl) links.push('<a href="' + L.mapsUrl + '" target="_blank" rel="noopener">Google Maps ↗</a>');
+    const total = L.booking && L.booking.total;
+
+    return '<div class="v-card"><div class="lg-row">' + when +
+      '<div class="lg-main">' +
+        (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" alt="">' : '') +
+        '<div class="lg-body">' +
+          '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span></div>' +
+          (L.type || L.guests ? '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' : '') +
+          (L.area ? '<div class="lg-area">' + esc(L.area) + '</div>' : '') +
+          hoursHtml(L) +
+          (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
+          // El costo vive en el bloque de reserva; sin reserva cargada va acá.
+          (total && !L.booking ? '<div class="lg-cost dx">' + esc(total) + '</div>' : '') +
+          ctx.resvHtml(L) +
+        '</div>' +
+      '</div>' +
+    '</div></div>';
+  });
+
+  const conRes = it.lodgings.filter(l => l.lodging).length;
+  return '<div class="v-title">Hospedajes <span>' + conRes + ' de ' + it.lodgings.length + ' reservados · ' +
+    it.lodgings.reduce((a, l) => a + l.nights, 0) + ' noches</span></div>' + rows.join('');
+};
 
 export function mountViews(destinations, ctx) {
   const rail = document.getElementById('tab-rail');

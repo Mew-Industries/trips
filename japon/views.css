@@ -24,7 +24,8 @@
 .tab-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: -2px; }
 
 .view-pane { flex: 1; overflow-y: auto; padding: 16px 18px 40px; }
-.view-pane[hidden] { display: none; }
+/* `display: grid/flex` de las reglas de arriba le gana a [hidden]: hay que decirlo. */
+.view-pane[hidden], main.dashboard[hidden] { display: none; }
 .view-inner { max-width: 900px; margin: 0 auto; }
 
 /* Encabezado de sección: el mismo rótulo chico y espaciado del resto del site. */
@@ -33,11 +34,13 @@
 
 .v-card { background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); margin-bottom: 8px; }
 .v-empty { font-size: 12px; color: #a8a397; }
+.v-goto { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.v-goto:hover { color: #1D9E75; }
 .v-tbd { color: #b0aa9c; font-style: italic; }
 
 /* --------------------------------------------------------------- hospedajes */
 
-.lg-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px 14px; }
+.lg-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 12px 14px; }
 .lg-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
 .lg-dates { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.25; }
 .lg-nights { font-size: 11px; color: #8d8878; margin-top: 2px; }
@@ -62,7 +65,7 @@
 
 /* -------------------------------------------------------------- transportes */
 
-.tr-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 12px 14px; border-left: 3px solid #d3cdbf; border-radius: 10px; }
+.tr-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 12px 14px; border-left: 3px solid #d3cdbf; border-radius: 10px; }
 .tr-air { border-left-color: #2563EB; } .tr-ferry { border-left-color: #15A6C9; }
 .tr-train { border-left-color: #0F8A5F; } .tr-bus { border-left-color: #E08A1E; }
 .tr-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
@@ -100,7 +103,7 @@
 
 /* --------------------------------------------------------------------- días */
 
-.dy-row { display: grid; grid-template-columns: 92px 1fr; gap: 14px; padding: 11px 14px; }
+.dy-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 11px 14px; }
 .dy-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
 .dy-num { font-size: 9px; color: #c4bfb2; font-weight: 700; letter-spacing: 0.06em; }
 .dy-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
