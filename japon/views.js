@@ -8,7 +8,7 @@
 // Todo lo nuevo vive en este archivo + views.css: revertir los commits de las vistas
 // devuelve el site exactamente al estado anterior.
 
-import { buildItinerary, fmtRange, fmtDate, nightsWord } from './itinerary.js';
+import { buildItinerary, fmtRange, fmtDate, fmtWeekday, nightsWord, dayOf, timeOf } from './itinerary.js';
 
 const TABS = [
   { id: 'resumen', label: 'Resumen', icon: '🗺️' },
@@ -86,6 +86,76 @@ RENDER.hospedajes = (it, ctx) => {
   const conRes = it.lodgings.filter(l => l.lodging).length;
   return '<div class="v-title">Hospedajes <span>' + conRes + ' de ' + it.lodgings.length + ' reservados · ' +
     it.lodgings.reduce((a, l) => a + l.nights, 0) + ' noches</span></div>' + rows.join('');
+};
+
+// ------------------------------------------------------------ 3 · transportes
+// Cada salto entre paradas: cuándo sale, cuándo llega y —sobre todo— qué es lo que
+// fija ese horario. Donde todavía no está decidido lo dice; no lo estima.
+
+// Chip de hora. `ref` es el día del salto: si la hora cae en otro día se aclara cuál.
+function timeChip(label, dt, ref, cls) {
+  if (!dt) return '<span class="tr-t tbd">' + label + ' a definir</span>';
+  const d = dayOf(dt);
+  return '<span class="tr-t ' + (cls || '') + '">' + label + ' <b>' + timeOf(dt) + '</b>' +
+    (d !== ref ? ' · ' + fmtDate(d) : '') + '</span>';
+}
+
+RENDER.transportes = (it, ctx) => {
+  const esc = ctx.escHtml;
+  const rows = it.transfers.map(t => {
+    const leg = t.leg;
+    const kind = ctx.legType(leg);
+    const style = ctx.MODE_STYLE[kind] || {};
+    const segs = leg.segments || [];
+
+    const segsHtml = segs.length ? '<div class="tr-segs">' + segs.map(s => s.layover
+      ? '<div class="tr-lay">' + esc(s.layover) + '</div>'
+      : '<a class="tr-seg" href="' + (s.tracker || '#') + '" target="_blank" rel="noopener">' +
+          '<span><span class="s-route">' + esc(s.route) + '</span>' + (s.no ? '<span class="s-no">' + esc(s.no) + '</span>' : '') + '</span>' +
+          '<span class="s-time">' + esc(s.when || '') + (s.aircraft ? '<span class="s-ac">' + esc(s.aircraft) + '</span>' : '') + '</span>' +
+        '</a>').join('') + '</div>' : '';
+
+    const dl = leg.deadline;
+    const dlHtml = dl ? '<div class="tr-dl">Hay que estar <b>' + timeOf(dl.by) + '</b> — ' + esc(dl.what) +
+      (dl.departBy ? '<br>→ salir a más tardar <b>' + timeOf(dl.departBy) + '</b>' : '') + '</div>' : '';
+
+    // Qué te espera del otro lado: la ventana de check-in del hospedaje al que llegás.
+    const L = t.kind === 'in' ? t.node.lodging : null;
+    const lodgeHtml = L && (L.checkInFrom || L.checkInTo)
+      ? '<div class="tr-lodge dx">Check-in en <b>' + esc(L.name) + '</b> ' +
+          (L.checkInFrom && L.checkInTo ? L.checkInFrom + '–' + L.checkInTo : 'desde ' + L.checkInFrom) + '</div>'
+      : '';
+
+    const whyHtml = (leg.why || []).length
+      ? '<ul class="tr-why">' + leg.why.map(w => '<li>' + esc(w) + '</li>').join('') + '</ul>' : '';
+
+    const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
+      encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
+
+    return '<div class="v-card"><div class="tr-row tr-' + kind + '">' +
+      '<div class="tr-when">' +
+        '<div class="tr-date">' + fmtDate(t.date) + '</div>' +
+        '<div class="tr-wd">' + fmtWeekday(t.date) + '</div>' +
+        '<div class="tr-mode" style="color:' + (style.color || '#8d8878') + '">' + (leg.mode || '') + ' ' + (style.label || '') + '</div>' +
+      '</div>' +
+      '<div class="tr-main">' +
+        '<div class="tr-route"><button type="button" class="v-goto" data-goto="' + t.node.id + '">' +
+          esc(t.from) + '<span class="tr-arrow">→</span>' + esc(t.to) + '</button></div>' +
+        (leg.detail ? '<div class="tr-detail">' + esc(leg.detail) + '</div>' : '') +
+        '<div class="tr-times">' +
+          timeChip('Sale', t.departure, t.date, 'go') +
+          timeChip('Llega', t.arrival, t.date) +
+          (leg.time ? '<span class="tr-t dur">' + esc(leg.time) + '</span>' : '') +
+        '</div>' +
+        dlHtml + lodgeHtml + whyHtml + segsHtml +
+        '<a class="tr-dir" href="' + dirUrl + '" target="_blank" rel="noopener">' + esc(leg.dirLabel || 'cómo llegar ↗') + '</a>' +
+      '</div>' +
+    '</div></div>';
+  });
+
+  const conHora = it.transfers.filter(t => t.departure).length;
+  return '<div class="v-title">Transportes <span>' + it.transfers.length + ' saltos · ' +
+    conHora + ' con horario, ' + (it.transfers.length - conHora) + ' a definir</span></div>' + rows.join('');
 };
 
 export function mountViews(destinations, ctx) {
