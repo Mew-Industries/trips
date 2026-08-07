@@ -121,7 +121,7 @@
 .dy-etext { color: #444; }
 .dy-etext .ek { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #b3aea0; margin-right: 6px; }
 .dy-e.resv .dy-etext { color: #0F6E56; font-weight: 600; }
-.dy-note { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 1px; }
+.dy-e .dy-note { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 1px; font-weight: 400; }
 .dy-sug { margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
 .dy-cl { font-size: 11.5px; line-height: 1.5; color: #444; margin-bottom: 3px; }
 .dy-cl b { font-weight: 600; color: #1a1a1a; }
@@ -142,7 +142,9 @@ body.discrete .lg-img, body.discrete .lg-area, body.discrete .lg-links { display
     overflow-x: auto; scrollbar-width: none; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .tab-rail::-webkit-scrollbar { display: none; }
-  .tab-btn { width: auto; flex: 1 0 auto; justify-content: center; gap: 6px; padding: 11px 14px; border-left: 0; border-bottom: 3px solid transparent; font-size: 12px; }
+  /* Cuatro tabs entran en un celular solo sin los íconos: gana el texto. */
+  .tab-btn { width: auto; flex: 1 0 auto; justify-content: center; gap: 6px; padding: 11px 10px; border-left: 0; border-bottom: 3px solid transparent; font-size: 12px; }
+  .tab-ic { display: none; }
   .tab-btn.on { border-left-color: transparent; border-bottom-color: #0F6E56; }
   .views { overflow: visible; }
   .view-pane { overflow: visible; padding: 12px 10px 32px; }

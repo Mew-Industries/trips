@@ -139,11 +139,20 @@ export function suggestionDays(node) {
   return all.length > 2 ? all.slice(1, -1) : all;
 }
 
+// Reparto por PESO, no por cantidad de clusters: un cluster de 3 lugares ocupa el día
+// más que uno suelto. Sin esto el primer día se comía todos los grupos grandes.
 function spreadClusters(node) {
   const days = suggestionDays(node), cl = clustersOf(node), out = {};
   days.forEach(d => { out[d] = []; });
-  if (!days.length) return out;
-  cl.forEach((c, i) => { out[days[Math.min(days.length - 1, Math.floor(i * days.length / cl.length))]].push(c); });
+  if (!days.length || !cl.length) return out;
+  const total = cl.reduce((a, c) => a + c.items.length, 0);
+  const target = total / days.length;
+  let k = 0, acc = 0;
+  for (const c of cl) {
+    out[days[k]].push(c);
+    acc += c.items.length;
+    if (acc >= target * (k + 1) && k < days.length - 1) k++;
+  }
   return out;
 }
 
@@ -163,6 +172,17 @@ export function daysOf(dests, transfers) {
   const spread = {};
   nodes.forEach(n => { spread[n.id] = spreadClusters(n); });
 
+  // Eventos de vuelo, en el orden REAL del viaje. Cada punta va en su hora local, así
+  // que ordenarlos por reloj miente: el UA6 sale de Narita 17:45 y aterriza en Houston
+  // a las 14:40 del mismo día. `ord` es la secuencia, y manda sobre la hora.
+  const segEvents = [];
+  transfers.forEach(t => (t.leg.segments || []).forEach(s => {
+    if (!s.route) return;
+    const [a, b] = s.route.split('→').map(x => x.trim());
+    if (s.departure) segEvents.push(ev(timeOf(s.departure), 'vuelo', 'Sale ' + a + (s.no ? ' · ' + s.no : ''), { date: dayOf(s.departure), transfer: t, seg: s, ord: segEvents.length }));
+    if (s.arrival) segEvents.push(ev(timeOf(s.arrival), 'vuelo', 'Llega ' + b + (s.no ? ' · ' + s.no : ''), { date: dayOf(s.arrival), transfer: t, seg: s, ord: segEvents.length }));
+  }));
+
   return datesBetween(first, last).map((date, i) => {
     const here = nodes.filter(n => n.start <= date && date <= n.end).map(n => ({
       node: n,
@@ -172,29 +192,24 @@ export function daysOf(dests, transfers) {
     const sleep = nodes.find(n => n.type === 'destino' && n.start <= date && date < n.end) || null;
     const inFlight = !sleep && transfers.find(t => t.date <= date && date < t.endDate) || null;
 
-    const events = [];
+    const events = segEvents.filter(e => e.date === date);
     for (const t of transfers) {
-      const segs = (t.leg.segments || []).filter(s => s.route);
-      if (segs.length) {
-        // Vuelo con escalas: cada tramo aporta sus dos eventos al día que le toca.
-        for (const s of segs) {
-          if (dayOf(s.departure) === date) events.push(ev(timeOf(s.departure), 'vuelo', 'Sale ' + s.route.split('→')[0].trim() + (s.no ? ' · ' + s.no : ''), { transfer: t, seg: s }));
-          if (dayOf(s.arrival) === date) events.push(ev(timeOf(s.arrival), 'vuelo', 'Llega ' + s.route.split('→')[1].trim() + (s.no ? ' · ' + s.no : ''), { transfer: t, seg: s }));
-        }
-      } else if (t.date === date) {
+      if (t.date === date && !(t.leg.segments || []).some(s => s.route)) {
         events.push(ev(timeOf(t.departure), 'transporte', t.from + ' → ' + t.to, { transfer: t }));
       }
     }
     for (const h of here) {
       const L = h.node.lodging;
       if (!L) continue;
-      if (date === h.node.start) events.push(ev(L.checkInFrom || null, 'check-in', 'Check-in · ' + h.node.name, { lodging: L, node: h.node }));
-      if (date === h.node.end) events.push(ev(L.checkOutBy || L.checkOutFrom || null, 'check-out', 'Check-out · ' + h.node.name, { lodging: L, node: h.node }));
+      if (date === h.node.start) events.push(ev(L.checkInFrom || null, 'check-in', L.name, { lodging: L, node: h.node }));
+      if (date === h.node.end) events.push(ev(L.checkOutFrom || L.checkOutBy || null, 'check-out', L.name, { lodging: L, node: h.node }));
       for (const a of h.node.activities || []) {
         if (dayOf(a.at) === date) events.push(ev(timeOf(a.at), 'reserva', a.text, { act: a, node: h.node }));
       }
     }
-    events.sort((a, b) => (a.time ? 0 : 1) - (b.time ? 0 : 1) || cmp(a.time || '', b.time || ''));
+    events.sort((a, b) =>
+      (a.ord != null && b.ord != null) ? a.ord - b.ord
+      : (a.time ? 0 : 1) - (b.time ? 0 : 1) || cmp(a.time || '', b.time || ''));
 
     const suggestions = here
       .map(h => ({ node: h.node, clusters: (spread[h.node.id] || {})[date] || [] }))

@@ -158,6 +158,62 @@ RENDER.transportes = (it, ctx) => {
     conHora + ' con horario, ' + (it.transfers.length - conHora) + ' a definir</span></div>' + rows.join('');
 };
 
+// -------------------------------------------------------------------- 4 · días
+// Una fila por jornada, del primer despegue al último aterrizaje. Dónde estás, qué
+// hay reservado con hora, y las sugerencias que salen de las `activities` del nodo
+// —no de una lista nueva—. Ver itinerary.js para cómo se reparten.
+
+const EV_LABEL = { vuelo: 'vuelo', transporte: 'viaje', 'check-in': 'check-in', 'check-out': 'check-out', reserva: 'reservado' };
+
+RENDER.dias = (it, ctx) => {
+  const esc = ctx.escHtml;
+  const rows = it.days.map(day => {
+    const where = day.here.length
+      ? day.here.map(h => '<button type="button" class="v-goto" data-goto="' + h.node.id + '">' + esc(h.node.short) +
+          '</button><span class="dy-role' + (h.role === 'de paso' ? ' paso' : '') + '">' + h.role + '</span>').join('<span class="tr-arrow">→</span>')
+      : (day.inFlight ? '✈️ En vuelo' : 'Fin del viaje');
+
+    const sleep = day.sleep && day.sleep.lodging
+      ? '<div class="dy-sleep dx">Dormís en <b>' + esc(day.sleep.lodging.name) + '</b></div><div class="dy-sleep dm">Dormís en <b>' + esc(day.sleep.short) + '</b></div>'
+      : day.sleep ? '<div class="dy-sleep">Dormís en <b>' + esc(day.sleep.short) + '</b> · sin reservar</div>'
+      : day.inFlight ? '<div class="dy-sleep">Noche a bordo</div>' : '';
+
+    const events = day.events.map(e => {
+      const note = e.act ? [e.act.booked, e.act.bestTime, e.act.openHours].filter(Boolean).join(' · ') : '';
+      // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
+      const what = e.lodging ? ctx.DX(esc(e.lodging.name), esc(e.node.short)) : esc(e.text);
+      return '<div class="dy-e ' + (e.kind === 'reserva' ? 'resv' : '') + '">' +
+        '<span class="dy-time' + (e.time ? '' : ' none') + '">' + (e.time || '—') + '</span>' +
+        '<span class="dy-etext"><span class="ek">' + EV_LABEL[e.kind] + '</span>' + what +
+          (note ? '<div class="dy-note dx">' + esc(note) + '</div>' : '') +
+        '</span></div>';
+    }).join('');
+
+    const multi = day.suggestions.length > 1;
+    const sug = day.suggestions.map(s => s.clusters.map(c =>
+      '<div class="dy-cl">' + (multi ? '<span class="dy-from">' + esc(s.node.short) + ' · </span>' : '') +
+        (c.label ? '<b>' + esc(c.label) + '</b> · ' : '') +
+        c.items.map(a => esc(a.text)).join(' · ') +
+      '</div>').join('')).join('');
+
+    return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
+      '<div class="dy-when">' +
+        '<div class="dy-num">DÍA ' + day.n + '</div>' +
+        '<div class="dy-date">' + fmtDate(day.date) + '</div>' +
+        '<div class="dy-wd">' + fmtWeekday(day.date) + '</div>' +
+      '</div>' +
+      '<div class="dy-main">' +
+        '<div class="dy-where">' + where + '</div>' + sleep +
+        (events ? '<div class="dy-ev">' + events + '</div>' : '') +
+        (sug ? '<div class="dy-sug">' + sug + '</div>' : (events ? '' : '<div class="dy-free">Sin nada agendado.</div>')) +
+      '</div>' +
+    '</div></div>';
+  });
+
+  return '<div class="v-title">Días <span>' + it.days.length + ' jornadas · ' +
+    fmtDate(it.start) + ' → ' + fmtDate(it.end) + '</span></div>' + rows.join('');
+};
+
 export function mountViews(destinations, ctx) {
   const rail = document.getElementById('tab-rail');
   const host = document.getElementById('views');
@@ -208,6 +264,8 @@ export function mountViews(destinations, ctx) {
     // El mapa se dibuja mal si se lo redimensiona escondido: hay que avisarle al volver.
     if (id === 'resumen' && ctx.onResumen) ctx.onResumen();
     panes[id].scrollTop = 0;
+    // En el celular el riel es una barra que scrollea: que el tab activo se vea.
+    btns[id].scrollIntoView({ block: 'nearest', inline: 'center' });
   }
 
   function go(id) {
