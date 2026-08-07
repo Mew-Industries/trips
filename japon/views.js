@@ -126,8 +126,10 @@ RENDER.transportes = (it, ctx) => {
           (L.checkInFrom && L.checkInTo ? L.checkInFrom + '–' + L.checkInTo : 'desde ' + L.checkInFrom) + '</div>'
       : '';
 
+    // Las restricciones se leen igual en discreto, pero sin las horas concretas:
+    // `maskDates` es el mismo borrador que el itinerario usa en los intros.
     const whyHtml = (leg.why || []).length
-      ? '<ul class="tr-why">' + leg.why.map(w => '<li>' + esc(w) + '</li>').join('') + '</ul>' : '';
+      ? '<ul class="tr-why">' + leg.why.map(w => '<li>' + ctx.DX(esc(w), esc(ctx.maskDates(w))) + '</li>').join('') + '</ul>' : '';
 
     const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
       encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');

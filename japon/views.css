@@ -130,9 +130,17 @@
 .dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
 .dy-flight .dy-date { color: #2563EB; }
 
-/* En modo discreto la vista de hospedajes es la más sensible: sin nombres, sin
-   direcciones, sin números de reserva. Reusa los pares .dx/.dm del site. */
-body.discrete .lg-img, body.discrete .lg-area, body.discrete .lg-links { display: none; }
+/* Modo discreto: el mismo criterio que el itinerario de siempre, que en discreto pasa a
+   decir "5 noches" en vez de "8-13 oct". Se cae toda la capa de fechas y horas, y en
+   hospedajes además la dirección, las fotos y los links (nombre y número de reserva ya
+   se ocultan solos por los pares .dx/.dm del site). Queda la forma del viaje, no el
+   cuándo ni el dónde. */
+body.discrete .lg-img, body.discrete .lg-area, body.discrete .lg-links,
+body.discrete .lg-dates, body.discrete .lg-hours,
+body.discrete .tr-date, body.discrete .tr-wd, body.discrete .tr-times,
+body.discrete .tr-segs, body.discrete .tr-dl, body.discrete .tr-lodge,
+body.discrete .dy-date, body.discrete .dy-wd, body.discrete .dy-ev { display: none; }
+body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display: flex; align-items: baseline; gap: 8px; }
 
 @media (max-width: 900px) {
   .shell { flex-direction: column; min-height: 0; }
