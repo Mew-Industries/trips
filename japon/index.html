@@ -217,6 +217,8 @@
   .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
   .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
   .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-img-zoom { cursor: pointer; transition: opacity 0.12s; }
+  .lodging-img-zoom:hover { opacity: 0.82; }
   .lodging-body { flex: 1; min-width: 0; }
   .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
   .lodging-sub { font-size: 11px; color: #666; }
@@ -227,6 +229,9 @@
   .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
+  .gallery-thumb-static { cursor: default; }
+  .lodging-gallery { margin-top: -6px; }
+  .lodging-gallery .gallery-thumb { height: 64px; }
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
   .lightbox.open { display: flex; }
   .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
@@ -529,12 +534,15 @@ const destinations = [
     arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (al aeropuerto de Sendai ~25 min + vuelo a Sapporo/New Chitose)',
     lodging: {
       name: 'Sendai Kokusai Hotel', type: 'Hotel · centro de Sendai',
-      guests: '2 personas · desayuno incluido',
+      guests: '2 personas · desayuno buffet incluido',
       area: 'Aoba-ku Chūō 4-6-1, Sendai (Miyagi) · a pasos de la estación: day-trips (Matsushima / Yamadera) + línea directa al aeropuerto',
       coords: [38.2606, 140.8819],
       checkIn: '14 oct (desde 15 h)', checkOut: '15 oct (hasta 11 h)', nights: 1, booked: true,
-      url: 'https://www.google.com/maps/search/?api=1&query=Sendai%20Kokusai%20Hotel',
-      note: 'Reservado por Booking (#5769665121) · ¥17.100 · cancelación gratis hasta el 11/10.'
+      img: 'img/sendai-kokusai-exterior.jpg',
+      imgs: ['img/sendai-kokusai-exterior.jpg', 'img/sendai-kokusai-twin.jpg', 'img/sendai-kokusai-double.jpg', 'img/sendai-kokusai-desayuno.jpg'],
+      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/912',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sendai%20Kokusai%20Hotel',
+      note: 'Reservado por Booking (#5769665121) · ¥17.100 · cancelación gratis hasta el 11/10. Cuartos de 17-21 m² (doble o twin) con baño privado; todo el hotel es no fumador. Desayuno buffet (japonés/occidental/chino) 7:00-9:30 en el Coffee House del 1º piso.'
     },
     leg: { mode: '🚄', time: '~45 min', detail: 'Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku).', via: [[38.2601, 140.8821]], path: [{ m: 'train', to: [38.2601, 140.8821] }] },
     tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -698,8 +706,10 @@ const destinations = [
       area: 'Hōjō-in, 156 Koyasan, Koya, Ito District, Wakayama 648-0211 · baño compartido, tatami, vista al jardín',
       coords: [34.2150716, 135.5794376],
       checkIn: '25 oct (15–17 h)', checkOut: '26 oct (8–9 h)', nights: 1, booked: true,
-      img: 'img/koyasan-hojoin.jpg',
-      url: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
+      img: 'img/koyasan-hojoin-exterior.jpg',
+      imgs: ['img/koyasan-hojoin-exterior.jpg', 'img/koyasan-hojoin-cuarto.jpg', 'img/koyasan-hojoin-shojin.jpg', 'img/koyasan-hojoin-hondo.jpg'],
+      url: 'https://hotel.travel.rakuten.co.jp/hotelinfo/plan/184602',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
       note: 'Check-in 15–17 h ESTRICTO: llegar después de las 17 h cuenta como cancelación con 100% de cargo. Cena 17–19 h · desayuno 6:30–7:30 (shojin ryori vegetariano, no contemplan alergias) · servicio matutino 6:30. Baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha). Tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
     },
     leg: { mode: '🚆🚠', time: '~3 h 20', detail: 'Tren Kioto → Namba + Nankai línea Koya + funicular a Koyasan.' },
@@ -773,8 +783,11 @@ const destinations = [
       area: 'Nakasu (5-6 Nakasu, Hakata-ku) — la isla de los yatais, entre Tenjin y Hakata; a pasos del río Naka.',
       coords: [33.5936, 130.4053],
       checkIn: '31 oct (15:00–23:00)', checkOut: '3 nov (hasta 11:00)', nights: 3, booked: true,
+      img: 'img/fukuoka-canvas-cuarto.jpg',
+      imgs: ['img/fukuoka-canvas-cuarto.jpg', 'img/fukuoka-canvas-exterior.jpg', 'img/fukuoka-canvas-onsen.jpg', 'img/fukuoka-canvas-rooftop.jpg'],
+      url: 'https://www.royalparkhotels.co.jp/canvas/fukuokanakasu/',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Royal%20Park%20Canvas%20Fukuoka%20Nakasu',
-      note: 'Reservado por Rakuten Travel (Booking ID 21315095682562, reserva 22315090738523) · US$835,63 total (¥132.473, FX fijado al reservar; descuento multi-noche −US$147,46) · Visa 3841 · room only · accommodation tax ¥500/noche se paga en el hotel · cancelación gratis hasta 23/10 23:59 JST (después 40%/80%/100%) · tel +81 92-291-1188.'
+      note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023. Reservado por Rakuten Travel (Booking ID 21315095682562, reserva 22315090738523) · US$835,63 total (¥132.473, FX fijado al reservar; descuento multi-noche −US$147,46) · Visa 3841 · room only · accommodation tax ¥500/noche se paga en el hotel · cancelación gratis hasta 23/10 23:59 JST (después 40%/80%/100%) · tel +81 92-291-1188.'
     },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Hakata (Nozomi).' },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -891,8 +904,11 @@ const destinations = [
       area: '597 Yumoto, Hakone (Kanagawa) · ~7 min a pie de la estación Hakone-Yumoto (terminal del Romancecar) · jardín japonés propio, baños termales interiores y al aire libre',
       coords: [35.2286, 139.1058],
       checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: true,
+      img: 'img/yoshiike-exterior.jpg',
+      imgs: ['img/yoshiike-exterior.jpg', 'img/yoshiike-cuarto.jpg', 'img/yoshiike-rotenburo.jpg', 'img/yoshiike-onsen.jpg'],
       url: 'https://www.booking.com/hotel/jp/yoshiike-ryokan.en-gb.html',
-      note: 'Reservado por Booking (#6963547676 · PIN 6756) · ¥115.000 (US$705) impuestos incl. · cancelación gratis hasta el 26/10 23:59, después 100% de cargo · sin plan de comidas → cenar en Yumoto o sumar cena del ryokan aparte · tel +81 460 85 5711.'
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yoshiike%20Ryokan%20Hakone%20Yumoto',
+      note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Reservado por Booking (#6963547676) · ¥115.000 (US$705) impuestos incl. · cancelación gratis hasta el 26/10 23:59, después 100% de cargo · sin plan de comidas → cenar en Yumoto o sumar cena del ryokan aparte · tel +81 460 85 5711.'
     },
     leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }] },
     tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-08-06', weatherMode: 'climatología',
@@ -1123,20 +1139,47 @@ function gmapsFromName(name) {
   return 'https://www.google.com/maps/search/?api=1&query=' +
     encodeURIComponent(name.split('(')[0].split('/')[0].trim());
 }
+// Etiqueta del link del alojamiento según de dónde salga la ficha. Los hoteles/ryokan
+// no-Airbnb tienen `url` a su página pública (Rakuten/Booking/oficial) y el mapa aparte
+// en `mapsUrl`; antes cualquier url no-Airbnb se rotulaba "Ver en Google Maps".
+function lodgingLinkLabel(u) {
+  if (/airbnb/i.test(u)) return 'Ver en Airbnb';
+  if (/google\.[^/]*\/maps/i.test(u)) return 'Ver en Google Maps';
+  if (/rakuten/i.test(u)) return 'Ver en Rakuten';
+  if (/booking\.com/i.test(u)) return 'Ver en Booking';
+  return 'Ver el alojamiento';
+}
+
 // Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
-// En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fechas).
-function lodgingHtml(L, city) {
+// Con `galId` (acordeón del itinerario) las fotos abren el lightbox; sin él (modal) van fijas.
+// En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fotos/fechas).
+function lodgingHtml(L, city, galId) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
   const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (L.nights ? ' · ' + L.nights + ' noches' : '')) : '';
-  // Links explícitos: Airbnb (si url es de airbnb) y/o Google Maps (url de maps o mapsUrl de la dirección).
+  // Links explícitos: ficha del alojamiento (Airbnb/Rakuten/Booking/oficial) y/o Google Maps.
   const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
   const links = [];
-  if (L.url) links.push(/airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps'));
+  if (L.url) links.push(lnk(L.url, lodgingLinkLabel(L.url)));
   if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
   const meta = [dateStr].concat(L.booked ? ['✓ Reservado'] : []).concat(links).filter(Boolean).join(' · ');
+  // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª es la miniatura de la
+  // tarjeta; el resto va en una tira debajo, igual que la galería del destino.
+  const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
+  const key = 'lodging:' + galId;
+  if (galId) galleries[key] = shots;
+  const shot = (u, gi) => galId
+    ? '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + key + '" data-gi="' + gi + '" alt="">'
+    : '<img class="gallery-thumb gallery-thumb-static" src="' + u + '" loading="lazy" alt="">';
+  const strip = shots.length > 1
+    ? '<div class="detail-gallery lodging-gallery dx">' + shots.slice(1).map((u, i) => shot(u, i + 1)).join('') + '</div>'
+    : '';
   const inner =
-    (L.img ? '<img class="lodging-img" src="' + L.img + '" loading="lazy" alt="">' : '') +
+    (shots.length
+      ? (galId
+          ? '<img class="lodging-img lodging-img-zoom" src="' + shots[0] + '" loading="lazy" data-gal="' + key + '" data-gi="0" alt="">'
+          : '<img class="lodging-img" src="' + shots[0] + '" loading="lazy" alt="">')
+      : '') +
     '<div class="lodging-body">' +
       '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
       (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
@@ -1151,14 +1194,15 @@ function lodgingHtml(L, city) {
     '</div>';
   return '<div class="card-section-title">🛏️ Hospedaje</div>' +
     '<div class="lodging-card dx">' + inner + '</div>' +
+    strip +
     '<div class="lodging-card dm">' + masked + '</div>';
 }
 
-// Popup del marcador 🛏️ de hospedaje: nombre + links (Airbnb / Google Maps).
+// Popup del marcador 🛏️ de hospedaje: nombre + links (ficha del alojamiento / Google Maps).
 function lodgingPopupHtml(L, city) {
   const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
   let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
-  if (L.url) h += /airbnb/i.test(L.url) ? lnk(L.url, 'Ver en Airbnb') : lnk(L.url, 'Ver en Google Maps');
+  if (L.url) h += lnk(L.url, lodgingLinkLabel(L.url));
   if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
   const masked = '<div class="popup-title">🛏️ Reservado</div>' + (city ? '<div class="popup-dates">' + city + '</div>' : '');
   return '<div class="dx">' + h + '</div><div class="dm">' + masked + '</div>';
@@ -1513,7 +1557,7 @@ destinations.forEach((d, idx) => {
       '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
       tempsHtml +
       '<p class="card-intro">' + DX(d.intro, maskDates(d.intro)) + '</p>' +
-      lodgingHtml(d.lodging, d.short) +
+      lodgingHtml(d.lodging, d.short, d.id) +
       (d.activities.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
@@ -2009,7 +2053,7 @@ function applyCatFilter(skipUrl) {
   const close = () => { lb.classList.remove('open'); img.src = ''; };
   const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
   detailsList.addEventListener('click', (e) => {
-    const t = e.target.closest('.gallery-thumb');
+    const t = e.target.closest('[data-gal]');
     if (!t) return;
     e.stopPropagation();
     cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
