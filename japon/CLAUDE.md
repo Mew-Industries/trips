@@ -38,6 +38,19 @@ Hoy el array `destinations` en `index.html` ya tiene `n/type/name/coords/dates/n
 
 **Modelo de `activities`** (refactor 2026-06-02): cada actividad es un objeto `{ text, cat, coords?, url? }`. `cat` es la categoría **legacy** (templos, museos, parques, miradores, barrios, comida, compras, onsen, ocio, otros); desde 2026-08-03 se traduce a la taxonomía única de `data/categories.js` — ver "Categorías de lugares" abajo — y la lista "Qué hacer" se renderiza **agrupada por esa taxonomía** (CAT_ORDER/CAT_LABELS salen de ahí). `coords: [lat,lon]` + `url` (Google Maps) están presentes en las actividades que vienen de un lugar guardado (53 de ellas); esas se muestran como ítem clickeable que **vuela al punto en el mapa y abre su popup** (el link a Google Maps vive en el popup del punto, NO en el ítem de la lista). Las actividades escritas a mano sin lugar guardado (~70) van como texto plano bajo su categoría (sin pin). El viejo array paralelo `activityPlaces` (puntitos anónimos) fue **eliminado** y fundido acá. Para recategorizar algo, agregalo a `PLACE_CAT_OVERRIDES` en `data/categories.js` (el `cat` legacy podés dejarlo como está); para darle pin a una idea a mano, agregale `coords` + `url`.
 
+**Modelo de tiempo** (2026-08-07 · task 499): el itinerario dejó de tener las fechas solo en prosa. Cada nodo lleva ahora **`start`/`end` en ISO** (`'2026-10-08'` / `'2026-10-13'`) — `start` = día de llegada, `end` = día de salida, un `fullday` tiene `start === end`, y las noches de un `destino` son el intervalo `[start, end)`. Los strings `dates`/`arrival`/`departure` quedan como estaban (son la prosa que se lee en la tarjeta); `start`/`end` son lo que se computa. **Si cambiás fechas, cambiá los dos** — y verificá el invariante de abajo.
+
+Sobre esa base, los campos de horario (todos opcionales; **lo que no está decidido NO se completa** — las vistas lo muestran como "a definir", nunca lo inventan):
+
+- `leg.departure` / `leg.arrival` — `'YYYY-MM-DDTHH:MM'`, horario **real** de salida y llegada del tramo. No confundir con `leg.time`, que es la duración. Cada punta va en **hora local de su punta** (la que se lee en el cartel de la estación): por eso el UA6 sale de Narita 17:45 y llega a Houston 14:40 del mismo día.
+- `leg.segments[].departure` / `.arrival` — lo mismo por tramo, para vuelos con escala.
+- `leg.fromName` / `leg.toName` — puntas que no son nodos del viaje (`'Buenos Aires (EZE)'`).
+- `leg.why: [string]` — **por qué el horario es el que es**: la restricción que ata el salto (check-in estricto, último bote, valijas en lockers, control de migraciones). Es lo que hace que la vista de transportes sirva para algo y no sea una tabla de horarios sueltos.
+- `leg.deadline: { by, what, departBy? }` — hora límite dura de llegada en ISO, qué la impone, y a más tardar cuándo hay que salir para cumplirla.
+- `lodging.checkInFrom` / `checkInTo` / `checkOutFrom` / `checkOutBy` — `'HH:MM'`, la ventana parseable. El texto libre de `booking.checkIn`/`checkOut` sigue existiendo y no se toca.
+- actividad `at` / `until` — `'YYYY-MM-DDTHH:MM'` para lo que tiene hora fija comprada (teamLab Planets, 9/10 9:00–9:30). Además `openHours` y `bestTime`, ambos texto libre, solo donde se sepa.
+
+**`itinerary.js`** es la capa derivada: recibe `destinations` y devuelve `{ days, transfers, lodgings }`. No tiene datos propios ni un segundo registro del viaje — un cambio en `destinations` se refleja solo. La única regla con criterio propio es cómo reparte las sugerencias del día: agrupa las actividades por su `group` (que en los datos ya significa "esto se hace en la misma salida"), las sueltas van de a una, y los clusters se reparten en orden sobre los **días completos** del nodo (ni llegada ni salida); cuando un nodo no tiene ninguno —de paso, o una sola noche— se usan todos sus días.
 
 ## Categorías de lugares (taxonomía única, 2026-08-03 · task 474)
 
