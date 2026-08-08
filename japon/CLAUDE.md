@@ -52,20 +52,24 @@ Sobre esa base, los campos de horario (todos opcionales; **lo que no está decid
 
 **`itinerary.js`** es la capa derivada: recibe `destinations` y devuelve `{ days, transfers, lodgings }`. No tiene datos propios ni un segundo registro del viaje — un cambio en `destinations` se refleja solo. La única regla con criterio propio es cómo reparte las sugerencias del día: agrupa las actividades por su `group` (que en los datos ya significa "esto se hace en la misma salida"), las sueltas van de a una, y los clusters se reparten en orden sobre los **días completos** del nodo (ni llegada ni salida); cuando un nodo no tiene ninguno —de paso, o una sola noche— se usan todos sus días.
 
-## Las cuatro vistas (2026-08-07 · task 499)
+## Las cuatro vistas (2026-08-07 · tasks 499 y 500)
 
-El site tiene un **riel de tabs lateral** (barra horizontal en el celular) con cuatro cortes del **mismo** itinerario. No hay un segundo registro en ningún lado: las cuatro leen `destinations`.
+El site tiene **el mapa fijo a la izquierda** y, a la derecha, un sidebar con un **riel de tabs arriba** y cuatro cortes del **mismo** itinerario. No hay un segundo registro en ningún lado: las cuatro leen `destinations`.
 
-1. **Resumen** — el dashboard de siempre (mapa + itinerario colapsable). Es el `<main class="dashboard">` de `index.html`, sin un solo cambio: `views.js` solo lo muestra y lo esconde.
+1. **Resumen** — el itinerario colapsable de siempre (chart de temperatura + `#details-list`). Es el `<main class="content-pane" id="view-resumen">` de `index.html`: `views.js` solo lo muestra y lo esconde.
 2. **Hospedajes** — las 13 paradas donde se duerme, en orden, con la ventana de check-in/out y el bloque "Tu reserva" (reusa `resvHtml()`, no lo copia). La que no tiene reserva aparece igual, marcada.
 3. **Transportes** — los 16 saltos (15 `leg` + el `departureLeg`), con horario o "a definir", las `why` de cada uno, las `deadline` y el check-in que espera del otro lado.
-4. **Días** — las 44 jornadas del primer despegue al último aterrizaje: dónde estás, dónde dormís, qué hay con hora y las sugerencias del nodo.
+4. **Días** — las 44 jornadas del primer despegue al último aterrizaje: dónde estás, dónde dormís, qué hay con hora y qué hacer.
 
-Archivos: **`views.css`** (todo el estilo nuevo, un `<link>` en el head) + **`views.js`** (riel, ruteo y las tres vistas nuevas) + **`itinerary.js`** (la capa derivada). En `index.html` solo se agregaron el `<link>`, un `import`, el wrapper `.shell`/`.views` alrededor del `<main>` y la llamada a `mountViews(destinations, ctx)` al final del módulo — envuelta en `try/catch`: si una vista explota, el resumen sigue funcionando.
+**El mapa NO es una vista** (task 500): vive fuera del sistema de tabs, en su propia columna de `.shell`, se dibuja una sola vez y no se esconde nunca. Cambiar de tab solo cambia el contenido del sidebar — por eso ya no existe el hook `onResumen`/`invalidateSize`: nadie redimensiona el mapa. Un ítem de cualquier vista lateral **vuela al punto en el mapa sin sacarte de la tab** (`focusMarker()` en `index.html`, el mismo camino que la lista "Qué hacer" del itinerario; `.v-goto` encuadra el nodo, `[data-act]` la actividad). En mobile el mapa se queda arriba (50vh) y las tabs quedan pegajosas debajo.
 
-Ruteo por URL: `?tab=hospedajes|transportes|dias` (sin parámetro = resumen), con `pushState`, así que back/forward andan y el link es compartible. Un `?tab=` desconocido cae en resumen. Al volver al resumen se llama `map.invalidateSize()` (Leaflet dibuja mal si lo redimensionan escondido).
+**Las sugerencias de la vista Días** (task 500) se agrupan por la taxonomía de `data/categories.js` —el mismo rótulo, ícono y color que los pines— y cada actividad con `coords` es un botón al mapa; sin `coords` va como texto (no se inventan). Los `group` ("Asakusa + Sumida River + Skytree" = una salida) van como subtítulo dentro de la categoría. Además, cada día trae plegado **"todo lo de \<ciudad\> · N"** con el catálogo COMPLETO del nodo (Tokio 32, Kioto 17, Seúl 23), para que el reparto por peso —que le da 2-3 cosas por día— no deje nada invisible. Ese cuerpo se arma recién al abrirlo: el catálogo se repite en cada día del nodo y renderizarlo de entrada son ~800 botones.
 
-**Reversibilidad**: las vistas son 4 commits (shell, hospedajes, transportes, días) sobre 2 de modelo. `git revert` del rango de las vistas deja el árbol idéntico al del commit de datos y el site anda igual que antes — probado. Revertir las vistas **no** toca el modelo extendido (`start`/`end`, horarios, `why`), que sirve por sí solo.
+Archivos: **`views.css`** (todo el estilo nuevo —incluido el layout de dos columnas— con un `<link>` en el head) + **`views.js`** (riel, ruteo y las tres vistas nuevas) + **`itinerary.js`** (la capa derivada; `clustersOf()` emite `{ i, act }` porque `i` es la clave del pin, `actMarkers['<nodo>:<i>']`). En `index.html` solo se agregaron el `<link>`, un `import`, la estructura `.shell` > `.map-pane` + `.side-pane` y la llamada a `mountViews(destinations, ctx)` al final del módulo — envuelta en `try/catch`: si una vista explota, el resumen sigue funcionando.
+
+Ruteo por URL: `?tab=hospedajes|transportes|dias` (sin parámetro = resumen), con `pushState`, así que back/forward andan y el link es compartible. Un `?tab=` desconocido cae en resumen.
+
+**Reversibilidad**: las vistas son 4 commits de la 499 (shell, hospedajes, transportes, días) sobre 2 de modelo, y 4 de la 500 (mapa fuera de las tabs, Días por categorías, catálogo completo, fechas en discreto). `git revert` de cualquiera de los dos rangos deja el árbol idéntico al del commit anterior y el site andando — probado en ambos. Revertir las vistas **no** toca el modelo extendido (`start`/`end`, horarios, `why`), que sirve por sí solo.
 
 ## Categorías de lugares (taxonomía única, 2026-08-03 · task 474)
 
