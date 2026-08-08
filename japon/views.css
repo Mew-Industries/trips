@@ -3,29 +3,36 @@
    Paleta y tipografías son las del site (crema #f5f4f0, tarjeta blanca, verde
    #0F6E56, ámbar #B87814 para los nodos de paso). */
 
-.shell { flex: 1; display: flex; min-height: 0; }
-.views { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+/* Dos columnas: el mapa a la izquierda —siempre visible, fuera de las tabs— y a la
+   derecha el sidebar, que es lo único que cambia al tocar una tab. */
+.shell { flex: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); min-height: 0; overflow: hidden; }
+.side-pane { min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+.views { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
 
-/* Riel de tabs — vertical en desktop, barra horizontal en el celular. */
+/* Riel de tabs — barra horizontal arriba del sidebar, del ancho de la columna. */
 .tab-rail {
-  flex: none; width: 132px; background: #fff; border-right: 1px solid rgba(0,0,0,0.08);
-  display: flex; flex-direction: column; padding: 10px 0; gap: 2px; z-index: 20;
+  flex: none; display: flex; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08);
+  overflow-x: auto; scrollbar-width: none; z-index: 20;
 }
+.tab-rail::-webkit-scrollbar { display: none; }
 .tab-rail[hidden] { display: none; }
 .tab-btn {
-  display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 12px;
-  border: 0; border-left: 3px solid transparent; background: none; cursor: pointer;
-  font: inherit; font-size: 12.5px; font-weight: 600; color: #8d8878; text-align: left;
-  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 12px; border: 0; border-bottom: 3px solid transparent; background: none;
+  cursor: pointer; font: inherit; font-size: 12px; font-weight: 600; color: #8d8878;
+  white-space: nowrap; transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
 .tab-btn:hover { color: #1a1a1a; background: rgba(0,0,0,0.03); }
-.tab-btn.on { color: #0F6E56; border-left-color: #0F6E56; background: rgba(15,110,86,0.07); }
-.tab-ic { font-size: 15px; line-height: 1; flex: none; }
+.tab-btn.on { color: #0F6E56; border-bottom-color: #0F6E56; background: rgba(15,110,86,0.06); }
+.tab-ic { font-size: 14px; line-height: 1; flex: none; }
 .tab-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: -2px; }
+/* Columna angosta: los cuatro rótulos entran, los íconos no. Gana el texto. */
+@media (max-width: 1100px) { .tab-ic { display: none; } }
 
-.view-pane { flex: 1; overflow-y: auto; padding: 16px 18px 40px; }
+.view-pane, #view-resumen { flex: 1; min-height: 0; }
+.view-pane { overflow-y: auto; padding: 16px 18px 40px; }
 /* `display: grid/flex` de las reglas de arriba le gana a [hidden]: hay que decirlo. */
-.view-pane[hidden], main.dashboard[hidden] { display: none; }
+.view-pane[hidden], #view-resumen[hidden] { display: none; }
 .view-inner { max-width: 900px; margin: 0 auto; }
 
 /* Encabezado de sección: el mismo rótulo chico y espaciado del resto del site. */
@@ -143,19 +150,14 @@ body.discrete .dy-date, body.discrete .dy-wd, body.discrete .dy-ev { display: no
 body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display: flex; align-items: baseline; gap: 8px; }
 
 @media (max-width: 900px) {
-  .shell { flex-direction: column; min-height: 0; }
-  .tab-rail {
-    width: 100%; flex-direction: row; padding: 0; gap: 0; position: sticky; top: 0;
-    border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08);
-    overflow-x: auto; scrollbar-width: none; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  }
-  .tab-rail::-webkit-scrollbar { display: none; }
-  /* Cuatro tabs entran en un celular solo sin los íconos: gana el texto. */
-  .tab-btn { width: auto; flex: 1 0 auto; justify-content: center; gap: 6px; padding: 11px 10px; border-left: 0; border-bottom: 3px solid transparent; font-size: 12px; }
-  .tab-ic { display: none; }
-  .tab-btn.on { border-left-color: transparent; border-bottom-color: #0F6E56; }
+  /* El mapa arriba (50vh, en index.html) y debajo las tabs con su contenido. */
+  .shell { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
+  .side-pane { overflow: visible; }
+  .tab-rail { position: sticky; top: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .tab-btn { padding: 11px 10px; }
   .views { overflow: visible; }
-  .view-pane { overflow: visible; padding: 12px 10px 32px; }
+  .view-pane, #view-resumen { overflow: visible; }
+  .view-pane { padding: 12px 10px 32px; }
   .lg-row, .tr-row, .dy-row { grid-template-columns: 1fr; gap: 8px; }
   .lg-when, .tr-when, .dy-when { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.07); padding: 0 0 7px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .lg-city, .tr-mode, .dy-num { margin-top: 0; }

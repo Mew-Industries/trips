@@ -31,14 +31,8 @@
   .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
   .header-stats strong { color: #1a1a1a; font-weight: 600; }
 
-  main.dashboard {
-    flex: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    overflow: hidden;
-    gap: 0;
-  }
-
+  /* El layout de dos columnas (mapa | sidebar con tabs) vive en views.css, junto
+     con el riel: es lo que se saca para volver al site sin tabs. */
   .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
   #map { height: 100%; width: 100%; position: relative; }
   /* Los 54px de cada lado dejan libre la esquina del botón de "mi ubicación"
@@ -363,8 +357,8 @@
 
   @media (max-width: 900px) {
     body { overflow: auto; }
-    main.dashboard { grid-template-columns: 1fr; grid-template-rows: 50vh auto; overflow: visible; }
-    .map-pane { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    /* El mapa se queda arriba y no desaparece: las tabs y su contenido van debajo. */
+    .map-pane { height: 50vh; flex: none; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
     .content-pane { overflow: visible; }
     .details-section { overflow: visible; }
     .header-stats { display: none; }
@@ -397,35 +391,37 @@
   </div>
 </header>
 
-<!-- Riel de tabs + panes de las cuatro vistas (task 499). El <main> de abajo es,
-     sin un solo cambio, la vista "Resumen"; views.js cuelga las otras tres. -->
+<!-- El mapa vive FUERA del sistema de tabs (task 500): se dibuja una sola vez y no
+     se esconde nunca. Las tabs mandan sobre la columna derecha y nada más; el
+     <main> de abajo es el pane "Resumen" y views.js cuelga los otros tres al lado. -->
 <div class="shell">
+
+<div class="map-pane">
+  <div id="map"></div>
+</div>
+
+<div class="side-pane">
 <nav class="tab-rail" id="tab-rail" aria-label="Vistas del itinerario"></nav>
 <div class="views" id="views">
 
-<main class="dashboard" id="view-resumen">
-  <div class="map-pane">
-    <div id="map"></div>
+<main class="content-pane" id="view-resumen">
+  <div class="chart-section">
+    <button type="button" class="chart-header" id="chart-toggle">
+      <span class="chart-title">Temperatura por destino</span>
+      <span class="qh-caret">▸</span>
+    </button>
+    <div class="chart-wrap" id="chart-wrap">
+      <canvas id="weatherChart"></canvas>
+    </div>
   </div>
 
-  <div class="content-pane">
-    <div class="chart-section">
-      <button type="button" class="chart-header" id="chart-toggle">
-        <span class="chart-title">Temperatura por destino</span>
-        <span class="qh-caret">▸</span>
-      </button>
-      <div class="chart-wrap" id="chart-wrap">
-        <canvas id="weatherChart"></canvas>
-      </div>
-    </div>
-
-    <div class="details-section">
-      <div class="details-title">Itinerario · click en un destino · los vuelos y transportes son los módulos entre paradas</div>
-      <div id="details-list"></div>
-    </div>
+  <div class="details-section">
+    <div class="details-title">Itinerario · click en un destino · los vuelos y transportes son los módulos entre paradas</div>
+    <div id="details-list"></div>
   </div>
 </main>
 
+</div>
 </div>
 </div>
 
@@ -1506,6 +1502,14 @@ function revealPin(m) {
   const p = placePins.find(x => x.m === m);
   if (p) revealCat(p.cat);
 }
+// Volar a un punto del mapa desde cualquier lista (el itinerario del resumen o las
+// vistas laterales): prende su categoría si estaba apagada, encuadra y abre el popup.
+function focusMarker(m) {
+  if (!m) return;
+  revealPin(m);
+  map.flyTo(m.getLatLng(), 14, { duration: 0.8 });
+  m.openPopup();
+}
 function placeIcon(cat, kind, id) {
   const size = 14;
   return L.divIcon({
@@ -1852,8 +1856,7 @@ destinations.forEach((d, idx) => {
   card.querySelectorAll('.act-row').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const m = btn.dataset.reel != null ? reelMarkers[btn.dataset.reel] : actMarkers[btn.dataset.act];
-      if (m) { revealPin(m); map.flyTo(m.getLatLng(), 14, { duration: 0.8 }); m.openPopup(); }
+      focusMarker(btn.dataset.reel != null ? reelMarkers[btn.dataset.reel] : actMarkers[btn.dataset.act]);
     });
   });
 
@@ -2615,13 +2618,22 @@ const weatherChart = new Chart(ctx, {
 try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
-    catOf, catOfAct, CAT_META, legType, MODE_STYLE, maskDates, DX,
-    onResumen: () => map.invalidateSize(),
+    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, DX,
     focusTrip, openStopModal,
+    // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
+    // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
+    focusAct: (key) => focusMarker(actMarkers[key]),
     wire: (pane) => {
       pane.addEventListener('click', (e) => {
+        const act = e.target.closest('[data-act]');
+        if (act) { focusMarker(actMarkers[act.dataset.act]); return; }
         const jump = e.target.closest('[data-goto]');
-        if (jump) { document.querySelector('.tab-btn[data-tab="resumen"]').click(); focusTrip(jump.dataset.goto); }
+        if (!jump) return;
+        const d = destinations.find(x => x.id === jump.dataset.goto);
+        if (!d) return;
+        if (markers[d.id]) markers[d.id].openPopup();
+        map.flyTo(d.coords, 8, { duration: 0.8 });
+        focusTrip(d.id);   // deja la tarjeta abierta para cuando vuelvas al resumen
       });
     }
   });

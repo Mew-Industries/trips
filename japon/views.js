@@ -1,9 +1,10 @@
 // views.js — las cuatro vistas laterales del mismo itinerario (task 499).
 //
-// La vista "Resumen" es el dashboard que ya existía (mapa + itinerario colapsable):
-// este módulo no lo toca, solo lo muestra y lo esconde. Las otras tres se arman acá
-// a partir de lo que devuelve itinerary.js, que a su vez lee `destinations`. No hay
-// un segundo registro del viaje en ningún lado.
+// Las tabs mandan sobre el sidebar y nada más: el mapa vive fuera de este módulo,
+// se dibuja una sola vez y no se esconde nunca. La vista "Resumen" es el itinerario
+// colapsable que ya existía —este módulo solo lo muestra y lo esconde—; las otras
+// tres se arman acá a partir de lo que devuelve itinerary.js, que a su vez lee
+// `destinations`. No hay un segundo registro del viaje en ningún lado.
 //
 // Todo lo nuevo vive en este archivo + views.css: revertir los commits de las vistas
 // devuelve el site exactamente al estado anterior.
@@ -263,10 +264,10 @@ export function mountViews(destinations, ctx) {
       if (ctx.wire) ctx.wire(panes[id]);
       done[id] = true;
     }
-    // El mapa se dibuja mal si se lo redimensiona escondido: hay que avisarle al volver.
-    if (id === 'resumen' && ctx.onResumen) ctx.onResumen();
+    // El mapa vive fuera de las tabs y no se esconde nunca: cambiar de tab no lo
+    // redimensiona, así que ya no hay que invalidarle el tamaño al volver.
     panes[id].scrollTop = 0;
-    // En el celular el riel es una barra que scrollea: que el tab activo se vea.
+    // El riel es una barra que puede scrollear: que el tab activo se vea.
     btns[id].scrollIntoView({ block: 'nearest', inline: 'center' });
   }
 
