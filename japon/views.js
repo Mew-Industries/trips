@@ -202,9 +202,12 @@ function catListHtml(items, ctx, nodeId) {
     return runs;
   };
 
+  // Hay actividades que nombran el hospedaje ("Onsen al atardecer en Yoshiike
+  // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
+  const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
   const itemHtml = ({ i, act }) => act.coords
-    ? '<li><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + esc(act.text) + '</button></li>'
-    : '<li class="sg-item plain">' + esc(act.text) + '</li>';
+    ? '<li><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
+    : '<li class="sg-item plain">' + label(act) + '</li>';
 
   return ctx.CAT_ORDER.filter(c => byCat.has(c)).map(c => {
     const meta = ctx.CAT_META[c] || ctx.CAT_META.otro;

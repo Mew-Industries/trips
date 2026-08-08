@@ -1181,6 +1181,15 @@ function maskDates(t) {
     .replace(/\b(?:el|del)\s+\d{1,2}\b(?!\s*(?:h\b|%|°))/g, '···')
     .replace(/···(?:[\s·,;]*···)+/g, '···');
 }
+// Algunas actividades nombran el hospedaje en su propio texto ("Onsen al atardecer en
+// Yoshiike Ryokan"): en discreto eso destapaba, desde la lista, lo que .lg-name tapa.
+const _LODGING_NAMES = destinations.map(d => d.lodging && d.lodging.name)
+  .filter(Boolean).sort((a, b) => b.length - a.length);
+function maskLodging(t) {
+  let out = String(t);
+  for (const n of _LODGING_NAMES) out = out.split(n).join('···');
+  return out;
+}
 
 // Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
 // se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
@@ -1580,10 +1589,10 @@ destinations.forEach(d => {
     const cat = catOfAct(a);
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     m.bindPopup(
-      miniPopup(a.img, escHtml(a.text), escHtml(d.short) + ' · ' + CAT_LABELS[cat] + ' · ' + (a.source || (a.url ? 'Google Maps' : 'itinerario')), a.url || gmapsFromName(a.text))
+      miniPopup(a.img, DX(escHtml(a.text), escHtml(maskLodging(a.text))), escHtml(d.short) + ' · ' + CAT_LABELS[cat] + ' · ' + (a.source || (a.url ? 'Google Maps' : 'itinerario')), a.url || gmapsFromName(a.text))
     );
     actMarkers[d.id + ':' + i] = m;
-    nearAdd(m, a.text, catColor(cat));
+    nearAdd(m, a.text, catColor(cat), maskLodging(a.text));
   });
 });
 
@@ -1808,8 +1817,8 @@ destinations.forEach((d, idx) => {
                 '<ul class="card-list">' +
                   d.activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c).map(([a, i]) =>
                     a.coords
-                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + escHtml(a.text) + '<span class="act-pin">📍</span></button></li>'
-                      : '<li class="act-row-plain">' + escHtml(a.text) + '</li>'
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button></li>'
+                      : '<li class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</li>'
                   ).join('') +
                 '</ul>' +
               '</div>'
@@ -2618,7 +2627,7 @@ const weatherChart = new Chart(ctx, {
 try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
-    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, DX,
+    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, DX,
     focusTrip, openStopModal,
     // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
     // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
