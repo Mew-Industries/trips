@@ -168,6 +168,56 @@ RENDER.transportes = (it, ctx) => {
 
 const EV_LABEL = { vuelo: 'vuelo', transporte: 'viaje', 'check-in': 'check-in', 'check-out': 'check-out', reserva: 'reservado' };
 
+// Una lista de actividades agrupada por la MISMA taxonomía que colorea los pines del
+// mapa (data/categories.js), para que la lista y el mapa se lean como una sola cosa.
+// Cada ítem con `coords` es un botón que vuela a su punto; el que no las tiene va como
+// texto (no se le inventan coordenadas).
+//
+// El `group` —"esto se hace en la misma salida"— sobrevive como subtítulo dentro de
+// la categoría: repetirlo en cada ítem decía tres veces lo mismo.
+function catListHtml(items, ctx, nodeId) {
+  const esc = ctx.escHtml;
+  const byCat = new Map();
+  for (const it of items) {
+    const c = ctx.catOfAct(it.act);
+    if (!byCat.has(c)) byCat.set(c, []);
+    byCat.get(c).push(it);
+  }
+
+  // Dentro de una categoría: un bloque por salida (en el orden en que aparece la
+  // primera de sus actividades) y las sueltas juntas, en su lugar.
+  const runsOf = (list) => {
+    const runs = [], byGroup = new Map();
+    for (const it of list) {
+      const g = it.act.group || null;
+      if (g) {
+        if (!byGroup.has(g)) { const r = { label: g, items: [] }; byGroup.set(g, r); runs.push(r); }
+        byGroup.get(g).items.push(it);
+      } else {
+        const last = runs[runs.length - 1];
+        if (last && !last.label) last.items.push(it);
+        else runs.push({ label: null, items: [it] });
+      }
+    }
+    return runs;
+  };
+
+  const itemHtml = ({ i, act }) => act.coords
+    ? '<li><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + esc(act.text) + '</button></li>'
+    : '<li class="sg-item plain">' + esc(act.text) + '</li>';
+
+  return ctx.CAT_ORDER.filter(c => byCat.has(c)).map(c => {
+    const meta = ctx.CAT_META[c] || ctx.CAT_META.otro;
+    return '<div class="sg-cat" style="--c:' + meta.color + '">' +
+      '<div class="sg-head">' + meta.icon + ' ' + esc(meta.label) + '</div>' +
+      runsOf(byCat.get(c)).map(r =>
+        (r.label ? '<div class="sg-grp">' + esc(r.label) + '</div>' : '') +
+        '<ul class="sg-list' + (r.label ? ' in-grp' : '') + '">' + r.items.map(itemHtml).join('') + '</ul>'
+      ).join('') +
+    '</div>';
+  }).join('');
+}
+
 RENDER.dias = (it, ctx) => {
   const esc = ctx.escHtml;
   const rows = it.days.map(day => {
@@ -193,11 +243,10 @@ RENDER.dias = (it, ctx) => {
     }).join('');
 
     const multi = day.suggestions.length > 1;
-    const sug = day.suggestions.map(s => s.clusters.map(c =>
-      '<div class="dy-cl">' + (multi ? '<span class="dy-from">' + esc(s.node.short) + ' · </span>' : '') +
-        (c.label ? '<b>' + esc(c.label) + '</b> · ' : '') +
-        c.items.map(a => esc(a.text)).join(' · ') +
-      '</div>').join('')).join('');
+    const sug = day.suggestions.map(s =>
+      (multi ? '<div class="sg-node">' + esc(s.node.short) + '</div>' : '') +
+      catListHtml(s.clusters.flatMap(c => c.items), ctx, s.node.id)
+    ).join('');
 
     return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
       '<div class="dy-when">' +

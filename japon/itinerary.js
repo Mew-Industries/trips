@@ -117,17 +117,21 @@ export function transfersOf(dests) {
 // Clusters de actividades de un nodo: las que comparten `group` van juntas (el
 // `group` ya es, en los datos, "esto se hace en la misma salida"); las sueltas van
 // de a una. Es el orden en que están cargadas, que es el orden curado.
+//
+// Cada ítem es `{ i, act }`: `i` es el índice de la actividad DENTRO de
+// `node.activities`, que es la clave con la que el mapa registra su pin
+// (`actMarkers['<nodo>:<i>']`). Sin eso la lista no puede linkear al punto.
 export function clustersOf(node) {
   const out = [], byGroup = new Map();
-  for (const a of node.activities || []) {
-    if (a.at) continue;   // ya tiene día y hora: es un evento del día, no una sugerencia
-    if (a.group) {
-      if (!byGroup.has(a.group)) { const c = { label: a.group, items: [] }; byGroup.set(a.group, c); out.push(c); }
-      byGroup.get(a.group).items.push(a);
+  (node.activities || []).forEach((act, i) => {
+    if (act.at) return;   // ya tiene día y hora: es un evento del día, no una sugerencia
+    if (act.group) {
+      if (!byGroup.has(act.group)) { const c = { label: act.group, items: [] }; byGroup.set(act.group, c); out.push(c); }
+      byGroup.get(act.group).items.push({ i, act });
     } else {
-      out.push({ label: null, items: [a] });
+      out.push({ label: null, items: [{ i, act }] });
     }
-  }
+  });
   return out;
 }
 
