@@ -272,8 +272,9 @@ RENDER.dias = (it, ctx) => {
     '</div></div>';
   });
 
-  return '<div class="v-title">Días <span>' + it.days.length + ' jornadas · ' +
-    fmtDate(it.start) + ' → ' + fmtDate(it.end) + '</span></div>' + rows.join('');
+  // El rango de fechas cae en discreto, igual que el del header (que ahí dice "43 días").
+  return '<div class="v-title">Días <span>' + it.days.length + ' jornadas' +
+    ctx.DX(' · ' + fmtDate(it.start) + ' → ' + fmtDate(it.end)) + '</span></div>' + rows.join('');
 };
 
 export function mountViews(destinations, ctx) {
