@@ -1063,7 +1063,7 @@ const destinations = [
     leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }],
       why: [
         'El vuelo Seúl → Tokio todavía no está comprado: define la hora del Romancecar a Hakone.',
-        'Yoshiike espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
+        'El ryokan espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
       ] },
     tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-08-07', weatherMode: 'climatología',
     intro: 'Última escala antes de Tokio: onsen + Fuji + otoño. Se llega de Seúl (vuelo a Tokio + Odakyu Romancecar a Hakone) y se cierra subiendo a Tokio en Romancecar/Shinkansen (~1h45). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
@@ -1190,6 +1190,8 @@ function maskLodging(t) {
   for (const n of _LODGING_NAMES) out = out.split(n).join('···');
   return out;
 }
+// Prosa libre (intros, `leg.why`): en discreto se le caen las fechas Y el hospedaje.
+const maskFree = t => maskLodging(maskDates(t));
 
 // Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
 // se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
@@ -1806,7 +1808,7 @@ destinations.forEach((d, idx) => {
       galleryHtml +
       '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
       tempsHtml +
-      '<p class="card-intro">' + DX(d.intro, maskDates(d.intro)) + '</p>' +
+      '<p class="card-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' +
       lodgingHtml(d.lodging, d.short, d.id) +
       (d.activities.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
@@ -2041,7 +2043,7 @@ function smBodyHtml(d) {
     '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
     hero +
     '<div id="sm-map" class="sm-map"></div>' +
-    (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskDates(d.intro)) + '</p>' : '') +
+    (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' : '') +
     lodgingHtml(d.lodging, d.short) + leg + acts + dts
   );
 }
@@ -2627,7 +2629,7 @@ const weatherChart = new Chart(ctx, {
 try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
-    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, DX,
+    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
     focusTrip, openStopModal,
     // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
     // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
