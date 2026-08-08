@@ -248,6 +248,15 @@ RENDER.dias = (it, ctx) => {
       catListHtml(s.clusters.flatMap(c => c.items), ctx, s.node.id)
     ).join('');
 
+    // El reparto del día muestra dos o tres cosas de un nodo que tiene treinta: acá
+    // abajo está el catálogo entero del nodo, para que nada del itinerario quede
+    // invisible. El cuerpo se arma recién al abrirlo (ver mountViews).
+    const all = day.here.map(h => h.node).filter(n => (n.activities || []).length).map(n =>
+      '<details class="sg-all"><summary>todo lo de ' + esc(n.short) +
+        ' <b>' + n.activities.length + '</b></summary>' +
+        '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
+      '</details>').join('');
+
     return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
       '<div class="dy-when">' +
         '<div class="dy-num">DÍA ' + day.n + '</div>' +
@@ -257,7 +266,8 @@ RENDER.dias = (it, ctx) => {
       '<div class="dy-main">' +
         '<div class="dy-where">' + where + '</div>' + sleep +
         (events ? '<div class="dy-ev">' + events + '</div>' : '') +
-        (sug ? '<div class="dy-sug">' + sug + '</div>' : (events ? '' : '<div class="dy-free">Sin nada agendado.</div>')) +
+        (sug || all ? '<div class="dy-sug">' + sug + all + '</div>'
+          : (events ? '' : '<div class="dy-free">Sin nada agendado.</div>')) +
       '</div>' +
     '</div></div>';
   });
@@ -272,6 +282,8 @@ export function mountViews(destinations, ctx) {
   if (!rail || !host) return;
 
   const it = buildItinerary(destinations);
+  const byId = {};
+  destinations.forEach(d => { byId[d.id] = d; });
   const tabs = TABS.filter(t => t.id === 'resumen' || RENDER[t.id]);
   const panes = { resumen: document.getElementById('view-resumen') };
   const btns = {};
@@ -298,6 +310,16 @@ export function mountViews(destinations, ctx) {
   // Con una sola vista el riel no aporta nada: no se muestra.
   rail.hidden = tabs.length < 2;
 
+  // El catálogo completo de un nodo se repite en cada uno de sus días (Tokio son 32
+  // actividades × 6 días): armarlo al montar la vista serían ~800 botones que casi
+  // nadie abre. Se llena la primera vez que se despliega y queda.
+  function fillCatalog(box) {
+    if (!box || box.firstChild) return;
+    const node = byId[box.dataset.node];
+    if (!node) return;
+    box.innerHTML = catListHtml((node.activities || []).map((act, i) => ({ i, act })), ctx, node.id);
+  }
+
   function current() {
     const t = new URLSearchParams(location.search).get('tab');
     return panes[t] ? t : 'resumen';
@@ -311,6 +333,10 @@ export function mountViews(destinations, ctx) {
     if (id !== 'resumen' && !done[id]) {
       panes[id].innerHTML = '<div class="view-inner">' + RENDER[id](it, ctx) + '</div>';
       if (ctx.wire) ctx.wire(panes[id]);
+      panes[id].addEventListener('click', (e) => {
+        const s = e.target.closest('.sg-all > summary');
+        if (s) fillCatalog(s.parentNode.querySelector('.sg-all-body'));
+      });
       done[id] = true;
     }
     // El mapa vive fuera de las tabs y no se esconde nunca: cambiar de tab no lo
