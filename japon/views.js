@@ -700,9 +700,15 @@ export function mountViews(destinations, ctx) {
       });
     }
     if (id !== shownLeg && card) {
-      // Que la ficha se VEA: si quedó fuera de pantalla (venís del mapa, o de otra tab)
-      // se trae; si ya está a la vista, moverla sería ruido. El flash marca cuál es.
-      if (!pane.hidden && offScreen(card)) card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      // Que la ficha se vea ENTERA: alcanza con que asome un borde para que la mitad
+      // de la ficha —las restricciones, el check-in— quede abajo del pliegue. Si ya
+      // entra completa no se toca nada, que moverla sería ruido; el flash marca cuál
+      // es. Una ficha más alta que la pantalla se ancla arriba: el principio primero.
+      const r = card.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (!pane.hidden && (r.top < 0 || r.bottom > vh)) {
+        card.scrollIntoView({ block: r.height <= vh - 24 ? 'center' : 'start', behavior: 'smooth' });
+      }
       if (ctx.flash) ctx.flash(card);
     }
     if (ctx.selectLeg) ctx.selectLeg(id, !legNoFit && !!id);
