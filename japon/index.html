@@ -911,7 +911,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/20100719_Dazaifu_Tenmangu_Shrine_3328.jpg/500px-20100719_Dazaifu_Tenmangu_Shrine_3328.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg/500px-Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg'],
     dates: '31 oct–3 nov', nights: 3, start: '2026-10-31', end: '2026-11-03',
-    arrival: '31 oct (Shinkansen desde Osaka)', departure: '3 nov (ferry Beetle a Busan)',
+    arrival: '31 oct (Shinkansen desde Osaka)', departure: '3 nov (vuelo BX 506 a Busan, 11:55)',
     lodging: {
       name: 'The Royal Park Canvas Fukuoka Nakasu', type: 'Hotel · king room river view, esquina 29 m², no fumador',
       guests: '2 adultos',
@@ -940,7 +940,7 @@ const destinations = [
         'El check-in del Royal Park Canvas va hasta las 23:00: el Nozomi de la tarde llega con margen.'
       ] },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-08-11', weatherMode: 'climatología',
-    intro: 'Cuna del ramen tonkotsu. Se llega de Osaka en Shinkansen (Shin-Osaka → Hakata, ~2h30) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se toma el ferry rápido Beetle de Hakata a Busan (~3h20).',
+    intro: 'Cuna del ramen tonkotsu. Se llega de Osaka en Shinkansen (Shin-Osaka → Hakata, ~2h30) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00).',
     activities: [
       { text: 'Ichiran original', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.593241, 130.404597] },
       { text: 'Hakata Issou', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.589782, 130.419012] },
@@ -963,7 +963,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg/500px-Colorful_houses_in_Gamcheon_Culture_Village_at_sunset_in_Busan_South_Korea.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/500px-Haeundae_Beach_in_Busan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Haedong_Yonggungsa_Temple_near_Busan.jpg/500px-Haedong_Yonggungsa_Temple_near_Busan.jpg'],
     dates: '3-6 nov', nights: 3, start: '2026-11-03', end: '2026-11-06',
-    arrival: '3 nov (ferry Beetle desde Fukuoka)', departure: '6 nov (KTX a Seúl)',
+    arrival: '3 nov (vuelo BX 506 desde Fukuoka, llega 13:00)', departure: '6 nov (KTX a Seúl)',
     lodging: {
       name: 'Stay On Thing 스테이온띵 (Airbnb)', type: 'Airbnb · casa entera privada', rating: '★4.72',
       guests: '2 dormitorios · 3 camas · 1 baño · reserva a nombre de 1 adulto (máx 6)',
@@ -981,14 +981,14 @@ const destinations = [
       },
       note: 'Casa entera privada a 5 min de la estación Jeonpo · dirección 19 Dongseong-ro 25beon-gil, Busanjin-gu · host 지연 (Jiyeon). La reserva figura a nombre de 1 adulto: falta sumar a Cata como huésped.'
     },
-    leg: { mode: '⛴️', time: '~3 h 20 (ferry)', detail: 'Ferry rápido Hakata → Busan (Beetle/Kobee; alt: Camellia overnight).',
-      fromTerminal: { name: 'Puerto de Hakata', coords: [33.60821, 130.40009], mode: 'ferry' }, toTerminal: { name: 'Puerto de Busan', coords: [35.1175, 129.04848], mode: 'ferry' },
+    leg: { mode: '✈️', time: '1 h 05 (vuelo)', detail: 'Air Busan BX 506, mar 3/11 11:55 → 13:00. Reserva KKNVSP, 2 pax, ¥46.760 pagados (e-tickets 2324628511/12).',
+      fromTerminal: { name: 'Aeropuerto de Fukuoka (FUK)', coords: [33.5859, 130.4507], mode: 'air' }, toTerminal: { name: 'Aeropuerto de Gimhae (PUS)', coords: [35.1795, 128.9382], mode: 'air' },
       why: [
-        'Cruce internacional: hay control de migraciones en el puerto de Hakata y el ferry sale con horario fijo.',
-        'El pasaje todavía no está comprado: es lo que va a fijar la hora de salida.'
+        'Cruce internacional: el check-in de Air Busan cierra 40-60 min antes de la salida — salir del hotel ~9:30 (no apurar el checkout de 11:00; el aeropuerto queda a ~10 min en subte de Hakata).',
+        'Reemplaza al ferry Beetle del plan original (suspendido desde 2024, JR lo vendió).'
       ] },
     tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-08-11', weatherMode: 'climatología',
-    intro: 'Cruce desde Fukuoka por Beetle ferry (~3h20). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
+    intro: 'Se llega volando desde Fukuoka (Air Busan, ~1h). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
     activities: [
       { text: 'Gamcheon Culture Village (favela artística colorida)', cat: 'barrios', coords: [35.09739, 129.010592] },
       { text: 'Mercado Jagalchi (pescado más grande de Corea)', cat: 'comida', coords: [35.096634, 129.030797] },
