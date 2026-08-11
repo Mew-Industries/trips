@@ -44,6 +44,8 @@
   .map-toggles .mt:last-child { border-bottom: 0; }
   .map-toggles .mt.active { background: rgba(15,110,86,0.09); color: #0F6E56; }
   .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+  /* El master no es una familia más: manda sobre las de abajo y va separado. */
+  .map-toggles .mt-all { border-bottom-color: rgba(0,0,0,0.22); }
 
   /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
   .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -1511,7 +1513,7 @@ function revealCat(cat) {
 }
 function revealPin(m) {
   const p = placePins.find(x => x.m === m);
-  if (p) revealCat(p.cat);
+  if (p) { revealCat(p.cat); revealLayer(p.layer); }
 }
 // Volar a un punto del mapa desde cualquier lista (el itinerario del resumen o las
 // vistas laterales): prende su categoría si estaba apagada, encuadra y abre el popup.
@@ -2184,36 +2186,78 @@ for (let i = 0; i < destinations.length - 1; i++) {
 
 // Capas estructurales del viaje: control Leaflet propio, separado espacial y
 // visualmente de las categorías de lugares que viven abajo.
+// "Actividades" agrupa TODO lo que es un lugar para ir (guardados de Maps, day
+// trips, reels, huérfanos): son la misma familia para quien mira el mapa, y los
+// chips de categoría de abajo ya los cortan más fino.
 const TOGGLES = [
   { key: 'destinos', label: 'Destinos',   icon: '📍', layers: [destLayer] },
+  { key: 'actividades', label: 'Actividades', icon: '📌', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer, reelLayer] },
+  { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
   { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer] },
   { key: 'vuelos', label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
-  { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
 ];
 const inactiveLayers = new Set((new URLSearchParams(location.search).get('layersOff') || '').split(',')
   .filter(k => TOGGLES.some(t => t.key === k)));
+const layerBtns = {};
+let allLayersBtn = null;
+
+const layerOn = key => !inactiveLayers.has(key);
+const allLayersOn = () => inactiveLayers.size === 0;
+
+function writeLayersUrl() {
+  const u = new URL(location.href);
+  if (inactiveLayers.size) u.searchParams.set('layersOff', TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(','));
+  else u.searchParams.delete('layersOff');
+  history.replaceState(null, '', u);
+}
+
+// Prender/apagar una familia. `inactiveLayers` es la INTENCIÓN del usuario y el
+// botón la refleja siempre.
+function setLayer(key, on) {
+  const t = TOGGLES.find(x => x.key === key);
+  if (!t) return;
+  on ? inactiveLayers.delete(key) : inactiveLayers.add(key);
+  const btn = layerBtns[key];
+  if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', String(on)); }
+  t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  if (allLayersBtn) {
+    allLayersBtn.classList.toggle('active', allLayersOn());
+    allLayersBtn.setAttribute('aria-pressed', String(allLayersOn()));
+  }
+}
+
+// Ir a un punto cuya familia está apagada dejaba el mapa encuadrado y sin pin (el
+// mismo agujero que revealCat tapa para las categorías): se prende la familia.
+function revealLayer(layer) {
+  const t = TOGGLES.find(x => x.layers.includes(layer));
+  if (t && !layerOn(t.key)) { setLayer(t.key, true); writeLayersUrl(); }
+}
+
 const layersControl = L.control({ position: 'topright' });
 layersControl.onAdd = function () {
   const togglesBar = L.DomUtil.create('div', 'map-toggles');
+  allLayersBtn = document.createElement('button');
+  allLayersBtn.type = 'button';
+  allLayersBtn.className = 'mt mt-all' + (allLayersOn() ? ' active' : '');
+  allLayersBtn.title = 'Mostrar u ocultar todo';
+  allLayersBtn.innerHTML = '<span class="mt-ic">👁️</span>Todo';
+  allLayersBtn.addEventListener('click', () => {
+    const on = !allLayersOn();   // algo apagado → prender todo; todo prendido → apagar todo
+    TOGGLES.forEach(t => setLayer(t.key, on));
+    writeLayersUrl();
+  });
+  togglesBar.appendChild(allLayersBtn);
   TOGGLES.forEach(t => {
     const btn = document.createElement('button');
-    const onAtLoad = !inactiveLayers.has(t.key);
+    const onAtLoad = layerOn(t.key);
     btn.type = 'button';
     btn.className = 'mt' + (onAtLoad ? ' active' : '');
     btn.title = t.label;
     btn.setAttribute('aria-pressed', String(onAtLoad));
     btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
     if (!onAtLoad) t.layers.forEach(l => map.removeLayer(l));
-    btn.addEventListener('click', () => {
-      const on = btn.classList.toggle('active');
-      btn.setAttribute('aria-pressed', String(on));
-      t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
-      on ? inactiveLayers.delete(t.key) : inactiveLayers.add(t.key);
-      const u = new URL(location.href);
-      if (inactiveLayers.size) u.searchParams.set('layersOff', TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(','));
-      else u.searchParams.delete('layersOff');
-      history.replaceState(null, '', u);
-    });
+    btn.addEventListener('click', () => { setLayer(t.key, !layerOn(t.key)); writeLayersUrl(); });
+    layerBtns[t.key] = btn;
     togglesBar.appendChild(btn);
   });
   L.DomEvent.disableClickPropagation(togglesBar);
