@@ -135,7 +135,9 @@ RENDER.transportes = (it, ctx) => {
     const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
       encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
 
-    return '<div class="v-card"><div class="tr-row tr-' + kind + '">' +
+    // `data-leg` es el id del tramo, el mismo con el que el mapa indexa su línea: es
+    // lo que hace que tocar una lleve a la otra, en los dos sentidos.
+    return '<div class="v-card" data-leg="' + t.id + '"><div class="tr-row tr-' + kind + '">' +
       '<div class="tr-when">' +
         '<div class="tr-date">' + fmtDate(t.date) + '</div>' +
         '<div class="tr-wd">' + fmtWeekday(t.date) + '</div>' +
@@ -419,6 +421,9 @@ export function dayRoute(day, ctx) {
     route,
     loose,
     stops: day.here.map(h => h.node.id),
+    // Los saltos que se hacen ese día (por id de tramo): el foco esconde el transporte
+    // del resto del viaje, pero el de la jornada es parte de la jornada.
+    legs: [...new Set(day.events.filter(e => e.transfer).map(e => e.transfer.id))],
     // Las dos puntas del día. Cuando son la misma cama el recorrido cierra el círculo,
     // que es lo que efectivamente pasa: salís del hotel y volvés a dormir ahí.
     wake: wake ? wake.id : null,
@@ -555,6 +560,8 @@ export function mountViews(destinations, ctx) {
   destinations.forEach(d => { byId[d.id] = d; });
   const dayByDate = {};
   it.days.forEach(d => { dayByDate[d.date] = d; });
+  const legById = {};
+  it.transfers.forEach(t => { legById[t.id] = t; });
   const tabs = TABS.filter(t => t.id === 'resumen' || RENDER[t.id]);
   const panes = { resumen: document.getElementById('view-resumen') };
   const btns = {};
@@ -592,11 +599,13 @@ export function mountViews(destinations, ctx) {
   }
 
   // `?tab=` manda; un `?dia=` sin tab explícito abre Días, que es de donde sale el
-  // foco: el link compartido tiene que aterrizar en la lista de esa jornada.
+  // foco, y un `?tramo=` abre Transportes, que es donde vive su ficha: el link
+  // compartido tiene que aterrizar en la lista que le corresponde.
   function current() {
     const s = new URLSearchParams(location.search);
     if (panes[s.get('tab')]) return s.get('tab');
     if (s.get('dia') && panes.dias) return 'dias';
+    if (legById[s.get('tramo')] && panes.transportes) return 'transportes';
     return 'resumen';
   }
 
@@ -605,6 +614,13 @@ export function mountViews(destinations, ctx) {
   function currentDay() {
     const d = new URLSearchParams(location.search).get('dia');
     return dayByDate[d] && dayHasMap(routeOf(dayByDate[d], ctx)) ? d : null;
+  }
+
+  // El tramo seleccionado. Un `?tramo=` que no existe se ignora (igual que un `?tab=`
+  // desconocido): mejor la vista completa que una selección fantasma.
+  function currentLeg() {
+    const id = new URLSearchParams(location.search).get('tramo');
+    return legById[id] ? id : null;
   }
 
   let shownTab = null;
@@ -622,6 +638,9 @@ export function mountViews(destinations, ctx) {
         if (s) fillCatalog(s.parentNode.querySelector('.sg-all-body'));
       });
       done[id] = true;
+      // Las fichas recién existen ahora: si ya había un tramo seleccionado (deep-link
+      // que aterrizó en otra tab), hay que volver a marcarlo sobre el HTML nuevo.
+      if (id === 'transportes') shownLeg = null;
     }
     // El mapa vive fuera de las tabs y no se esconde nunca: cambiar de tab no lo
     // redimensiona, así que ya no hay que invalidarle el tamaño al volver.
@@ -660,14 +679,79 @@ export function mountViews(destinations, ctx) {
     shownDay = date;
   }
 
+  // ------------------------------------------------------- tramos (task 510)
+  // La línea del mapa y la ficha de la vista Transportes son dos caras del mismo
+  // tramo: tocar cualquiera de las dos selecciona el tramo, y el tramo vive en la URL
+  // (`?tramo=<id>`) como la tab y el foco de día. Así el link es compartible y "atrás"
+  // deselecciona sin sacarte de la vista.
+  let shownLeg = null;
+  // El encuadre del mapa lo pide quien no tiene el tramo delante (deep-link, ficha del
+  // sidebar); el click en la propia línea no, que ya estás mirándola.
+  let legNoFit = false;
+
+  function showLeg(id) {
+    const pane = panes.transportes;
+    let card = null;
+    if (pane) {
+      pane.querySelectorAll('[data-leg]').forEach(el => {
+        const on = el.dataset.leg === id;
+        el.classList.toggle('on', on);
+        if (on) card = el;
+      });
+    }
+    if (id !== shownLeg && card) {
+      // Que la ficha se VEA: si quedó fuera de pantalla (venís del mapa, o de otra tab)
+      // se trae; si ya está a la vista, moverla sería ruido. El flash marca cuál es.
+      if (!pane.hidden && offScreen(card)) card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (ctx.flash) ctx.flash(card);
+    }
+    if (ctx.selectLeg) ctx.selectLeg(id, !legNoFit && !!id);
+    shownLeg = id;
+  }
+
+  // Seleccionar un tramo (o soltarlo). `toggle` es para el click en la ficha —volver a
+  // tocarla la suelta—; desde el mapa no, que tocar dos veces la misma línea tiene que
+  // dar lo mismo. La tab se fija explícitamente: es donde vive la ficha.
+  function goLeg(id, opts) {
+    const o = opts || {};
+    const u = new URL(location.href);
+    const keep = id && !(o.toggle && id === currentLeg());
+    if (keep) { u.searchParams.set('tab', 'transportes'); u.searchParams.set('tramo', id); }
+    else u.searchParams.delete('tramo');
+    // Volver a tocar la MISMA línea no agrega una entrada al histórico, pero sí vuelve
+    // a marcar la ficha: es el gesto de "esta, ¿dónde estaba?".
+    if (u.href === location.href) { shownLeg = null; legNoFit = !!o.fromMap; showLeg(currentLeg()); legNoFit = false; return; }
+    history.pushState(null, '', u);
+    legNoFit = !!o.fromMap;
+    apply();
+    legNoFit = false;
+  }
+
+  if (panes.transportes) {
+    panes.transportes.addEventListener('click', (e) => {
+      // Los links y botones de la ficha (cómo llegar, tracker, ir al punto) son suyos.
+      if (e.target.closest('a, button')) return;
+      const card = e.target.closest('[data-leg]');
+      if (card) goLeg(card.dataset.leg, { toggle: true });
+    });
+  }
+  // Tocar la línea en el mapa entra por acá: mismo estado, mismo histórico.
+  if (ctx.onLegClick) ctx.onLegClick((id) => goLeg(id, { fromMap: true }));
+
   function apply() {
     show(current());
     showDay(currentDay());
+    showLeg(currentLeg());
   }
 
   function go(id) {
     const u = new URL(location.href);
-    if (id === 'resumen') u.searchParams.delete('tab'); else u.searchParams.set('tab', id);
+    // El resumen no lleva parámetro… salvo que haya un `?dia=`/`?tramo=`, que valen por
+    // su tab cuando no hay `tab=` explícito: ahí hay que escribirlo, o tocar "Resumen"
+    // no te saca de la vista implicada (y quedás sin poder volver sin soltar el foco).
+    const implied = u.searchParams.get('dia') || u.searchParams.get('tramo');
+    if (id === 'resumen' && !implied) u.searchParams.delete('tab');
+    else u.searchParams.set('tab', id);
     history.pushState(null, '', u);
     apply();
   }

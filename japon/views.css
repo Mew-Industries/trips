@@ -107,6 +107,13 @@
 .tr-dir:hover { color: #1D9E75; }
 .tr-lodge { font-size: 11.5px; color: #6e6a5f; margin-top: 8px; line-height: 1.45; }
 .tr-lodge b { color: #1a1a1a; font-weight: 600; }
+/* La ficha y su línea en el mapa son el mismo tramo: tocar una marca la otra. La
+   seleccionada se queda con el anillo verde mientras dure la selección (el flash de
+   `.flash` avisa cuál acaba de llegar); el resto sólo insinúa que es tocable. */
+.v-card[data-leg] { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s; }
+.v-card[data-leg]:hover { border-color: rgba(15,110,86,0.25); }
+.v-card[data-leg].on { border-color: rgba(15,110,86,0.55); box-shadow: 0 0 0 2px rgba(15,110,86,0.13); }
+@media (prefers-reduced-motion: reduce) { .v-card[data-leg] { transition: none; } }
 
 /* --------------------------------------------------------------------- días */
 

@@ -1235,8 +1235,12 @@ function legSegsHtml(leg) {
 }
 
 // Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
-// con color/trazo según el modo. Cada segmento es clickeable (→ resalta el tramo
-// en el panel) y queda referenciado por id del nodo destino para el link inverso.
+// con color/trazo según el modo. Cada segmento es clickeable (→ abre su ficha en el
+// sidebar) y queda referenciado por el id del tramo para el link inverso.
+// El id de un tramo es el del nodo al que se llega (`tokio-final`) y, para el vuelo
+// de vuelta, `<nodo>:out` — el MISMO que emite transfersOf() en itinerary.js, que es
+// lo que permite que la línea del mapa y la ficha de la vista Transportes se
+// encuentren sin una tabla de equivalencias en el medio.
 const legSegments = {};
 const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
 const flightLayer = L.layerGroup().addTo(map);  // vuelos
@@ -1244,6 +1248,38 @@ function styleFor(mode) {
   const st = MODE_STYLE[mode];
   return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
 }
+
+// Tocar un tramo en el mapa. Con las vistas laterales montadas, views.js se registra
+// acá y lo lleva a su ficha en la tab de transportes (pasando por la URL, así el
+// estado es compartible y "atrás" deselecciona). Si las vistas no cargaron, queda el
+// camino de siempre: abrir la card del resumen.
+let legClickHandler = null;
+function pickLeg(id) {
+  if (legClickHandler) { legClickHandler(id); return; }
+  focusTrip(id);
+  highlightSegment(id);
+}
+// Debajo de cada línea va una gemela invisible y mucho más ancha: una polyline de 3-4
+// px no se acierta con el dedo. Va en la MISMA capa que la línea, así el toggle de
+// transporte apaga las dos (capa apagada = nada tocable) y queda al fondo del pane
+// para no robarle el click a ninguna línea visible.
+function hitLine(pts, layer, id) {
+  const hit = L.polyline(pts, { color: '#000', weight: 22, opacity: 0, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+  hit.on('click', () => pickLeg(id));
+  hit.bringToBack();
+  return hit;
+}
+// Registra los sub-tramos de un leg: los deja clickeables y los indexa por id.
+function registerLeg(id, subsegs) {
+  legSegments[id] = subsegs.map(seg => {
+    const base = seg.style || styleFor(seg.mode);
+    const layer = seg.layer || (seg.mode === 'air' ? flightLayer : routeLayer);
+    const pl = seg.pl || L.polyline(seg.pts, base).addTo(layer);
+    pl.on('click', () => pickLeg(id));
+    return { pl: pl, base: base, hit: hitLine(seg.pts, layer, id) };
+  });
+}
+
 for (let i = 0; i < destinations.length - 1; i++) {
   const a = destinations[i], b = destinations[i + 1];
   // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
@@ -1257,13 +1293,27 @@ for (let i = 0; i < destinations.length - 1; i++) {
     const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
     subsegs = [{ pts: pts, mode: legType(b.leg) }];
   }
-  const pls = subsegs.map(seg => {
-    const base = styleFor(seg.mode);
-    const pl = L.polyline(seg.pts, base).addTo(seg.mode === 'air' ? flightLayer : routeLayer);
-    pl.on('click', () => { focusTrip(b.id); highlightSegment(b.id); });  // mapa → panel
-    return { pl: pl, base: base };
-  });
-  legSegments[b.id] = pls;
+  registerLeg(b.id, subsegs);
+}
+
+// El tramo seleccionado (`?tramo=` en la URL) se queda marcado en el mapa mientras
+// dure la selección: es lo que ata la ficha abierta en el sidebar con la línea.
+let selectedLeg = null;
+const selStyle = s => ({ weight: s.base.weight + 3, opacity: 1 });
+function paintLeg(id) {
+  (legSegments[id] || []).forEach(s => s.pl.setStyle(id === selectedLeg ? selStyle(s) : s.base));
+}
+// Marcar un tramo (o ninguno, con id nulo). `fit` encuadra: lo hace el deep-link y el
+// click desde la ficha —donde el tramo puede estar fuera de pantalla—, no el click en
+// la línea, que ya la tenés delante. Con el foco de día tomado, el encuadre es del día.
+function selectLeg(id, fit) {
+  const prev = selectedLeg;
+  selectedLeg = legSegments[id] ? id : null;
+  if (prev && prev !== selectedLeg) paintLeg(prev);
+  if (!selectedLeg) return;
+  const bounds = L.latLngBounds([]);
+  (legSegments[selectedLeg] || []).forEach(s => { s.pl.setStyle(selStyle(s)); s.pl.bringToFront(); bounds.extend(s.pl.getBounds()); });
+  if (fit && !dayFocus) { try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {} }
 }
 
 // Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
@@ -1278,7 +1328,8 @@ function highlightSegment(id) {
     bounds.extend(s.pl.getBounds());
   });
   try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
-  setTimeout(() => arr.forEach(s => s.pl.setStyle(s.base)), 1800);
+  // Volver al estilo que corresponda: si ese tramo quedó seleccionado, al marcado.
+  setTimeout(() => paintLeg(id), 1800);
 }
 
 // Aeropuertos usados en el viaje (markers ✈).
@@ -1306,10 +1357,17 @@ airports.forEach(ap => {
 // fitBounds para no achicar Japón; se ven al alejar el zoom.
 const _EZE = [-34.8222, 301.4642], _IAH = [29.9844, 264.6586], _HND = [35.5494, 139.7798], _NRT = [35.7720, 140.3929];
 const _intlStyle = { color: MODE_STYLE.air.color, weight: 2, opacity: 0.6, dashArray: '1, 7' };
-L.polyline([_EZE, _IAH, _HND, destinations[0].coords], _intlStyle).addTo(flightLayer)
+// Los dos internacionales también son tramos del itinerario (el `leg` del primer nodo
+// y el `departureLeg` del último): se registran con esos ids para que tocarlos abra su
+// ficha como cualquier otro salto.
+const _idaPts = [_EZE, _IAH, _HND, destinations[0].coords];
+const _vueltaPts = [destinations[destinations.length - 1].coords, _NRT, _IAH, _EZE];
+const _ida = L.polyline(_idaPts, _intlStyle).addTo(flightLayer)
   .bindPopup('<div class="popup-title">✈ Ida · EZE → IAH → Tokio' + DX(' (6–8 oct)') + '</div>');
-L.polyline([destinations[destinations.length - 1].coords, _NRT, _IAH, _EZE], _intlStyle).addTo(flightLayer)
+const _vuelta = L.polyline(_vueltaPts, _intlStyle).addTo(flightLayer)
   .bindPopup('<div class="popup-title">✈ Vuelta · Tokio → IAH → EZE' + DX(' (17–18 nov)') + '</div>');
+registerLeg(destinations[0].id, [{ pts: _idaPts, pl: _ida, style: _intlStyle, layer: flightLayer }]);
+registerLeg(destinations[destinations.length - 1].id + ':out', [{ pts: _vueltaPts, pl: _vuelta, style: _intlStyle, layer: flightLayer }]);
 
 // Leyenda de modos de transporte (colores de las líneas).
 const routeLegend = L.control({ position: 'topright' });
@@ -2181,8 +2239,8 @@ Object.entries(dtMarkers).forEach(([id, marker]) => {
 });
 
 // Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
-// tramo (= fecha de inicio del nodo de destino). Click → abre la card del destino,
-// donde la fila de transporte (leg) está justo arriba.
+// tramo (= fecha de inicio del nodo de destino). El label es parte del tramo: tocarlo
+// hace lo mismo que tocar la línea.
 function segStartDate(s) {
   const day = s.match(/^\s*(\d{1,2})/);
   const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
@@ -2196,7 +2254,7 @@ for (let i = 0; i < destinations.length - 1; i++) {
     className: '', iconSize: [40, 16], iconAnchor: [20, 8],
   });
   L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
-    .on('click', () => focusTrip(b.id));
+    .on('click', () => pickLeg(b.id));
 }
 
 // Capas estructurales del viaje: control Leaflet propio, separado espacial y
@@ -2330,6 +2388,10 @@ function enterDayFocus(spec) {
   clearDayFocusLayers();
   dayFocus = { date: spec.date, prev, shown: [] };
   TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
+  // El foco apaga el transporte del viaje entero, pero el salto de ESE día es parte de
+  // la jornada: su línea se queda —y con ella el click a su ficha—. Mismo criterio que
+  // los pines del día, que también entran sin importar los filtros de afuera.
+  (spec.legs || []).forEach(id => (legSegments[id] || []).forEach(s => { showFocused(s.pl); showFocused(s.hit); }));
 
   const line = [], ord = [];
   const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); return m.getLatLng(); } };
@@ -2800,7 +2862,11 @@ try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
     catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
-    focusTrip, openStopModal,
+    focusTrip, openStopModal, flash,
+    // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la
+    // misma cosa. La vista manda el estado por la URL (`?tramo=`) y el mapa marca; el
+    // click en la línea entra por `onLegClick` y vuelve por el mismo camino.
+    selectLeg, onLegClick: (fn) => { legClickHandler = fn; },
     // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
     // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
     focusAct: (key) => focusMarker(actMarkers[key]),
