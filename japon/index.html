@@ -47,6 +47,17 @@
   /* El master no es una familia más: manda sobre las de abajo y va separado. */
   .map-toggles .mt-all { border-bottom-color: rgba(0,0,0,0.22); }
 
+  /* Foco de día: el mapa queda mostrando una sola jornada. Mientras dura, los
+     controles que el foco pisa no se muestran — decir dos cosas distintas sobre lo
+     mismo confunde más que ayudar. El chip es la única salida. */
+  #map.day-focus .map-bars, #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
+  .day-chip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1001; display: none; }
+  #map.day-focus .day-chip { display: block; }
+  .day-chip button { font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; padding: 7px 14px; border-radius: 16px; border: 0; background: #0F6E56; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
+  .day-chip button:hover { background: #0c5a46; }
+  /* El número de orden del recorrido, arriba a la derecha de su punto. */
+  .rt-ord { width: 16px; height: 16px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+
   /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
   .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
   .map-cats .mc { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #3a3a3a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 5px; transition: color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
@@ -1520,6 +1531,9 @@ function revealPin(m) {
 function focusMarker(m) {
   if (!m) return;
   revealPin(m);
+  // En foco de día el mapa muestra sólo esa jornada: si el punto que se clickeó no
+  // es de ese día, se suma al foco en vez de dejar el click muerto.
+  showFocused(m);
   map.flyTo(m.getLatLng(), 14, { duration: 0.8 });
   m.openPopup();
 }
@@ -1604,6 +1618,7 @@ destinations.forEach(d => {
 // En modo discreto el pin se corre al centro de la parada y el popup solo dice "Reservado".
 const lodgingLayer = L.layerGroup().addTo(map);
 const lodgingPins = [];
+const lodgingMarkers = {};   // id de nodo → pin de cama (lo usa el foco de día)
 destinations.forEach(d => {
   const lodg = d.lodging;
   if (!lodg || !lodg.coords) return;
@@ -1611,7 +1626,7 @@ destinations.forEach(d => {
     html: '<div class="lodging-marker">🛏️</div>',
     className: '', iconSize: [28, 28], iconAnchor: [14, 14],
   });
-  const mk = L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+  const mk = lodgingMarkers[d.id] = L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
     '<div class="mini-pop">' +
       '<div class="dx">' +
         (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
@@ -2212,14 +2227,15 @@ function writeLayersUrl() {
 }
 
 // Prender/apagar una familia. `inactiveLayers` es la INTENCIÓN del usuario y el
-// botón la refleja siempre.
+// botón la refleja siempre; mientras el foco de día tiene tomado el mapa la
+// intención se guarda pero no se aplica — se aplica al salir del foco.
 function setLayer(key, on) {
   const t = TOGGLES.find(x => x.key === key);
   if (!t) return;
   on ? inactiveLayers.delete(key) : inactiveLayers.add(key);
   const btn = layerBtns[key];
   if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', String(on)); }
-  t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  if (!dayFocus) t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
   if (allLayersBtn) {
     allLayersBtn.classList.toggle('active', allLayersOn());
     allLayersBtn.setAttribute('aria-pressed', String(allLayersOn()));
@@ -2265,6 +2281,102 @@ layersControl.onAdd = function () {
   return togglesBar;
 };
 layersControl.addTo(map);
+
+// ------------------------------------------------------- foco de día (task 508)
+// Tocar un día en la vista Días toma el mapa: se apagan todas las familias y quedan
+// sólo los puntos de esa jornada, unidos por la línea del recorrido en el MISMO orden
+// en que la lista los enumera (la vista arma ese orden y lo manda acá — ver dayRoute()
+// en views.js). No es ruteo por calles: es la guía visual de "qué sigue a qué".
+// Salir devuelve el mapa como estaba: capas, categorías y encuadre.
+const focusLayer = L.layerGroup();
+let dayFocus = null;          // { date, prev: {center, zoom}, shown: [markers] }
+let dayExitHandler = null;    // lo registra views.js para que salir también toque la URL
+
+const dayChip = document.createElement('div');
+dayChip.className = 'day-chip';
+const dayChipBtn = document.createElement('button');
+dayChipBtn.type = 'button';
+dayChipBtn.addEventListener('click', () => { dayExitHandler ? dayExitHandler() : exitDayFocus(); });
+dayChip.appendChild(dayChipBtn);
+map.getContainer().appendChild(dayChip);
+L.DomEvent.disableClickPropagation(dayChip);
+
+const ordIcon = n => L.divIcon({
+  html: '<div class="rt-ord">' + n + '</div>',
+  className: '', iconSize: [16, 16], iconAnchor: [-5, 15],
+});
+
+// Un punto que el foco muestra directo sobre el mapa (su layerGroup está apagado).
+// Se anota en `shown` para poder sacarlo al salir sin tocar el grupo del que salió.
+function showFocused(m) {
+  if (!m || !dayFocus || dayFocus.shown.includes(m)) return false;
+  map.addLayer(m);
+  dayFocus.shown.push(m);
+  return true;
+}
+
+// spec = { date, label, route: [<claves de actMarkers, EN ORDEN>], stops: [ids], lodging: id|null }
+function enterDayFocus(spec) {
+  if (!spec) return;
+  // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
+  const prev = dayFocus ? dayFocus.prev : { center: map.getCenter(), zoom: map.getZoom() };
+  clearDayFocusLayers();
+  dayFocus = { date: spec.date, prev, shown: [] };
+  TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
+
+  const line = [];
+  const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); } };
+  spec.route.forEach(k => step(actMarkers[k]));
+  if (spec.lodging) step(lodgingMarkers[spec.lodging]);
+  // La parada del día entra SÓLO si el día no tiene puntos propios (traslado, llegada
+  // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
+  // la ciudad no dice nada que los puntos no digan ya.
+  const ctxPts = [];
+  if (!line.length) (spec.stops || []).forEach(id => {
+    const m = markers[id];
+    if (m && showFocused(m)) ctxPts.push(m.getLatLng());
+  });
+
+  if (line.length > 1) {
+    L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round' }).addTo(focusLayer);
+    line.forEach((ll, i) => L.marker(ll, { icon: ordIcon(i + 1), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  }
+  focusLayer.addTo(map);
+
+  dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
+  map.getContainer().classList.add('day-focus');
+  // En mobile el mapa está arriba del sidebar y puede haber quedado fuera de la
+  // pantalla: enfocar un día sin que se vea el mapa no muestra nada.
+  if (map.getContainer().getBoundingClientRect().bottom < 80) {
+    map.getContainer().scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  // Encuadre: manda el recorrido. La ciudad entra sólo si es lo único que hay (día de
+  // viaje sin puntos cargados), porque si no un centroide lejano desarma el zoom.
+  const fit = line.length ? line : ctxPts;
+  if (fit.length === 1) map.flyTo(fit[0], 14, { duration: 0.7 });
+  else if (fit.length) map.flyToBounds(L.latLngBounds(fit), { padding: [70, 70], maxZoom: 15, duration: 0.7 });
+}
+
+function clearDayFocusLayers() {
+  if (dayFocus) dayFocus.shown.forEach(m => map.removeLayer(m));
+  focusLayer.clearLayers();
+  map.removeLayer(focusLayer);
+}
+
+function exitDayFocus() {
+  if (!dayFocus) return;
+  const prev = dayFocus.prev;
+  clearDayFocusLayers();
+  dayFocus = null;
+  // Volver a la intención del usuario, no a "todo prendido": las familias apagadas
+  // antes del foco siguen apagadas, y las categorías filtradas siguen filtradas
+  // (sus pines nunca volvieron a su layerGroup).
+  TOGGLES.forEach(t => { if (layerOn(t.key)) t.layers.forEach(l => map.addLayer(l)); });
+  map.getContainer().classList.remove('day-focus');
+  map.flyTo(prev.center, prev.zoom, { duration: 0.6 });
+}
+
 const barsWrap = document.createElement('div');
 barsWrap.className = 'map-bars';
 map.getContainer().appendChild(barsWrap);
@@ -2678,6 +2790,10 @@ try {
     // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
     // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
     focusAct: (key) => focusMarker(actMarkers[key]),
+    // Foco de día (task 508): la vista arma el recorrido (qué puntos y en qué orden)
+    // y el mapa lo dibuja; salir vuelve por la URL, por eso el chip avisa para acá.
+    focusDay: enterDayFocus, exitDayFocus,
+    onDayExit: (fn) => { dayExitHandler = fn; },
     wire: (pane) => {
       pane.addEventListener('click', (e) => {
         const act = e.target.closest('[data-act]');

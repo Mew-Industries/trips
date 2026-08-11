@@ -115,6 +115,11 @@
 .dy-num { font-size: 9px; color: #c4bfb2; font-weight: 700; letter-spacing: 0.06em; }
 .dy-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
 .dy-wd { font-size: 11px; color: #8d8878; text-transform: capitalize; }
+/* "ver en mapa": manda la jornada al mapa (foco de día). En reposo es un link
+   discreto en la columna de la fecha; enfocado, el verde del chip del mapa. */
+.dy-map { font-family: inherit; font-size: 10.5px; font-weight: 600; white-space: nowrap; margin-top: 6px; padding: 3px 6px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #8d8878; cursor: pointer; transition: color 0.12s, border-color 0.12s, background 0.12s; }
+.dy-map:hover { color: #0F6E56; border-color: rgba(15,110,86,0.4); }
+.dy-map.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
 .dy-main { min-width: 0; }
 .dy-where { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
 .dy-role { font-size: 10px; font-weight: 600; color: #8d8878; text-transform: uppercase; letter-spacing: 0.05em; margin-left: 5px; }
@@ -144,6 +149,9 @@ button.sg-item { cursor: pointer; }
 button.sg-item:hover { color: #0F6E56; }
 button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; border-radius: 3px; }
 .sg-item.plain { color: #8d8878; }
+/* Con el día enfocado, cada ítem lleva su número del recorrido del mapa. */
+.sg-item[data-ord] { color: #0F6E56; font-weight: 600; }
+.sg-item[data-ord]::before { content: attr(data-ord); display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; margin-right: 5px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 8.5px; font-weight: 700; vertical-align: 1px; }
 
 /* "todo lo de <ciudad>": el catálogo completo del nodo, plegado. */
 .sg-all { margin-top: 8px; }

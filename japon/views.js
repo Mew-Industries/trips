@@ -168,39 +168,45 @@ RENDER.transportes = (it, ctx) => {
 
 const EV_LABEL = { vuelo: 'vuelo', transporte: 'viaje', 'check-in': 'check-in', 'check-out': 'check-out', reserva: 'reservado' };
 
-// Una lista de actividades agrupada por la MISMA taxonomía que colorea los pines del
-// mapa (data/categories.js), para que la lista y el mapa se lean como una sola cosa.
-// Cada ítem con `coords` es un botón que vuela a su punto; el que no las tiene va como
-// texto (no se le inventan coordenadas).
-//
-// El `group` —"esto se hace en la misma salida"— sobrevive como subtítulo dentro de
-// la categoría: repetirlo en cada ítem decía tres veces lo mismo.
-function catListHtml(items, ctx, nodeId) {
-  const esc = ctx.escHtml;
+// Dentro de una categoría: un bloque por salida (en el orden en que aparece la
+// primera de sus actividades) y las sueltas juntas, en su lugar. El `group` —"esto se
+// hace en la misma salida"— sobrevive como subtítulo: repetirlo en cada ítem decía
+// tres veces lo mismo.
+function runsOf(list) {
+  const runs = [], byGroup = new Map();
+  for (const it of list) {
+    const g = it.act.group || null;
+    if (g) {
+      if (!byGroup.has(g)) { const r = { label: g, items: [] }; byGroup.set(g, r); runs.push(r); }
+      byGroup.get(g).items.push(it);
+    } else {
+      const last = runs[runs.length - 1];
+      if (last && !last.label) last.items.push(it);
+      else runs.push({ label: null, items: [it] });
+    }
+  }
+  return runs;
+}
+
+// El orden visual de una lista de actividades: por categoría (CAT_ORDER) y, adentro,
+// por salida. Lo usan la lista Y el recorrido del día en el mapa — de acá sale que la
+// línea del mapa y el listado de la sidebar cuenten lo mismo, en el mismo orden.
+function catGroups(items, ctx) {
   const byCat = new Map();
   for (const it of items) {
     const c = ctx.catOfAct(it.act);
     if (!byCat.has(c)) byCat.set(c, []);
     byCat.get(c).push(it);
   }
+  return ctx.CAT_ORDER.filter(c => byCat.has(c)).map(c => ({ cat: c, runs: runsOf(byCat.get(c)) }));
+}
 
-  // Dentro de una categoría: un bloque por salida (en el orden en que aparece la
-  // primera de sus actividades) y las sueltas juntas, en su lugar.
-  const runsOf = (list) => {
-    const runs = [], byGroup = new Map();
-    for (const it of list) {
-      const g = it.act.group || null;
-      if (g) {
-        if (!byGroup.has(g)) { const r = { label: g, items: [] }; byGroup.set(g, r); runs.push(r); }
-        byGroup.get(g).items.push(it);
-      } else {
-        const last = runs[runs.length - 1];
-        if (last && !last.label) last.items.push(it);
-        else runs.push({ label: null, items: [it] });
-      }
-    }
-    return runs;
-  };
+// Una lista de actividades agrupada por la MISMA taxonomía que colorea los pines del
+// mapa (data/categories.js), para que la lista y el mapa se lean como una sola cosa.
+// Cada ítem con `coords` es un botón que vuela a su punto; el que no las tiene va como
+// texto (no se le inventan coordenadas).
+function catListHtml(items, ctx, nodeId) {
+  const esc = ctx.escHtml;
 
   // Hay actividades que nombran el hospedaje ("Onsen al atardecer en Yoshiike
   // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
@@ -209,17 +215,57 @@ function catListHtml(items, ctx, nodeId) {
     ? '<li><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
     : '<li class="sg-item plain">' + label(act) + '</li>';
 
-  return ctx.CAT_ORDER.filter(c => byCat.has(c)).map(c => {
-    const meta = ctx.CAT_META[c] || ctx.CAT_META.otro;
+  return catGroups(items, ctx).map(g => {
+    const meta = ctx.CAT_META[g.cat] || ctx.CAT_META.otro;
     return '<div class="sg-cat" style="--c:' + meta.color + '">' +
       '<div class="sg-head">' + meta.icon + ' ' + esc(meta.label) + '</div>' +
-      runsOf(byCat.get(c)).map(r =>
+      g.runs.map(r =>
         (r.label ? '<div class="sg-grp">' + esc(r.label) + '</div>' : '') +
         '<ul class="sg-list' + (r.label ? ' in-grp' : '') + '">' + r.items.map(itemHtml).join('') + '</ul>'
       ).join('') +
     '</div>';
   }).join('');
 }
+
+// El recorrido de una jornada: los puntos que la vista lista, EN EL ORDEN en que los
+// lista. Primero lo que tiene hora comprada (los eventos ya vienen cronológicos),
+// después las sugerencias en el orden del listado, y la cama al final, que es donde
+// termina el día. Lo que no tiene coords no entra en la línea (no se inventan) pero
+// sigue estando en la lista.
+function dayRoute(day, ctx) {
+  const route = [], seen = new Set();
+  const push = (node, i) => {
+    const key = node.id + ':' + i;
+    if (!seen.has(key)) { seen.add(key); route.push(key); }
+  };
+  for (const e of day.events) {
+    if (!e.act || !e.act.coords || !e.node) continue;
+    const i = (e.node.activities || []).indexOf(e.act);
+    if (i >= 0) push(e.node, i);
+  }
+  for (const s of day.suggestions)
+    for (const g of catGroups(s.clusters.flatMap(c => c.items), ctx))
+      for (const r of g.runs)
+        for (const it of r.items) if (it.act.coords) push(s.node, it.i);
+
+  return {
+    date: day.date,
+    // El chip del mapa es HTML, no texto: la fecha concreta cae en modo discreto,
+    // igual que la de la tarjeta del día.
+    label: 'Día ' + day.n + ctx.DX(' · ' + fmtDate(day.date)),
+    route,
+    stops: day.here.map(h => h.node.id),
+    lodging: day.sleep && day.sleep.lodging && day.sleep.lodging.coords ? day.sleep.id : null,
+  };
+}
+
+// Un día sin ningún punto no tiene nada que mostrar en el mapa: sin botón.
+const dayHasMap = spec => !!(spec.route.length || spec.lodging || spec.stops.length);
+
+const offScreen = (el) => {
+  const r = el.getBoundingClientRect();
+  return r.bottom < 0 || r.top > (window.innerHeight || document.documentElement.clientHeight);
+};
 
 RENDER.dias = (it, ctx) => {
   const esc = ctx.escHtml;
@@ -260,11 +306,17 @@ RENDER.dias = (it, ctx) => {
         '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
       '</details>').join('');
 
+    // El botón lleva el mapa a esa jornada (foco de día, task 508). No abre nada en el
+    // sidebar: la lista ya está acá, lo que cambia es lo que se ve al lado.
+    const mapBtn = dayHasMap(dayRoute(day, ctx))
+      ? '<button type="button" class="dy-map" data-day="' + day.date + '">ver en mapa</button>' : '';
+
     return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
       '<div class="dy-when">' +
         '<div class="dy-num">DÍA ' + day.n + '</div>' +
         '<div class="dy-date">' + fmtDate(day.date) + '</div>' +
         '<div class="dy-wd">' + fmtWeekday(day.date) + '</div>' +
+        mapBtn +
       '</div>' +
       '<div class="dy-main">' +
         '<div class="dy-where">' + where + '</div>' + sleep +
@@ -288,6 +340,8 @@ export function mountViews(destinations, ctx) {
   const it = buildItinerary(destinations);
   const byId = {};
   destinations.forEach(d => { byId[d.id] = d; });
+  const dayByDate = {};
+  it.days.forEach(d => { dayByDate[d.date] = d; });
   const tabs = TABS.filter(t => t.id === 'resumen' || RENDER[t.id]);
   const panes = { resumen: document.getElementById('view-resumen') };
   const btns = {};
@@ -324,10 +378,23 @@ export function mountViews(destinations, ctx) {
     box.innerHTML = catListHtml((node.activities || []).map((act, i) => ({ i, act })), ctx, node.id);
   }
 
+  // `?tab=` manda; un `?dia=` sin tab explícito abre Días, que es de donde sale el
+  // foco: el link compartido tiene que aterrizar en la lista de esa jornada.
   function current() {
-    const t = new URLSearchParams(location.search).get('tab');
-    return panes[t] ? t : 'resumen';
+    const s = new URLSearchParams(location.search);
+    if (panes[s.get('tab')]) return s.get('tab');
+    if (s.get('dia') && panes.dias) return 'dias';
+    return 'resumen';
   }
+
+  // Un día sin un solo punto (jornada en vuelo) no se puede enfocar: el link deja el
+  // mapa vacío con un chip que no explica nada. Se ignora el parámetro.
+  function currentDay() {
+    const d = new URLSearchParams(location.search).get('dia');
+    return dayByDate[d] && dayHasMap(dayRoute(dayByDate[d], ctx)) ? d : null;
+  }
+
+  let shownTab = null;
 
   function show(id) {
     for (const t of tabs) {
@@ -345,19 +412,83 @@ export function mountViews(destinations, ctx) {
     }
     // El mapa vive fuera de las tabs y no se esconde nunca: cambiar de tab no lo
     // redimensiona, así que ya no hay que invalidarle el tamaño al volver.
-    panes[id].scrollTop = 0;
+    // Enfocar un día no cambia de tab: ahí el scroll de la lista no se toca.
+    if (shownTab !== id) panes[id].scrollTop = 0;
+    shownTab = id;
     // El riel es una barra que puede scrollear: que el tab activo se vea.
     btns[id].scrollIntoView({ block: 'nearest', inline: 'center' });
+  }
+
+  // ------------------------------------------------------ foco de día (task 508)
+  // El foco vive en la URL (?dia=2026-10-14), igual que la tab: el link es
+  // compartible y "atrás" sale del foco sin sacarte de la vista.
+  let shownDay = null;
+
+  function showDay(date) {
+    if (ctx.focusDay) {
+      if (date) ctx.focusDay(dayRoute(dayByDate[date], ctx));
+      else if (shownDay) ctx.exitDayFocus();
+    }
+    const pane = panes.dias;
+    if (pane) {
+      let btn = null;
+      pane.querySelectorAll('.dy-map').forEach(b => {
+        const on = b.dataset.day === date;
+        b.classList.toggle('on', on);
+        if (on) btn = b;
+      });
+      // El mismo número que el mapa, en la lista: si el mapa numera el recorrido y
+      // la lista no, el "6" del mapa no se puede volver a encontrar acá.
+      pane.querySelectorAll('.sg-item[data-ord]').forEach(b => b.removeAttribute('data-ord'));
+      const card = btn && btn.closest('.v-card');
+      if (card) dayRoute(dayByDate[date], ctx).route.forEach((k, i) => {
+        const el = card.querySelector('.sg-item[data-act="' + k + '"]');
+        if (el) el.setAttribute('data-ord', i + 1);
+      });
+      // Sólo si el día quedó fuera de pantalla (deep-link, back): cuando el foco sale
+      // de tocar el botón, ese día ya se está mirando y mover la lista es ruido — y en
+      // mobile encima taparía el mapa, que es lo que acaba de cambiar.
+      if (btn && date !== shownDay && !pane.hidden && offScreen(btn)) btn.scrollIntoView({ block: 'center' });
+    }
+    shownDay = date;
+  }
+
+  function apply() {
+    show(current());
+    showDay(currentDay());
   }
 
   function go(id) {
     const u = new URL(location.href);
     if (id === 'resumen') u.searchParams.delete('tab'); else u.searchParams.set('tab', id);
     history.pushState(null, '', u);
-    show(id);
+    apply();
   }
 
-  window.addEventListener('popstate', () => show(current()));
-  show(current());
-  return { go, itinerary: it };
+  // Entrar al foco (o salir, si se vuelve a tocar el día que ya está enfocado).
+  // Entrar y salir NO cambian de vista: el tab se preserva explícitamente porque un
+  // `?dia=` pelado ya vale por `tab=dias`, y borrarlo sin más te devolvía al resumen.
+  function goDay(date) {
+    const u = new URL(location.href);
+    const tab = date ? 'dias' : current();
+    if (tab === 'resumen') u.searchParams.delete('tab'); else u.searchParams.set('tab', tab);
+    if (date && date !== currentDay()) u.searchParams.set('dia', date);
+    else u.searchParams.delete('dia');
+    history.pushState(null, '', u);
+    apply();
+  }
+
+  if (panes.dias) {
+    panes.dias.addEventListener('click', (e) => {
+      const b = e.target.closest('.dy-map');
+      if (b) { e.stopPropagation(); goDay(b.dataset.day); }
+    });
+  }
+  // El chip "✕ Día N" del mapa es la otra salida: pasa por la URL, no por el mapa
+  // directo, para que la vista y el histórico queden en el mismo estado.
+  if (ctx.onDayExit) ctx.onDayExit(() => goDay(null));
+
+  window.addEventListener('popstate', apply);
+  apply();
+  return { go, goDay, itinerary: it };
 }
