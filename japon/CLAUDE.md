@@ -52,6 +52,14 @@ Sobre esa base, los campos de horario (todos opcionales; **lo que no está decid
 
 **`itinerary.js`** es la capa derivada: recibe `destinations` y devuelve `{ days, transfers, lodgings }`. No tiene datos propios ni un segundo registro del viaje — un cambio en `destinations` se refleja solo. La única regla con criterio propio es cómo reparte las sugerencias del día: agrupa las actividades por su `group` (que en los datos ya significa "esto se hace en la misma salida"), las sueltas van de a una, y los clusters se reparten en orden sobre los **días completos** del nodo (ni llegada ni salida); cuando un nodo no tiene ninguno —de paso, o una sola noche— se usan todos sus días.
 
+**⚠️ El orden de `activities` es el reparto por día** (2026-08-11 · task 509). `dayRoute()` ordena por geografía lo que ya cayó en una jornada, pero *qué* cae en cuál sigue saliendo del orden del array: `spreadClusters` recorre los clusters en orden y corta cuando el peso acumulado pasa `total/días`. Consecuencias al editar:
+
+- Las actividades de un nodo van **agrupadas por jornada, en bloques contiguos**, y cada bloque es un barrio o una zona (Tokio: bahía · Shibuya/Harajuku · Shinjuku · noreste; Kioto: Arashiyama · templos del este · noroeste · Fushimi/Nishiki · norte). Meter una actividad en el medio **corre el corte y le cambia el día a las que siguen** — no es una inserción inocente.
+- El corte no se declara, se calcula: un día no puede quedar con menos peso del que le toca (`≥ total/días`). Si querés un día liviano y otro cargado, el reparto no te deja; hay que aceptar el tamaño que sale.
+- Dentro de un día las entradas quedan en el **orden en que se caminan** (el que devuelve `dayRoute`), así el array registrado se lee igual que la app. Es cosmética del dato: reordenar dentro del día no cambia el recorrido.
+- Lo que tiene `at` (hora comprada) no entra en el reparto y va **primero en el array** del nodo.
+- Para verificar después de tocar el orden: `node japon/scripts/check_routes.js`.
+
 ## Las cuatro vistas (2026-08-07 · tasks 499 y 500)
 
 El site tiene **el mapa fijo a la izquierda** y, a la derecha, un sidebar con un **riel de tabs arriba** y cuatro cortes del **mismo** itinerario. No hay un segundo registro en ningún lado: las cuatro leen `destinations`.
