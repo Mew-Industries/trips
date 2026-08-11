@@ -114,6 +114,8 @@
   .chart-wrap.open { display: block; }
   .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
   .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  /* Punta de un traslado en el foco de día (aeropuerto/estación/puerto): mismo verde de la línea del recorrido. */
+  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
   .mini-pop { min-width: 150px; max-width: 210px; }
   .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
   .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
@@ -466,6 +468,7 @@ const destinations = [
       note: 'La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar). Falta cargar el costo total al sheet de gastos.'
     },
     leg: { mode: '✈️', time: '~30 h · 1 escala', detail: 'Ida EZE → Tokio Haneda · United Polaris business',
+      fromTerminal: { name: 'Buenos Aires · Ezeiza (EZE)', coords: [-34.8222, 301.4642], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
       fromName: 'Buenos Aires (EZE)', toName: 'Tokio (Haneda/HND)',
       departure: '2026-10-06T21:00', arrival: '2026-10-08T15:25',
       why: [
@@ -533,6 +536,7 @@ const destinations = [
     dates: '13 oct', nights: 0, start: '2026-10-13', end: '2026-10-13',
     arrival: '13 oct (de paso desde Tokio, primer salto al norte)', departure: '13 oct tarde (sigue a Ichinoseki; duerme allí esta noche)', lodging: null,
     leg: { mode: '🚆', time: '~2 h 30', detail: 'Tren Tobu/JR Tokio → Nikkō (Limited Express).',
+      fromTerminal: { name: 'Shinjuku', coords: [35.68961, 139.70057], mode: 'train' }, toTerminal: { name: 'Tobu-Nikkō', coords: [36.7479, 139.61948], mode: 'train' },
       why: [
         'Nikko es un ramal sin salida: se entra y se sale por el mismo pueblo.',
         'Valijas en lockers de la estación de llegada (~¥700-1.000) o en Utsunomiya si van full JR; Chuzenji/Kegon quedan a ~50 min de bus.'
@@ -572,6 +576,7 @@ const destinations = [
       note: 'Pegado a la estación, ideal para el Geibikei a la mañana y el shinkansen a Sendai.'
     },
     leg: { mode: '🚄', time: '~3 h', detail: 'JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki.', via: [[36.5551, 139.898], [38.2602, 140.8821], [38.9344, 141.1267]],
+      fromTerminal: { name: 'JR Nikkō', coords: [36.74746, 139.62076], mode: 'train' }, toTerminal: { name: 'Ichinoseki', coords: [38.9344, 141.1267], mode: 'train' },
       why: [
         'Nikko es de paso: la noche del 13 ya se duerme en Ichinoseki.',
         'Hay que retirar las valijas del locker antes de salir de Nikko.'
@@ -619,6 +624,7 @@ const destinations = [
       note: 'Cuartos de 17-21 m² (doble o twin) con baño privado; todo el hotel es no fumador. El buffet del desayuno mezcla japonés, occidental y chino.'
     },
     leg: { mode: '🚄', time: '~45 min', detail: 'Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku).', via: [[38.2601, 140.8821]], path: [{ m: 'train', to: [38.2601, 140.8821] }],
+      fromTerminal: { name: 'Ichinoseki', coords: [38.9344, 141.1267], mode: 'train' }, toTerminal: { name: 'Sendai', coords: [38.2601, 140.8821], mode: 'train' },
       why: [
         'Geibikei se hace a la mañana del 14 (paseo en bote) y recién después sale el shinkansen.',
         'El salto a Sendai son ~40 min y hay servicios todo el día: no hay hora límite dura.'
@@ -657,6 +663,7 @@ const destinations = [
       note: 'Base céntrica en Susukino para los 2 días de Sapporo.'
     },
     leg: { mode: '🚌✈️', time: '~3 h 30', detail: 'Sendai → aeropuerto de Sendai (~25 min, línea Access) + vuelo a New Chitose (Sapporo).', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sendai%20to%20Sapporo', dirLabel: 'ver vuelos ↗', via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'bus', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }],
+      fromTerminal: { name: 'Aeropuerto de Sendai (SDJ)', coords: [38.1397, 140.9171], mode: 'air' }, toTerminal: { name: 'New Chitose · Sapporo (CTS)', coords: [42.7752, 141.6923], mode: 'air' },
       why: [
         'Del centro de Sendai al aeropuerto son ~25 min por la línea Access.',
         'El vuelo a New Chitose todavía no está comprado: es lo que va a fijar la hora de salida.'
@@ -698,6 +705,7 @@ const destinations = [
       note: 'Base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
     },
     leg: { mode: '✈️🚆', time: '~1 h 40 (vuelo)', detail: 'Vuelo New Chitose → Komatsu + tren a Kanazawa.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sapporo%20to%20Komatsu', dirLabel: 'ver vuelos ↗', via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'train', to: [36.5613, 136.6562] }],
+      fromTerminal: { name: 'New Chitose · Sapporo (CTS)', coords: [42.7752, 141.6923], mode: 'air' }, toTerminal: { name: 'Komatsu · Kanazawa (KMQ)', coords: [36.3946, 136.4076], mode: 'air' },
       why: [
         'El vuelo New Chitose → Komatsu todavía no está comprado: es lo que va a fijar la hora de salida de Sapporo.'
       ] },
@@ -725,6 +733,7 @@ const destinations = [
     dates: '19 oct', nights: 0, start: '2026-10-19', end: '2026-10-19',
     arrival: '19 oct (de paso desde Kanazawa hacia Kioto)', departure: '19 oct tarde (sigue a Kioto; duerme allí esta noche)', lodging: null,
     leg: { mode: '🚌', time: '~1 h 15', detail: 'Bus directo Kanazawa → Shirakawa-go (de paso).', dirUrl: 'https://japanbusonline.com/en', dirLabel: 'reservar bus ↗',
+      fromTerminal: { name: 'Estación de Kanazawa', coords: [36.57804, 136.64817], mode: 'bus' }, toTerminal: { name: 'Terminal de buses de Shirakawa-go', coords: [36.26195, 136.90689], mode: 'bus' },
       why: [
         'El bus Kanazawa → Shirakawa-go es directo pero va con reserva previa (japanbusonline).',
         'Shirakawa-go es de paso: la noche del 19 ya se duerme en Kioto.'
@@ -759,6 +768,7 @@ const destinations = [
       note: 'Base downtown en Shimogyō-ku para las 6 noches.'
     },
     leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }],
+      fromTerminal: { name: 'Terminal de buses de Shirakawa-go', coords: [36.26195, 136.90689], mode: 'bus' }, toTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' },
       why: [
         'Se llega a Kioto la misma noche del día de paso por Shirakawa-go.'
       ] },
@@ -820,6 +830,7 @@ const destinations = [
       note: 'Servicio matutino 6:30 · baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha) · shojin ryori vegetariano, no contemplan alergias · tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
     },
     leg: { mode: '🚆🚠', time: '~3 h 20', detail: 'Tren Kioto → Namba + Nankai línea Koya + funicular a Koyasan.',
+      fromTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' }, toTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' },
       why: [
         'Check-in de Hōjō-in 15:00–17:00: llegar después de las 17 cuenta como cancelación con 100% de cargo.',
         'Con ~3 h 20 de viaje puerta a puerta, salir de Kioto a más tardar 13:30.',
@@ -862,6 +873,7 @@ const destinations = [
       note: 'Depto entero de 40 m² con tatami y cama doble, entre Dotonbori y Nihonbashi. Host 川house道頓堀.'
     },
     leg: { mode: '🚠🚆', time: '~2 h 30', detail: 'Funicular + Nankai Koyasan → Osaka (Namba).',
+      fromTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' }, toTerminal: { name: 'Namba (Osaka)', coords: [34.66293, 135.5023], mode: 'train' },
       why: [
         'Check-out de Hōjō-in 8:00–9:00 y desayuno 6:30–7:30: el día arranca temprano sí o sí.',
         'En Dōtonbori no hay check-in antes de las 16:00.'
@@ -923,6 +935,7 @@ const destinations = [
       note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023.'
     },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Hakata (Nozomi).',
+      fromTerminal: { name: 'Shin-Ōsaka', coords: [34.73347, 135.50025], mode: 'train' }, toTerminal: { name: 'Hakata (Fukuoka)', coords: [33.58973, 130.42073], mode: 'train' },
       why: [
         'El check-in del Royal Park Canvas va hasta las 23:00: el Nozomi de la tarde llega con margen.'
       ] },
@@ -969,6 +982,7 @@ const destinations = [
       note: 'Casa entera privada a 5 min de la estación Jeonpo · dirección 19 Dongseong-ro 25beon-gil, Busanjin-gu · host 지연 (Jiyeon). La reserva figura a nombre de 1 adulto: falta sumar a Cata como huésped.'
     },
     leg: { mode: '⛴️', time: '~3 h 20 (ferry)', detail: 'Ferry rápido Hakata → Busan (Beetle/Kobee; alt: Camellia overnight).',
+      fromTerminal: { name: 'Puerto de Hakata', coords: [33.60821, 130.40009], mode: 'ferry' }, toTerminal: { name: 'Puerto de Busan', coords: [35.1175, 129.04848], mode: 'ferry' },
       why: [
         'Cruce internacional: hay control de migraciones en el puerto de Hakata y el ferry sale con horario fijo.',
         'El pasaje todavía no está comprado: es lo que va a fijar la hora de salida.'
@@ -1010,6 +1024,7 @@ const destinations = [
       booking: { provider: 'airbnb', ref: null, checkIn: '6 nov', checkOut: '10 nov', total: 'US$844' }
     },
     leg: { mode: '🚄', time: '~2 h 40', detail: 'KTX Busan → Seúl.',
+      fromTerminal: { name: 'Estación de Busan', coords: [35.11486, 129.04079], mode: 'train' }, toTerminal: { name: 'Estación de Seúl', coords: [37.55396, 126.97169], mode: 'train' },
       why: [
         'Check-out en Busan hasta las 11:00.',
         'El KTX todavía no está comprado: es lo que va a fijar la hora de salida.'
@@ -1074,6 +1089,7 @@ const destinations = [
       note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido: la habitación es «Chisen-no-ma», del ala del estanque, frente al Sangetsuen. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Sin comidas incluidas → cenar en Yumoto o sumar la cena del ryokan aparte.'
     },
     leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }],
+      fromTerminal: { name: 'Seúl · Gimpo (GMP)', coords: [37.5583, 126.7906], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
       why: [
         'El vuelo Seúl → Tokio todavía no está comprado: define la hora del Romancecar a Hakone.',
         'El ryokan espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
@@ -1101,10 +1117,12 @@ const destinations = [
     dates: '12-17 nov', nights: 5, start: '2026-11-12', end: '2026-11-17',
     arrival: '12 nov (desde Hakone)', departure: '17 nov 17:45 (vuelo UA6 desde Narita/NRT)', lodging: null,
     leg: { mode: '🚆', time: '~1 h 45', detail: 'Romancecar/Shinkansen Hakone → Tokio.',
+      fromTerminal: { name: 'Hakone-Yumoto', coords: [35.23328, 139.10359], mode: 'train' }, toTerminal: { name: 'Shinjuku', coords: [35.68961, 139.70057], mode: 'train' },
       why: [
         'Última noche el 16/11: el 17 queda entero en Tokio hasta el vuelo de la tarde.'
       ] },
     departureLeg: { mode: '✈️', time: '~25 h · 1 escala', detail: 'Vuelta Tokio Narita → EZE · United Polaris business',
+      fromTerminal: { name: 'Tokio · Narita (NRT)', coords: [35.7720, 140.3929], mode: 'air' }, toTerminal: { name: 'Buenos Aires · Ezeiza (EZE)', coords: [-34.8222, 301.4642], mode: 'air' },
       fromName: 'Tokio (Narita/NRT)', toName: 'Buenos Aires (EZE)',
       departure: '2026-11-17T17:45', arrival: '2026-11-18T07:20',
       why: [
@@ -2375,12 +2393,27 @@ function showFocused(m) {
   return true;
 }
 
+// La punta de un traslado: el aeropuerto / la estación / el puerto por donde se entra o
+// se sale de la ciudad ese día. Vive sólo mientras dura el foco (es una punta de ESE
+// día): el pin de aeropuerto de la capa de vuelos no cubre estaciones ni puertos, y con
+// el foco tomado esa capa está apagada igual.
+const termIcon = t => t.icon || (MODE_STYLE[t.mode] || MODE_STYLE.train).icon;
+function terminalMarker(t) {
+  const icon = L.divIcon({
+    html: '<div class="term-marker">' + termIcon(t) + '</div>',
+    className: '', iconSize: [24, 24], iconAnchor: [12, 12],
+  });
+  return L.marker(t.coords, { icon, zIndexOffset: 1100 })
+    .bindPopup('<div class="popup-title">' + termIcon(t) + ' ' + t.name + '</div>');
+}
+
 // spec = { date, label, route: [{ key, cat }, ...] EN ORDEN DE RECORRIDO,
-//          stops: [ids], wake: id|null, lodging: id|null }
+//          line: [ítems del trazo, en orden], stops: [ids], legs: [ids de tramo] }
 // El orden lo decide la vista (dayRoute() en views.js, que ordena por geografía); acá
-// sólo se dibuja. Del recorrido se leen `key` y `cat` y nada más: el mapa no sabe de
-// itinerario. `wake` es la cama de anoche —de dónde arranca el día— y `lodging` la de
-// esta noche; cuando son la misma, la línea cierra el círculo.
+// sólo se dibuja. `line` es el trazo entero y cada ítem es una de tres cosas: `{ bed }`
+// (un hospedaje — la cama de anoche o la de esta noche; cuando son la misma, la línea
+// cierra el círculo), `{ terminal }` (la punta de un traslado del día) o una parada del
+// recorrido, de la que se leen `key` y `cat` y nada más. El mapa no sabe de itinerario.
 function enterDayFocus(spec) {
   if (!spec) return;
   // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
@@ -2395,12 +2428,12 @@ function enterDayFocus(spec) {
 
   const line = [], ord = [];
   const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); return m.getLatLng(); } };
-  if (spec.wake) step(lodgingMarkers[spec.wake]);
-  spec.route.forEach(p => {
+  (spec.line || []).forEach(p => {
+    if (p.bed) { step(lodgingMarkers[p.bed]); return; }
+    if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
     const ll = step(actMarkers[p.key]);
     if (ll) ord.push({ ll, color: catColor(p.cat) });
   });
-  if (spec.lodging) step(lodgingMarkers[spec.lodging]);
   // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
   // la ciudad no dice nada que los puntos no digan ya. Con las camas no alcanza —dos
@@ -2412,7 +2445,11 @@ function enterDayFocus(spec) {
   });
 
   if (line.length > 1) {
-    L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round' }).addTo(focusLayer);
+    // No se toca (`interactive: false`): es la guía del día, no un objeto con ficha. Y
+    // desde que las puntas son las terminales del salto, el tramo del día queda
+    // exactamente DEBAJO de este trazo — si tomara clicks, taparía el de su línea, que
+    // es lo que abre la ficha del transporte.
+    L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(focusLayer);
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.

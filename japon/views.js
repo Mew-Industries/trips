@@ -374,7 +374,16 @@ function orderBlocks(blocks, startLL, endLL) {
 // sobre los pasos, y mezclar Tokio con Nikko por cercanía sería un recorrido imposible.
 // Dentro de cada nodo manda `orderRoute`. Lo que no tiene coords no entra en la línea
 // (no se le inventan) pero sigue estando en la lista, abajo.
-export function dayRoute(day, ctx) {
+//
+// El día cierra sobre sus puntas reales: sale de la cama de anoche y vuelve a la de esta
+// noche, y cuando hay traslado la punta es la terminal del salto (`leg.fromTerminal` /
+// `toTerminal` en los datos) — el aeropuerto o la estación por donde se entra y se sale
+// de la ciudad, no el hotel de la ciudad siguiente a 500 km.
+//
+// `keepOrder` deja las paradas en el orden del array en vez de ordenarlas: es la línea
+// "de listado" contra la que mide `scripts/check_routes.js` —mismas camas y mismas
+// terminales, sólo cambia el orden de adentro—. La app nunca lo pasa.
+export function dayRoute(day, ctx, keepOrder) {
   const wake = bedOf(day.wake), bed = bedOf(day.sleep);
   const byNode = new Map();
   const bucket = node => {
@@ -400,16 +409,56 @@ export function dayRoute(day, ctx) {
     for (const it of s.clusters.flatMap(c => c.items))
       (it.act.coords ? bucket(s.node) : loose).push(entry(s.node, it.i, it.act));
 
+  // Los tramos que se toman ESE día, por id: un vuelo con escalas emite un evento por
+  // segmento, pero el salto —y sus terminales— es uno.
+  const legsToday = new Map();
+  for (const e of day.events) if (e.transfer && !legsToday.has(e.transfer.id)) legsToday.set(e.transfer.id, e.transfer);
+  const transferOf = (node, kind) => [...legsToday.values()].find(t => t.kind === kind && t.node.id === node.id) || null;
+
+  // La cadena del día: los puntos de cada nodo, y entre ellos las terminales del salto
+  // que los separa. El nodo al que se llega aporta su terminal de origen (la de la
+  // ciudad que se deja) y la de llegada; el que se va esta noche, la de salida. Sólo
+  // las de HOY: en un vuelo que aterriza al otro día, la punta de llegada es del día
+  // siguiente, y ahí es su única punta.
+  const chain = [], done = new Set();
+  const terminals = (t) => {
+    if (!t || done.has(t.id)) return;
+    done.add(t.id);
+    if (t.date === day.date && t.leg.fromTerminal && t.leg.fromTerminal.coords) chain.push({ terminal: t.leg.fromTerminal });
+    if (t.endDate === day.date && t.leg.toTerminal && t.leg.toTerminal.coords) chain.push({ terminal: t.leg.toTerminal });
+  };
   // Los nodos van en el orden del ITINERARIO, no por cercanía: en un día de traslado no
   // se vuelve sobre los pasos. Cada uno tira hacia el siguiente — la punta de un tramo
   // es por dónde sigue el día.
-  const legs = day.here.map(h => byNode.get(h.node.id)).filter(l => l && l.length).map(blocksOf);
-  const route = [];
-  legs.forEach((blocks, k) => {
-    const from = route.length ? route[route.length - 1].ll : (wake ? wake.lodging.coords : null);
-    const to = k + 1 < legs.length ? mid(legs[k + 1]) : (bed ? bed.lodging.coords : null);
-    route.push(...orderBlocks(blocks, from, to));
+  for (const h of day.here) {
+    terminals(transferOf(h.node, 'in'));
+    const pts = byNode.get(h.node.id);
+    if (pts && pts.length) chain.push({ blocks: blocksOf(pts) });
+    terminals(transferOf(h.node, 'out'));
+  }
+  // Un día enteramente en tránsito no toca ningún nodo (el aterrizaje del vuelo de
+  // vuelta): su única punta es la terminal donde ese salto baja.
+  for (const t of legsToday.values()) terminals(t);
+
+  // Ordenar cada tanda de puntos ya sabiendo sus dos puntas: de dónde se viene (la
+  // cama, o la terminal en la que se bajó) y hacia dónde sigue (la próxima terminal, o
+  // la cama de esta noche). El `line` es el trazo completo —camas, terminales y
+  // paradas, en orden—; `route` son sólo las paradas, que son las que se numeran.
+  const route = [], line = [];
+  const llAt = k => {
+    const c = chain[k];
+    return c ? (c.terminal ? c.terminal.coords : mid(c.blocks)) : (bed ? bed.lodging.coords : null);
+  };
+  if (wake) line.push({ bed: wake.id });
+  let prev = wake ? wake.lodging.coords : null;
+  chain.forEach((c, k) => {
+    if (c.terminal) { line.push(c); prev = c.terminal.coords; return; }
+    const ordered = keepOrder ? c.blocks.flatMap(b => b.blocks || [b]) : orderBlocks(c.blocks, prev, llAt(k + 1));
+    route.push(...ordered);
+    line.push(...ordered);
+    if (ordered.length) prev = ordered[ordered.length - 1].ll;
   });
+  if (bed) line.push({ bed: bed.id });
 
   return {
     date: day.date,
@@ -419,15 +468,18 @@ export function dayRoute(day, ctx) {
     // El mapa sólo lee `key` y `cat` de cada punto. Es UN array y no dos: la lista y
     // la línea no pueden contar recorridos distintos porque son el mismo objeto.
     route,
+    // El trazo entero, con las puntas que la lista no numera: `{ bed }` (un hospedaje —
+    // la cama de anoche y la de esta noche; cuando son la misma, la línea cierra el
+    // círculo, que es lo que efectivamente pasa: salís del hotel y volvés a dormir ahí)
+    // y `{ terminal }` (el aeropuerto / la estación / el puerto por donde se entra o se
+    // sale ese día). El mapa lo dibuja en este orden y nada más — sigue sin saber de
+    // itinerario.
+    line,
     loose,
     stops: day.here.map(h => h.node.id),
     // Los saltos que se hacen ese día (por id de tramo): el foco esconde el transporte
     // del resto del viaje, pero el de la jornada es parte de la jornada.
-    legs: [...new Set(day.events.filter(e => e.transfer).map(e => e.transfer.id))],
-    // Las dos puntas del día. Cuando son la misma cama el recorrido cierra el círculo,
-    // que es lo que efectivamente pasa: salís del hotel y volvés a dormir ahí.
-    wake: wake ? wake.id : null,
-    lodging: bed ? bed.id : null,
+    legs: [...legsToday.keys()],
   };
 }
 
@@ -439,8 +491,9 @@ function routeOf(day, ctx) {
   return _routes.get(day);
 }
 
-// Un día sin ningún punto no tiene nada que mostrar en el mapa: sin botón.
-const dayHasMap = spec => !!(spec.route.length || spec.lodging || spec.stops.length);
+// Un día sin ningún punto no tiene nada que mostrar en el mapa: sin botón. Alcanza con
+// una punta —la terminal del vuelo que sale, aunque no haya nada más ese día.
+const dayHasMap = spec => !!(spec.line.length || spec.stops.length);
 
 // El recorrido del día en la sidebar: los mismos puntos, en el mismo orden y con el
 // mismo número que la línea del mapa. El número no depende del foco —está siempre—

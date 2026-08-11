@@ -17,6 +17,14 @@
 //                                cartel de la estación.
 //   nodo.leg.fromName/toName     Overridean las puntas del tramo cuando no son nodos
 //                                del viaje (ej. 'Buenos Aires (EZE)').
+//   nodo.leg.fromTerminal        { name, coords, mode, icon? } — la punta FÍSICA del
+//   nodo.leg.toTerminal          salto: el aeropuerto, la estación o el puerto por donde
+//                                se sale y se entra. Es lo que cierra el recorrido de un
+//                                día de traslado (ver dayRoute() en views.js): el día no
+//                                termina en el hotel de la ciudad siguiente, termina en
+//                                la terminal. `mode` es el de MODE_STYLE ('air'/'train'/
+//                                'bus'/'ferry') y da el ícono; `icon` lo overridea cuando
+//                                el modo no lo cuenta (el funicular de Koyasan).
 //   nodo.leg.why                 [string] — por qué el horario es el que es. Es lo que
 //                                convierte la vista de transportes en algo accionable.
 //   nodo.leg.deadline            { by, what, departBy? } — hora límite dura de llegada
