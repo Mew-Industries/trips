@@ -187,7 +187,7 @@ export function daysOf(dests, transfers) {
     if (s.arrival) segEvents.push(ev(timeOf(s.arrival), 'vuelo', 'Llega ' + b + (s.no ? ' · ' + s.no : ''), { date: dayOf(s.arrival), transfer: t, seg: s, ord: segEvents.length }));
   }));
 
-  return datesBetween(first, last).map((date, i) => {
+  const days = datesBetween(first, last).map((date, i) => {
     const here = nodes.filter(n => n.start <= date && date <= n.end).map(n => ({
       node: n,
       role: n.type === 'fullday' || n.start === n.end ? 'de paso'
@@ -221,6 +221,12 @@ export function daysOf(dests, transfers) {
 
     return { date, n: i + 1, here, sleep, inFlight, events, suggestions };
   });
+
+  // De dónde ARRANCA el día: la cama de anoche. `sleep` es dónde termina. En un día
+  // normal son la misma y el recorrido sale y vuelve ahí; en uno de traslado son dos
+  // puntas distintas, y esa es justamente la forma del día.
+  days.forEach((d, i) => { d.wake = i ? days[i - 1].sleep : null; });
+  return days;
 }
 
 export function buildItinerary(dests) {

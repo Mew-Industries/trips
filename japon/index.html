@@ -2301,8 +2301,10 @@ dayChip.appendChild(dayChipBtn);
 map.getContainer().appendChild(dayChip);
 L.DomEvent.disableClickPropagation(dayChip);
 
-const ordIcon = n => L.divIcon({
-  html: '<div class="rt-ord">' + n + '</div>',
+// El número del recorrido, pintado con el color de la categoría del punto: es el
+// mismo círculo que la lista de la jornada pone delante del ítem.
+const ordIcon = (n, color) => L.divIcon({
+  html: '<div class="rt-ord" style="background:' + color + '">' + n + '</div>',
   className: '', iconSize: [16, 16], iconAnchor: [-5, 15],
 });
 
@@ -2315,7 +2317,12 @@ function showFocused(m) {
   return true;
 }
 
-// spec = { date, label, route: [<claves de actMarkers, EN ORDEN>], stops: [ids], lodging: id|null }
+// spec = { date, label, route: [{ key, cat }, ...] EN ORDEN DE RECORRIDO,
+//          stops: [ids], wake: id|null, lodging: id|null }
+// El orden lo decide la vista (dayRoute() en views.js, que ordena por geografía); acá
+// sólo se dibuja. Del recorrido se leen `key` y `cat` y nada más: el mapa no sabe de
+// itinerario. `wake` es la cama de anoche —de dónde arranca el día— y `lodging` la de
+// esta noche; cuando son la misma, la línea cierra el círculo.
 function enterDayFocus(spec) {
   if (!spec) return;
   // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
@@ -2324,23 +2331,30 @@ function enterDayFocus(spec) {
   dayFocus = { date: spec.date, prev, shown: [] };
   TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
 
-  const line = [];
-  const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); } };
-  spec.route.forEach(k => step(actMarkers[k]));
+  const line = [], ord = [];
+  const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); return m.getLatLng(); } };
+  if (spec.wake) step(lodgingMarkers[spec.wake]);
+  spec.route.forEach(p => {
+    const ll = step(actMarkers[p.key]);
+    if (ll) ord.push({ ll, color: catColor(p.cat) });
+  });
   if (spec.lodging) step(lodgingMarkers[spec.lodging]);
-  // La parada del día entra SÓLO si el día no tiene puntos propios (traslado, llegada
+  // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
-  // la ciudad no dice nada que los puntos no digan ya.
+  // la ciudad no dice nada que los puntos no digan ya. Con las camas no alcanza —dos
+  // pines de hotel no cuentan qué pasó ese día—, por eso mira `ord` y no `line`.
   const ctxPts = [];
-  if (!line.length) (spec.stops || []).forEach(id => {
+  if (!ord.length) (spec.stops || []).forEach(id => {
     const m = markers[id];
     if (m && showFocused(m)) ctxPts.push(m.getLatLng());
   });
 
   if (line.length > 1) {
     L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round' }).addTo(focusLayer);
-    line.forEach((ll, i) => L.marker(ll, { icon: ordIcon(i + 1), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
   }
+  // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
+  // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
+  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
   focusLayer.addTo(map);
 
   dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
@@ -2351,9 +2365,9 @@ function enterDayFocus(spec) {
     map.getContainer().scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
-  // Encuadre: manda el recorrido. La ciudad entra sólo si es lo único que hay (día de
-  // viaje sin puntos cargados), porque si no un centroide lejano desarma el zoom.
-  const fit = line.length ? line : ctxPts;
+  // Encuadre: manda el recorrido, camas incluidas —son sus puntas—. La ciudad entra
+  // sólo cuando no hay paradas, porque si no un centroide lejano desarma el zoom.
+  const fit = line.concat(ctxPts);
   if (fit.length === 1) map.flyTo(fit[0], 14, { duration: 0.7 });
   else if (fit.length) map.flyToBounds(L.latLngBounds(fit), { padding: [70, 70], maxZoom: 15, duration: 0.7 });
 }

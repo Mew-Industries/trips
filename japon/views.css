@@ -149,9 +149,23 @@ button.sg-item { cursor: pointer; }
 button.sg-item:hover { color: #0F6E56; }
 button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; border-radius: 3px; }
 .sg-item.plain { color: #8d8878; }
-/* Con el día enfocado, cada ítem lleva su número del recorrido del mapa. */
-.sg-item[data-ord] { color: #0F6E56; font-weight: 600; }
-.sg-item[data-ord]::before { content: attr(data-ord); display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; margin-right: 5px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 8.5px; font-weight: 700; vertical-align: 1px; }
+
+/* El recorrido del día: una sola secuencia numerada, en el orden en que se camina.
+   El número y el color son los mismos que los del mapa — sin eso, seguir la línea
+   caminando obliga a volver a leer toda la lista. */
+.rt-list { list-style: none; margin: 0; padding: 0; }
+.rt-node { font-size: 10px; font-weight: 700; color: #b3aea0; text-transform: uppercase; letter-spacing: 0.06em; margin: 6px 0 2px; }
+.rt-node:first-child { margin-top: 0; }
+.rt-grp { font-size: 10.5px; font-weight: 600; color: #6e6a5f; line-height: 1.4; margin: 4px 0 1px; }
+.rt-item { display: block; }
+.rt-item.in-grp { padding-left: 9px; }
+.rt-item .sg-item { display: flex; align-items: baseline; gap: 5px; }
+.rt-item .sg-item::before { content: attr(data-ord); flex: none; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--c); color: #fff; font-size: 8.5px; font-weight: 700; position: relative; top: 2px; }
+.rt-ic { flex: none; font-size: 10px; }
+.rt-t { flex: none; font-size: 10px; font-weight: 700; color: #0F6E56; }
+/* Sin coordenadas no hay lugar en la línea: van al final, sin número. */
+.rt-rest { margin-top: 4px; }
+.rt-item.plain { display: flex; align-items: baseline; gap: 5px; padding-left: 19px; font-size: 11.5px; line-height: 1.45; color: #8d8878; }
 
 /* "todo lo de <ciudad>": el catálogo completo del nodo, plegado. */
 .sg-all { margin-top: 8px; }

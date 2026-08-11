@@ -188,9 +188,9 @@ function runsOf(list) {
   return runs;
 }
 
-// El orden visual de una lista de actividades: por categoría (CAT_ORDER) y, adentro,
-// por salida. Lo usan la lista Y el recorrido del día en el mapa — de acá sale que la
-// línea del mapa y el listado de la sidebar cuenten lo mismo, en el mismo orden.
+// El orden de un CATÁLOGO de actividades: por categoría (CAT_ORDER) y, adentro, por
+// salida. Es el orden del "todo lo de <ciudad>", que es una lista para elegir. El
+// recorrido de una jornada NO se ordena así —ahí manda la geografía, ver dayRoute()—.
 function catGroups(items, ctx) {
   const byCat = new Map();
   for (const it of items) {
@@ -227,40 +227,256 @@ function catListHtml(items, ctx, nodeId) {
   }).join('');
 }
 
-// El recorrido de una jornada: los puntos que la vista lista, EN EL ORDEN en que los
-// lista. Primero lo que tiene hora comprada (los eventos ya vienen cronológicos),
-// después las sugerencias en el orden del listado, y la cama al final, que es donde
-// termina el día. Lo que no tiene coords no entra en la línea (no se inventan) pero
-// sigue estando en la lista.
-function dayRoute(day, ctx) {
-  const route = [], seen = new Set();
-  const push = (node, i) => {
-    const key = node.id + ':' + i;
-    if (!seen.has(key)) { seen.add(key); route.push(key); }
+// ---------------------------------------------------- el recorrido de la jornada
+// El orden de la lista de actividades es el orden en que están cargadas, que es el
+// orden en que se le ocurrieron a alguien — no el orden en que se caminan. Seguirlo
+// da un día que cruza la ciudad de punta a punta tres veces. Acá se ordena por
+// geografía: se sale de la cama de anoche, se encadena por cercanía y se termina en
+// la cama de esta noche.
+
+// Distancia entre dos puntos, en grados corregidos por latitud. No son kilómetros y
+// no hace falta que lo sean: sólo se comparan distancias entre sí, todas dentro de la
+// misma ciudad. (Equirectangular; a esta escala el error contra Haversine es ínfimo.)
+function dist(a, b) {
+  const x = (b[1] - a[1]) * Math.cos((a[0] + b[0]) / 2 * Math.PI / 180);
+  const y = b[0] - a[0];
+  return Math.sqrt(x * x + y * y);
+}
+
+// Cuántas paradas sueltas entran antes de una hora comprada. El día arranca a las 9 y
+// una parada lleva hora y media: es un supuesto, y es explícito porque es el único que
+// hay —los lugares no traen duración—. Sin él, una entrada a las 9:00 se acomoda a la
+// tarde porque caminando conviene, y a las 9 hay que estar adentro; con él, una cena
+// reservada a las 20:00 sigue teniendo el día entero por delante.
+const DAY_START = 9 * 60, STOP_MIN = 90;
+function capBefore(at) {
+  const t = timeOf(at);
+  if (!t) return Infinity;
+  return Math.max(0, Math.floor((Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5)) - DAY_START) / STOP_MIN));
+}
+
+// Ordena los puntos de un tramo como un recorrido: inserción más barata (entra el
+// punto que menos camino agrega) y después mejoras locales —dar vuelta un tramo
+// (2-opt) o mudar un punto (relocate)— hasta que nada mejore.
+//
+// `startLL` y `endLL` son las puntas fijas (de dónde salís, dónde terminás); pueden
+// faltar. Los puntos con `anchor` tienen hora comprada: el reloj manda sobre la
+// geografía, así que conservan su orden entre sí y no se les puede meter adelante más
+// paradas de las que entran en el día antes de esa hora (`cap`).
+//
+// Son ≤10 puntos por día: esto corre en microsegundos y llega al óptimo o al lado.
+// Tampoco es ruteo por calles (eso pedía un servicio externo): es el orden de visita.
+function orderRoute(pts, startLL, endLL) {
+  let tour = pts.filter(p => p.anchor);        // ya vienen en orden de reloj
+  const free = pts.filter(p => !p.anchor);
+
+  const len = t => {
+    let s = 0, prev = startLL;
+    for (const p of t) { if (prev) s += dist(prev, p.ll); prev = p.ll; }
+    return s + (prev && endLL ? dist(prev, endLL) : 0);
   };
+  const legal = t => {
+    let n = 0;
+    for (const p of t) {
+      if (p.anchor) { if (n > p.cap) return false; }
+      else n += p.blocks ? p.blocks.length : 1;   // una salida entera ocupa lo que dura
+    }
+    return true;
+  };
+
+  while (free.length) {
+    let best = null;
+    free.forEach((p, pi) => {
+      for (let i = 0; i <= tour.length; i++) {
+        const cand = tour.slice(0, i).concat([p], tour.slice(i));
+        if (!legal(cand)) continue;
+        const prev = i ? tour[i - 1].ll : startLL;
+        const next = i < tour.length ? tour[i].ll : endLL;
+        const cost = (prev ? dist(prev, p.ll) : 0) + (next ? dist(p.ll, next) : 0) -
+                     (prev && next ? dist(prev, next) : 0);
+        if (!best || cost < best.cost) best = { cost, pi, cand };
+      }
+    });
+    // Al final del recorrido no hay ancla que se pueda pisar: siempre hay lugar.
+    tour = best.cand;
+    free.splice(best.pi, 1);
+  }
+
+  let best = len(tour);
+  for (let pass = 0; pass < 40; pass++) {
+    let moved = false;
+    const better = cand => {
+      if (!legal(cand)) return false;
+      const l = len(cand);
+      if (l >= best - 1e-12) return false;
+      tour = cand; best = l; moved = true;
+      return true;
+    };
+    for (let i = 0; i < tour.length && !moved; i++) {
+      // dar vuelta el tramo i..j — sólo si adentro no hay dos anclas que se crucen
+      for (let j = i + 1; j < tour.length; j++) {
+        if (tour.slice(i, j + 1).filter(p => p.anchor).length > 1) continue;
+        if (better(tour.slice(0, i).concat(tour.slice(i, j + 1).reverse(), tour.slice(j + 1)))) break;
+      }
+      // mudar un punto libre a cualquier otro lugar (nunca reordena anclas)
+      if (moved || tour[i].anchor) continue;
+      const rest = tour.slice(0, i).concat(tour.slice(i + 1));
+      for (let j = 0; j <= rest.length; j++) {
+        if (j !== i && better(rest.slice(0, j).concat([tour[i]], rest.slice(j)))) break;
+      }
+    }
+    if (!moved) break;
+  }
+  return tour;
+}
+
+const bedOf = node => (node && node.lodging && node.lodging.coords) ? node : null;
+const mid = ps => ps.reduce((a, p) => [a[0] + p.ll[0] / ps.length, a[1] + p.ll[1] / ps.length], [0, 0]);
+
+// Las actividades que comparten `group` son, en los datos, "esto se hace en la misma
+// salida". Eso pesa más que la geografía: una salida se camina entera y después se
+// pasa a la siguiente. Sin esto el orden por cercanía las intercala y el día queda
+// con "Bukchon + Insadong" dos veces, partido por la mitad.
+function blocksOf(pts) {
+  const out = [], byGroup = new Map();
+  for (const p of pts) {
+    if (!p.group || p.anchor) { out.push(p); continue; }
+    if (!byGroup.has(p.group)) { const b = { blocks: [] }; byGroup.set(p.group, b); out.push(b); }
+    byGroup.get(p.group).blocks.push(p);
+  }
+  return out.map(b => {
+    if (!b.blocks) return b;
+    if (b.blocks.length === 1) return b.blocks[0];
+    b.ll = mid(b.blocks);
+    return b;
+  });
+}
+
+// Ordena bloques y los desarma en la lista de puntos: primero se decide por dónde va
+// cada salida (pesa por su centro), y recién ahí el orden de adentro, ya sabiendo de
+// dónde se viene y hacia dónde sigue el día.
+function orderBlocks(blocks, startLL, endLL) {
+  const seq = orderRoute(blocks, startLL, endLL);
+  const out = [];
+  seq.forEach((b, k) => {
+    if (!b.blocks) { out.push(b); return; }
+    const from = out.length ? out[out.length - 1].ll : startLL;
+    const to = k + 1 < seq.length ? seq[k + 1].ll : endLL;
+    out.push(...orderBlocks(b.blocks, from, to));
+  });
+  return out;
+}
+
+// El recorrido de una jornada, en el orden en que se camina. Los puntos se parten por
+// nodo y los nodos van en el orden del itinerario: en un día de traslado no se vuelve
+// sobre los pasos, y mezclar Tokio con Nikko por cercanía sería un recorrido imposible.
+// Dentro de cada nodo manda `orderRoute`. Lo que no tiene coords no entra en la línea
+// (no se le inventan) pero sigue estando en la lista, abajo.
+export function dayRoute(day, ctx) {
+  const wake = bedOf(day.wake), bed = bedOf(day.sleep);
+  const byNode = new Map();
+  const bucket = node => {
+    if (!byNode.has(node.id)) byNode.set(node.id, []);
+    return byNode.get(node.id);
+  };
+  const entry = (node, i, act, extra) => Object.assign({
+    key: node.id + ':' + i, act, ll: act.coords, cat: ctx.catOfAct(act), group: act.group || null,
+  }, extra);
+
+  // Lo que tiene hora comprada entra como ancla, en el orden en que el día lo lista
+  // (los eventos ya vienen cronológicos).
   for (const e of day.events) {
     if (!e.act || !e.act.coords || !e.node) continue;
     const i = (e.node.activities || []).indexOf(e.act);
-    if (i >= 0) push(e.node, i);
+    if (i >= 0) bucket(e.node).push(entry(e.node, i, e.act, {
+      anchor: true, time: e.time || null, cap: capBefore(e.act.at),
+    }));
   }
+  // Y las sugerencias del día, que son las que se pueden mover.
+  const loose = [];
   for (const s of day.suggestions)
-    for (const g of catGroups(s.clusters.flatMap(c => c.items), ctx))
-      for (const r of g.runs)
-        for (const it of r.items) if (it.act.coords) push(s.node, it.i);
+    for (const it of s.clusters.flatMap(c => c.items))
+      (it.act.coords ? bucket(s.node) : loose).push(entry(s.node, it.i, it.act));
+
+  // Los nodos van en el orden del ITINERARIO, no por cercanía: en un día de traslado no
+  // se vuelve sobre los pasos. Cada uno tira hacia el siguiente — la punta de un tramo
+  // es por dónde sigue el día.
+  const legs = day.here.map(h => byNode.get(h.node.id)).filter(l => l && l.length).map(blocksOf);
+  const route = [];
+  legs.forEach((blocks, k) => {
+    const from = route.length ? route[route.length - 1].ll : (wake ? wake.lodging.coords : null);
+    const to = k + 1 < legs.length ? mid(legs[k + 1]) : (bed ? bed.lodging.coords : null);
+    route.push(...orderBlocks(blocks, from, to));
+  });
 
   return {
     date: day.date,
     // El chip del mapa es HTML, no texto: la fecha concreta cae en modo discreto,
     // igual que la de la tarjeta del día.
     label: 'Día ' + day.n + ctx.DX(' · ' + fmtDate(day.date)),
+    // El mapa sólo lee `key` y `cat` de cada punto. Es UN array y no dos: la lista y
+    // la línea no pueden contar recorridos distintos porque son el mismo objeto.
     route,
+    loose,
     stops: day.here.map(h => h.node.id),
-    lodging: day.sleep && day.sleep.lodging && day.sleep.lodging.coords ? day.sleep.id : null,
+    // Las dos puntas del día. Cuando son la misma cama el recorrido cierra el círculo,
+    // que es lo que efectivamente pasa: salís del hotel y volvés a dormir ahí.
+    wake: wake ? wake.id : null,
+    lodging: bed ? bed.id : null,
   };
+}
+
+// Armar el recorrido cuesta poco pero se pide varias veces por día (el botón, el foco,
+// la lista): una vez por jornada alcanza.
+const _routes = new WeakMap();
+function routeOf(day, ctx) {
+  if (!_routes.has(day)) _routes.set(day, dayRoute(day, ctx));
+  return _routes.get(day);
 }
 
 // Un día sin ningún punto no tiene nada que mostrar en el mapa: sin botón.
 const dayHasMap = spec => !!(spec.route.length || spec.lodging || spec.stops.length);
+
+// El recorrido del día en la sidebar: los mismos puntos, en el mismo orden y con el
+// mismo número que la línea del mapa. El número no depende del foco —está siempre—
+// porque es lo que permite mirar el mapa y volver a encontrar el punto en la lista.
+// El color y el ícono siguen siendo los de la categoría (data/categories.js), que es
+// lo que ataba la lista con los pines cuando la lista se agrupaba por categoría.
+function routeListHtml(spec, ctx, day) {
+  const esc = ctx.escHtml;
+  const shortOf = id => (day.here.find(h => h.node.id === id) || { node: {} }).node.short || '';
+  // Hay actividades que nombran el hospedaje ("Onsen al atardecer en Yoshiike
+  // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
+  const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
+  const icon = p => '<span class="rt-ic">' + (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon + '</span>';
+  const color = p => (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).color;
+
+  // Los `group` de los datos ("Asakusa + Sumida River + Skytree" = una salida) siguen
+  // apareciendo, pero como lo que son ahora: un tramo del recorrido. Si la geografía
+  // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
+  let node = null, grp = null;
+  const multi = new Set(spec.route.map(p => p.key.split(':')[0])).size > 1;
+  const items = spec.route.map((p, i) => {
+    let head = '';
+    const nid = p.key.split(':')[0];
+    if (multi && nid !== node) head += '<li class="rt-node">' + esc(shortOf(nid)) + '</li>';
+    if (p.group !== grp && p.group) head += '<li class="rt-grp">' + esc(p.group) + '</li>';
+    node = nid; grp = p.group;
+    // Los de una salida van indentados: si no, el primer ítem suelto que viene después
+    // se lee como si todavía perteneciera al rótulo de arriba.
+    return head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + '" style="--c:' + color(p) + '">' +
+      '<button type="button" class="sg-item" data-act="' + p.key + '" data-ord="' + (i + 1) + '">' +
+        (p.time ? '<span class="rt-t dx">' + p.time + '</span>' : '') + icon(p) + label(p.act) +
+      '</button></li>';
+  }).join('');
+
+  // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
+  const rest = spec.loose.map(p =>
+    '<li class="rt-item plain" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + '</li>').join('');
+
+  return (items ? '<ol class="rt-list">' + items + '</ol>' : '') +
+    (rest ? '<ul class="rt-list rt-rest">' + rest + '</ul>' : '');
+}
 
 const offScreen = (el) => {
   const r = el.getBoundingClientRect();
@@ -291,11 +507,8 @@ RENDER.dias = (it, ctx) => {
         '</span></div>';
     }).join('');
 
-    const multi = day.suggestions.length > 1;
-    const sug = day.suggestions.map(s =>
-      (multi ? '<div class="sg-node">' + esc(s.node.short) + '</div>' : '') +
-      catListHtml(s.clusters.flatMap(c => c.items), ctx, s.node.id)
-    ).join('');
+    const spec = routeOf(day, ctx);
+    const sug = routeListHtml(spec, ctx, day);
 
     // El reparto del día muestra dos o tres cosas de un nodo que tiene treinta: acá
     // abajo está el catálogo entero del nodo, para que nada del itinerario quede
@@ -308,7 +521,7 @@ RENDER.dias = (it, ctx) => {
 
     // El botón lleva el mapa a esa jornada (foco de día, task 508). No abre nada en el
     // sidebar: la lista ya está acá, lo que cambia es lo que se ve al lado.
-    const mapBtn = dayHasMap(dayRoute(day, ctx))
+    const mapBtn = dayHasMap(spec)
       ? '<button type="button" class="dy-map" data-day="' + day.date + '">ver en mapa</button>' : '';
 
     return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
@@ -391,7 +604,7 @@ export function mountViews(destinations, ctx) {
   // mapa vacío con un chip que no explica nada. Se ignora el parámetro.
   function currentDay() {
     const d = new URLSearchParams(location.search).get('dia');
-    return dayByDate[d] && dayHasMap(dayRoute(dayByDate[d], ctx)) ? d : null;
+    return dayByDate[d] && dayHasMap(routeOf(dayByDate[d], ctx)) ? d : null;
   }
 
   let shownTab = null;
@@ -426,7 +639,7 @@ export function mountViews(destinations, ctx) {
 
   function showDay(date) {
     if (ctx.focusDay) {
-      if (date) ctx.focusDay(dayRoute(dayByDate[date], ctx));
+      if (date) ctx.focusDay(routeOf(dayByDate[date], ctx));
       else if (shownDay) ctx.exitDayFocus();
     }
     const pane = panes.dias;
@@ -437,14 +650,8 @@ export function mountViews(destinations, ctx) {
         b.classList.toggle('on', on);
         if (on) btn = b;
       });
-      // El mismo número que el mapa, en la lista: si el mapa numera el recorrido y
-      // la lista no, el "6" del mapa no se puede volver a encontrar acá.
-      pane.querySelectorAll('.sg-item[data-ord]').forEach(b => b.removeAttribute('data-ord'));
-      const card = btn && btn.closest('.v-card');
-      if (card) dayRoute(dayByDate[date], ctx).route.forEach((k, i) => {
-        const el = card.querySelector('.sg-item[data-act="' + k + '"]');
-        if (el) el.setAttribute('data-ord', i + 1);
-      });
+      // Los números del recorrido ya están puestos al renderizar y no dependen del
+      // foco: son el orden real de la jornada, no un adorno del modo mapa.
       // Sólo si el día quedó fuera de pantalla (deep-link, back): cuando el foco sale
       // de tocar el botón, ese día ya se está mirando y mover la lista es ruido — y en
       // mobile encima taparía el mapa, que es lo que acaba de cambiar.
