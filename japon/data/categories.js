@@ -11,12 +11,18 @@
 // Verificación: node scripts/check_categories.js
 
 window.PLACE_TAXONOMY = {
-  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'],
+  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'],
   meta: {
     'comida':       { label: 'Comida',     icon: '🍜',  color: '#D8452F' },
     'bar-noche':    { label: 'Bar/noche',  icon: '🍸',  color: '#6D4AA8' },
     'parque':       { label: 'Parques',    icon: '🌳',  color: '#3E9B4F' },
     'templo-museo': { label: 'Templos y museos', icon: '⛩️', color: '#C9891C' },
+    // Arte visual y exhibiciones (museos de arte, galerías, teamLab, land art).
+    // El violeta es el hueco de tono más grande que quedaba, entre el índigo de
+    // bar-noche (#6D4AA8) y el rosa de compras (#D4408C); va más saturado que
+    // los dos para que a 9px (los puntos del filtro y los pines) no se confunda
+    // con el violeta apagado de bar-noche.
+    'arte':         { label: 'Arte',       icon: '🎨',  color: '#A733B5' },
     'arquitectura': { label: 'Arquitectura', icon: '🏛️', color: '#237C78' },
     'actividad':    { label: 'Actividades', icon: '🎢', color: '#0F8FA8' },
     'compras':      { label: 'Compras',    icon: '🛍️', color: '#D4408C' },
@@ -71,6 +77,35 @@ window.PLACE_CAT_OVERRIDES = {
   'WWW / WWW X': 'bar-noche',
   'ZEROTOKYO': 'bar-noche',
 
+  // --- Arte: museos de arte, galerías, land art y exhibiciones ---
+  // El corte contra `templo-museo` es qué se va a ver: si es obra (cuadros,
+  // esculturas, instalaciones) va acá; si es el templo, el mirador o la
+  // historia del lugar, se queda allá. Los museos que no son de arte (cerveza
+  // Sapporo, Nintendo, perfume de Oita, Audeum) siguen en `templo-museo`, y
+  // los lugares donde el plan es el EDIFICIO (Le Corbusier, KAIT, DDP) siguen
+  // en `arquitectura` / `templo-museo`.
+  'teamLab Planets': 'arte',
+  'teamLab Borderless': 'arte',
+  'Museo Ghibli si conseguís entrada': 'arte',
+  'SCAI The Bathhouse (galería)': 'arte',
+  '21_21 Design Sight': 'arte',                 // museo de diseño de Issey Miyake
+  'Nezu Museum': 'arte',
+  'Suginami Animation Museum': 'arte',
+  'Sapporo Art Museum': 'arte',
+  'Moerenuma Park (parque-escultura de Isamu Noguchi)': 'arte',   // el parque ES la obra
+  'Museo del Siglo XXI (21st Century Museum)': 'arte',
+  'Museo del Siglo XXI': 'arte',                // el mismo lugar, cargado dos veces
+  'Garden of Fine Arts Kyoto (Tadao Ando)': 'arte',
+  'MIHO MUSEUM': 'arte',
+  'Murou Art Forest': 'arte',                   // land art de Dani Karavan
+  'Naoshima': 'arte',                           // Chichu + Benesse + la calabaza de Kusama
+  'Chichu Art Museum': 'arte',
+  'Benesse House Oval': 'arte',
+  '国境を越えて・祈り': 'arte',                    // escultura de Kan Yasuda en Awaji Yumebutai
+  'Aomori Museum of Art': 'arte',
+  'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)': 'arte',
+  'Museo de Arte Leeum': 'arte',
+
   // --- Reels que el legacy dejaba mal clasificados ---
   'Nintendo Museum': 'templo-museo',
   'Himeji Castle': 'templo-museo',
@@ -95,11 +130,8 @@ window.PLACE_CAT_OVERRIDES = {
   'Narai-juku': 'barrio',
   'Kotakuji': 'templo-museo',
   'Oirase keiryū Gorge': 'parque',
-  'Aomori Museum of Art': 'templo-museo',
   'Aomori': 'barrio',
   'Ginzan Onsen': 'actividad',
-  'Chichu Art Museum': 'templo-museo',
-  'Benesse House Oval': 'templo-museo',
   'Shirakawa': 'otro',                     // guardado ambiguo, geocodificado en Tokio
 
   // --- Day trips ---
@@ -116,12 +148,9 @@ window.PLACE_CAT_OVERRIDES = {
   'Echizen Daibutsu': 'templo-museo',
   'Nara': 'templo-museo',
   'Murou-ji + Hasedera': 'templo-museo',
-  'MIHO MUSEUM': 'templo-museo',
   'Uji': 'templo-museo',
   'Monte Hiei (Enryaku-ji)': 'templo-museo',
-  'Naoshima': 'templo-museo',
   'Kobe': 'barrio',
-  'Murou Art Forest': 'templo-museo',
   'PL Tower (Great Peace Prayer Tower)': 'templo-museo',
   'Dazaifu': 'templo-museo',
   'Gyeongju': 'templo-museo',
