@@ -1,6 +1,6 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 196 lugares de la colección IG "japon mew" · 2026-08-16T16:30:40+00:00
-window.REEL_PLACES = [
+// 196 lugares de la colección IG "japon mew" · 2026-08-22T19:21:21+00:00
+window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
   "lat": 35.648128,
@@ -8,8 +8,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Nakameguro)",
   "note": "Café de batata dulce (oimo) en Nakameguro",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -22,8 +23,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio (Roppongi)",
   "note": "Museo de diseño de Issey Miyake en edificio de Tadao Ando",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -36,8 +38,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Sakai)",
   "note": "Segunda mano curada, al lado del BOOKOFF PLUS",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
    }
@@ -50,8 +53,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Ebisu)",
   "note": "Bar secreto en un subsuelo de Ebisu — de la lista de 4 secret bars",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCaU8YohgYn/",
     "owner": "phatlifeproject"
    }
@@ -64,8 +68,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Okinawa",
   "note": "El chef pesca con arpón todo lo que sirve — quizás el restaurante más único del mundo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DVxVqThkowj/",
     "owner": "islandcatchandcook"
    }
@@ -78,8 +83,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Fukuoka (Shingu)",
   "note": "La 'cat heaven island': gatos 6 a 1 contra humanos, criados a mano y nada ariscos — ferry cortito desde Shingu; 'highlight del viaje'",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCoDGfRSzfK/",
     "owner": "angelagiakas"
    }
@@ -92,8 +98,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kanazawa",
   "note": "Artesanas con las que hacés tu propio anillo en el día (75-90 min si lo hacés vos)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFK_D6osSxq/",
     "owner": "descubriendojapon"
    }
@@ -106,8 +113,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Vintage de Shimokita (12:00-20:00, abre todos los días) — pantalones flare de croco fake y joyitas así",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKb86zDzY2K/",
     "owner": "anvintage.tokyo"
    }
@@ -120,8 +128,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "El bar del dueño de NUDE TRUMP, cerca de Miyashita Park",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/CnG1sTABmpq/",
     "owner": "nudetrump_shibuya"
    }
@@ -134,8 +143,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Cadena de segunda mano con buena rotación",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -148,8 +158,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Asakusa)",
   "note": "Pancakes japoneses de la lista de 7 cafés imperdibles de Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -161,13 +172,15 @@ window.REEL_PLACES = [
   "lon": 139.707346,
   "cat": "compras",
   "area": "Tokio (Ebisu)",
-  "note": "Jeans custom de denim japonés — RESERVAR por Klook antes, los walk-in rebotan",
-  "reels": [
+  "note": "Customizás tus jeans de denim japonés con fit perfecto; dueño encantador",
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEY5FTyzR_7/",
     "owner": "erica.jelee"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C_VFd3vPewM/",
     "owner": "_habibarahman"
    }
@@ -180,8 +193,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Sakai)",
   "note": "Thrift-hop de Sakai: BOOKOFF y 2nd Street a pasos",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
    }
@@ -194,8 +208,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Yao)",
   "note": "BOOKOFF formato gigante (libros, ropa, gadgets usados)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
    }
@@ -208,8 +223,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Omotesando)",
   "note": "Diner americano-tokiota del episodio de '2 hours in Tokyo'",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKLZEEay8dP/",
     "owner": "shelbyscafediary"
    }
@@ -222,8 +238,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Fundas de celu delirantes (garra con ositos que se mueven, ~USD 40) en las callecitas de Harajuku",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDGHzKVzwyx/",
     "owner": "thefoodinbox"
    }
@@ -236,8 +253,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio",
   "note": "El bar del 'mejor bartender del mundo' — carta completa de autor",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTUlNfbD_ya/",
     "owner": "______t_cafe88"
    }
@@ -250,8 +268,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Ginza)",
   "note": "Templo del pan de molde y las tostadas: elegís tu propia tostadora en la mesa",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DGjxhh7TcbJ/",
     "owner": "adrianwidjy"
    }
@@ -264,8 +283,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kioto",
   "note": "Armás tu propio umeshu (o sirope de ume sin alcohol) catando variedades de ciruela — reservar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DPjDeTdElWL/",
     "owner": "itsjeffandmel"
    }
@@ -278,12 +298,14 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Club chico e intenso de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DGKL9zryy4V/",
     "owner": "wakaxinxi"
    }
@@ -296,8 +318,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shinjuku)",
   "note": "La segunda mano favorita del reel: epítome del street fashion japonés y más barata que otras",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DOG0qbNifuv/",
     "owner": "yourfashionarchive"
    }
@@ -310,8 +333,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Club histórico de Shibuya, línea techno/rave",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
    }
@@ -324,8 +348,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto",
   "note": "'El café perfecto' — kissaten de Kioto",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -338,8 +363,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Roppongi)",
   "note": "Club de Roppongi de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -352,8 +378,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Roppongi)",
   "note": "500g de fideos integrales 'THE PLANE' con caldo de kombu y 3 salsas — reservar por DM/TableCheck, dirección semi-secreta",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMeZvspzjaQ/",
     "owner": "oneblogram"
    }
@@ -366,8 +393,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Namba)",
   "note": "Omurice popular — podés pedir uno gigante como el del video",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -380,8 +408,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
   "note": "Music bar kitsch/rosa de Kabukicho",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DF4A6DeSxvn/",
     "owner": "wakaxinxi"
    }
@@ -394,8 +423,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Sótano avant-garde icónico de Harajuku — de acá salían looks de Lady Gaga",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DaV40hcva65/",
     "owner": "travelingwithyohan"
    }
@@ -408,8 +438,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Amemura)",
   "note": "Calzado rave/alternativo (New Rock, Demonia, Rombaut) — tax free desde ¥5.500",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DLM3YvTh2kb/",
     "owner": "dogosaka"
    }
@@ -422,8 +453,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Umeda)",
   "note": "Okonomiyaki de los más queridos de Osaka",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -436,8 +468,9 @@ window.REEL_PLACES = [
   "cat": "templos",
   "area": "Fukui",
   "note": "Buda sentado indoor más grande de Japón (17m, más que el de Nara) + 1.281 budas en las paredes; ¥500, casi vacío y surreal",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMhuA_wNiAp/",
     "owner": "momoxtravel"
    }
@@ -450,8 +483,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Club chico de techno en Shibuya",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
    }
@@ -464,8 +498,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Osaka",
   "note": "Parque de la Expo con kochia/flores de otoño y la Torre del Sol",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DN7vWpREhJG/",
     "owner": "rakutentravel_global"
    }
@@ -478,8 +513,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Kanda/Akihabara)",
   "note": "Omakase de pasta artesanal — 'de los mejores bocados de pasta de mi vida'; menú estacional",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTRTRRPgRcS/",
     "owner": "greenonionbun"
    }
@@ -492,8 +528,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Shibuya)",
   "note": "Sake de las 47 prefecturas, self-serve all-you-can-drink desde ¥490/30min (también Shinjuku e Ikebukuro)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFl4emDSrAe/",
     "owner": "blake.in.tokyo"
    }
@@ -506,12 +543,14 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Wakayama",
   "note": "Museo del tejido: te hacés tu propia bufanda por ¥600 (pedaleando la máquina) — 16 min a pie de Wakayamashi Sta.",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEj2-C0T3eK/",
     "owner": "tabitoko_kansai"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DLohRB0B7t0/",
     "owner": "withathenaofficial"
    }
@@ -524,8 +563,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Niigata (Yuzawa)",
   "note": "Pistas de snowboard a <90 min de Tokio en shinkansen (temporada arranca ~mediados de dic — en oct-nov no hay nieve)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFAaxdPhvBG/",
     "owner": "stefatty_"
    }
@@ -538,8 +578,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Aichi (Nagoya)",
   "note": "El parque de Ghibli — alternativa a Disney para fans del estudio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBny0L7yDn4/",
     "owner": "japan_exploring_yuta"
    }
@@ -552,8 +593,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Ginza)",
   "note": "Ramen con estrella Michelin a ~USD 15; el de ravioles de trufa/foie limitado a 30 bowls/día",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDlEX0BzIPI/",
     "owner": "yuki_nobu_nycfood"
    }
@@ -566,8 +608,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto (Kawaramachi)",
   "note": "Fusión japonesa y arroz en olla de barro, ¥1.000-2.000",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
    }
@@ -580,8 +623,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Shizuoka (Gotemba)",
   "note": "El outlet más grande de Japón, con el Fuji de fondo — llevar pasaporte para tax free",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DQAe88Yk9p0/",
     "owner": "pasaportete"
    }
@@ -594,8 +638,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Nara (Tenkawa/Dorogawa)",
   "note": "Monorrail forestal (~¥500) sobre infraestructura maderera abandonada hasta una cueva de piedra caliza — escena de Ghibli",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DJgb3vuu7Zm/",
     "owner": "hawaiijapan"
    }
@@ -608,8 +653,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto (Shijo)",
   "note": "Gyozas artesanales en local chiquito cerca de Shijo Karasuma",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
    }
@@ -622,8 +668,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Nagano (Hakuba)",
   "note": "Pool party ski-in/ski-out con DJ, pileta climatizada y sauna — SOLO ene-mar, no aplica en oct-nov",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4gPfGBKBY/",
     "owner": "stefatty_"
    }
@@ -636,8 +683,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Tokio",
   "note": "Jardín junto a la bahía con campo de cosmos en otoño",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DN7vWpREhJG/",
     "owner": "rakutentravel_global"
    }
@@ -650,8 +698,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Akihabara)",
   "note": "La cadena de tecnología retro usada: cámaras digitales viejas, consolas, joyas de segunda mano",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DWH4IvEjhgJ/",
     "owner": "agusbaioni"
    }
@@ -664,8 +713,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Akasaka)",
   "note": "El café oficial de Harry Potter en Akasaka",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -678,8 +728,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Harajuku)",
   "note": "Café de animales donde te dan una nutria bebé en la mano — 'best day ever' según el reel",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C_Jw14CyEyS/",
     "owner": "sarcar_"
    }
@@ -692,8 +743,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio (Waseda)",
   "note": "Biblioteca Murakami en Waseda, edificio renovado por Kengo Kuma",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -706,8 +758,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Shinbashi)",
   "note": "Café + pudding retro (iloveheckeln)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -720,8 +773,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto (Higashiyama)",
   "note": "Hamburguesas japonesas recién hechas con arroz (~¥1.800); reservas online desde las 9am",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
    }
@@ -734,8 +788,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Sapporo",
   "note": "El Atama Daibutsu de Tadao Ando: buda gigante enterrado en una colina de lavanda, túnel de 40m — imperdible de arquitectura en Sapporo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE6R-QqPgjB/",
     "owner": "be.spatial"
    }
@@ -748,8 +803,9 @@ window.REEL_PLACES = [
   "cat": "otros",
   "area": "Himeji",
   "note": "El castillo más querido de Japón, Patrimonio UNESCO — alternativa a Osaka Castle",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBny0L7yDn4/",
     "owner": "japan_exploring_yuta"
    }
@@ -762,8 +818,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Ibaraki",
   "note": "Las colinas de kochia carmesí de octubre — day trip clásico desde Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DN7vWpREhJG/",
     "owner": "rakutentravel_global"
    }
@@ -776,8 +833,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Sumida)",
   "note": "GRATIS: simuladores realistas de terremoto/incendio/tormenta (curso 1:45, reservar en la web del TFD — registrarse con Google Translate)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DRhf1iqkz4V/",
     "owner": "veteporahi.viajes"
    }
@@ -790,8 +848,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Kioto (Kameoka)",
   "note": "Bajada del río Hozu en bote hasta Arashiyama (~2h, opera hasta con lluvia; walk-in OK desde JR Kameoka) — combo perfecto: bote a la mañana + Arashiyama a la tarde",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DT-R8a3krgz/",
     "owner": "hozugawakudari"
    }
@@ -804,8 +863,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Nakameguro)",
   "note": "Club de Nakameguro de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -818,8 +878,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto",
   "note": "Tofu de lilybud, caballa sopleteada, shabu-shabu y curry udon",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -832,8 +893,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Vintage de pieles/abrigos de alta calidad (post propio de la tienda)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTZ1KlmEvnK/",
     "owner": "hypnotiquetokyo"
    }
@@ -846,8 +908,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Asakusa)",
   "note": "Workshop de sandalias zori a medida con el artesano Ichihara-san (~1h, ¥11.000 base) — reservar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DGp9fTPyJUS/",
     "owner": "itsjeffandmel"
    }
@@ -860,8 +923,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Tienda de ropa vintage/archive con la selección más amplia de Issey Miyake y tabis (Margiela) en Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DHTOV0QSLFE/",
     "owner": "ncwong"
    }
@@ -874,8 +938,9 @@ window.REEL_PLACES = [
   "cat": "templos",
   "area": "Hiroshima (Miyajima)",
   "note": "El torii flotante — alternativa menos masiva a Fushimi Inari",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBny0L7yDn4/",
     "owner": "japan_exploring_yuta"
    }
@@ -888,8 +953,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Kyobashi)",
   "note": "El dueño más carismático de Japón: sopletea el atún con las manos (salió en Street Food de Netflix)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
     "owner": "shotaspov"
    }
@@ -902,8 +968,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Ebisu)",
   "note": "Cafetería de día, bar escondido detrás ('janai' = 'no es') — resolvés un puzzle para entrar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCaU8YohgYn/",
     "owner": "phatlifeproject"
    }
@@ -916,8 +983,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Tsukiji)",
   "note": "Raspás el atún fresco directo del esqueleto con una almeja — famosos por las costillas de maguro",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DR4LY5JjoGu/",
     "owner": "vivianliu_ma"
    }
@@ -930,8 +998,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Azabu-Juban)",
   "note": "Yellowtail ahumado en frío y el arroz de ikura+uni indulgente",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -944,8 +1013,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kawagoe (Saitama)",
   "note": "Horneás tus propias galletas senbei (¥650 por 3)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
    }
@@ -958,8 +1028,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Meguro)",
   "note": "Neo-bistró de fermentos: sopa de raíces, kombucha de manzana verde y pino",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -972,8 +1043,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Shibuya)",
   "note": "Udon Bib Gourmand creativo — el black curry udon; cambian el grosor del fideo según día par/impar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZD94DATUj4/",
     "owner": "deannawoo"
    }
@@ -986,8 +1058,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio",
   "note": "Buffet de sushi/cangrejo all-you-can-eat con show de corte de atún — reservar el plan CON show",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFKit5CRYyC/",
     "owner": "leanneinjapan"
    }
@@ -1000,8 +1073,9 @@ window.REEL_PLACES = [
   "cat": "miradores",
   "area": "Kanagawa (Atsugi)",
   "note": "Junya Ishigami: el taller-bosque de columnas finitas (2008) y la plaza sin columnas (2020), lado a lado",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DHmF9xJTnkr/",
     "owner": "archimarathon"
    }
@@ -1014,8 +1088,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Kamakura",
   "note": "Tiendita de kanzashi (prendedores de pelo) hechos en casa, customizables",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDcYIW_umB9/",
     "owner": "_helloharley"
    }
@@ -1028,8 +1103,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Ginza)",
   "note": "Café en el EXITMELSA de Ginza",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -1042,8 +1118,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Asakusa)",
   "note": "La calle de los utensilios de cocina: teteras, cuchillos, cerámica — souvenirs útiles",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEZv2arMTya/",
     "owner": "emmakatehalltravels"
    }
@@ -1056,8 +1133,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kawagoe (Saitama)",
   "note": "Taller de palitos/madera para hacerte tu par de ohashi",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
    }
@@ -1070,8 +1148,9 @@ window.REEL_PLACES = [
   "cat": "miradores",
   "area": "Kioto (Uji)",
   "note": "Estación circular de Wakabayashi (Good Design Award '96) — puerta de entrada a Uji: puente, Ujigami, matcha",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DJW3RUwJRwV/",
     "owner": "agrainoftime"
    }
@@ -1084,8 +1163,9 @@ window.REEL_PLACES = [
   "cat": "barrios",
   "area": "Tokio",
   "note": "Barrio para segunda mano + cultura pop, a ~15 min de Shibuya/Shinjuku",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DD_V1otSCv9/",
     "owner": "japanfashion_by_worldshopping"
    }
@@ -1098,8 +1178,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Kagoshima (Kihoku)",
   "note": "Observatorio-escultura de Takasaki ('arquitecto del cosmos') a 550m, con vista a Sakurajima — como crecido de la tierra pero de otro planeta",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DbN8Ul9iOtF/",
     "owner": "agrainoftime"
    }
@@ -1112,8 +1193,9 @@ window.REEL_PLACES = [
   "cat": "miradores",
   "area": "Tokio (Kioicho)",
   "note": "Cubo de hormigón y vidrio de Hiroshi Naito, reabierto por tiempo limitado; memorial de 18.800 piezas de vidrio del terremoto de 2011",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMrEyPhTc_d/",
     "owner": "tokyoweekender"
    }
@@ -1126,8 +1208,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Tsukiji)",
   "note": "Gyudon de 1947: la excepción no-turística del mercado — prestigioso, sin pretensiones y riquísimo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DATsxP6tbOV/",
     "owner": "where.to.find.me"
    }
@@ -1140,8 +1223,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio",
   "note": "Hot pot donde el caldo llega como un osito de manteca que se derrite (¥ set 18-43€) — reservar con antelación",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFpzyt-MCrg/",
     "owner": "familia_wally"
    }
@@ -1154,8 +1238,9 @@ window.REEL_PLACES = [
   "cat": "barrios",
   "area": "Tottori",
   "note": "Pueblo histórico de depósitos de paredes blancas y tejas rojas",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFlUdYQTjXL/",
     "owner": "raimeetravel"
    }
@@ -1168,8 +1253,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Namba)",
   "note": "El curry más popular de Osaka; local nuevo en Takashimaya Namba desde el 2/11",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -1182,12 +1268,14 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Kioto (Takaragaike)",
   "note": "Obra maestra modernista de Sachio Otani: nave futurista flotando sobre el lago, con el monte Hiei de fondo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DRzmQSTEfGy/",
     "owner": "scalienn"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DPBWADhkhPo/",
     "owner": "casarchiphoto"
    }
@@ -1200,8 +1288,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto",
   "note": "Omakase hermoso en Kioto",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -1214,8 +1303,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Tokio (Ueno)",
   "note": "Ex mansión del clan Iwasaki (Mitsubishi): casa occidental + japonesa + jardín",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1228,8 +1318,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Shiga (Omihachiman)",
   "note": "Sede de la confitería Taneya por Terunobu Fujimori: techo de pasto, parece de cuento — arquitectura + dulces",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DaJCyB3KV4m/",
     "owner": "miabi.design"
    }
@@ -1242,8 +1333,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Nagoya",
   "note": "Si te gusta LEGO no te lo saltees (queda en Nagoya)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DULWshXka4e/",
     "owner": "jimbosantiago"
    }
@@ -1256,8 +1348,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Flagship de Lemaire con jardín interno — vale por el interiorismo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1270,8 +1363,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kioto",
   "note": "Spa de Lush con baño privado reservable — buen plan post 25.000 pasos (también Meguro/Shinjuku/Shibuya)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDn9P_Azyd_/",
     "owner": "adrianwidjy"
    }
@@ -1284,8 +1378,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Thrift de la ruta de Shimokitazawa (bolsos y más)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -1298,8 +1393,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio (Ginza)",
   "note": "Edificio de Renzo Piano revestido con 13.000 bloques de vidrio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1312,8 +1408,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Tsukiji)",
   "note": "El uni bun (pan de erizo) del tour gastronómico de Tsukiji",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBaELqSSpI3/",
     "owner": "deannawoo"
    }
@@ -1326,8 +1423,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Tsukiji)",
   "note": "Matcha helado doble shot para el paseo por el mercado",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBaELqSSpI3/",
     "owner": "deannawoo"
    }
@@ -1340,8 +1438,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shibuya)",
   "note": "La Donki más grande del país: 7 pisos, 24h, tax free desde ¥5.500 con pasaporte",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDNFRroOpAa/",
     "owner": "buscandoalsol"
    }
@@ -1354,8 +1453,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio",
   "note": "Museo del santuario Meiji por Kengo Kuma — de los más lindos según la guía",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1368,8 +1468,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio",
   "note": "El spot de date night favorito del reel — udon/menchi",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKabzpUBYQX/",
     "owner": "becamichie"
    }
@@ -1382,8 +1483,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto (Karasuma)",
   "note": "Tsukemen y ramen de caldos densos con fideos caseros",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
    }
@@ -1396,8 +1498,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto (Karasuma Oike)",
   "note": "Ramen de shoyu estilo Kioto, caldos livianos pero sabrosos",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
    }
@@ -1410,8 +1513,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "De la lista de 18 clubes techno de Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -1424,8 +1528,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka",
   "note": "Select shop de diseño/accesorios (head pieces GANGYOUNG etc.)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMFsoBmBeIQ/",
     "owner": "mineral_osaka"
    }
@@ -1438,8 +1543,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio",
   "note": "Café de mini cerditos (~¥1.100 la media hora con bebida; con 30 min alcanza). Los tratan bien según el reel",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDKZytiO4vh/",
     "owner": "tacotios"
    }
@@ -1452,8 +1558,9 @@ window.REEL_PLACES = [
   "cat": "onsen",
   "area": "Tottori",
   "note": "Pueblo onsen de aguas radioactivas (radio) curativas, ritmo lento",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFlUdYQTjXL/",
     "owner": "raimeetravel"
    }
@@ -1466,8 +1573,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Umeda)",
   "note": "'El mejor lunch de Osaka' — solo abre sáb/dom al mediodía",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -1480,8 +1588,9 @@ window.REEL_PLACES = [
   "cat": "onsen",
   "area": "Niigata (Echigo-Yuzawa)",
   "note": "Ryokan con onsen en Echigo-Yuzawa para quedarse a dormir",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFAaxdPhvBG/",
     "owner": "stefatty_"
    }
@@ -1494,8 +1603,9 @@ window.REEL_PLACES = [
   "cat": "barrios",
   "area": "Tokio",
   "note": "Segunda mano 'para adultos con estilo', a 5 min de Shibuya",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DD_V1otSCv9/",
     "owner": "japanfashion_by_worldshopping"
    }
@@ -1508,12 +1618,14 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Nara",
   "note": "El mochi recién machacado más famoso de Japón (el pounding a toda velocidad) — Higashimuki St, 10-18h",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEpiVp4z1ys/",
     "owner": "penilagan"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -1526,8 +1638,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Shibuya)",
   "note": "Izakaya de culto: espárragos con miso-mayo, habas tostadas",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -1540,8 +1653,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio (Ueno)",
   "note": "El edificio de Le Corbusier (UNESCO): tragaluces triangulares y rampas del 19th Century Hall — ir temprano igual hay fila; combinar con Ueno Park/museos vecinos",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DX7-fEkTWmd/",
     "owner": "be.spatial"
    }
@@ -1554,8 +1668,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Buying shop de Urahara con drops de compras en el exterior — a veces limitan la entrada",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMPq74ZvFfs/",
     "owner": "_neova_"
    }
@@ -1568,8 +1683,9 @@ window.REEL_PLACES = [
   "cat": "museos",
   "area": "Tokio (Aoyama)",
   "note": "Galería privada + jardín japonés clásico con casas de té",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1582,8 +1698,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kioto (Uji)",
   "note": "Museo de Nintendo en la ex fábrica; entradas por LOTERÍA con 3 meses de anticipación — aplicar en julio para octubre",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCOq2M3oeVE/",
     "owner": "mainichilatte"
    }
@@ -1596,8 +1713,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Kioto",
   "note": "El mercado de Kioto: tempura de langostino gigante, ostras crudas, baby Asahi",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -1610,8 +1728,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shimokitazawa)",
   "note": "Bar de jazz escondido en un 4to piso de Shimokita",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCaU8YohgYn/",
     "owner": "phatlifeproject"
    }
@@ -1624,8 +1743,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Kojimachi)",
   "note": "Café/panadería de la lista de 7 imperdibles",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -1638,8 +1758,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shibuya)",
   "note": "Vintage shop del Hoshi Building 6F (mismo edificio que Hypnotique) — pasó Rosalía",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/CnG1sTABmpq/",
     "owner": "nudetrump_shibuya"
    }
@@ -1652,8 +1773,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Aoyama)",
   "note": "Club de Aoyama, línea techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -1666,12 +1788,14 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
   "note": "Venue de Shinjuku de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DPBVXHtk-qm/",
     "owner": "wakaxinxi"
    }
@@ -1684,8 +1808,9 @@ window.REEL_PLACES = [
   "cat": "museos",
   "area": "Beppu (Oita)",
   "note": "Museo del perfume con workshop para armar tu propia fragancia (¥2.800)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
    }
@@ -1698,12 +1823,14 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Hiroshima (Tadanoumi)",
   "note": "La isla de los conejos — hidden gem, ferry desde Tadanoumi",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DF4rvy7O4RM/",
     "owner": "twosometravellers"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTVMFiAAW5d/",
     "owner": "nakajapatonic"
    }
@@ -1716,8 +1843,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Shinsekai)",
   "note": "Onigiris excelentes al lado de la torre Tsutenkaku (11-20h)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -1730,8 +1858,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Tsukiji)",
   "note": "Los onigiri famosos del mercado exterior de Tsukiji",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBaELqSSpI3/",
     "owner": "deannawoo"
    }
@@ -1744,8 +1873,9 @@ window.REEL_PLACES = [
   "cat": "miradores",
   "area": "Hiroshima",
   "note": "Mirador con vista a la cúpula de la bomba; cócteles en verano",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBny0L7yDn4/",
     "owner": "japan_exploring_yuta"
    }
@@ -1758,8 +1888,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Osaka (Tempozan)",
   "note": "Uno de los acuarios más grandes del mundo — sí o sí del itinerario de Osaka según el reel",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DRXlvKhEWO2/",
     "owner": "charlynerd"
    }
@@ -1772,8 +1903,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Umeda)",
   "note": "El sándwich de tonkatsu más grosero de Japón — Tsurunocho, Kita-ku",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFQKUwCB2D8/",
     "owner": "ohakojp"
    }
@@ -1786,8 +1918,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio",
   "note": "Workshop privado de farolitos chochin con el dueño histórico (via Wabunka, reservar)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C_S1kLrSBwd/",
     "owner": "itsjeffandmel"
    }
@@ -1800,8 +1933,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Showroom de las lámparas Akari de Isamu Noguchi + tiendita",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1814,12 +1948,14 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Osaka (Tondabayashi)",
   "note": "Torre de 180m de la Church of Perfect Liberty: brutalismo sci-fi, silenciosa e inquietante",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DNcQbOhhQiA/",
     "owner": "architecturehub_"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DJY7iJfv7RC/",
     "owner": "bassetts.bouken"
    }
@@ -1832,8 +1968,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Omotesando)",
   "note": "Tiendita de zines independientes en Omotesando",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKLZEEay8dP/",
     "owner": "shelbyscafediary"
    }
@@ -1846,8 +1983,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Vintage shop de Harajuku con estética castillo/princesa",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DLcZYfYhQfc/",
     "owner": "queens_tokyo"
    }
@@ -1860,8 +1998,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Club con vista al scramble de Shibuya",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -1874,8 +2013,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Select shop de diseñadores emergentes (drops exclusivos como LA MASKARADE)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DNX6Ry2z6MY/",
     "owner": "radd_lounge"
    }
@@ -1887,13 +2027,15 @@ window.REEL_PLACES = [
   "lon": 135.501041,
   "cat": "ocio",
   "area": "Osaka",
-  "note": "Recreativos gigante de 6 pisos (bowling, arcade, patines) abierto hasta la madrugada — plan post-cena en Osaka",
-  "reels": [
+  "note": "Otro reel del arcade gigante Round 1",
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DXH8_zME75U/",
     "owner": "chansecorbi"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFm6cdJMvie/",
     "owner": "joshthegeee"
    }
@@ -1906,8 +2048,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio",
   "note": "Café de museo atmosférico y rico (recomendado en la guía de museos)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -1920,8 +2063,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Daikanyama)",
   "note": "Club de Daikanyama de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -1934,8 +2078,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Nakameguro)",
   "note": "La pizzería que cambió la cultura pizzera de Tokio — Kakinuma, 'padrino de la pizza tokiota'; solo Marinara, Margherita y una Bianca off-menu",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZFwv6FMBpR/",
     "owner": "whereihavebeeneating"
    }
@@ -1948,8 +2093,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Kyoto",
   "note": "Tienda de piezas shibori (teñido anudado japonés); la autora se llevó una blusa y hay bolsos ivory — piezas únicas para llevar de recuerdo.",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMmU9aYT2Tl/",
     "owner": "annabel_scanlen"
    }
@@ -1962,8 +2108,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shibuya)",
   "note": "Pisos enteros de papelería y beauty — souvenirs eficientes en un solo lugar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/CzciGC4yzZx/",
     "owner": "itsjeffandmel"
    }
@@ -1976,8 +2123,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Mall de Shibuya; pop-up selfFab de piezas hechas con camisetas de fútbol vintage (chequear vigencia)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/Dam07ousMsi/",
     "owner": "shrinemarathon.injapan"
    }
@@ -1990,8 +2138,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Feria de usado/handmade en el 'espacio vacío' de Senrogai — en octubre cae 12-13, 19-20 y 26-27 (12:00-18:00), entrada libre",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DABKFTBsEau/",
     "owner": "fleamarket_99"
    }
@@ -2004,8 +2153,9 @@ window.REEL_PLACES = [
   "cat": "barrios",
   "area": "Tokio (Shimokitazawa)",
   "note": "El barrio favorito para vintage: cuadras enteras de thrift + cafés para pasar el día",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C9dzNNOPC8d/",
     "owner": "relishwithreese"
    }
@@ -2018,8 +2168,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Shinjuku, Tokio",
   "note": "Mercado de pulgas en Shinjuku con ropa, kimonos, cerámica y productos de anime a buen precio, se puede regatear.",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFBXdeHTFeC/",
     "owner": "mixx.michi"
    }
@@ -2032,8 +2183,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Tokio (Tachikawa)",
   "note": "Kochias rojas + flores de otoño en octubre — parque enorme al oeste de Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DN7vWpREhJG/",
     "owner": "rakutentravel_global"
    }
@@ -2046,8 +2198,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Akihabara)",
   "note": "Para cazar cámaras usadas (ej. Canon G7X) cuando Bic Camera está sin stock — tienen mucho segunda mano",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C_Ov3OHPpx1/",
     "owner": "heyitsriee"
    }
@@ -2060,8 +2213,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Omotesando)",
   "note": "Anteojería vintage de diseñador (1800s-1990s) solo con cita, curada a tu cara",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSh0TOcD3mh/",
     "owner": "trinachan"
    }
@@ -2074,12 +2228,14 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Nakameguro)",
   "note": "Club íntimo de Nakameguro",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DO-6LuPk4jB/",
     "owner": "wakaxinxi"
    }
@@ -2092,8 +2248,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Vintage chico de la misma cuadra de Kitazawa",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -2106,8 +2263,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
   "note": "Club de Shinjuku de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -2120,12 +2278,14 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shimokitazawa)",
   "note": "Club chico de Shimokitazawa, línea underground",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DOGamxtkwMF/",
     "owner": "wakaxinxi"
    }
@@ -2135,11 +2295,12 @@ window.REEL_PLACES = [
   "name": "St. Mary's Cathedral Tokyo",
   "lat": 35.714281,
   "lon": 139.726585,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Tokio",
   "note": "Catedral modernista de Kenzo Tange en acero",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -2152,8 +2313,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Vintage: todo (o casi) a precio fijo bajo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -2166,8 +2328,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio",
   "note": "Karting disfrazado por las calles de Tokio (el clásico 'Mario Kart' real)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCV9GfFCiJ7/",
     "owner": "tokyo.explores"
    }
@@ -2180,8 +2343,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Otaru (Hokkaido)",
   "note": "Soplás tu propio vaso/jarro de vidrio (desde ¥2.700)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
    }
@@ -2194,8 +2358,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Kioto (Shugakuin)",
   "note": "Forjás tus propias herramientas ninja (shuriken/kunai) o una hoja — un bondi directo desde Kyoto Station; va en valija despachada",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DG5mw5WSusa/",
     "owner": "itsjeffandmel"
    }
@@ -2208,8 +2373,9 @@ window.REEL_PLACES = [
   "cat": "museos",
   "area": "Tokio (Suginami)",
   "note": "Museo del anime GRATIS: cabina para doblar con tu voz una animación y taller de animación cuadro a cuadro",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/Da-bH3DDDvF/",
     "owner": "nakajapatonic"
    }
@@ -2222,8 +2388,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Kanazawa (Uchinada)",
   "note": "Mega-thrift de la cadena 2nd Street entre arrozales cerca de Kanazawa — encontraron Vivienne Westwood; 'en Kanazawa se vuela'",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZp4eURt5pr/",
     "owner": "juliechegaray_"
    }
@@ -2236,8 +2403,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Yao)",
   "note": "Mega tienda de segunda mano, cerca de Treasure Factory Yao",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
    }
@@ -2250,8 +2418,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Marunouchi)",
   "note": "Omakase de 26 pasos a ¥8.800 — reservar ~1 mes antes; sede BF1 de Marunouchi Brick Square",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C__SS3_viTZ/",
     "owner": "chennytien"
    }
@@ -2264,8 +2433,9 @@ window.REEL_PLACES = [
   "cat": "onsen",
   "area": "Osaka",
   "note": "Baño privado tattoo-friendly en Osaka",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DAx3lFkyCLD/",
     "owner": "goenjapan_travel"
    }
@@ -2278,8 +2448,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio",
   "note": "Thrift barato estilo búsqueda del tesoro (guía de vintage de Tokio)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYTtm-WvHMH/",
     "owner": "sara_34chi_"
    }
@@ -2291,13 +2462,15 @@ window.REEL_PLACES = [
   "lon": 139.789774,
   "cat": "ocio",
   "area": "Tokio (Toyosu)",
-  "note": "Tips: reservar ~2 semanas antes, ir a primera/última hora, shorts abajo de la pollera por los pisos espejados, agua hasta la pantorrilla",
-  "reels": [
+  "note": "Museo inmersivo imperdible (bucket list del reel)",
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMy6ZpYTyVa/",
     "owner": "liinndddi"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DExiwE9SkRk/",
     "owner": "tiffanytchen"
    }
@@ -2310,8 +2483,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Azabu)",
   "note": "Degustación de tempura fina",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DE4-r_JPbE_/",
     "owner": "pierceabernathy"
    }
@@ -2324,8 +2498,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka (Namba)",
   "note": "El tendon (tempura sobre arroz) más recomendado de Namba",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
    }
@@ -2338,8 +2513,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Bar oculto ADENTRO de un FamilyMart de Shibuya",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCaU8YohgYn/",
     "owner": "phatlifeproject"
    }
@@ -2352,8 +2528,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Osaka",
   "note": "Café añejado por un maestro legendario",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
     "owner": "shotaspov"
    }
@@ -2366,8 +2543,9 @@ window.REEL_PLACES = [
   "cat": "arquitectura",
   "area": "Tokio (Roppongi)",
   "note": "Fachada de vidrio ondulada de Kisho Kurokawa; sin colección propia, muestras rotativas",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
    }
@@ -2380,8 +2558,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Fukuoka",
   "note": "Tren gastronómico de Nishitetsu (ju-do y feriados); pocos asientos — reservar sí o sí",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DG0ZAPUJv55/",
     "owner": "raymond.hou"
    }
@@ -2394,8 +2573,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Sneakers/calzado de diseño (Mikio Sakabe collab) en el Harakado 2F",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DNXq4-WBdf0/",
     "owner": "three_treasures_harakado"
    }
@@ -2408,8 +2588,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Tokio (Setagaya)",
   "note": "El vallecito verde escondido de Tokio — paseo de río y templo",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSpl9t5iaHZ/",
     "owner": "michitabi.tokyo"
    }
@@ -2422,8 +2603,9 @@ window.REEL_PLACES = [
   "cat": "barrios",
   "area": "Tokio (Shinagawa)",
   "note": "Shotengai (calle comercial) larguísima y bien local para picar y curiosear",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSpl9t5iaHZ/",
     "owner": "michitabi.tokyo"
    }
@@ -2436,12 +2618,14 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shinagawa)",
   "note": "'La mejor paca del mundo': lujo original baratísimo (Cartier vintage, Harley), todos los domingos en el hipódromo de Oi",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZWZQO-Oh-6/",
     "owner": "joshuamuerza"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DCCchX1x5BK/",
     "owner": "emmarogue"
    }
@@ -2454,8 +2638,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Maihama)",
   "note": "Del compilado de actividades de Tokio (junto con el street kart y teamLab)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DELD6gAIldR/",
     "owner": "whereisyorick"
    }
@@ -2468,8 +2653,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shinagawa)",
   "note": "Feria local lejos del circuito turístico",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSpl9t5iaHZ/",
     "owner": "michitabi.tokyo"
    }
@@ -2482,8 +2668,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Odaiba)",
   "note": "Parque de diversiones indoor de SEGA en DECKS Tokyo Beach: mini montañas rusas, laberintos de terror, juegos interactivos (~USD 35 ilimitado con pasaporte)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-ql_dSRpOn/",
     "owner": "morgsvstheworld"
    }
@@ -2496,8 +2683,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio",
   "note": "Katsu sando top de Tokio (¥1.700); sucursal de Koto con menos cola que la de Ginza",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DXRFtuBEZUa/",
     "owner": "eatswithjee"
    }
@@ -2510,8 +2698,9 @@ window.REEL_PLACES = [
   "cat": "parques",
   "area": "Tottori",
   "note": "Dunas doradas contra el mar de Japón — sandboard o parapente; prefectura menos visitada",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFlUdYQTjXL/",
     "owner": "raimeetravel"
    }
@@ -2524,8 +2713,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Mini-galería de puestos vintage (Shimokita Garage Department)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -2538,8 +2728,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Nishiazabu)",
   "note": "Club de Nishiazabu de la lista techno",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -2552,8 +2743,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Yao)",
   "note": "Thrift grande en Yao — ruta de segunda mano de Osaka",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
    }
@@ -2566,8 +2758,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shimokitazawa)",
   "note": "Treasure Factory formato moda curada",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
    }
@@ -2580,8 +2773,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Ginza)",
   "note": "Kissaten clásico de Ginza",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
    }
@@ -2594,8 +2788,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Kioto (Higashiyama)",
   "note": "La tiendita del octogenario Kawamura-san en Ninenzaka: tarjetas ukiyo-e hechas a mano",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBbcQROI_Ie/",
     "owner": "descubriendojapon"
    }
@@ -2608,12 +2803,14 @@ window.REEL_PLACES = [
   "cat": "otros",
   "area": "Saitama (Kasukabe)",
   "note": "El 'templo subterráneo' anti-inundaciones: 6,3 km de túneles y silos gigantes; tour guiado (en japonés), <2h desde Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DL42IM1J4Cw/",
     "owner": "argentinaenjapon"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DGpRrbEvRbI/",
     "owner": "lisaellenknight"
    }
@@ -2626,8 +2823,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Osaka",
   "note": "Pintás tu propia torta-lienzo (~USD 30 con bebida, diseños tipo Monet) — reservar online 2+ semanas antes",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DAVofKKisfc/",
     "owner": "tokyo.explores"
    }
@@ -2640,8 +2838,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Harajuku)",
   "note": "Estampás tu propia remera UNIQLO como souvenir (~USD 7 extra sobre la prenda)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DNqGXp-KxfI/",
     "owner": "suzyandaustin"
    }
@@ -2654,12 +2853,14 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shinjuku)",
   "note": "Cámaras usadas desde <USD 10, a 4 min de Shinjuku West Exit",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSlI6AQE-Q_/",
     "owner": "jp_used_camera"
    },
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DXu9RrbTWQd/",
     "owner": "jp_used_camera"
    }
@@ -2672,8 +2873,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Omotesando)",
   "note": "Club de techno con sonido serio — de la lista de techno spots de Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
    }
@@ -2686,8 +2888,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Ginza)",
   "note": "Head spa japonés para bajar revoluciones",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DRfaY7mDU4s/",
     "owner": "lauri_inmetaverse"
    }
@@ -2700,8 +2903,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Uno de los clubs de electrónica más conocidos de Tokio",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
    }
@@ -2714,8 +2918,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Omotesando)",
   "note": "Desayunos del mundo rotativos, todo el día",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKLZEEay8dP/",
     "owner": "shelbyscafediary"
    }
@@ -2728,8 +2933,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
   "note": "Club/venue en un ex-cine de Shibuya — línea electrónica/indie",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
    }
@@ -2742,8 +2948,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Osaka (Umeda)",
   "note": "Select shop de Umeda con marcas coreanas y2k/street (CRANK etc.)",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DIbEBpwhgL5/",
     "owner": "xu_osaka"
    }
@@ -2756,8 +2963,9 @@ window.REEL_PLACES = [
   "cat": "comida",
   "area": "Tokio (Shinjuku)",
   "note": "Canilla de shochu EN la mesa, all-you-can-drink + mixers de heladera y brochetas — ideal pregame",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBPzFMqyIBw/",
     "owner": "blake.in.tokyo"
    }
@@ -2770,8 +2978,9 @@ window.REEL_PLACES = [
   "cat": "otros",
   "area": "Fukuoka",
   "note": "Pueblo de canales con paseos en barca — la 'Venecia' de Kyushu",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DF4rvy7O4RM/",
     "owner": "twosometravellers"
    }
@@ -2784,8 +2993,9 @@ window.REEL_PLACES = [
   "cat": "compras",
   "area": "Tokio (Shibuya)",
   "note": "Lámparas de papel personalizables con tu palabra — tardan ~1 semana, planificar la compra al llegar",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DBbcQROI_Ie/",
     "owner": "descubriendojapon"
    }
@@ -2798,8 +3008,9 @@ window.REEL_PLACES = [
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
   "note": "Mega club en el subsuelo de la Kabukicho Tower",
-  "reels": [
+  "sources": [
    {
+    "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
    }

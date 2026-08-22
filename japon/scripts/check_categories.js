@@ -47,7 +47,7 @@ function arrayLiteral(name) {
 const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/categories.js'), 'utf8'), sandbox);
 vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/reels.js'), 'utf8'), sandbox);
-const { PLACE_TAXONOMY, PLACE_CAT_LEGACY, PLACE_CAT_OVERRIDES, REEL_PLACES } = sandbox.window;
+const { PLACE_TAXONOMY, PLACE_CAT_LEGACY, PLACE_CAT_OVERRIDES, SOURCE_THINGS } = sandbox.window;
 
 const catKey = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
@@ -87,7 +87,7 @@ destinations.forEach(d => {
 });
 orphanPlaces.forEach(p => places.push({
   src: 'maps · guardado sin destino', name: p.name, legacy: p.cat, pin: p.lat != null }));
-(REEL_PLACES || []).forEach(p => places.push({ src: 'reel IG', name: p.name, legacy: p.cat, pin: p.lat != null }));
+(SOURCE_THINGS || []).forEach(p => places.push({ src: 'fuente IG', name: p.name, legacy: p.cat, pin: p.lat != null }));
 
 let bad = 0;
 const bySrc = {}, byCat = {};

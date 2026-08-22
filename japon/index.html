@@ -184,12 +184,15 @@
   .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
   .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
   .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
-  .qh-toggle, .reels-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
-  .qh-toggle .card-section-title, .reels-toggle .card-section-title { margin: 0; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
   .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
-  .qh-toggle.open .qh-caret, .reels-toggle.open .qh-caret { transform: rotate(90deg); }
-  .qh-body, .reels-body { display: none; }
-  .qh-body.open, .reels-body.open { display: block; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .source-links { display: inline-flex; gap: 5px; margin-left: 5px; vertical-align: middle; }
+  .source-link { color: #0F6E56; font-size: 11px; text-decoration: none; }
+  .source-link:hover { text-decoration: underline; }
   .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
   .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
   .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
@@ -1579,6 +1582,58 @@ function catOf(name, legacy) {
 }
 const catOfAct = a => catOf(a.text, a.cat);
 
+// Modelo canónico: una cosa puede tener muchas fuentes y una fuente puede
+// respaldar muchas cosas. Maps e Instagram son provenance, nunca colecciones UI.
+const thingKey = name => catKey(String(name || '').split('(')[0]);
+const sourceThings = window.SOURCE_THINGS || [];
+const sourceThingByIndex = [];
+function mapsSource(name, url) {
+  return { type: 'google_maps', url: url || gmapsFromName(name), label: 'Google Maps' };
+}
+destinations.forEach(d => (d.activities || []).forEach(a => {
+  a.sources = a.sources || [mapsSource(a.text, a.url)];
+}));
+orphanPlaces.forEach(p => { p.sources = p.sources || [mapsSource(p.name, p.url)]; });
+
+function nearestDestination(p) {
+  let dest = destinations.find(d => p.area === d.short || (p.area || '').indexOf(d.short + ' ') === 0);
+  if (dest || p.lat == null) return dest;
+  let bestKm = 30;
+  destinations.forEach(d => {
+    const rad = Math.PI / 180;
+    const a = Math.sin((d.coords[0] - p.lat) * rad / 2) ** 2 +
+      Math.cos(p.lat * rad) * Math.cos(d.coords[0] * rad) * Math.sin((d.coords[1] - p.lon) * rad / 2) ** 2;
+    const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (km < bestKm) { bestKm = km; dest = d; }
+  });
+  return dest;
+}
+sourceThings.forEach((p, sourceIndex) => {
+  const key = thingKey(p.name);
+  let thing = destinations.flatMap(d => d.activities || []).find(a => thingKey(a.text) === key);
+  if (!thing) thing = orphanPlaces.find(a => thingKey(a.name) === key);
+  if (!thing) {
+    const dest = nearestDestination(p);
+    thing = { text: p.name, name: p.name, coords: [p.lat, p.lon], cat: p.cat,
+      area: p.area, note: p.note, sources: [] };
+    if (dest) dest.activities.push(thing);
+    else { thing.lat = p.lat; thing.lon = p.lon; orphanPlaces.push(thing); }
+  }
+  thing.sources = thing.sources || [];
+  (p.sources || []).forEach(s => {
+    if (!thing.sources.some(existing => existing.type === s.type && existing.url === s.url)) thing.sources.push(s);
+  });
+  sourceThingByIndex[sourceIndex] = thing;
+});
+
+function sourceLinksHtml(thing) {
+  return '<span class="source-links">' + (thing.sources || []).map((s, i) =>
+    '<a class="source-link" href="' + escHtml(s.url) + '" target="_blank" rel="noopener" title="' +
+    escHtml(s.owner ? '@' + s.owner : s.label || s.type) + '">' +
+    (s.type === 'instagram_reel' ? '🎬' : '↗ Maps') + '</a>'
+  ).join('') + '</span>';
+}
+
 // Pins de lugares: el color dice la categoría y todos comparten la misma forma.
 // La fuente sólo vive en el popup. Cada pin queda
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
@@ -1677,16 +1732,21 @@ function placePopup(p, sub) {
 // Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
 // vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
 const actMarkers = {};
+const thingMarkers = new Map();
 const savedPlaceLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
   (d.activities || []).forEach((a, i) => {
     if (!a.coords) return;
     const cat = catOfAct(a);
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
-    m.bindPopup(
-      miniPopup(a.img, DX(escHtml(a.text), escHtml(maskLodging(a.text))), escHtml(d.short) + ' · ' + CAT_LABELS[cat] + ' · ' + (a.source || (a.url ? 'Google Maps' : 'itinerario')), a.url || gmapsFromName(a.text))
-    );
+    const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
+      '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
+      (s.owner ? ' · @' + escHtml(s.owner) : '') + ' →</a>').join(' ');
+    m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
+      '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] + '</div>' +
+      (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
     actMarkers[d.id + ':' + i] = m;
+    thingMarkers.set(a, m);
     nearAdd(m, a.text, catColor(cat), maskLodging(a.text));
   });
 });
@@ -1727,62 +1787,14 @@ const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
   const cat = catOf(p.name, p.cat);
-  nearAdd(placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer)
-    .bindPopup(placePopup(p, CAT_LABELS[cat] + ' · Google Maps · sin destino asignado')), p.name, catColor(cat));
-});
-
-// Lugares salidos de los reels de la colección IG "japon mew" (data/reels.js,
-// regenerado por el pipeline ig-reels). Pin rombo, color por categoría; popup
-// con nota + links.
-const reelLayer = L.layerGroup().addTo(map);
-const reelMarkers = [];
-(window.REEL_PLACES || []).forEach(p => {
-  const cat = catOf(p.name, p.cat);
-  const m = placePin([p.lat, p.lon], cat, 'reel', reelLayer);
-  const links = (p.reels || []).map((r, i) =>
-    '<a class="mini-pop-maps" href="' + r.url + '" target="_blank" rel="noopener">🎬 ' +
-    ((p.reels.length > 1 ? 'Reel ' + (i + 1) : 'Ver reel') + (r.owner ? ' · @' + escHtml(r.owner) : '')) + ' →</a>'
-  ).join(' ');
-  m.bindPopup('<div class="mini-pop">' +
-    '<div class="popup-title">' + escHtml(p.name) + '</div>' +
-    '<div class="popup-dates">' + [escHtml(p.area), CAT_LABELS[cat], 'reel'].filter(Boolean).join(' · ') + '</div>' +
-    (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') +
-    links + ' <a class="mini-pop-maps" href="' + gmapsFromName(p.name + (p.area ? ' ' + p.area : '')) +
-    '" target="_blank" rel="noopener">Google Maps →</a>' +
-  '</div>');
-  reelMarkers.push(m);
+  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer);
+  const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
+    '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') + ' →</a>').join(' ');
+  m.bindPopup('<div class="mini-pop"><div class="popup-title">' + escHtml(p.name) + '</div><div class="popup-dates">' +
+    CAT_LABELS[cat] + ' · sin destino asignado</div>' + (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
+  thingMarkers.set(p, m);
   nearAdd(m, p.name, catColor(cat));
 });
-
-// Reels ⇄ paradas: cada lugar de reel se asigna a la parada cuyo `short` prefija su
-// `area`, o si no a la más cercana (<30 km). Sin match → tarjeta propia al final.
-function kmBetween(lat1, lon1, lat2, lon2) {
-  const rad = Math.PI / 180;
-  const a = Math.sin((lat2 - lat1) * rad / 2) ** 2 +
-    Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin((lon2 - lon1) * rad / 2) ** 2;
-  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-const reelsByDest = {};
-const reelOrphans = [];
-(window.REEL_PLACES || []).forEach((p, ri) => {
-  let dest = destinations.find(d =>
-    p.area === d.short || (p.area || '').indexOf(d.short + ' ') === 0);
-  if (!dest && p.lat != null) {
-    let bestKm = 30;
-    destinations.forEach(d => {
-      const km = kmBetween(p.lat, p.lon, d.coords[0], d.coords[1]);
-      if (km < bestKm) { bestKm = km; dest = d; }
-    });
-  }
-  if (dest) (reelsByDest[dest.id] = reelsByDest[dest.id] || []).push(ri);
-  else reelOrphans.push(ri);
-});
-function reelLinksHtml(p) {
-  return (p.reels || []).map(r =>
-    '<a class="reel-link" href="' + escHtml(r.url) + '" target="_blank" rel="noopener" title="' +
-    (r.owner ? '@' + escHtml(r.owner) : 'reel') + '">🎬</a>'
-  ).join('');
-}
 
 const placeCoords = destinations
   .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
@@ -1905,7 +1917,7 @@ destinations.forEach((d, idx) => {
       '<p class="card-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' +
       lodgingHtml(d.lodging, d.short, d.id) +
       (d.activities.length > 0
-        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Qué hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
             CAT_ORDER.filter(c => d.activities.some(a => catOfAct(a) === c)).map(c =>
               '<div class="cat-group">' +
@@ -1913,22 +1925,13 @@ destinations.forEach((d, idx) => {
                 '<ul class="card-list">' +
                   d.activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c).map(([a, i]) =>
                     a.coords
-                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button></li>'
-                      : '<li class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</li>'
+                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
+                      : '<li class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + sourceLinksHtml(a) + '</li>'
                   ).join('') +
                 '</ul>' +
               '</div>'
             ).join('') +
           '</div>'
-        : '') +
-      ((reelsByDest[d.id] || []).length > 0
-        ? '<button type="button" class="reels-toggle"><span class="card-section-title">De reels 🎬 · ' + reelsByDest[d.id].length + '</span><span class="qh-caret">▸</span></button>' +
-          '<div class="reels-body"><ul class="card-list">' +
-            reelsByDest[d.id].map(ri => {
-              const p = window.REEL_PLACES[ri];
-              return '<li class="reel-li"><button type="button" class="act-row" data-reel="' + ri + '">' + escHtml(p.name) + '<span class="act-pin">📍</span></button>' + reelLinksHtml(p) + '</li>';
-            }).join('') +
-          '</ul></div>'
         : '') +
       dtHtml +
     '</div>';
@@ -1961,18 +1964,9 @@ destinations.forEach((d, idx) => {
   card.querySelectorAll('.act-row').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      focusMarker(btn.dataset.reel != null ? reelMarkers[btn.dataset.reel] : actMarkers[btn.dataset.act]);
+      focusMarker(actMarkers[btn.dataset.act]);
     });
   });
-
-  const reelsToggle = card.querySelector('.reels-toggle');
-  if (reelsToggle) {
-    reelsToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const open = card.querySelector('.reels-body').classList.toggle('open');
-      reelsToggle.classList.toggle('open', open);
-    });
-  }
 
   card.querySelectorAll('.dt-row').forEach(row => {
     const dtId = row.dataset.dtId;
@@ -2011,41 +2005,20 @@ if (orphanPlaces.length > 0) {
   const oc = document.createElement('article');
   oc.className = 'orphan-card';
   oc.innerHTML =
-    '<h3>Otros lugares guardados (' + orphanPlaces.length + ')</h3>' +
-    '<p class="orphan-sub">Pines sueltos en Google Maps que no caen dentro de ningún destino del recorrido. En el mapa son círculos del color de su categoría.</p>' +
+    '<h3>Otras cosas para hacer (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Lugares que no caen dentro de ningún destino del recorrido.</p>' +
     '<div class="orphan-list">' +
       orphanPlaces.map(p =>
-        '<a class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" href="' + escHtml(p.url) + '" target="_blank" rel="noopener">' + escHtml(p.name) + '</a>'
+        '<span class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" data-name="' + escHtml(p.name) + '">' + escHtml(p.name) + sourceLinksHtml(p) + '</span>'
       ).join('') +
     '</div>';
   detailsList.appendChild(oc);
   oc.querySelectorAll('.saved-chip').forEach(chip => {
     chip.addEventListener('click', (e) => {
-      const p = orphanPlaces.find(x => x.name === chip.textContent);
-      if (p && p.lat != null) { e.preventDefault(); revealCat(catOf(p.name, p.cat)); map.flyTo([p.lat, p.lon], 10, { duration: 0.8 }); window.open(p.url, '_blank', 'noopener'); }
-    });
-  });
-}
-
-// Lugares de reels lejos de toda parada: tarjeta propia, chips → su pin en el mapa.
-if (reelOrphans.length > 0) {
-  const rc = document.createElement('article');
-  rc.className = 'orphan-card';
-  rc.innerHTML =
-    '<h3>Lugares de reels 🎬 (' + reelOrphans.length + ')</h3>' +
-    '<p class="orphan-sub">Fuera de las paradas del recorrido · rombo del color de su categoría en el mapa.</p>' +
-    '<div class="orphan-list">' +
-      reelOrphans.map(ri => {
-        const p = window.REEL_PLACES[ri];
-        return '<a class="saved-chip reel-chip" data-reel="' + ri + '" href="' +
-          escHtml((p.reels && p.reels[0]) ? p.reels[0].url : '#') + '" target="_blank" rel="noopener">' + escHtml(p.name) + '</a>';
-      }).join('') +
-    '</div>';
-  detailsList.appendChild(rc);
-  rc.querySelectorAll('.reel-chip').forEach(chip => {
-    chip.addEventListener('click', (e) => {
-      const m = reelMarkers[chip.dataset.reel];
-      if (m) { e.preventDefault(); revealPin(m); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
+      if (e.target.closest('a')) return;
+      const p = orphanPlaces.find(x => x.name === chip.dataset.name);
+      const m = p && thingMarkers.get(p);
+      if (m) { revealPin(m); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
     });
   });
 }
@@ -2278,12 +2251,12 @@ for (let i = 0; i < destinations.length - 1; i++) {
 
 // Capas estructurales del viaje: control Leaflet propio, separado espacial y
 // visualmente de las categorías de lugares que viven abajo.
-// "Actividades" agrupa TODO lo que es un lugar para ir (guardados de Maps, day
-// trips, reels, huérfanos): son la misma familia para quien mira el mapa, y los
+// "Actividades" agrupa TODO lo que es un lugar para ir (Maps, day trips y otras
+// fuentes): son la misma familia para quien mira el mapa, y los
 // chips de categoría de abajo ya los cortan más fino.
 const TOGGLES = [
   { key: 'destinos', label: 'Destinos',   icon: '📍', layers: [destLayer] },
-  { key: 'actividades', label: 'Actividades', icon: '📌', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer, reelLayer] },
+  { key: 'actividades', label: 'Actividades', icon: '📌', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
   { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
   { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer] },
   { key: 'vuelos', label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
