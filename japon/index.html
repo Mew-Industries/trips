@@ -190,8 +190,8 @@
   .qh-toggle.open .qh-caret { transform: rotate(90deg); }
   .qh-body { display: none; }
   .qh-body.open { display: block; }
-  .source-links { display: inline-flex; gap: 5px; margin-left: 5px; vertical-align: middle; }
-  .source-link { color: #0F6E56; font-size: 11px; text-decoration: none; }
+  .source-links { display: inline-flex; align-items: center; gap: 2px; flex: none; vertical-align: middle; }
+  .source-link { color: #0F6E56; font-size: 11px; line-height: 24px; min-height: 24px; padding: 0 3px; border-radius: 5px; text-decoration: none; white-space: nowrap; }
   .source-link:hover { text-decoration: underline; }
   .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
   .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
@@ -316,11 +316,18 @@
   .dest-card.open .card-detail { display: block; }
   .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
   .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
-  .cat-group { margin: 6px 0 2px; }
-  .cat-head { font-size: 11px; font-weight: 600; color: #0F6E56; margin: 6px 0 3px; }
-  .act-row { display: inline-block; width: 100%; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 1px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .cat-group { margin: 3px 0; }
+  .cat-head { display: flex; align-items: center; gap: 6px; min-height: 30px; padding: 2px 0; color: #0F6E56; cursor: pointer; list-style: none; }
+  .cat-head::-webkit-details-marker { display: none; }
+  .cat-head::before { content: '▸'; width: 10px; color: #999; font-size: 10px; transition: transform 0.15s; }
+  .cat-group[open] > .cat-head::before { transform: rotate(90deg); }
+  .cat-name { font-size: 11px; font-weight: 600; }
+  .cat-count { margin-left: auto; min-width: 22px; padding: 1px 6px; border-radius: 9px; background: rgba(15,110,86,0.08); color: #698078; font-size: 10px; text-align: center; }
+  .cat-group .card-list { margin-left: 16px; }
+  .thing-row { display: flex; align-items: baseline; gap: 3px; min-width: 0; }
+  .act-row { display: inline-block; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 2px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
   .act-row:hover { color: #1D9E75; }
-  .act-row-plain { font-size: 12px; line-height: 1.5; color: #444; padding: 1px 0; }
+  .act-row-plain { font-size: 12px; line-height: 1.45; color: #444; padding: 2px 0; }
   .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
   .act-row:hover .act-pin { opacity: 0.9; }
   .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
@@ -388,6 +395,8 @@
     .map-cats .mc { flex: none; font-size: 10px; padding: 4px 8px; }
     .map-toggles .mt { font-size: 0; padding: 8px; }
     .map-toggles .mt-ic { font-size: 13px; }
+    .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
+    .cat-head { min-height: 36px; }
   }
 </style>
 </head>
@@ -1634,6 +1643,19 @@ function sourceLinksHtml(thing) {
   ).join('') + '</span>';
 }
 
+function categoryGroupsHtml(activities, interactive) {
+  return CAT_ORDER.filter(c => activities.some(a => catOfAct(a) === c)).map(c => {
+    const rows = activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c);
+    return '<details class="cat-group">' +
+      '<summary class="cat-head"><span class="cat-name">' + (CAT_LABELS[c] || c) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
+      '<ul class="card-list">' + rows.map(([a, i]) =>
+        interactive && a.coords
+          ? '<li class="thing-row"><button type="button" class="act-row" data-act="' + interactive + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
+          : '<li class="thing-row"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
+      ).join('') + '</ul></details>';
+  }).join('');
+}
+
 // Pins de lugares: el color dice la categoría y todos comparten la misma forma.
 // La fuente sólo vive en el popup. Cada pin queda
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
@@ -1919,18 +1941,7 @@ destinations.forEach((d, idx) => {
       (d.activities.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
-            CAT_ORDER.filter(c => d.activities.some(a => catOfAct(a) === c)).map(c =>
-              '<div class="cat-group">' +
-                '<div class="cat-head">' + (CAT_LABELS[c] || c) + '</div>' +
-                '<ul class="card-list">' +
-                  d.activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c).map(([a, i]) =>
-                    a.coords
-                      ? '<li><button type="button" class="act-row" data-act="' + d.id + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
-                      : '<li class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + sourceLinksHtml(a) + '</li>'
-                  ).join('') +
-                '</ul>' +
-              '</div>'
-            ).join('') +
+            categoryGroupsHtml(d.activities, d.id) +
           '</div>'
         : '') +
       dtHtml +
@@ -2091,14 +2102,7 @@ function smBodyHtml(d) {
   const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
   const acts = (d.activities && d.activities.length)
     ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
-        CAT_ORDER.filter(c => d.activities.some(a => catOfAct(a) === c)).map(c =>
-          '<div class="cat-group"><div class="cat-head">' + (CAT_LABELS[c] || c) + '</div><ul class="card-list">' +
-            d.activities.filter(a => catOfAct(a) === c).map(a =>
-              a.url ? '<li><a class="sm-act" href="' + a.url + '" target="_blank" rel="noopener">' + a.text + ' ↗</a></li>'
-                    : '<li class="act-row-plain">' + a.text + '</li>'
-            ).join('') +
-          '</ul></div>'
-        ).join('') +
+        categoryGroupsHtml(d.activities, null) +
       '</div>'
     : '';
   const dts = (d.daytrips && d.daytrips.length)
