@@ -19,7 +19,7 @@ window.REEL_PLACES = [
   "name": "21_21 Design Sight",
   "lat": 35.667525,
   "lon": 139.730521,
-  "cat": "museos",
+  "cat": "arquitectura",
   "area": "Tokio (Roppongi)",
   "note": "Museo de diseño de Issey Miyake en edificio de Tadao Ando",
   "reels": [
@@ -689,7 +689,7 @@ window.REEL_PLACES = [
   "name": "Haruki Murakami Library",
   "lat": 35.709726,
   "lon": 139.719901,
-  "cat": "museos",
+  "cat": "arquitectura",
   "area": "Tokio (Waseda)",
   "note": "Biblioteca Murakami en Waseda, edificio renovado por Kengo Kuma",
   "reels": [
@@ -731,7 +731,7 @@ window.REEL_PLACES = [
   "name": "Hill of the Buddha",
   "lat": 42.928007,
   "lon": 141.376489,
-  "cat": "templos",
+  "cat": "arquitectura",
   "area": "Sapporo",
   "note": "El Atama Daibutsu de Tadao Ando: buda gigante enterrado en una colina de lavanda, túnel de 40m — imperdible de arquitectura en Sapporo",
   "reels": [
@@ -1095,7 +1095,7 @@ window.REEL_PLACES = [
   "name": "Kihoku Astronomical Museum",
   "lat": 31.594623,
   "lon": 130.82658,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Kagoshima (Kihoku)",
   "note": "Observatorio-escultura de Takasaki ('arquitecto del cosmos') a 550m, con vista a Sakurajima — como crecido de la tierra pero de otro planeta",
   "reels": [
@@ -1179,7 +1179,7 @@ window.REEL_PLACES = [
   "name": "Kyoto International Conference Center",
   "lat": 35.061491,
   "lon": 135.783294,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Kioto (Takaragaike)",
   "note": "Obra maestra modernista de Sachio Otani: nave futurista flotando sobre el lago, con el monte Hiei de fondo",
   "reels": [
@@ -1225,7 +1225,7 @@ window.REEL_PLACES = [
   "name": "La Collina Omihachiman",
   "lat": 35.148895,
   "lon": 136.091385,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Shiga (Omihachiman)",
   "note": "Sede de la confitería Taneya por Terunobu Fujimori: techo de pasto, parece de cuento — arquitectura + dulces",
   "reels": [
@@ -1295,7 +1295,7 @@ window.REEL_PLACES = [
   "name": "Maison Hermès Ginza",
   "lat": 35.671969,
   "lon": 139.763367,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Tokio (Ginza)",
   "note": "Edificio de Renzo Piano revestido con 13.000 bloques de vidrio",
   "reels": [
@@ -1351,7 +1351,7 @@ window.REEL_PLACES = [
   "name": "Meiji Jingu Museum",
   "lat": 35.67233,
   "lon": 139.702126,
-  "cat": "museos",
+  "cat": "arquitectura",
   "area": "Tokio",
   "note": "Museo del santuario Meiji por Kengo Kuma — de los más lindos según la guía",
   "reels": [
@@ -1537,7 +1537,7 @@ window.REEL_PLACES = [
   "name": "National Museum of Western Art",
   "lat": 35.715387,
   "lon": 139.775814,
-  "cat": "museos",
+  "cat": "arquitectura",
   "area": "Tokio (Ueno)",
   "note": "El edificio de Le Corbusier (UNESCO): tragaluces triangulares y rampas del 19th Century Hall — ir temprano igual hay fila; combinar con Ueno Park/museos vecinos",
   "reels": [
@@ -1811,7 +1811,7 @@ window.REEL_PLACES = [
   "name": "PL Peace Tower",
   "lat": 34.502226,
   "lon": 135.585919,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Osaka (Tondabayashi)",
   "note": "Torre de 180m de la Church of Perfect Liberty: brutalismo sci-fi, silenciosa e inquietante",
   "reels": [
@@ -2363,7 +2363,7 @@ window.REEL_PLACES = [
   "name": "The National Art Center Tokyo",
   "lat": 35.665289,
   "lon": 139.726374,
-  "cat": "museos",
+  "cat": "arquitectura",
   "area": "Tokio (Roppongi)",
   "note": "Fachada de vidrio ondulada de Kisho Kurokawa; sin colección propia, muestras rotativas",
   "reels": [

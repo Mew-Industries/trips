@@ -11,12 +11,13 @@
 // Verificación: node scripts/check_categories.js
 
 window.PLACE_TAXONOMY = {
-  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'actividad', 'compras', 'barrio', 'otro'],
+  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'],
   meta: {
     'comida':       { label: 'Comida',     icon: '🍜',  color: '#D8452F' },
     'bar-noche':    { label: 'Bar/noche',  icon: '🍸',  color: '#6D4AA8' },
     'parque':       { label: 'Parques',    icon: '🌳',  color: '#3E9B4F' },
     'templo-museo': { label: 'Templos y museos', icon: '⛩️', color: '#C9891C' },
+    'arquitectura': { label: 'Arquitectura', icon: '🏛️', color: '#237C78' },
     'actividad':    { label: 'Actividades', icon: '🎢', color: '#0F8FA8' },
     'compras':      { label: 'Compras',    icon: '🛍️', color: '#D4408C' },
     'barrio':       { label: 'Barrios',    icon: '🏙️', color: '#3B6FD4' },
@@ -30,6 +31,7 @@ window.PLACE_CAT_LEGACY = {
   comida: 'comida',
   templos: 'templo-museo',
   museos: 'templo-museo',
+  arquitectura: 'arquitectura',
   miradores: 'templo-museo',   // arquitectura y miradores entran acá
   parques: 'parque',
   barrios: 'barrio',
