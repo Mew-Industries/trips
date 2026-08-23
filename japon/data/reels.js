@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 196 lugares de la colección IG "japon mew" · 2026-08-22T19:21:21+00:00
+// 196 lugares de la colección IG "japon mew" · 2026-08-23T16:36:26+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -297,7 +297,7 @@ window.SOURCE_THINGS = [
   "lon": 139.705579,
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
-  "note": "Club chico e intenso de la lista techno",
+  "note": "Otro reel del club — línea dura",
   "sources": [
    {
     "type": "instagram_reel",
@@ -542,7 +542,7 @@ window.SOURCE_THINGS = [
   "lon": 135.174089,
   "cat": "ocio",
   "area": "Wakayama",
-  "note": "Museo del tejido: te hacés tu propia bufanda por ¥600 (pedaleando la máquina) — 16 min a pie de Wakayamashi Sta.",
+  "note": "Entrada gratis; tejés tu bufanda (¥600) o coaster (¥300) en bici-máquina",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1267,7 +1267,7 @@ window.SOURCE_THINGS = [
   "lon": 135.783294,
   "cat": "arquitectura",
   "area": "Kioto (Takaragaike)",
-  "note": "Obra maestra modernista de Sachio Otani: nave futurista flotando sobre el lago, con el monte Hiei de fondo",
+  "note": "'Escultura puesta en el paisaje' — geometría brutalista de Otani en armonía con Takaragaike",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1617,7 +1617,7 @@ window.SOURCE_THINGS = [
   "lon": 135.8289,
   "cat": "comida",
   "area": "Nara",
-  "note": "El mochi recién machacado más famoso de Japón (el pounding a toda velocidad) — Higashimuki St, 10-18h",
+  "note": "El yomogi mochi con anko entre los mejores bocados del viaje",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1787,7 +1787,7 @@ window.SOURCE_THINGS = [
   "lon": 139.702505,
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
-  "note": "Venue de Shinjuku de la lista techno",
+  "note": "Music bar / club de eventos en Shinjuku",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1822,7 +1822,7 @@ window.SOURCE_THINGS = [
   "lon": 132.993977,
   "cat": "parques",
   "area": "Hiroshima (Tadanoumi)",
-  "note": "La isla de los conejos — hidden gem, ferry desde Tadanoumi",
+  "note": "Viajecito recomendado cerca de Hiroshima",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1947,7 +1947,7 @@ window.SOURCE_THINGS = [
   "lon": 135.585919,
   "cat": "arquitectura",
   "area": "Osaka (Tondabayashi)",
-  "note": "Torre de 180m de la Church of Perfect Liberty: brutalismo sci-fi, silenciosa e inquietante",
+  "note": "Combinable con el pueblito retro de Tondabayashi; se puede entrar a la torre — dicen que es medio secta, ir con criterio",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2227,7 +2227,7 @@ window.SOURCE_THINGS = [
   "lon": 139.698071,
   "cat": "ocio",
   "area": "Tokio (Nakameguro)",
-  "note": "Club íntimo de Nakameguro",
+  "note": "Club subterráneo misterioso y profundo de Nakameguro",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2277,7 +2277,7 @@ window.SOURCE_THINGS = [
   "lon": 139.667632,
   "cat": "ocio",
   "area": "Tokio (Shimokitazawa)",
-  "note": "Club chico de Shimokitazawa, línea underground",
+  "note": "El underground music place de Shimokita",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2617,7 +2617,7 @@ window.SOURCE_THINGS = [
   "lon": 139.650027,
   "cat": "compras",
   "area": "Tokio (Shinagawa)",
-  "note": "'La mejor paca del mundo': lujo original baratísimo (Cartier vintage, Harley), todos los domingos en el hipódromo de Oi",
+  "note": "El flea market más grande de Tokio — diseñador, arte, juguetes; sábados y domingos",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2802,7 +2802,7 @@ window.SOURCE_THINGS = [
   "lon": 139.810559,
   "cat": "otros",
   "area": "Saitama (Kasukabe)",
-  "note": "El 'templo subterráneo' anti-inundaciones: 6,3 km de túneles y silos gigantes; tour guiado (en japonés), <2h desde Tokio",
+  "note": "El 'templo subterráneo': cámara de pilares colosales contra inundaciones, con tours que entran",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2852,7 +2852,7 @@ window.SOURCE_THINGS = [
   "lon": 139.696652,
   "cat": "compras",
   "area": "Tokio (Shinjuku)",
-  "note": "Cámaras usadas desde <USD 10, a 4 min de Shinjuku West Exit",
+  "note": "Sótano escondido lleno de equipo fotográfico vintage de todas las épocas",
   "sources": [
    {
     "type": "instagram_reel",
