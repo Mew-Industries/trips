@@ -113,7 +113,7 @@ RENDER.transportes = (it, ctx) => {
 
     const segsHtml = segs.length ? '<div class="tr-segs">' + segs.map(s => s.layover
       ? '<div class="tr-lay">' + esc(s.layover) + '</div>'
-      : '<a class="tr-seg" href="' + (s.tracker || '#') + '" target="_blank" rel="noopener">' +
+      : '<a class="tr-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
           '<span><span class="s-route">' + esc(s.route) + '</span>' + (s.no ? '<span class="s-no">' + esc(s.no) + '</span>' : '') + '</span>' +
           '<span class="s-time">' + esc(s.when || '') + (s.aircraft ? '<span class="s-ac">' + esc(s.aircraft) + '</span>' : '') + '</span>' +
         '</a>').join('') + '</div>' : '';
