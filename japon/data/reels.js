@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 271 lugares + 14 tips de la colección IG "japon mew" · 2026-08-25T15:44:50+00:00
+// 272 lugares + 14 tips de la colección IG "japon mew" · 2026-08-25T15:47:36+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -2159,6 +2159,22 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
     "owner": "japan.compass",
     "caption": "Icónica tienda departamental en Ginza."
+   }
+  ]
+ },
+ {
+  "name": "Mod Tokyo",
+  "lat": 35.692494,
+  "lon": 139.773424,
+  "cat": "ocio",
+  "area": "Akihabara, Tokio",
+  "note": "Taller donde desarmás y customizás tu propia Game Boy original (carcasa, botones, pantalla, juego) — souvenir hands-on.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dca1x3UA-Wf/",
+    "owner": "mahfi.quest",
+    "caption": "Taller donde desarmás y customizás tu propia Game Boy original (carcasa, botones, pantalla, juego) — souvenir hands-on."
    }
   ]
  },
