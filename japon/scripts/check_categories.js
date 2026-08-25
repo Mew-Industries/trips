@@ -47,7 +47,7 @@ function arrayLiteral(name) {
 const sandbox = { window: {} };
 vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/categories.js'), 'utf8'), sandbox);
 vm.runInNewContext(fs.readFileSync(path.join(DIR, 'data/reels.js'), 'utf8'), sandbox);
-const { PLACE_TAXONOMY, PLACE_CAT_LEGACY, PLACE_CAT_OVERRIDES, SOURCE_THINGS } = sandbox.window;
+const { PLACE_TAXONOMY, PLACE_CAT_LEGACY, PLACE_CAT_OVERRIDES, SOURCE_THINGS, SOURCE_TIPS } = sandbox.window;
 
 const catKey = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
@@ -115,12 +115,23 @@ console.log('\nCobertura activities[]: ' + activityCovered + '/' + activityTotal
 activityUncovered.forEach(a => console.log('  SIN PIN [' + a.destination + '] ' + a.name));
 activityNonGeoloc.forEach(a => console.log('  NO GEOLOCALIZABLE [' + a.destination + '] ' + a.name));
 
+// Los tips (reels sin lugar, task 547) no son lugares: no cuentan como pines ni
+// entran al desglose de arriba. Lo que sí se verifica es que sigan siendo tips
+// sin coordenada — un tip con lat/lon es un lugar mal clasificado, y uno sin
+// consejo no sirve para nada en la lista.
+const tips = SOURCE_TIPS || [];
+const badTips = tips.filter(t => t.cat !== 'tips' || t.lat != null || t.lon != null || !t.note);
+console.log('\nTips (reels sin lugar concreto): ' + tips.length);
+badTips.forEach(t => console.error('  TIP INVÁLIDO: ' + t.name +
+  ' (cat=' + t.cat + ' lat=' + t.lat + ' note=' + (t.note ? 'sí' : 'NO') + ')'));
+
 const stale = Object.keys(PLACE_CAT_OVERRIDES).filter(n => !usedOverride.has(catKey(n)));
 if (stale.length) console.log('\nOverrides que no matchean ningún lugar (¿nombre cambiado?):\n  ' + stale.join('\n  '));
 
-if (bad || activityUncovered.length) {
+if (bad || activityUncovered.length || badTips.length) {
   if (bad) console.error('\n✗ ' + bad + ' lugar(es) sin categoría válida');
   if (activityUncovered.length) console.error('\n✗ ' + activityUncovered.length + ' actividad(es) sin coord+categoría');
+  if (badTips.length) console.error('\n✗ ' + badTips.length + ' tip(s) mal formado(s)');
   process.exit(1);
 }
 console.log('\n✓ todos los lugares tienen exactamente una categoría de la taxonomía');

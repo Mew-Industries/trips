@@ -28,6 +28,12 @@ window.PLACE_TAXONOMY = {
     'compras':      { label: 'Compras',    icon: '🛍️', color: '#D4408C' },
     'barrio':       { label: 'Barrios',    icon: '🏙️', color: '#3B6FD4' },
     'otro':         { label: 'Otros',      icon: '✨',  color: '#8C8C8C' },
+    // Consejos del viaje (reels sin lugar concreto: JR Pass, valija, eSIM,
+    // etiqueta). Está en `meta` pero NO en `order` A PROPÓSITO: un tip no tiene
+    // coordenada, así que nunca es un pin —y `order` es lo que arma los filtros
+    // del mapa, donde un chip "Tips" no prendería ni apagaría nada—. Le da
+    // etiqueta y color a quien los liste (data/reels.js → window.SOURCE_TIPS).
+    'tips':         { label: 'Tips',       icon: '💡', color: '#B08B00' },
   },
 };
 
@@ -45,6 +51,7 @@ window.PLACE_CAT_LEGACY = {
   onsen: 'actividad',
   ocio: 'actividad',           // el default de `ocio`; los bares/clubes van en OVERRIDES
   otros: 'otro',
+  tips: 'tips',                // reels sin lugar (window.SOURCE_TIPS), sin pin
 };
 
 // Categoría explícita por lugar. Gana sobre LEGACY.

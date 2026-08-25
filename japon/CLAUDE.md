@@ -242,6 +242,31 @@ node japon/scripts/check_categories.js
 
 ⚠️ El script `scripts/update_weather.py` parsea los nodos por regex esperando el formato `id: '...', n: N, type: '...', name: '...'` con comillas simples — NO convertir el array a JSON ni cambiar ese estilo o se rompe el updater de clima.
 
+## Tips: los reels que no son un lugar (2026-08-25 · task 547)
+
+Martín guarda en la colección de IG dos cosas distintas: lugares y **consejos**
+(cómo moverse, qué llevar, cuándo ir, cómo pedir en un restaurante). El pipeline
+del workspace ahora separa las dos y `data/reels.js` trae **dos arrays**:
+
+- `window.SOURCE_THINGS` — los lugares de siempre, con `lat`/`lon`, que
+  `index.html` funde con `activities`/`orphanPlaces` y pinta en el mapa.
+- `window.SOURCE_TIPS` — los consejos: `{ name, cat: 'tips', area, note, sources }`
+  y **NINGUNA coordenada**. `name` es el título corto (se lee solo en una lista),
+  `note` el consejo en 1-2 líneas y `sources` el/los reels de donde salió.
+
+**Por qué van en un array aparte y no en `SOURCE_THINGS`**: un tip no tiene
+coordenada. Metido en `SOURCE_THINGS` caería en `orphanPlaces` —o sea, de chip en
+"Otras cosas para hacer", que dice ser lugares— y, si su `area` matcheara un
+destino, entraría a `activities` con `coords: [null, null]`, que es *truthy* y
+revienta el `L.circleMarker` del foco de día. Por la misma razón la categoría
+`tips` está en `PLACE_TAXONOMY.meta` (para que quien los liste tenga su label 💡 y
+su color) pero **NO en `order`**: `order` es lo que arma los chips-filtro del mapa
+y un chip que no prende ni apaga ningún pin es un botón roto.
+
+Hoy **nada del site los renderiza todavía** — la lista global de tips es de la
+task 546. `node japon/scripts/check_categories.js` sí los verifica: cuenta cuántos
+hay y falla si alguno viene con coordenada, sin `cat: 'tips'` o sin consejo.
+
 ## ⚠️ INVARIANTE de fechas (regla dura — verificar SIEMPRE al editar el itinerario)
 
 Toda noche del viaje DEBE tener un lugar de pernocte asignado, y las fechas tienen que encadenar sin huecos ni solapes:
