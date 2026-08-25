@@ -9,15 +9,19 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
 
 ## Cómo funciona
 
-- **Datos**: no tiene copia propia. Lee `../data/reels.js` (`SOURCE_THINGS`, 221
+- **Datos**: no tiene copia propia. Lee `../data/reels.js` (`SOURCE_THINGS`, 272
   lugares) y `../data/categories.js` (taxonomía, colores, íconos), o sea
   exactamente lo mismo que la app principal.
 - **Identidad**: un link por persona, `?u=<token>`. El token no es adivinable,
   identifica y autoriza; sin token conocido la app muestra el gate y no monta
-  el mazo. No hay login.
+  el mazo. No hay login. En el journal el token sale enmascarado (`?u=<token>`):
+  es una credencial y el log lo lee más gente que el `0600` de la db.
 - **place_id**: `p-<nombre normalizado>`, con el mismo `catKey`/`thingKey` que
   usa `index.html` para sus `act-…`. Por eso el tally se puede unir con las
-  actividades de la app principal sin tabla de traducción.
+  actividades de la app principal sin tabla de traducción. El id se foldea a
+  ASCII (el backend valida `^p-[a-z0-9-]+$`); un nombre que no deje ni una letra
+  ASCII —kana puro— cae en `p-x<hash>`. `app.js` y `build_frames.py` tienen que
+  generar el mismo id: si tocás uno, tocá el otro.
 - **Gestos**: derecha = sí, izquierda = paso, arriba = ⭐ "me RE interesa".
   Los mismos tres, más deshacer, están en la botonera; en desktop andan
   además ← → ↑ y `Z`.
@@ -38,11 +42,21 @@ corría en el host.
 GET  /health
 GET  /votes?u=<token>   -> {user, votes:{place_id:voto}, history:[...], count}
 PUT  /votes             -> {token, place_id, vote}   vote ∈ si|no|star|null
-GET  /aggregate         -> {places:{place_id:{si,no,star,score,voters}}, ...}
+GET  /aggregate         -> {places:{place_id:{si,no,star,score,voters}}, voterCount, ...}
 ```
 
 `vote: null` borra el voto (es el deshacer). El `PUT` es idempotente por
-`(token, place_id)`.
+`(token, place_id)`. `/aggregate` no lleva token, así que devuelve cuántos
+votaron (`voterCount`) pero no quiénes.
+
+El `PUT` es público: cualquiera puede mandarle un request roto. Como la
+conexión es HTTP/1.1 con keep-alive y cloudflared reusa las conexiones al
+origen entre requests de gente distinta, un body anunciado y no leído queda en
+el socket y desfasa el request siguiente — el de otro viajero. Por eso el
+handler consume el body ANTES de decidir la respuesta (ruta incluida), y cuando
+no puede consumirlo con certeza (chunked, largo ilegible, body > 4 KB) cierra la
+conexión con `Connection: close` en vez de seguir usándola. `check_keepalive.py`
+es la prueba de regresión de eso.
 
 **No es un Cloudflare Worker + KV**, que era el plan. El `CF_API_TOKEN` de la
 casa tiene permisos de zona y de Cloudflare Tunnel pero **no** de Workers ni
@@ -73,11 +87,27 @@ decide del lado de la app principal — acá no se decide nada, sólo se cuenta.
 ```
 python3 votar/scripts/build_frames.py          # img/*.webp + frames.js
 BASE=http://127.0.0.1:8770 TOKEN=… TOKEN2=… node votar/scripts/check_votar.js
+python3 votar/scripts/check_keepalive.py votos.mewis.online 443 <token>
 ```
+
+`check_votar.js` levanta la app con Playwright y prueba el gesto de verdad
+(mouse y touch por CDP), el deshacer, retomar tras recargar, el gate sin token y
+el `/aggregate` con dos votantes. `check_keepalive.py` manda a mano los requests
+rotos que ningún cliente HTTP normal deja mandar y comprueba que no se lleven
+puesto al request siguiente de la misma conexión; corre igual contra el puerto
+local (`127.0.0.1 9202`) que contra el dominio, y contra el dominio es más
+representativo porque incluye el pool de cloudflared.
 
 `build_frames.py` toma un frame representativo por reel de
 `projects/japan-trip/data/ig/frames/`. Esa carpeta es residual —el pipeline de
-IG borra los frames después de transcribir—, así que hoy sólo **26 de 221**
-lugares tienen foto (13 webp, 326 KB). El resto va con card tipográfica del
+IG borra los frames después de transcribir—, así que hoy sólo **26 de 272**
+lugares tienen foto (13 webp, 356 KB). El resto va con card tipográfica del
 color de su categoría, que es un estado normal y no un faltante: si mañana el
 pipeline deja más frames, se vuelve a correr el script y aparecen solos.
+
+Limitación conocida: algunos reels traen el nombre del lugar quemado en el
+video (un zócalo), y como la card dibuja su propio título encima, ahí se ve el
+nombre dos veces —`21st Century Museum of Contemporary Art` es el caso más
+visible—. Elegir el frame del medio evita las placas de título y de cierre pero
+no los zócalos que duran todo el video; separarlos de verdad necesitaría OCR
+sobre cada frame, que es bastante más máquina de la que justifica el detalle.

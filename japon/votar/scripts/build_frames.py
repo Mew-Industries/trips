@@ -47,11 +47,37 @@ def cat_key(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
+def hash32(s):
+    """FNV-1a de 32 bits sobre unidades UTF-16, en base36. Tiene que dar
+    exactamente lo mismo que el `hash32` de app.js (que itera `charCodeAt`, o
+    sea UTF-16), porque los dos generan el mismo place_id."""
+    h = 2166136261
+    units = str(s or "").encode("utf-16-le")
+    for i in range(0, len(units), 2):
+        h = ((h ^ (units[i] | (units[i + 1] << 8))) * 16777619) & 0xFFFFFFFF
+    if h == 0:
+        return "0"
+    digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+    out = ""
+    while h:
+        out = digits[h % 36] + out
+        h //= 36
+    return out
+
+
 def place_id(name):
     """`p-<thingKey>` — thingKey es catKey del nombre sin el paréntesis final,
-    igual que en la app principal, así el join entre las dos apps es directo."""
+    igual que en la app principal, así el join entre las dos apps es directo.
+
+    El id sale ASCII sí o sí: el backend valida `^p-[a-z0-9-]+$` y un nombre en
+    kana produciría un id que se come un 400. Mismo criterio (y mismo hash de
+    fallback) que `placeId()` en app.js — si uno cambia, cambian los dos o el
+    índice de frames deja de matchear con las cards."""
     key = cat_key(str(name or "").split("(")[0]).replace(" ", "-")
-    return "p-" + (key or "sin-nombre")
+    ascii_key = re.sub(r"-+", "-", re.sub(r"[^a-z0-9-]+", "", key)).strip("-")
+    if ascii_key:
+        return "p-" + ascii_key[:140]
+    return "p-x" + hash32(name)
 
 
 def load_things():

@@ -25,8 +25,23 @@
     return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
   }
+  function hash32(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h.toString(36);
+  }
+  // El id tiene que ser ASCII: el backend valida `^p-[a-z0-9-]+$` y un id con
+  // kana adentro se comería un 400 y el voto se perdería en silencio. Hoy todos
+  // los nombres foldean a ASCII (los acentos los saca el NFD y lo que está en
+  // japonés viene entre paréntesis, que se cortan), así que el filtro no cambia
+  // ningún id existente; está para el día que entre un lugar escrito en kana.
   function placeId(name) {
-    return 'p-' + (catKey(String(name || '').split('(')[0]).replace(/\s+/g, '-') || 'sin-nombre');
+    var base = catKey(String(name || '').split('(')[0]).replace(/\s+/g, '-');
+    var ascii = base.replace(/[^a-z0-9-]+/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    if (ascii) return 'p-' + ascii.slice(0, 140);
+    // Nombre sin una sola letra ASCII: id estable por hash del nombre, así el
+    // lugar sigue siendo el mismo entre recargas, personas y regeneraciones.
+    return 'p-x' + hash32(String(name || ''));
   }
 
   var TAX = window.PLACE_TAXONOMY || { meta: {}, order: [] };
@@ -104,7 +119,7 @@
 
   /* Orden barajado pero determinístico por persona: cada uno ve su propio
      recorrido y siempre el mismo, así recargar retoma exactamente donde iba
-     (y dos personas no arrancan las 221 por el mismo lado). */
+     (y dos personas no arrancan las 272 por el mismo lado). */
   function seededOrder(list, seed) {
     var h = 0;
     for (var i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
@@ -217,7 +232,7 @@
     $('b-undo').disabled = history.length === 0;
 
     deckEl.innerHTML = '';
-    // Sólo las tres de arriba viven en el DOM: el mazo son 221 lugares. Se
+    // Sólo las tres de arriba viven en el DOM: el mazo son 272 lugares. Se
     // pintan al revés para que la de más abajo quede primera y la top última.
     var visible = left.slice(0, 3);
     for (var i = visible.length - 1; i >= 0; i--) deckEl.appendChild(buildCard(visible[i], i));

@@ -48,6 +48,8 @@ DB_PATH = os.path.join(DATA_DIR, "votos.db")
 VOTES = {"si": 1, "star": 2, "no": 0}
 PLACE_RE = re.compile(r"^p-[a-z0-9\-]{1,140}$")
 MAX_BODY = 4096
+# El token del link personal, tal como aparece en la request line del journal.
+REDACT_RE = re.compile(r"([?&]u=)[A-Za-z0-9]+")
 
 # Los cuatro viajeros. El token se genera solo la primera vez que arranca el
 # servicio (y se guarda en la db + links.md); acá sólo vive el orden y el
@@ -138,6 +140,10 @@ def user_for(token):
 class Handler(BaseHTTPRequestHandler):
     server_version = "japon-votos/1.0"
     protocol_version = "HTTP/1.1"
+    # Sin esto, un cliente que anuncia 100 bytes de body y manda 10 deja el
+    # `read` colgado para siempre y con él el hilo que lo atiende. Con timeout,
+    # el socket levanta y `handle_one_request` cierra la conexión.
+    timeout = 30
 
     # ---------------------------------------------------------------- helpers
 
@@ -150,27 +156,83 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("access-control-allow-headers", "content-type")
         self.send_header("cache-control", "no-store")
 
-    def _json(self, obj, status=200):
+    def _json(self, obj, status=200, close=False):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self._cors()
         self.send_header("content-type", "application/json; charset=utf-8")
         self.send_header("content-length", str(len(body)))
+        if close:
+            self.close_connection = True
+            self.send_header("connection", "close")
         self.end_headers()
         self.wfile.write(body)
 
+    def _read_body(self):
+        """Consume el body del request. Devuelve los bytes, o None si ya contestó.
+
+        Esto existe por el keep-alive: la conexión es HTTP/1.1 persistente y
+        cloudflared reusa las conexiones al origen entre requests de gente
+        distinta. Un body que se anuncia y no se lee queda en el socket, y el
+        request siguiente de ESA conexión se parsea arrancando desde esa
+        basura — un PUT malformado de cualquiera (el endpoint es público)
+        rompía la lectura de votos del que venía atrás.
+
+        Así que de acá se sale de una de dos formas: con el body consumido
+        entero, o cerrando la conexión. Cuando no se puede consumir con
+        certeza (largo ilegible, chunked, body más grande que el máximo,
+        socket cortado a la mitad) la respuesta va con `Connection: close`:
+        cerrar es la única garantía de que la próxima request no lea basura.
+        """
+        if self.headers.get("transfer-encoding"):
+            # BaseHTTPRequestHandler no desarma chunked: no hay forma de saber
+            # dónde termina el body, así que no se sigue por esta conexión.
+            self._json({"error": "unsupported transfer-encoding"}, 400, close=True)
+            return None
+        raw = self.headers.get("content-length")
+        try:
+            length = int(raw) if raw else 0
+        except ValueError:
+            self._json({"error": "bad length"}, 400, close=True)
+            return None
+        if length < 0:
+            self._json({"error": "bad length"}, 400, close=True)
+            return None
+        if length > MAX_BODY:
+            # No se drena a propósito: drenar un body arbitrariamente grande es
+            # justamente lo que un abuso querría que hiciéramos.
+            self._json({"error": "body too large"}, 413, close=True)
+            return None
+        data = b""
+        while len(data) < length:
+            chunk = self.rfile.read(min(length - len(data), 8192))
+            if not chunk:
+                self._json({"error": "truncated body"}, 400, close=True)
+                return None
+            data += chunk
+        return data
+
     def log_message(self, fmt, *args):  # journal ya tiene timestamp propio
-        print("%s %s" % (self.address_string(), fmt % args), flush=True)
+        # El token es la credencial del viajero y viaja en la query de /votes.
+        # Al journal va enmascarado: si no, las cuatro credenciales quedan en
+        # texto plano en un log que lee más gente que el 0600 de la db.
+        print("%s %s" % (self.address_string(), REDACT_RE.sub(r"\1<token>", fmt % args)), flush=True)
 
     # ---------------------------------------------------------------- métodos
 
     def do_OPTIONS(self):
+        if self._read_body() is None:
+            return
         self.send_response(204)
         self._cors()
         self.send_header("content-length", "0")
         self.end_headers()
 
     def do_GET(self):
+        # Un GET no debería traer body, pero si lo trae hay que sacarlo del
+        # socket igual: la conexión es compartida (ver _read_body).
+        if self._read_body() is None:
+            return
         path, _, query = self.path.partition("?")
         params = {}
         for chunk in query.split("&"):
@@ -186,16 +248,17 @@ class Handler(BaseHTTPRequestHandler):
         return self._json({"error": "not found"}, 404)
 
     def do_PUT(self):
+        # El body se consume ANTES de mirar la ruta: contestar 404 dejándolo
+        # sin leer desincroniza la conexión igual que contestar 400.
+        data = self._read_body()
+        if data is None:
+            return
         if self.path.partition("?")[0] != "/votes":
             return self._json({"error": "not found"}, 404)
+        if not data:
+            return self._json({"error": "empty body"}, 400)
         try:
-            length = int(self.headers.get("content-length") or 0)
-        except ValueError:
-            return self._json({"error": "bad length"}, 400)
-        if length <= 0 or length > MAX_BODY:
-            return self._json({"error": "bad length"}, 400)
-        try:
-            body = json.loads(self.rfile.read(length).decode("utf-8"))
+            body = json.loads(data.decode("utf-8"))
         except Exception:
             return self._json({"error": "invalid json"}, 400)
         return self._put_vote(body if isinstance(body, dict) else {})
@@ -276,9 +339,10 @@ class Handler(BaseHTTPRequestHandler):
         by_token = {u["token"]: u["id"] for u in users}
         places = {}
         voters = set()
+        counted = 0
         for r in rows:
             uid = by_token.get(r["token"])
-            if uid is None:
+            if uid is None or r["vote"] not in VOTES:
                 continue
             voters.add(uid)
             p = places.setdefault(
@@ -287,12 +351,14 @@ class Handler(BaseHTTPRequestHandler):
             p[r["vote"]] += 1
             p["score"] += VOTES[r["vote"]]
             p["voters"] += 1
+            counted += 1
+        # Sale el conteo de votantes, no quiénes son: /aggregate no lleva token
+        # y la app principal sólo necesita saber sobre cuánta gente normalizar.
         return self._json(
             {
                 "places": places,
-                "voters": sorted(voters),
                 "voterCount": len(voters),
-                "totalVotes": len(rows),
+                "totalVotes": counted,
                 "weights": VOTES,
                 "updatedAt": last,
             }

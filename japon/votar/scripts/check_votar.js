@@ -218,8 +218,12 @@ const settle = (page) => page.waitForFunction(
     const kioto = await page.evaluate(() =>
       (window.SOURCE_THINGS || []).filter(t => /k(io|yo)to/i.test(t.area || '')).map(t => t.name));
     for (const name of kioto) {
+      // R\u00e9plica del `placeId()` de app.js, fold ASCII incluido. Si los dos se
+      // desalinean, el test vota ids que la app no reconoce y el mazo nunca
+      // cierra \u2014 que es exactamente lo que este bloque tiene que detectar.
       const id = 'p-' + name.split('(')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim().replace(/\s+/g, '-');
+        .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim().replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]+/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
       await api('/votes', {
         method: 'PUT', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ token: TOKEN, place_id: id, vote: 'si' }),
