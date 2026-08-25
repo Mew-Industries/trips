@@ -8,7 +8,14 @@
  * de touch reales vía CDP (mobile), porque son dos caminos distintos de
  * PointerEvent y romper uno sin romper el otro es fácil.
  *
- * Uso:  BASE=http://127.0.0.1:8770 TOKEN=<hex> TOKEN2=<hex> node check_votar.js
+ * TOKEN y TOKEN2 tienen que ser los DOS VOTANTES DE PRUEBA, nunca los de un
+ * viajero: la suite arranca borrando los votos del token que le pasan, y con el
+ * de una persona eso es borrarle lo que votó. Los de prueba salen de
+ * `~/.openclaw/workspace/data/japon-votos/test-tokens.env`, y acá abajo hay un
+ * portero que corta si el token resulta ser de alguien.
+ *
+ * Uso:  set -a; . ~/.openclaw/workspace/data/japon-votos/test-tokens.env; set +a
+ *       BASE=http://127.0.0.1:8770 node check_votar.js
  */
 const path = require('path');
 const { chromium } = require(process.env.PW ||
@@ -27,6 +34,19 @@ const ok = (name, cond, extra) => {
 };
 
 const api = async (p, init) => (await fetch(API + p, init)).json();
+
+// Antes de borrar un solo voto: el token tiene que ser de un votante de
+// prueba. Si es de una persona, la suite no corre — prefiero un test que no
+// arranca a un test que le vacía el mazo a alguien.
+const assertTestToken = async (tok, label) => {
+  const r = await api(`/votes?u=${tok}`);
+  if (!r || !r.user || !String(r.user.id).startsWith('test-')) {
+    console.error(`✗ ${label} no es un token de prueba (user=${r && r.user && r.user.id}).` +
+      ' Usá los de data/japon-votos/test-tokens.env — esta suite borra votos.');
+    process.exit(2);
+  }
+};
+
 const clearVotes = async (tok) => {
   const { votes } = await api(`/votes?u=${tok}`);
   for (const id of Object.keys(votes || {})) {
@@ -73,6 +93,8 @@ const settle = (page) => page.waitForFunction(
 
 (async () => {
   if (!TOKEN || !TOKEN2) { console.error('faltan TOKEN y TOKEN2'); process.exit(2); }
+  await assertTestToken(TOKEN, 'TOKEN');
+  await assertTestToken(TOKEN2, 'TOKEN2');
   const browser = await chromium.launch();
 
   // ------------------------------------------------------- sin token: gate
@@ -89,6 +111,115 @@ const settle = (page) => page.waitForFunction(
       await page.locator('#gate-msg').innerText());
     await page.close();
   }
+
+  // ----------------------------- reel embebido, mini-mapa y filtro de rubros
+  await clearVotes(TOKEN2);
+  {
+    const ctx = await browser.newContext({
+      viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
+    });
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.card.top');
+
+    // El filtro se mira sobre el mazo que armó la app, no sobre una copia del
+    // criterio: `VOTAR_PLACES` es lo que efectivamente se va a swipear.
+    const cats = await page.evaluate(() => [...new Set(window.VOTAR_PLACES.map(p => p.cat))].sort());
+    const n = await page.evaluate(() => window.VOTAR_PLACES.length);
+    ok('el mazo deja afuera comida y bar-noche',
+      !cats.includes('comida') && !cats.includes('bar-noche'), `${n} lugares · ${cats.join(', ')}`);
+    // Excluir es más robusto que incluir, pero sólo si de verdad no se llevó
+    // puesta ninguna otra: la taxonomía crece (`taller` es de ayer).
+    const missing = await page.evaluate(() => {
+      const inDeck = new Set(window.VOTAR_PLACES.map(p => p.cat));
+      return window.PLACE_TAXONOMY.order.filter(
+        (c) => c !== 'comida' && c !== 'bar-noche' && !inDeck.has(c));
+    });
+    ok('y no deja afuera ninguna otra categoría de la taxonomía',
+      missing.length === 0, missing.length ? `faltan ${missing.join(', ')}` : cats.join(', '));
+
+    await page.waitForSelector('.card.top.ig-on', { timeout: 30000 })
+      .then(() => ok('la card de arriba embebe el reel de verdad', true))
+      .catch(() => ok('la card de arriba embebe el reel de verdad', false, 'no cargó el iframe'));
+    const src = await page.locator('.card.top .media-ig').getAttribute('src');
+    const code = await page.evaluate(() => window.VOTAR_PLACES.length && document.querySelector('.card.top').dataset.place);
+    ok('el iframe apunta al embed del reel de ese lugar',
+      /^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+\/embed\/$/.test(src || ''), `${code} → ${src}`);
+    ok('sólo se embebe la card de arriba (las de atrás no cargan Instagram)',
+      (await page.locator('.card .media-ig').count()) === 1);
+    ok('el encabezado del embed queda fuera del recorte',
+      await page.locator('.card.top .media-ig').evaluate(
+        (f) => f.getBoundingClientRect().top < f.closest('.card').getBoundingClientRect().top - 20));
+    await page.waitForTimeout(1200);
+    await page.screenshot({ path: path.join(SHOTS, 'votar-reel.png') });
+
+    // El criterio duro de la ronda 2: con el iframe montado, el dedo sobre el
+    // reel sigue siendo del mazo. El punto del gesto cae sobre el escudo.
+    const n1 = await topName(page);
+    await touchSwipe(page, cdp, 200, 0);
+    ok('con el reel embebido el swipe táctil sigue votando', (await topName(page)) !== n1,
+      `${n1} → ${await topName(page)}`);
+    await page.waitForTimeout(900);
+    const afterSwipe = await api(`/votes?u=${TOKEN2}`);
+    ok('y ese swipe llegó al servidor', Object.keys(afterSwipe.votes).length === 1,
+      JSON.stringify(afterSwipe.votes));
+
+    // Toque quieto: el reel pasa a ser del dedo, y el botón lo devuelve.
+    await page.waitForSelector('.card.top.ig-on', { timeout: 30000 }).catch(() => {});
+    const box = await page.locator('.card.top').boundingBox();
+    await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height * 0.35);
+    await page.waitForTimeout(300);
+    ok('un toque quieto sobre el reel lo activa',
+      await page.locator('.card.top').evaluate(e => e.classList.contains('playing')) &&
+      await page.locator('.card.top .media-back').isVisible());
+    await page.screenshot({ path: path.join(SHOTS, 'votar-reel-activo.png') });
+    await page.locator('.card.top .media-back').click();
+    await page.waitForTimeout(250);
+    ok('el botón "deslizar" devuelve la card al mazo',
+      !(await page.locator('.card.top').evaluate(e => e.classList.contains('playing'))) &&
+      await page.locator('.card.top .media-shield').isVisible());
+
+    const n2 = await topName(page);
+    await touchSwipe(page, cdp, -200, 0);
+    ok('y después de volver del reel el gesto sigue andando', (await topName(page)) !== n2,
+      `${n2} → ${await topName(page)}`);
+    await ctx.close();
+  }
+
+  // ------------------------------------- sin Instagram la card cae al mapa
+  {
+    const ctx = await browser.newContext({
+      viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
+    });
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    // Un iframe abortado no dispara ni `load` ni `error`: es exactamente el
+    // caso que tiene que destapar el timeout y dejar el mini-mapa a la vista.
+    await page.route('**instagram.com**', (r) => r.abort());
+    await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.card.top');
+    await page.waitForSelector('.card.top.map-on', { timeout: 30000 })
+      .then(() => ok('si el embed no llega, la card muestra el mini-mapa del lugar', true))
+      .catch(() => ok('si el embed no llega, la card muestra el mini-mapa del lugar', false, 'no apareció .map-on'));
+    ok('el mapa es un Leaflet de verdad con sus tiles',
+      (await page.locator('.card.top .media-map.leaflet-container').count()) === 1 &&
+      (await page.locator('.card.top .media-map img.leaflet-tile').count()) > 0,
+      `${await page.locator('.card.top .media-map img.leaflet-tile').count()} tiles`);
+    ok('el mapa no se puede comer el gesto',
+      (await page.locator('.card.top .media-map').evaluate(e => getComputedStyle(e).pointerEvents)) === 'none');
+    ok('la card nunca queda en blanco: el nombre se sigue leyendo',
+      (await page.locator('.card.top .card-name').innerText()).length > 0,
+      await topName(page));
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: path.join(SHOTS, 'votar-mapa.png') });
+    const nm = await topName(page);
+    await touchSwipe(page, cdp, 200, 0);
+    ok('y con el mapa de fondo el swipe táctil vota igual', (await topName(page)) !== nm,
+      `${nm} → ${await topName(page)}`);
+    await ctx.close();
+  }
+  await clearVotes(TOKEN2);
 
   // --------------------------------------------------- mobile: los 3 gestos
   await clearVotes(TOKEN);
@@ -191,6 +322,10 @@ const settle = (page) => page.waitForFunction(
     await page.waitForTimeout(600);
     ok('Z deshace', (await topName(page)) === afterDrag);
     await settle(page);
+    // La foto de desktop tiene que mostrar la card como se ve de verdad, con
+    // el reel puesto: si se saca antes, retrata el estado de carga.
+    await page.waitForSelector('.card.top.ig-on', { timeout: 20000 }).catch(() => {});
+    await page.waitForTimeout(1200);
     await page.screenshot({ path: path.join(SHOTS, 'votar-desktop.png') });
 
     // Foto a mitad del arrastre: es la única forma de ver que el sello del
@@ -215,20 +350,27 @@ const settle = (page) => page.waitForFunction(
     // Votar Kioto entero por API y comprobar que la app cierra el mazo.
     await page.goto(`${BASE}/japon/votar/?u=${TOKEN}&city=Kioto`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.card.top');
+    // El mazo lo define la app (ciudad + categorias excluidas), asi que la
+    // lista sale de ahi y no de SOURCE_THINGS: si el test votara los lugares
+    // que la app ya no muestra, el mazo no cerraria nunca.
     const kioto = await page.evaluate(() =>
-      (window.SOURCE_THINGS || []).filter(t => /k(io|yo)to/i.test(t.area || '')).map(t => t.name));
-    for (const name of kioto) {
+      window.VOTAR_PLACES.filter(p => p.city === 'Kioto').map(p => ({ id: p.id, name: p.name })));
+    let idDrift = 0;
+    for (const { id, name } of kioto) {
       // R\u00e9plica del `placeId()` de app.js, fold ASCII incluido. Si los dos se
       // desalinean, el test vota ids que la app no reconoce y el mazo nunca
       // cierra \u2014 que es exactamente lo que este bloque tiene que detectar.
-      const id = 'p-' + name.split('(')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      const mine = 'p-' + name.split('(')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim().replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]+/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      if (mine !== id) idDrift++;
       await api('/votes', {
         method: 'PUT', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ token: TOKEN, place_id: id, vote: 'si' }),
       });
     }
+    ok('el place_id de la app sigue siendo el nombre normalizado', idDrift === 0,
+      `${kioto.length} lugares de Kioto, ${idDrift} distintos`);
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#done:not([hidden])', { timeout: 8000 }).catch(() => {});
     ok('con la ciudad entera votada aparece el cierre con el resumen',
@@ -250,14 +392,23 @@ const settle = (page) => page.waitForFunction(
   {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
     const page = await ctx.newPage();
+    // El tally público de antes, para comprobar después que la prueba no lo movió.
+    const publicBefore = await api('/aggregate');
     await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.card.top');
     for (let i = 0; i < 3; i++) { await page.locator('#b-si').click(); await page.waitForTimeout(400); }
     await page.waitForTimeout(900);
-    const agg = await api('/aggregate');
+    // `includeTest=1` es la única forma de sumar dos votantes sin usar la
+    // cuenta de una persona: mismo tally, con los de prueba adentro.
+    const agg = await api('/aggregate?includeTest=1');
     ok('/aggregate suma votos de dos tokens distintos',
       agg.voterCount >= 2 && agg.totalVotes >= 5,
       `${agg.voterCount} votantes · ${agg.totalVotes} votos · ${Object.keys(agg.places).length} lugares`);
+    const publicAfter = await api('/aggregate');
+    ok('y el tally que consume la app principal no se movió con los de prueba',
+      publicAfter.totalVotes === publicBefore.totalVotes &&
+      publicAfter.voterCount === publicBefore.voterCount,
+      `${publicBefore.voterCount}/${publicBefore.totalVotes} → ${publicAfter.voterCount}/${publicAfter.totalVotes}`);
     const scored = Object.values(agg.places).filter(p => p.score > 0);
     ok('el tally trae si/no/star y score por lugar',
       scored.length > 0 && 'si' in scored[0] && 'no' in scored[0] && 'star' in scored[0],

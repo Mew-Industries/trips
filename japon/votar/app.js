@@ -80,6 +80,19 @@
     return parts.length === 2 ? parts[0].trim() : '';
   }
 
+  // Comer y tomar no se votan: se deciden en el momento y con hambre (pedido
+  // explícito de Martín). Se excluye por categoría RESUELTA y por exclusión, no
+  // por lista de incluidas: así una categoría nueva de la taxonomía (`taller`
+  // fue la última) entra sola al mazo sin tocar este archivo.
+  var SKIP_CATS = { 'comida': 1, 'bar-noche': 1 };
+
+  // El shortcode del reel es lo único que necesita el embed de Instagram. Los
+  // datos traen la URL como /p/<code>/, pero /reel/ y /tv/ son lo mismo.
+  function shortcode(url) {
+    var m = /instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(url || '');
+    return m ? m[1] : null;
+  }
+
   var FRAMES = window.VOTAR_FRAMES || {};
   var PLACES = (window.SOURCE_THINGS || []).map(function (t) {
     var reel = (t.sources || []).filter(function (s) { return s.type === 'instagram_reel'; })[0];
@@ -91,15 +104,21 @@
       city: cityOf(t.area),
       hood: hoodOf(t.area) || placeOf(t.area),
       cat: catOf(t.name, t.cat),
+      lat: typeof t.lat === 'number' ? t.lat : null,
+      lon: typeof t.lon === 'number' ? t.lon : null,
       img: FRAMES[placeId(t.name)] || null,
       reel: reel ? reel.url : null,
+      ig: reel ? shortcode(reel.url) : null,
       maps: 'https://www.google.com/maps/search/?api=1&query=' +
         encodeURIComponent(t.name + (t.area ? ' ' + t.area : ''))
     };
-  });
+  }).filter(function (p) { return !SKIP_CATS[p.cat]; });
   // Un lugar puede aparecer en dos reels: se vota una sola vez.
   var seen = {};
   PLACES = PLACES.filter(function (p) { return seen[p.id] ? false : (seen[p.id] = true); });
+  // El mazo tal cual lo armó la app, para que `check_votar.js` pueda mirar lo
+  // que se ve y no una reimplementación del filtro que puede desincronizarse.
+  window.VOTAR_PLACES = PLACES;
 
   /* -------------------------------------------------------------- estado */
 
@@ -188,14 +207,21 @@
     });
   }
 
-  function cardHTML(p) {
+  function cardHTML(p, top) {
     var meta = TAX.meta[p.cat] || TAX.meta.otro || { label: 'Otros', icon: '✨', color: '#8C8C8C' };
     var links = [];
     if (p.reel) links.push('<a href="' + esc(p.reel) + '" target="_blank" rel="noopener">Ver el reel →</a>');
     links.push('<a href="' + esc(p.maps) + '" target="_blank" rel="noopener">Maps →</a>');
     return '' +
-      (p.img ? '<img class="card-img" src="' + esc(p.img) + '" alt="" draggable="false">'
-             : '<span class="card-glyph">' + meta.icon + '</span>') +
+      '<div class="card-media">' +
+        (p.img ? '<img class="card-img" src="' + esc(p.img) + '" alt="" draggable="false">'
+               : '<span class="card-glyph">' + meta.icon + '</span>') +
+        // El escudo tapa al iframe para que el gesto sea del mazo y no de
+        // Instagram. Sólo la card de arriba lo necesita: es la única que
+        // embebe y la única que se arrastra.
+        (top && p.ig ? '<div class="media-shield"></div>' : '') +
+      '</div>' +
+      (top && p.ig ? '<button type="button" class="media-back">↔ deslizar</button>' : '') +
       '<span class="stamp stamp-si">Sí</span>' +
       '<span class="stamp stamp-no">Paso</span>' +
       '<span class="stamp stamp-star">★ Re</span>' +
@@ -213,15 +239,140 @@
   function buildCard(p, depth) {
     var meta = TAX.meta[p.cat] || TAX.meta.otro;
     var el = document.createElement('article');
-    el.className = 'card ' + (p.img ? 'has-img' : 'no-img') + (depth ? ' behind' : ' top');
+    el.className = 'card ' + (p.img ? 'has-img on-dark' : 'no-img') + (depth ? ' behind' : ' top');
     el.dataset.depth = depth;
     el.dataset.place = p.id;
     if (!p.img) {
       el.style.setProperty('--wash-a', meta.color + '26');
       el.style.setProperty('--wash-b', meta.color + '0D');
     }
-    el.innerHTML = cardHTML(p);
+    el.innerHTML = cardHTML(p, !depth);
     return el;
+  }
+
+  /* --------------------------------------------------------------- media */
+
+  /* La card de arriba muestra el reel de verdad, no un frame congelado.
+   *
+   * El embed de Instagram mide siempre lo mismo por dentro: 54 px de
+   * encabezado y debajo el media en 4:5 sobre el ancho del iframe (medido en
+   * los tres tipos de posteo: reel, video y carrusel). Con eso se puede
+   * recortar el iframe a sangre y dejar SÓLO el media, ocupando la card como
+   * la ocupaba la foto — sin la barra azul de "View profile" ni los botones.
+   *
+   * Debajo del iframe siempre queda algo dibujado (el frame estático, el
+   * mini-mapa o el lavado de la categoría), así que mientras el embed carga —
+   * o si nunca carga — la card nunca está en blanco. */
+  var IG_ORIGIN = 'https://www.instagram.com';
+  var IG_W = 400, IG_HEAD = 54, IG_MEDIA = IG_W * 1.25, IG_TIMEOUT = 6500, IG_GIVEUP = 30000;
+
+  function mountMedia(card, p) {
+    var media = card.querySelector('.card-media');
+    if (!media) return;
+    // Sin reel no hay nada que embeber: si el lugar tiene coordenada, la card
+    // muestra dónde queda. Hoy los 272 lugares vienen de un reel, así que este
+    // camino es el del dato que todavía no existe (y el del embed que falla).
+    if (!p.ig) return mapFallback(card, p);
+
+    var f = document.createElement('iframe');
+    f.className = 'media-ig';
+    f.src = 'https://www.instagram.com/p/' + encodeURIComponent(p.ig) + '/embed/';
+    f.setAttribute('scrolling', 'no');
+    f.setAttribute('allowtransparency', 'true');
+    f.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; picture-in-picture');
+    f.setAttribute('allowfullscreen', '');
+    f.setAttribute('title', 'Reel de ' + p.name);
+    fitIG(f, card);
+    media.appendChild(f);
+
+    // `load` NO sirve para saber si el reel está: cuando el iframe no puede
+    // cargar, Chromium le mete adentro su propia página de error y dispara
+    // `load` igual (probado abortando el request). Si nos fiáramos de eso, la
+    // card mostraría un rectángulo blanco con toda confianza.
+    //
+    // El embed de Instagram, en cambio, le postea al padre un `{type:LOADING}`
+    // desde su propio origen apenas arranca — algo que una página de error no
+    // puede fingir. Eso es lo que destapa el reel. Llega en ~1 s.
+    var timer, giveUp;
+    var alive = function (e) {
+      if (e.origin !== IG_ORIGIN || e.source !== f.contentWindow) return;
+      window.removeEventListener('message', alive);
+      clearTimeout(timer); clearTimeout(giveUp);
+      if (card.isConnected) card.classList.add('ig-on', 'on-dark');
+    };
+    window.addEventListener('message', alive);
+    // Si a los pocos segundos no dio señales, abajo aparece el mapa — pero el
+    // oído queda abierto un rato más: con mala señal el reel puede llegar
+    // tarde, y cuando llega se pone encima. El mapa era el mientras tanto.
+    timer = setTimeout(function () { mapFallback(card, p); }, IG_TIMEOUT);
+    giveUp = setTimeout(function () { window.removeEventListener('message', alive); }, IG_GIVEUP);
+    f.addEventListener('error', function () {
+      clearTimeout(timer);
+      mapFallback(card, p);
+    });
+  }
+
+  // Recorte del iframe: se escala para cubrir la card (como un object-fit
+  // cover) y se sube IG_HEAD para que el encabezado quede fuera del marco.
+  function fitIG(f, card) {
+    var w = card.clientWidth || 380, h = card.clientHeight || 560;
+    var k = Math.max(w / IG_W, h / IG_MEDIA);
+    f.style.width = IG_W + 'px';
+    f.style.height = (IG_HEAD + IG_MEDIA + 2) + 'px';
+    f.style.transform = 'scale(' + k + ')';
+    f.style.left = ((w - IG_W * k) / 2) + 'px';
+    f.style.top = ((h - IG_MEDIA * k) / 2 - IG_HEAD * k) + 'px';
+  }
+
+  var leafletP = null;
+  function leaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletP) return leafletP;
+    leafletP = new Promise(function (res, rej) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(css);
+      var s = document.createElement('script');
+      s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      s.onload = function () { res(window.L); };
+      s.onerror = function () { leafletP = null; rej(new Error('leaflet')); };
+      document.head.appendChild(s);
+    });
+    return leafletP;
+  }
+
+  // Mini-mapa: mismos tiles que el mapa del site principal, sin un solo
+  // control ni gesto propio (`pointer-events: none`) — el mazo no puede
+  // pelearse con un mapa por el mismo dedo.
+  function mapFallback(card, p) {
+    var media = card.querySelector('.card-media');
+    if (!media || p.lat == null || p.lon == null) return;
+    if (media.querySelector('.media-map')) return;
+    var box = document.createElement('div');
+    box.className = 'media-map';
+    media.appendChild(box);
+    leaflet().then(function (L) {
+      if (!card.isConnected) return;
+      var m = L.map(box, {
+        zoomControl: false, dragging: false, inertia: false,
+        scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false,
+        touchZoom: false, tap: false, zoomAnimation: false, fadeAnimation: false,
+        // Los tiles son de otro: la atribución va, aunque el mapa sea del
+        // tamaño de una card. El CSS la manda arriba, donde no pisa el texto.
+        attributionControl: true
+      });
+      m.attributionControl.setPrefix(false);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap, © CARTO', subdomains: 'abcd', maxZoom: 19
+      }).addTo(m);
+      m.setView([p.lat, p.lon], 15);
+      L.circleMarker([p.lat, p.lon], {
+        radius: 9, weight: 3, color: '#fff', fillColor: '#B4483A', fillOpacity: 1
+      }).addTo(m);
+      m.invalidateSize();
+      card.classList.add('map-on');
+    }).catch(function () { /* sin mapa la card sigue siendo la de siempre */ });
   }
 
   function render() {
@@ -237,7 +388,16 @@
     var visible = left.slice(0, 3);
     for (var i = visible.length - 1; i >= 0; i--) deckEl.appendChild(buildCard(visible[i], i));
     var top = deckEl.querySelector('.card.top');
-    if (top) drag(top);
+    if (top) {
+      drag(top);
+      var back = top.querySelector('.media-back');
+      if (back) back.addEventListener('click', function () { top.classList.remove('playing'); });
+      // El embed pesa medio mega: se monta un tick después de que la card ya
+      // está en pantalla, así el swipe que la trajo no se traba cargando IG.
+      (function (card, place) {
+        setTimeout(function () { if (card.isConnected) mountMedia(card, place); }, 90);
+      })(top, visible[0]);
+    }
 
     var finished = left.length === 0;
     deckEl.hidden = finished;
@@ -317,13 +477,14 @@
   }
 
   function drag(card) {
-    var sx = 0, sy = 0, dx = 0, dy = 0, on = false;
+    var sx = 0, sy = 0, dx = 0, dy = 0, on = false, fromShield = false;
     var si = card.querySelector('.stamp-si'), no = card.querySelector('.stamp-no'),
         st = card.querySelector('.stamp-star');
 
     card.addEventListener('pointerdown', function (e) {
-      // Los links de la card se tocan, no se arrastran.
-      if (e.target.closest('a')) return;
+      // Los links y el botón de volver al mazo se tocan, no se arrastran.
+      if (e.target.closest('a, .media-back')) return;
+      fromShield = !!e.target.closest('.media-shield');
       on = true; sx = e.clientX; sy = e.clientY; dx = dy = 0;
       card.setPointerCapture(e.pointerId);
       card.style.transition = 'none';
@@ -352,6 +513,9 @@
       card.style.transition = 'transform 0.22s cubic-bezier(.3,1.2,.5,1)';
       card.style.transform = '';
       si.style.opacity = no.style.opacity = st.style.opacity = 0;
+      // Toque quieto sobre el escudo: se lo saca del medio y el reel pasa a
+      // ser del dedo (play, sonido, carrusel). El "↔ deslizar" lo devuelve.
+      if (fromShield && Math.abs(dx) < 8 && Math.abs(dy) < 8) card.classList.add('playing');
     };
     card.addEventListener('pointerup', release);
     card.addEventListener('pointercancel', release);
@@ -409,6 +573,14 @@
       else if (e.key === 'ArrowLeft') { e.preventDefault(); vote('no'); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); vote('star'); }
       else if (e.key === 'z' || e.key === 'Z' || e.key === 'Backspace') { e.preventDefault(); undo(); }
+    });
+
+    // Girar el teléfono cambia el alto de la card, y el recorte del embed está
+    // calculado sobre ese alto: sin esto el reel queda corrido hasta el
+    // siguiente swipe.
+    window.addEventListener('resize', function () {
+      var f = deckEl.querySelector('.card.top .media-ig');
+      if (f) fitIG(f, f.closest('.card'));
     });
 
     window.addEventListener('online', flush);

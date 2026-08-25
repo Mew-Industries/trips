@@ -61,6 +61,21 @@ TRAVELLERS = [
     ("ari", "Ari"),
 ]
 
+# Dos votantes de mentira, para que `check_votar.js` no tenga que probar con el
+# token de una persona. La suite empieza borrando los votos del token que le
+# pasan, y con el de un viajero eso es destruirle lo que votó: pasó una vez, en
+# la ronda 2, y se llevó puesta la primera tanda de votos de Martín. Sus tokens
+# van a `test-tokens.env` (no a links.md) y sus votos NO cuentan en /aggregate:
+# el tally de destacados es de los cuatro que viajan, no del test.
+TEST_USERS = [
+    ("test-a", "Test A"),
+    ("test-b", "Test B"),
+]
+
+
+def is_test(uid):
+    return str(uid).startswith("test-")
+
 _lock = threading.Lock()
 
 
@@ -91,7 +106,7 @@ def init_db():
             " token TEXT NOT NULL, place_id TEXT NOT NULL, vote TEXT NOT NULL,"
             " updated_at TEXT NOT NULL, PRIMARY KEY (token, place_id))"
         )
-        for uid, name in TRAVELLERS:
+        for uid, name in TRAVELLERS + TEST_USERS:
             con.execute(
                 "INSERT OR IGNORE INTO users (id, name, token, created_at)"
                 " VALUES (?,?,?,?)",
@@ -109,7 +124,9 @@ def init_db():
     path = os.path.join(DATA_DIR, "links.md")
     rows = con.execute("SELECT id, name, token FROM users").fetchall()
     order = {uid: i for i, (uid, _) in enumerate(TRAVELLERS)}
-    rows = sorted(rows, key=lambda r: order.get(r["id"], 99))
+    rows = sorted(
+        [r for r in rows if not is_test(r["id"])], key=lambda r: order.get(r["id"], 99)
+    )
     lines = ["# Links personales de votación (japon/votar) — task 548", ""]
     lines += [
         "- {}: https://mew-industries.github.io/trips/japon/votar/?u={}".format(
@@ -122,6 +139,15 @@ def init_db():
         fh.write("\n".join(lines) + "\n")
     os.replace(tmp, path)
     os.chmod(path, 0o600)
+    # Y los de prueba aparte, en formato que `check_votar.js` pueda sourcear.
+    tpath = os.path.join(DATA_DIR, "test-tokens.env")
+    tests = {r["id"]: r["token"] for r in con.execute("SELECT id, token FROM users")}
+    tmp = tpath + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write("# Votantes de prueba de check_votar.js — no son de nadie.\n")
+        fh.write("TOKEN=%s\nTOKEN2=%s\n" % (tests["test-a"], tests["test-b"]))
+    os.replace(tmp, tpath)
+    os.chmod(tpath, 0o600)
     con.close()
 
 
@@ -244,7 +270,11 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/votes":
             return self._get_votes(params.get("u", ""))
         if path == "/aggregate":
-            return self._aggregate()
+            # `?includeTest=1` mete a los votantes de prueba en el tally. Es
+            # para que `check_votar.js` pueda probar que la suma cruza varios
+            # tokens sin tener que votar con la cuenta de una persona. El
+            # /aggregate que consume la app principal es el de siempre.
+            return self._aggregate(params.get("includeTest") == "1")
         return self._json({"error": "not found"}, 404)
 
     def do_PUT(self):
@@ -325,7 +355,7 @@ class Handler(BaseHTTPRequestHandler):
             con.close()
         return self._json({"ok": True, "place_id": place_id, "vote": vote, "updatedAt": ts})
 
-    def _aggregate(self):
+    def _aggregate(self, include_test=False):
         """Tally crudo por lugar. Es la interfaz que va a consumir la app
         principal para su flag `destacado`: acá sólo se expone el conteo y el
         score; el umbral (cuántos votantes, qué score) se decide del otro lado."""
@@ -342,7 +372,11 @@ class Handler(BaseHTTPRequestHandler):
         counted = 0
         for r in rows:
             uid = by_token.get(r["token"])
+            # Los votantes de prueba existen para que la suite no le borre los
+            # votos a nadie; que no se cuelen en el tally que arma destacados.
             if uid is None or r["vote"] not in VOTES:
+                continue
+            if is_test(uid) and not include_test:
                 continue
             voters.add(uid)
             p = places.setdefault(

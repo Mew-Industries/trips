@@ -87,11 +87,60 @@ button { font: inherit; }
 .card[data-depth="2"] { transform: translateY(18px) scale(0.93); }
 .card[data-depth="1"], .card[data-depth="2"] { box-shadow: 0 6px 18px rgba(31,28,20,0.09); }
 
+/* Todo lo que se ve de fondo —frame, reel embebido, mini-mapa— vive acá
+   adentro, a sangre; el texto va encima con su scrim. */
+.card-media { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-/* Scrim: la foto es de un reel cualquiera, el texto tiene que leerse igual. */
-.card.has-img::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
+
+/* El reel de Instagram. El iframe es más grande que la card a propósito:
+   `app.js` lo escala y lo sube para que quede sólo el media, sin el
+   encabezado ni los botones del embed. Aparece recién cuando cargó — hasta
+   entonces se ve lo que haya debajo, nunca un rectángulo vacío. */
+.media-ig {
+  position: absolute; z-index: 2; border: 0; display: block;
+  transform-origin: 0 0; background: transparent;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.card.ig-on .media-ig { opacity: 1; }
+
+/* Mini-mapa: dónde queda el lugar. Sin controles y sin eventos — el dedo que
+   lo toca es el mismo que está swipeando la card. */
+.media-map { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #eceae4; }
+.media-map.leaflet-container { background: #eceae4; }
+/* La atribución de los tiles va arriba a la izquierda: abajo la tapa el texto
+   de la card. Chiquita y sin caja — es un crédito, no un control. */
+.media-map .leaflet-control-attribution {
+  position: absolute; top: 7px; left: 7px; margin: 0; padding: 0;
+  background: none; color: rgba(60,56,48,0.42); font-size: 8.5px; line-height: 1;
+}
+.media-map .leaflet-bottom { display: none; }
+
+/* Escudo: transparente, tapa al iframe para que el arrastre siga siendo del
+   mazo. Un toque quieto lo saca del medio y el reel pasa a ser del dedo.
+   Sin dibujo propio: el embed ya trae su ▶ en el medio, y el primer toque
+   —el que se come el escudo— es justo el que apunta ahí. Un segundo play
+   encima sería el mismo botón dos veces. */
+.media-shield { position: absolute; inset: 0; z-index: 3; }
+.card.playing .media-shield { display: none; }
+
+/* Y el camino de vuelta: con el reel activo este botón devuelve la card al
+   mazo. El swipe igual sigue andando desde el texto y desde la botonera. */
+.media-back {
+  position: absolute; z-index: 4; top: 12px; right: 12px; display: none;
+  border: 1px solid rgba(255,255,255,0.45); background: rgba(20,18,14,0.58); color: #fff;
+  font-size: 11px; font-weight: 600; padding: 6px 11px; border-radius: 14px; cursor: pointer;
+}
+.card.playing .media-back { display: block; }
+
+/* Scrim: el fondo es un reel cualquiera, el texto tiene que leerse igual. */
+.card.on-dark::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background: linear-gradient(to top, rgba(12,10,6,0.92) 0%, rgba(12,10,6,0.72) 26%, rgba(12,10,6,0.18) 52%, rgba(12,10,6,0.05) 72%);
+}
+/* Sobre el mapa el texto se queda oscuro, así que el scrim va al revés. */
+.card.map-on:not(.on-dark)::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to top, rgba(250,249,246,0.97) 0%, rgba(250,249,246,0.9) 24%, rgba(250,249,246,0) 48%);
 }
 /* Sin foto: lavado del color de la categoría, que es la identidad que queda.
    Va como `background-image` y no como `background`: los lavados son de baja
@@ -102,9 +151,10 @@ button { font: inherit; }
   position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%);
   font-size: 128px; line-height: 1; opacity: 0.14; pointer-events: none;
 }
+.card.map-on .card-glyph { display: none; }
 
 .card-body { position: relative; z-index: 2; padding: 20px 20px 18px; }
-.card.has-img .card-body { color: #fff; }
+.card.on-dark .card-body { color: #fff; }
 
 .card-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
 .tag {
@@ -112,24 +162,24 @@ button { font: inherit; }
   padding: 3px 9px; border-radius: 12px; white-space: nowrap;
   background: rgba(255,255,255,0.9); color: var(--tc, #444);
 }
-.card.has-img .tag { background: rgba(255,255,255,0.93); }
+.card.on-dark .tag { background: rgba(255,255,255,0.93); }
 .card.no-img .tag { background: rgba(255,255,255,0.82); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .tag-hood { background: rgba(0,0,0,0.06); color: #5c584f; font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
-.card.has-img .tag-hood { background: rgba(255,255,255,0.2); color: #fff; }
+.card.on-dark .tag-hood { background: rgba(255,255,255,0.2); color: #fff; }
 
 .card-name { font-size: 23px; font-weight: 700; line-height: 1.18; margin: 0; letter-spacing: -0.01em; }
-.card.no-img .card-name { font-size: 26px; }
+.card.no-img:not(.on-dark) .card-name { font-size: 26px; }
 .card-note { font-size: 13.5px; line-height: 1.5; margin: 9px 0 0; color: #5c584f; }
-.card.has-img .card-note { color: rgba(255,255,255,0.92); }
+.card.on-dark .card-note { color: rgba(255,255,255,0.92); }
 
 .card-links { display: flex; gap: 14px; margin-top: 14px; }
 .card-links a {
   font-size: 11.5px; font-weight: 600; color: var(--verde); text-decoration: none;
   border-bottom: 1px dotted rgba(15,110,86,0.4); padding-bottom: 1px;
 }
-.card.has-img .card-links a { color: rgba(255,255,255,0.85); border-bottom-color: rgba(255,255,255,0.4); }
+.card.on-dark .card-links a { color: rgba(255,255,255,0.85); border-bottom-color: rgba(255,255,255,0.4); }
 .card-links a:hover { color: var(--tinta); }
-.card.has-img .card-links a:hover { color: #fff; }
+.card.on-dark .card-links a:hover { color: #fff; }
 
 /* Sellos del gesto: aparecen mientras se arrastra y dicen a dónde va. */
 .stamp {
