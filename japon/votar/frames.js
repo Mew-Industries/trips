@@ -1,5 +1,5 @@
 // Generado por japon/votar/scripts/build_frames.py — NO editar a mano.
-// 26 lugares con frame de reel sobre 221. El resto va con card tipográfica.
+// 26 lugares con frame de reel sobre 272. El resto va con card tipográfica.
 window.VOTAR_FRAMES = {
  "p-21st-century-museum-of-contemporary-art": "img/DcYZqIYGGrz.webp",
  "p-aomori-museum-of-art": "img/DcSFLx9JD7x.webp",
