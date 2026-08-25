@@ -686,7 +686,7 @@ const destinations = [
         'El vuelo sale a la tarde: la mañana del 15 queda libre para el day-trip de Sendai (Matsushima o Yamadera), volviendo a buscar las valijas al hotel.'
       ],
       segments: [
-        { route: 'SDJ → CTS', no: 'MM419', when: '15 oct 16:50 → 18:10', departure: '2026-10-15T16:50', arrival: '2026-10-15T18:10', aircraft: 'A320neo · 1h20', tracker: 'https://flightaware.com/live/flight/APJ419' }
+        { route: 'SDJ → CTS', no: 'MM419', when: '15 oct 16:50 → 18:10', departure: '2026-10-15T16:50', arrival: '2026-10-15T18:10', aircraft: 'A320neo · 1h20', tracker: 'https://www.flightradar24.com/data/flights/mm419' }
       ] },
     tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
     intro: 'Salto al norte al arranque del viaje, cuando Hokkaido todavía está templado (~17°/7° a mediados de octubre — chaqueta de otoño, no frío). Se llega de Sendai en avión (aeropuerto de Sendai → New Chitose) y se sigue volando a Komatsu para retomar Kanazawa. Es la parte más fresca del recorrido, pero a esta altura del calendario es disfrutable. Sapporo: comida (sopa de curry, ramen miso, mariscos del mercado), parques de Isamu Noguchi y el monte Moiwa al atardecer. El koyo en la montaña recién empieza.',
@@ -736,7 +736,7 @@ const destinations = [
         'La limusina para en Kōrinbō, a media cuadra del Airbnb: se llega a Kanazawa a media tarde y el primer paseo entra el mismo día.'
       ],
       segments: [
-        { route: 'CTS → KMQ', no: 'NH1174', when: '17 oct 11:55 → 13:30', departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30', aircraft: 'A321 · 1h35', tracker: 'https://flightaware.com/live/flight/ANA1174' }
+        { route: 'CTS → KMQ', no: 'NH1174', when: '17 oct 11:55 → 13:30', departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30', aircraft: 'A321 · 1h35', tracker: 'https://www.flightradar24.com/data/flights/nh1174' }
       ] },
     tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
     intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (ANA NH1174 a Komatsu + limusina del aeropuerto), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
@@ -1017,8 +1017,11 @@ const destinations = [
         'Cruce internacional: el check-in de Air Busan cierra 40-60 min antes de la salida — salir del hotel ~9:30 (no apurar el checkout de 11:00; el aeropuerto queda a ~10 min en subte de Hakata).',
         'Reemplaza al ferry Beetle del plan original (suspendido desde 2024, JR lo vendió).'
       ],
+      // Sin `tracker`: ni FlightAware ni Flightradar24 conocen el BX506 real (FlightAware resuelve
+      // ABL506 a un vuelo canadiense de 2001; FR24 devuelve "no data available" para cualquier vuelo
+      // BX de Air Busan). Mejor sin link que con uno que muestre otro vuelo — task 539, 2026-08-25.
       segments: [
-        { route: 'FUK → PUS', no: 'BX506', when: '3 nov 11:55 → 13:00', departure: '2026-11-03T11:55', arrival: '2026-11-03T13:00', aircraft: 'A321 · 1h05', tracker: 'https://flightaware.com/live/flight/ABL506' }
+        { route: 'FUK → PUS', no: 'BX506', when: '3 nov 11:55 → 13:00', departure: '2026-11-03T11:55', arrival: '2026-11-03T13:00', aircraft: 'A321 · 1h05' }
       ] },
     tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
     intro: 'Se llega volando desde Fukuoka (Air Busan, ~1h). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
