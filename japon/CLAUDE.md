@@ -224,11 +224,19 @@ Verificación (browser de verdad, las tres marcas + la vista filtrada + su HTML 
 
 ## Categorías de lugares (taxonomía única, 2026-08-03 · task 474)
 
-Todos los lugares del mapa —reels de IG, guardados de Google Maps (actividades con `coords` + `orphanPlaces`) y day trips— comparten **una sola taxonomía**: `comida · bar-noche · parque · templo-museo · actividad · compras · barrio · otro`. Vive en **`data/categories.js`** (archivo de datos versionado, se edita a mano):
+Todos los lugares del mapa —reels de IG, guardados de Google Maps (actividades con `coords` + `orphanPlaces`) y day trips— comparten **una sola taxonomía**: `comida · bar-noche · parque · templo-museo · arte · arquitectura · actividad · taller · compras · barrio · otro`. Vive en **`data/categories.js`** (archivo de datos versionado, se edita a mano):
 
 - `PLACE_TAXONOMY` — orden, etiqueta, ícono y **color** de cada categoría.
 - `PLACE_CAT_LEGACY` — mapeo de las categorías viejas (las que emite el pipeline de reels y el `cat` de `activities`) a la taxonomía nueva.
 - `PLACE_CAT_OVERRIDES` — categoría explícita por nombre de lugar; gana sobre el mapeo legacy. El match ignora mayúsculas, acentos y puntuación.
+
+**`taller` vs `actividad`** (2026-08-25 · task 551): el corte es quién hace. En
+`taller` alguien te enseña y volvés con la pieza (forjar un shuriken en studio NIN,
+soplar un vaso en Studio J-45, tejer una bufanda, hornear senbei); en `actividad`
+se visita, se pasea o te lo dan hecho (parque de diversiones, onsen, karting, tour).
+Un museo que ADEMÁS ofrece un workshop sigue siendo museo: el plan de fondo es la
+colección. Los 11 talleres de hoy están en `PLACE_CAT_OVERRIDES`, y los casos que se
+miraron y se dejaron donde estaban tienen su motivo anotado ahí al lado.
 
 `catOf(nombre, catLegacy)` en `index.html` resuelve override → legacy → `otro`. **Por qué aguas abajo:** `build_reels_js.py` (workspace, fuera de este repo) sigue escribiendo su `cat` viejo en `data/reels.js` y el sync de Maps no toca `index.html`, así que regenerar reels nunca resetea una categoría.
 
