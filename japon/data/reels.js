@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 196 lugares de la colección IG "japon mew" · 2026-08-23T16:36:26+00:00
+// 198 lugares de la colección IG "japon mew" · 2026-08-25T12:50:06+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -572,6 +572,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "General Store Railyard",
+  "lat": 35.698133,
+  "lon": 139.774776,
+  "cat": "compras",
+  "area": "Akihabara, Tokio",
+  "note": "Tienda para fans de los trenes japoneses: llaveros de melodías de estación, imanes de boletos, libretas para eki stamps y relojes de la mascota Suica.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DAqbsbnyc_k/",
+    "owner": "samishome",
+    "caption": "Tienda para fans de los trenes japoneses: llaveros de melodías de estación, imanes de boletos, libretas para eki stamps y relojes de la mascota Suica."
+   }
+  ]
+ },
+ {
   "name": "Ghibli Park",
   "lat": 35.175041,
   "lon": 137.088772,
@@ -1138,6 +1154,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
+   }
+  ]
+ },
+ {
+  "name": "Katayama Bunzaburo Shoten Kyoto Honten",
+  "lat": 35.006163,
+  "lon": 135.758511,
+  "cat": "compras",
+  "area": "Nakagyo, Kioto",
+  "note": "Tienda de bolsos artesanales únicos, con piezas 'spiky' de colores hechas con técnica de shibori; recomendada para compras especiales en Kioto.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbTs5pAzMMH/",
+    "owner": "sharonnhsu",
+    "caption": "Tienda de bolsos artesanales únicos, con piezas 'spiky' de colores hechas con técnica de shibori; recomendada para compras especiales en Kioto."
    }
   ]
  },
