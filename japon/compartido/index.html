@@ -3,332 +3,3025 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Japón — tramo compartido · 19-31 oct 2026</title>
-<meta name="robots" content="noindex">
+<title>Japón · 19-31 oct 2026</title>
 <link rel="icon" type="image/png" sizes="64x64" href="../favicon-64.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../favicon-64.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<!--
-  Vista compartida del tramo Kioto → Osaka → Tokio (19-31 oct), para mandarle a Zava y
-  Ari. Es una página aparte, no un filtro del site: el itinerario completo vive en el
-  array `destinations` de ../index.html y filtrarlo en runtime dejaría igual las 15
-  paradas dentro del documento. Acá el dato ya viene recortado desde el generador
-  (scripts/build_compartido.js → data.js), que copia por allowlist. La app completa
-  sigue siendo la de /japon/.
--->
+<link rel="stylesheet" href="../views.css" />
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+  body { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-  .hd { padding: 13px 20px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08); }
-  .hd h1 { font-size: 16px; font-weight: 600; margin: 0; }
-  .hd .sub { font-size: 12px; color: #888; margin-top: 2px; }
-  .hd .note { font-size: 11.5px; color: #58399B; background: rgba(108,75,182,0.1); border-radius: 5px; padding: 4px 8px; margin-top: 7px; display: inline-block; line-height: 1.4; }
+  .site-header {
+    padding: 12px 24px;
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .header-title { display: flex; align-items: baseline; gap: 10px; }
+  .header-title h1 { font-size: 16px; font-weight: 600; margin: 0; color: #1a1a1a; }
+  .header-title .subtitle { font-size: 12px; color: #888; font-weight: 400; }
+  .header-stats { display: flex; gap: 20px; font-size: 12px; color: #555; }
+  .header-stats strong { color: #1a1a1a; font-weight: 600; }
 
-  .shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); height: calc(100vh - 74px); }
-  .map-pane { border-right: 1px solid rgba(0,0,0,0.08); }
-  #map { height: 100%; width: 100%; background: #e9e6de; }
-  .list { overflow-y: auto; padding: 14px 16px 40px; }
-  .list-inner { max-width: 720px; margin: 0 auto; }
+  /* El layout de dos columnas (mapa | sidebar con tabs) vive en views.css, junto
+     con el riel: es lo que se saca para volver al site sin tabs. */
+  .map-pane { height: 100%; overflow: hidden; position: relative; border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; position: relative; }
+  /* Los 54px de cada lado dejan libre la esquina del botón de "mi ubicación"
+     (y mantienen las barras centradas respecto del mapa). */
+  .map-bars { position: absolute; left: 54px; right: 54px; bottom: 12px; z-index: 1000; display: flex; justify-content: center; pointer-events: none; }
+  .map-bars > * { pointer-events: auto; max-width: 100%; }
+  .map-toggles { display: grid; background: rgba(255,255,255,0.96); border: 1px solid rgba(0,0,0,0.12); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.28); backdrop-filter: blur(3px); }
+  .map-toggles .mt { font-size: 11px; font-weight: 600; padding: 7px 9px; border: 0; border-bottom: 1px solid rgba(0,0,0,0.08); background: transparent; color: #a6a6a6; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.12s, color 0.12s; }
+  .map-toggles .mt:last-child { border-bottom: 0; }
+  .map-toggles .mt.active { background: rgba(15,110,86,0.09); color: #0F6E56; }
+  .map-toggles .mt-ic { font-size: 12px; line-height: 1; }
+  /* El master no es una familia más: manda sobre las de abajo y va separado. */
+  .map-toggles .mt-all { border-bottom-color: rgba(0,0,0,0.22); }
 
-  .card { background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); border-left: 3px solid #6C4BB6; padding: 14px 16px; margin-bottom: 10px; }
-  .c-head { display: flex; align-items: center; gap: 12px; }
-  .num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex: none; }
-  .c-head h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
-  .c-meta { font-size: 11px; color: #666; }
-  .gal { display: flex; gap: 6px; margin: 11px 0 10px; }
-  .gal img { width: 33.33%; height: 88px; object-fit: cover; border-radius: 7px; background: #ece9e2; cursor: zoom-in; }
-  .intro { font-size: 12px; color: #555; line-height: 1.55; margin: 0 0 10px; }
-  .ends { display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px; }
-  .end { font-size: 11.5px; color: #6e6a5f; line-height: 1.4; }
-  .end b { color: #1a1a1a; font-weight: 600; }
+  /* Foco de día: el mapa queda mostrando una sola jornada. Mientras dura, los
+     controles que el foco pisa no se muestran — decir dos cosas distintas sobre lo
+     mismo confunde más que ayudar. El chip es la única salida. */
+  #map.day-focus .map-bars, #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
+  /* La leyenda de modos explica las líneas de transporte: sin ellas dibujadas, sobra. */
+  #map.no-legs .route-legend { display: none; }
+  .day-chip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1001; display: none; }
+  #map.day-focus .day-chip { display: block; }
+  .day-chip button { font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; padding: 7px 14px; border-radius: 16px; border: 0; background: #0F6E56; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
+  .day-chip button:hover { background: #0c5a46; }
+  /* El número de orden del recorrido, arriba a la derecha de su punto. */
+  .rt-ord { width: 16px; height: 16px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 
-  .sec { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 12px 0 5px; }
-  .lodge { display: flex; gap: 10px; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 9px 10px; }
-  .lodge.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
-  .lg-name { font-size: 13px; font-weight: 600; line-height: 1.25; }
-  .lodge.tbd .lg-name { color: #8d8878; }
-  .lg-sub { font-size: 11px; color: #777; margin-top: 1px; }
-  .lg-area { font-size: 11px; color: #8d8878; line-height: 1.45; margin-top: 4px; }
-  .lg-h { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 11px; background: rgba(15,110,86,0.09); color: #0F6E56; margin: 6px 6px 0 0; }
-  .lg-h.out { background: rgba(0,0,0,0.045); color: #6e6a5f; }
-  .lg-links { margin-top: 7px; font-size: 11px; display: flex; flex-wrap: wrap; gap: 10px; }
-  .lg-links a { color: #1D9E75; }
-  .lg-warn { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240,184,74,0.18); border-radius: 5px; padding: 4px 7px; margin-top: 6px; line-height: 1.35; }
+  /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
+  .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+  .map-cats .mc { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #3a3a3a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: inline-flex; align-items: center; gap: 5px; transition: color 0.12s, border-color 0.12s; backdrop-filter: blur(2px); }
+  .map-cats .mc-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+  .map-cats .mc.off { color: #b4b4b4; }
+  .map-cats .mc.off .mc-dot { background: transparent; border: 1.5px solid #cfcfcf; }
+  .map-cats .mc-all { color: #0F6E56; border-color: rgba(15,110,86,0.35); }
+  .map-cats .mc-all[hidden] { display: none; }
 
-  .cat { border-left: 2px solid var(--c); padding-left: 9px; margin-bottom: 9px; }
-  .cat-head { font-size: 10.5px; font-weight: 700; color: var(--c); letter-spacing: 0.02em; margin-bottom: 3px; }
-  .grp { font-size: 10.5px; color: #a29d90; font-style: italic; margin: 4px 0 1px; }
-  .acts { list-style: none; margin: 0; padding: 0; }
-  .acts li { margin-bottom: 1px; }
-  .act { border: 0; background: none; padding: 2px 0; font: inherit; font-size: 12px; line-height: 1.45; color: #333; text-align: left; cursor: pointer; }
-  .act:hover { color: #0F6E56; }
-  .act.plain { cursor: default; color: #555; }
+  /* Mi ubicación — botón en la esquina inferior derecha del mapa. Tres estados:
+     apagado (gris) · con fix (verde) · siguiendo (verde lleno). Sin leyendas. */
+  .me-btn { position: absolute; right: 10px; bottom: 12px; z-index: 1000; width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.94); color: #9a9a9a; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.14); display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px); transition: background 0.12s, color 0.12s, border-color 0.12s; }
+  .me-btn svg { width: 19px; height: 19px; display: block; }
+  .me-btn.on { color: #0F6E56; }
+  .me-btn.follow { background: #0F6E56; border-color: #0F6E56; color: #fff; }
+  .me-btn.wait { color: #0F6E56; animation: me-pulse 1.1s ease-in-out infinite; }
+  .me-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+  @keyframes me-pulse { 50% { opacity: 0.35; } }
+  /* El botón se come la esquina donde vive la atribución: la corremos a su izquierda. */
+  .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-right: 52px; }
+  .me-dot { width: 16px; height: 16px; border-radius: 50%; background: #1F7AE0; border: 2.5px solid #fff; box-shadow: 0 0 0 1px rgba(31,122,224,0.45), 0 1px 4px rgba(0,0,0,0.35); cursor: pointer; }
 
-  .dt { border-top: 1px solid rgba(0,0,0,0.06); padding: 6px 0 5px; }
-  .dt:first-of-type { border-top: 0; }
-  .dt-h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-  .dt-n { font-size: 12px; font-weight: 600; }
-  .dt-n a { color: #1a1a1a; text-decoration: none; }
-  .dt-n a:hover { color: #0F6E56; }
-  .dt-t { font-size: 10.5px; color: #999; white-space: nowrap; }
-  .dt-d { font-size: 11px; color: #777; line-height: 1.45; margin-top: 1px; }
+  /* "Cerca tuyo": los 5 puntos visibles más próximos, en el popup del punto azul. */
+  .near { min-width: 186px; }
+  .near-row { display: flex; align-items: center; gap: 7px; width: 100%; padding: 6px 2px; background: none; border: none; border-top: 1px solid rgba(0,0,0,0.07); font: inherit; font-size: 12px; color: #1a1a1a; text-align: left; cursor: pointer; }
+  .near-row:first-child { border-top: none; }
+  .near-row:hover { color: #0F6E56; }
+  .near-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .near-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .near-km { font-size: 11px; color: #888; flex: none; font-variant-numeric: tabular-nums; }
+  .near-empty { font-size: 11px; color: #888; }
+  .popup-dist { font-size: 11px; font-weight: 600; color: #1F7AE0; margin-top: 5px; }
 
-  .leg { margin: 3px 0 3px 16px; padding: 5px 8px 6px 12px; border-left: 3px solid #0F8A5F; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; display: flex; align-items: baseline; gap: 7px; }
-  .leg b { color: #444; }
-  .leg-mode { font-size: 13px; }
+  .map-toast { position: absolute; left: 50%; transform: translateX(-50%); bottom: 78px; z-index: 1100; max-width: 82%; padding: 7px 13px; border-radius: 14px; background: rgba(26,26,26,0.9); color: #fff; font-size: 11px; font-weight: 500; line-height: 1.35; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.28); opacity: 0; pointer-events: none; transition: opacity 0.18s; }
+  .map-toast.show { opacity: 1; }
 
-  .foot { font-size: 11px; color: #a29d90; text-align: center; padding: 16px 8px 4px; line-height: 1.5; }
+  @media (prefers-reduced-motion: reduce) {
+    .me-btn.wait { animation: none; opacity: 0.6; }
+  }
 
-  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
-  .pop-t { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-  .pop-s { font-size: 11px; color: #777; }
-  .pop-l { display: inline-block; font-size: 11px; color: #1D9E75; margin-top: 5px; }
-  .leaflet-popup-content { margin: 10px 12px; }
+  .content-pane { display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
 
-  .lb { position: fixed; inset: 0; z-index: 4000; background: rgba(20,18,15,0.93); display: none; align-items: center; justify-content: center; }
-  .lb.on { display: flex; }
-  .lb img { max-width: 94vw; max-height: 88vh; border-radius: 6px; }
-  .lb button { position: absolute; top: 14px; right: 16px; background: none; border: 0; color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
+  .chart-section {
+    background: white;
+    padding: 12px 16px 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; width: 100%; background: none; border: none; padding: 2px 0; cursor: pointer; }
+  .chart-header .qh-caret { transition: transform 0.15s; }
+  .chart-header.open .qh-caret { transform: rotate(90deg); }
+  .chart-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .chart-wrap { height: 200px; position: relative; display: none; }
+  .chart-wrap.open { display: block; }
+  .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  /* La cama cuya ficha está abierta en el sidebar (?hosp=) queda marcada mientras dure la selección. */
+  .lodging-marker.sel { border-color: #5B2E96; box-shadow: 0 0 0 3px rgba(122,79,176,0.3), 0 2px 6px rgba(0,0,0,0.3); }
+  /* Punta de un traslado en el foco de día (aeropuerto/estación/puerto): mismo verde de la línea del recorrido. */
+  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
+  .mini-pop { min-width: 150px; max-width: 210px; }
+  .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
+  .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
+  .mini-pop-maps:hover { color: #1D9E75; }
+
+  .details-section { flex: 1; overflow-y: auto; padding: 14px 14px 24px; }
+  .details-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 4px 4px 10px; }
+
+  .flight-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .flight-card strong { color: #1a1a1a; font-weight: 600; }
+  .flight-card .flight-row { display: flex; justify-content: space-between; gap: 8px; }
+  .flight-card .flight-row + .flight-row { margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); }
+  .flight-card .flight-leg-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin: 0 0 6px; }
+  .flight-card .flight-leg-title + .flight-leg-title { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); }
+  .flight-card a.flight-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 6px; margin: 0 -6px; border-radius: 6px; transition: background 0.12s; }
+  .flight-card a.flight-seg:hover { background: rgba(15, 110, 86, 0.07); }
+  .flight-card a.flight-seg .seg-route { color: #1a1a1a; font-weight: 600; }
+  .flight-card a.flight-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .flight-card a.flight-seg .seg-time { color: #666; font-size: 10px; text-align: right; }
+  .flight-card .flight-dir { border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: rgba(15,110,86,0.02); }
+  .flight-card .flight-dir-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .flight-card .flight-dir-label { font-size: 11px; font-weight: 700; color: #0F6E56; }
+  .flight-card .flight-dir-meta { font-size: 9px; color: #999; white-space: nowrap; }
+  .flight-card .seg-conn { display: flex; align-items: center; gap: 8px; font-size: 9px; color: #b0b0b0; margin: 2px 0; }
+  .flight-card .seg-conn::before, .flight-card .seg-conn::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+  .flight-card .flight-note { font-size: 10px; color: #888; margin-top: 8px; line-height: 1.4; }
+
+  .dest-card {
+    background: white;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .dest-card:hover { border-color: rgba(15, 110, 86, 0.3); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .dest-card.active { border-color: #0F6E56; box-shadow: 0 2px 12px rgba(15, 110, 86, 0.15); }
+  .card-header { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .card-num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex-shrink: 0; }
+  .card-num.fullday { border-radius: 5px; background: #F0B84A; border-color: #B87814; color: #5A3A00; transform: rotate(45deg); }
+  .card-num.fullday span { transform: rotate(-45deg); display: block; }
+  /* Parada en reubicación: sin número y sin color de la cadena — no está en la secuencia. */
+  .card-num.pending { background: #fff; border: 2px dashed #A9A497; color: #8d8878; }
+  .dest-card.fullday { border-style: dashed; border-color: rgba(184, 120, 20, 0.4); }
+  .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
+  .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
+  .fullday-tag.pending { color: #8d6a1f; background: rgba(169, 164, 151, 0.22); }
+  /* Tramo compartido (Kioto/Osaka/Tokio del medio): el nodo sigue siendo de la cadena
+     —verde, numerado— y el acento violeta dice con quién. Un badge y un borde: el
+     resto de la tarjeta no cambia. */
+  .shared-tag { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.4px; color: #58399B; background: rgba(108, 75, 182, 0.14); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  .dest-card.shared { border-left: 3px solid #6C4BB6; }
+  .dest-card.shared:hover { border-color: rgba(108, 75, 182, 0.4); border-left-color: #6C4BB6; }
+  .dest-card.shared.active { border-color: #6C4BB6; box-shadow: 0 2px 12px rgba(108, 75, 182, 0.18); }
+  .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+  .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .card-meta { font-size: 11px; color: #666; }
+  .card-temps { display: flex; gap: 6px; flex-shrink: 0; }
+  .temp-pill { display: flex; flex-direction: column; align-items: center; padding: 3px 8px; border-radius: 6px; min-width: 48px; font-size: 9px; line-height: 1.2; }
+  .temp-max { background: rgba(216, 90, 48, 0.12); color: #993C1D; }
+  .temp-min { background: rgba(29, 158, 117, 0.12); color: #0F6E56; }
+  .temp-label { font-weight: 500; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+  .temp-value { font-size: 11px; font-weight: 600; margin-top: 1px; }
+
+  .card-intro { font-size: 12px; color: #555; line-height: 1.5; margin: 0 0 10px; }
+  .card-section-title { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 10px 0 4px; }
+  .card-list { margin: 0 0 6px; padding: 0 0 0 2px; list-style: none; }
+  .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
+  .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
+  .qh-toggle .card-section-title { margin: 0; }
+  .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
+  .qh-toggle.open .qh-caret { transform: rotate(90deg); }
+  .qh-body { display: none; }
+  .qh-body.open { display: block; }
+  .source-links { display: inline-flex; align-items: center; gap: 2px; flex: none; vertical-align: middle; }
+  .source-link { color: #0F6E56; font-size: 11px; line-height: 24px; min-height: 24px; padding: 0 3px; border-radius: 5px; text-decoration: none; white-space: nowrap; }
+  .source-link:hover { text-decoration: underline; }
+  .seg-date { background: rgba(255,255,255,0.92); border: 1px solid #cfe3db; color: #0F6E56; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 8px; white-space: nowrap; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.12); cursor: pointer; transition: background 0.12s, color 0.12s; }
+  .seg-date:hover { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .leg-row { margin: 3px 0 3px 16px; padding: 4px 8px 5px 12px; border-left: 3px solid #d3cdbf; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; cursor: pointer; transition: background 0.12s; }
+  .leg-row:hover { background: rgba(0,0,0,0.03); }
+  .leg-head { display: flex; align-items: center; gap: 7px; }
+  .leg-air { border-left-color: #2563EB; } .leg-ferry { border-left-color: #15A6C9; }
+  .leg-train { border-left-color: #0F8A5F; } .leg-bus { border-left-color: #E08A1E; }
+  .leg-mode { font-size: 14px; line-height: 1; flex-shrink: 0; }
+  .leg-type { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0; }
+  .leg-text { flex: 1; }
+  .leg-chevron { margin-left: auto; font-size: 10px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .leg-row.open .leg-chevron { transform: rotate(90deg); }
+  .leg-body { display: none; }
+  .leg-row.open .leg-body { display: block; }
+  .leg-actions { margin: 6px 0 1px 22px; }
+  .leg-segs { margin: 7px 0 2px 22px; padding: 6px 8px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 7px; }
+  .leg-seg { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; text-decoration: none; color: #555; padding: 5px 6px; margin: 0 -2px; border-radius: 5px; transition: background 0.12s; }
+  .leg-seg:hover { background: rgba(15,110,86,0.08); }
+  .leg-seg .seg-route { color: #1a1a1a; font-weight: 600; font-size: 12px; }
+  .leg-seg .seg-no { color: #0F6E56; font-weight: 600; font-size: 10px; }
+  .leg-seg .seg-time { color: #777; font-size: 10px; text-align: right; line-height: 1.5; }
+  .leg-layover { display: flex; align-items: center; gap: 6px; font-size: 9px; color: #aaa; margin: 3px 0; }
+  .leg-layover::before, .leg-layover::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+  .route-legend { background: rgba(255,255,255,0.92); border-radius: 6px; padding: 4px 7px; font-size: 9px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.2); line-height: 1.6; }
+  .route-legend .rl-item { display: inline-flex; align-items: center; gap: 3px; margin-right: 8px; white-space: nowrap; }
+  .route-legend .rl-line { display: inline-block; width: 16px; border-top: 2px dashed #999; }
+  .route-legend .rl-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #999; }
+  .route-legend .rl-save { background: #8a8a8a; border-color: #6a6a6a; }
+  .route-legend .rl-reel { background: #8a8a8a; border-color: #6a6a6a; border-radius: 1px; transform: rotate(45deg); }
+  .route-legend .rl-dt { background: #fff; border-width: 2.5px; border-color: #6a6a6a; }
+  .leg-text strong { color: #555; font-weight: 600; }
+  .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
+  .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
+  .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
+  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
+  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
+  .lodging-img-zoom { cursor: pointer; transition: opacity 0.12s; }
+  .lodging-img-zoom:hover { opacity: 0.82; }
+  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
+  .lodging-sub { font-size: 11px; color: #666; }
+  .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
+  /* Lo que le falta a la reserva (fechas viejas, capacidad, rebooking): lo primero que
+     tiene que ver Martín en la tarjeta, sin que se lea como si estuviera resuelto. */
+  .lodging-pending { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240, 184, 74, 0.18); border-radius: 5px; padding: 4px 7px; margin-top: 6px; line-height: 1.35; }
+  .lodging-card.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
+  .lodging-card.tbd .lodging-name { color: #8d8878; }
+  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-link { color: #1D9E75; text-decoration: underline; }
+  .lodging-link:hover { color: #0F6E56; }
+  /* "Tu reserva": los datos que se usan parado en el mostrador (número, horarios,
+     teléfono). Barra verde a la izquierda para despegarlo de la ficha del hotel. */
+  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 8px 10px 9px; margin: -4px 0 10px; }
+  .resv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .resv-prov { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #0F6E56; }
+  .resv-ref { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 2px 0 0; text-align: left; cursor: pointer; transition: color 0.12s; }
+  .resv-ref:hover { color: #0F6E56; }
+  .resv-ref.copied { color: #1D9E75; }
+  .resv-ref.copied::after { content: ' ✓ copiado'; font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0; }
+  .resv-ref2 { font-size: 10px; color: #888; margin-top: 2px; }
+  .resv-open { flex-shrink: 0; margin-top: 2px; font-size: 11px; font-weight: 600; color: #1D9E75; text-decoration: underline; white-space: nowrap; }
+  .resv-open:hover { color: #0F6E56; }
+  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 7px; }
+  .resv-row { display: flex; gap: 7px; font-size: 11px; line-height: 1.5; }
+  .resv-k { flex-shrink: 0; min-width: 66px; color: #999; }
+  .resv-v { min-width: 0; color: #444; }
+  .resv-tel { color: #0F6E56; font-weight: 600; text-decoration: none; border-bottom: 1px dotted rgba(15,110,86,0.45); }
+  .resv-tel:hover { border-bottom-style: solid; }
+  .resv-warn { margin-top: 7px; font-size: 11px; line-height: 1.45; color: #A3462B; }
+  .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
+  .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
+  .gallery-thumb:hover { opacity: 0.82; }
+  .gallery-thumb-static { cursor: default; }
+  .lodging-gallery { margin-top: -6px; }
+  .lodging-gallery .gallery-thumb { height: 64px; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  .lightbox.open { display: flex; }
+  .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+  .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
+  .lb-btn:hover { opacity: 1; }
+  .lb-close { top: 12px; right: 20px; font-size: 34px; line-height: 1; }
+  .lb-prev, .lb-next { top: 50%; transform: translateY(-50%); font-size: 48px; padding: 0 14px; }
+  .lb-prev { left: 2px; } .lb-next { right: 2px; }
+  .dest-card, .leg-row { scroll-margin-top: 14px; }
+  @keyframes cardflash { 0% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } 20% { box-shadow: 0 0 0 2px rgba(15,110,86,0.6); } 100% { box-shadow: 0 0 0 2px rgba(15,110,86,0); } }
+  .flash { animation: cardflash 1.4s ease-out; }
+  .itin-head { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .dest-flag { width: 28px; height: 19px; object-fit: cover; border-radius: 3px; margin-left: auto; flex-shrink: 0; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
+  .itin-caret { font-size: 11px; color: #aaa; transition: transform 0.15s; flex-shrink: 0; }
+  .dest-card.open .itin-caret { transform: rotate(90deg); }
+  /* Modal de ficha individual por parada */
+  .stop-modal { position: fixed; inset: 0; z-index: 4000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .stop-modal[hidden] { display: none; }
+  .sm-backdrop { position: absolute; inset: 0; background: rgba(20,18,15,0.55); backdrop-filter: blur(2px); }
+  .sm-dialog { position: relative; background: #fbf9f5; width: min(560px, 100%); max-height: 90vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+  .sm-topbar { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(#fbf9f5, rgba(251,249,245,0.85)); }
+  .sm-share { border: 1px solid #d8d3c8; background: #fff; color: #0F6E56; cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px; transition: background 0.15s; }
+  .sm-share:hover { background: #eef6f2; }
+  .sm-share.copied { background: #0F6E56; color: #fff; border-color: #0F6E56; }
+  .sm-close { border: none; background: transparent; cursor: pointer; font-size: 24px; line-height: 1; color: #999; padding: 0 6px; }
+  .sm-close:hover { color: #333; }
+  .sm-content { padding: 0 18px 20px; }
+  .sm-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .sm-flag { width: 34px; height: 23px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); flex-shrink: 0; }
+  .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
+  .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
+  .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
+  .sm-sec { margin-bottom: 12px; }
+  .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
+  .sm-leg-mode { font-size: 15px; }
+  .sm-act { color: #0F6E56; text-decoration: none; }
+  .sm-act:hover { text-decoration: underline; }
+  .sm-dt-desc { font-size: 12px; color: #8a8478; line-height: 1.4; margin: 2px 0 6px; }
+  body.sm-open { overflow: hidden; }
+  .sm-leg-badge { width: 40px; height: 40px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .ficha-btn { width: 100%; border: 1px solid #cfe4db; background: #eef6f2; color: #0F6E56; cursor: pointer; font-size: 12.5px; font-weight: 600; padding: 8px; border-radius: 8px; margin-bottom: 10px; transition: background 0.15s; }
+  .ficha-btn:hover { background: #ddeee6; }
+  .leg-ficha { flex-shrink: 0; border: none; background: transparent; cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 5px; color: #999; opacity: 0.6; transition: opacity 0.15s, background 0.15s; }
+  .leg-head:hover .leg-ficha { opacity: 0.9; }
+  .leg-ficha:hover { opacity: 1; background: rgba(0,0,0,0.07); color: #444; }
+  .card-detail { display: none; margin-top: 10px; }
+  .dest-card.open .card-detail { display: block; }
+  .detail-temps { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .temp-note { font-size: 9px; color: #b3b3b3; text-transform: uppercase; letter-spacing: 0.6px; }
+  .cat-group { margin: 3px 0; }
+  .cat-head { display: flex; align-items: center; gap: 6px; min-height: 30px; padding: 2px 0; color: #0F6E56; cursor: pointer; list-style: none; }
+  .cat-head::-webkit-details-marker { display: none; }
+  .cat-head::before { content: '▸'; width: 10px; color: #999; font-size: 10px; transition: transform 0.15s; }
+  .cat-group[open] > .cat-head::before { transform: rotate(90deg); }
+  .cat-name { font-size: 11px; font-weight: 600; }
+  .cat-count { margin-left: auto; min-width: 22px; padding: 1px 6px; border-radius: 9px; background: rgba(15,110,86,0.08); color: #698078; font-size: 10px; text-align: center; }
+  .cat-group .card-list { margin-left: 16px; }
+  .thing-row { display: flex; align-items: baseline; gap: 3px; min-width: 0; }
+  .act-row { display: inline-block; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 2px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .act-row:hover { color: #1D9E75; }
+  .act-row-plain { font-size: 12px; line-height: 1.45; color: #444; padding: 2px 0; }
+  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row:hover .act-pin { opacity: 0.9; }
+  .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
+  .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+  .dt-row-name { font-size: 12px; font-weight: 500; }
+  .dt-row-time { font-size: 10px; color: #888; }
+  .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num.pending { background: #fff; border: 2px dashed #A9A497; color: #8d8878; }
+  /* Nodo del viaje juntos: halo violeta alrededor del pin de la cadena. */
+  .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
+  .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
+  /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual. */
+  .pp { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; margin: 1px; }
+  .pp:hover, .pp.active { transform: scale(1.45); }
+
+  /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
+  .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .marker-diamond { width: 26px; height: 26px; background: #F0B84A; border: 2px solid #B87814; transform: rotate(45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; }
+  .marker-diamond span { transform: rotate(-45deg); font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 700; color: #5A3A00; }
+  .marker-diamond.active { transform: rotate(45deg) scale(1.4); background: #E89B17; z-index: 1000 !important; }
+
+  /* Lugares guardados de Google Maps */
+  .saved-chip { font-size: 11px; color: #0F6E56; text-decoration: none; background: rgba(15, 110, 86, 0.07); border: 1px solid rgba(15, 110, 86, 0.15); border-radius: 12px; padding: 3px 9px; line-height: 1.3; transition: background 0.12s; }
+  .saved-chip:hover { background: rgba(15, 110, 86, 0.15); }
+  .saved-chip.no-coord { color: #999; background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.1); }
+
+  /* Sección de lugares sin destino, debajo de la lista */
+  .orphan-card { background: white; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); padding: 14px 16px; margin-bottom: 10px; }
+  .orphan-card h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .orphan-card .orphan-sub { font-size: 11px; color: #888; margin: 0 0 8px; line-height: 1.4; }
+  .orphan-list { display: flex; flex-wrap: wrap; gap: 5px; }
+  .reel-li { display: flex; align-items: baseline; gap: 6px; }
+  .reel-li .act-row { flex: 1; width: auto; color: #B0225C; }
+  .reel-li .act-row:hover { color: #E1306C; }
+  .reel-link { font-size: 11px; text-decoration: none; opacity: 0.8; }
+  .reel-link:hover { opacity: 1; }
+  .reel-chip { color: #B0225C; background: rgba(176, 34, 92, 0.07); border-color: rgba(176, 34, 92, 0.18); }
+  .reel-chip:hover { background: rgba(176, 34, 92, 0.16); }
+  /* Modo discreto (🙈 / tecla d): pares .dx (real) / .dm (enmascarado) alternados por CSS */
+  body:not(.discrete) .dm { display: none !important; }
+  body.discrete .dx { display: none !important; }
+  body.discrete .seg-date { display: none; }
+  body.discrete .leg-seg { pointer-events: none; }
+  .discrete-btn { border: none; background: transparent; cursor: pointer; font-size: 15px; line-height: 1; padding: 3px 6px; border-radius: 7px; opacity: 0.4; transition: opacity 0.15s, background 0.15s; }
+  .discrete-btn:hover { opacity: 0.85; }
+  body.discrete .discrete-btn { opacity: 1; background: rgba(15,110,86,0.12); }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .activity-search { flex: none; position: relative; padding: 9px 10px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08); z-index: 25; }
+  .search-box { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border: 1px solid #d8d3c8; border-radius: 10px; background: #f8f7f3; }
+  .search-box:focus-within { border-color: #0F6E56; box-shadow: 0 0 0 2px rgba(15,110,86,0.1); }
+  .search-icon { color: #8d8878; font-size: 14px; }
+  .search-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; color: #1a1a1a; }
+  .search-input::placeholder { color: #aaa497; }
+  .search-clear { border: 0; background: none; color: #8d8878; cursor: pointer; font-size: 18px; padding: 6px; line-height: 1; }
+  .search-results { position: absolute; left: 10px; right: 10px; top: calc(100% - 3px); max-height: min(54vh, 430px); overflow-y: auto; background: #fff; border: 1px solid #d8d3c8; border-radius: 10px; box-shadow: 0 10px 30px rgba(35,31,24,0.16); padding: 5px; }
+  .search-results[hidden] { display: none; }
+  .search-result { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 10px; text-align: left; border: 0; background: none; border-radius: 7px; padding: 8px 9px; cursor: pointer; font: inherit; }
+  .search-result:hover, .search-result:focus-visible { background: rgba(15,110,86,0.07); outline: none; }
+  .search-result.done .sr-name { text-decoration: line-through; color: #aaa497; }
+  .sr-name { font-size: 12.5px; line-height: 1.35; color: #333; }
+  .sr-city { font-size: 10px; font-weight: 700; color: #0F6E56; text-transform: uppercase; letter-spacing: .05em; padding-top: 2px; }
+  .search-empty { padding: 14px 10px; font-size: 12px; color: #8d8878; text-align: center; }
+  [data-check] { position: relative; }
+  .activity-check { flex: none; width: 44px; min-height: 44px; margin: -10px 1px -10px -10px; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #aaa497; vertical-align: middle; }
+  .activity-check::before { content: ''; width: 15px; height: 15px; border: 1.5px solid currentColor; border-radius: 50%; background: #fff; }
+  .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
+  [data-check].is-done .activity-check { color: #0F6E56; }
+  [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
+  [data-check].is-done .act-row, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
+  .thing-row[data-check], .sg-list li[data-check], .rt-item[data-check] { display: flex; align-items: center; }
+  .rt-item[data-check] > .sg-item { flex: 1; }
+
+  .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
+  .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
 
   @media (max-width: 900px) {
     body { overflow: auto; }
-    .shell { grid-template-columns: 1fr; height: auto; }
-    .map-pane { height: 46vh; position: sticky; top: 0; z-index: 500; border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
-    .list { overflow: visible; padding: 12px 12px 32px; }
-    .gal img { height: 74px; }
+    /* El mapa se queda arriba y no desaparece: las tabs y su contenido van debajo. */
+    .map-pane { height: 50vh; flex: none; border-right: none; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .content-pane { overflow: visible; }
+    .details-section { overflow: visible; }
+    .header-stats { display: none; }
+    .map-bars { left: 0; right: 46px; bottom: 8px; gap: 4px; }
+    .me-btn { right: 8px; bottom: 10px; width: 34px; height: 34px; }
+    .leaflet-bottom.leaflet-right .leaflet-control-attribution { margin-right: 48px; }
+    .map-cats { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
+    .map-cats::-webkit-scrollbar { display: none; }
+    .map-cats .mc { flex: none; font-size: 10px; padding: 4px 8px; }
+    .map-toggles .mt { font-size: 0; padding: 8px; }
+    .map-toggles .mt-ic { font-size: 13px; }
+    .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
+    .cat-head { min-height: 36px; }
   }
 </style>
 </head>
 <body>
 
-<header class="hd">
-  <h1 id="t"></h1>
-  <div class="sub" id="s"></div>
-  <div class="note" id="n"></div>
+<header class="site-header">
+  <div class="header-title">
+    <h1>Japón</h1>
+    <span class="subtitle"><span class="dx">19–31 oct 2026</span><span class="dm">12 días</span></span>
+  </div>
+  <div class="header-right">
+    <div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> Zava y Ari vuelven</span></div>
+    <button type="button" class="discrete-btn" id="discrete-toggle" title="Modo discreto (d)">🙈</button>
+  </div>
 </header>
 
+<!-- El mapa vive FUERA del sistema de tabs (task 500): se dibuja una sola vez y no
+     se esconde nunca. Las tabs mandan sobre la columna derecha y nada más; el
+     <main> de abajo es el pane "Resumen" y views.js cuelga los otros tres al lado. -->
 <div class="shell">
-  <div class="map-pane"><div id="map"></div></div>
-  <div class="list"><div class="list-inner" id="list"></div></div>
+
+<div class="map-pane">
+  <div id="map"></div>
 </div>
 
-<div class="lb" id="lb"><button type="button" aria-label="Cerrar">✕</button><img alt=""></div>
+<div class="side-pane">
+<div class="activity-search" role="search">
+  <div class="search-box">
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input class="search-input" id="activity-search" type="search" placeholder="Buscar lugar o actividad" autocomplete="off" aria-label="Buscar lugar o actividad" aria-controls="search-results">
+    <button class="search-clear" id="search-clear" type="button" aria-label="Limpiar búsqueda" hidden>×</button>
+  </div>
+  <div class="search-results" id="search-results" role="listbox" hidden></div>
+</div>
+<nav class="tab-rail" id="tab-rail" aria-label="Vistas del itinerario"></nav>
+<div class="views" id="views">
+
+<main class="content-pane" id="view-resumen">
+  <div class="chart-section">
+    <button type="button" class="chart-header" id="chart-toggle">
+      <span class="chart-title">Temperatura por destino</span>
+      <span class="qh-caret">▸</span>
+    </button>
+    <div class="chart-wrap" id="chart-wrap">
+      <canvas id="weatherChart"></canvas>
+    </div>
+  </div>
+
+  <div class="details-section">
+    <div class="details-title">Itinerario · click en un destino · los vuelos y transportes son los módulos entre paradas</div>
+    <div id="details-list"></div>
+  </div>
+</main>
+
+</div>
+</div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js"></script>
-<script>
-(function () {
-  var S = window.SEGMENT;
+<script src="../data/categories.js"></script>
+<script>window.SOURCE_THINGS = [];</script>
+<script type="module">
+import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
+import { mountViews } from '../views.js';
 
-  // Las mismas diez categorías del site (data/categories.js). Acá va sólo la tabla de
-  // color/ícono: la categoría de cada lugar ya viene resuelta en data.js, así el
-  // archivo de overrides —que nombra lugares de todo el viaje— no se carga en esta
-  // página.
-  var CAT = {
-    'comida':       { label: 'Comida',            icon: '🍜',  color: '#D8452F' },
-    'bar-noche':    { label: 'Bar/noche',         icon: '🍸',  color: '#6D4AA8' },
-    'parque':       { label: 'Parques',           icon: '🌳',  color: '#3E9B4F' },
-    'templo-museo': { label: 'Templos y museos',  icon: '⛩️', color: '#C9891C' },
-    'arte':         { label: 'Arte',              icon: '🎨',  color: '#A733B5' },
-    'arquitectura': { label: 'Arquitectura',      icon: '🏛️', color: '#237C78' },
-    'actividad':    { label: 'Actividades',       icon: '🎢',  color: '#0F8FA8' },
-    'compras':      { label: 'Compras',           icon: '🛍️', color: '#D4408C' },
-    'barrio':       { label: 'Barrios',           icon: '🏙️', color: '#3B6FD4' },
-    'otro':         { label: 'Otros',             icon: '✨',  color: '#8C8C8C' },
-  };
-  var ORDER = ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'];
-  var meta = function (c) { return CAT[c] || CAT.otro; };
-
-  var esc = function (s) {
-    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-    });
-  };
-  var gmaps = function (q) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); };
-  var nights = function (n) { return n + (n === 1 ? ' noche' : ' noches'); };
-
-  document.getElementById('t').textContent = S.title;
-  document.getElementById('s').textContent = S.subtitle;
-  document.getElementById('n').textContent = S.note;
-
-  // ------------------------------------------------------------------- listado
-
-  // "Qué hacer" agrupado por la taxonomía que también colorea los pines: la lista y el
-  // mapa se leen como una sola cosa. Lo que comparte `group` es una salida y va junto,
-  // con su rótulo; lo que no tiene coords va como texto (no se le inventa un punto).
-  function actsHtml(node) {
-    var byCat = {};
-    node.activities.forEach(function (a, i) {
-      (byCat[a.cat] = byCat[a.cat] || []).push({ i: i, a: a });
-    });
-    return ORDER.filter(function (c) { return byCat[c]; }).map(function (c) {
-      var m = meta(c), rows = byCat[c], out = '', lastGrp = null, open = false;
-      rows.forEach(function (r) {
-        var g = r.a.group || null;
-        if (g !== lastGrp) {
-          if (open) { out += '</ul>'; open = false; }
-          if (g) out += '<div class="grp">' + esc(g) + '</div>';
-        }
-        if (!open) { out += '<ul class="acts">'; open = true; }
-        lastGrp = g;
-        out += '<li>' + (r.a.coords
-          ? '<button type="button" class="act" data-act="' + node.id + ':' + r.i + '">' + esc(r.a.text) + '</button>'
-          : '<span class="act plain">' + esc(r.a.text) + '</span>') + '</li>';
-      });
-      if (open) out += '</ul>';
-      return '<div class="cat" style="--c:' + m.color + '"><div class="cat-head">' + m.icon + ' ' + esc(m.label) + '</div>' + out + '</div>';
-    }).join('');
+const destinations = [
+  {
+    "id": "kioto",
+    "n": 1,
+    "type": "destino",
+    "name": "Kioto",
+    "short": "Kioto",
+    "flag": "🇯🇵",
+    "sharedWith": "Zava y Ari",
+    "coords": [
+      35.0116,
+      135.7681
+    ],
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
+    "imgs": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg"
+    ],
+    "dates": "19-24 oct",
+    "nights": 5,
+    "start": "2026-10-19",
+    "end": "2026-10-24",
+    "arrival": "19 oct · llegada a KIX y primera noche en Kioto",
+    "departure": "24 oct · sigue Osaka",
+    "lodging": {
+      "name": "Airbnb Kioto (Shimogyō-ku)",
+      "type": "Airbnb · departamento entero",
+      "guests": "2 personas · a compartir con Zava y Ari (4 pax)",
+      "area": "Shimogyō-ku, sobre Ayakōji-dōri · downtown sur, a pasos de Karasuma/Shijō — caminable a Nishiki y Pontocho, y cerca de la Estación de Kioto (clave para los daytrips por JR). Dirección: 44 Shioyachō (Ayakōjidōri), Shimogyō-ku, Kyōto-shi 600-8052.",
+      "coords": [
+        34.9981,
+        135.7588
+      ],
+      "checkIn": "19 oct",
+      "checkOut": "24 oct",
+      "nights": 5,
+      "booked": true,
+      "url": "https://www.airbnb.com/rooms/19373663",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=44%20Shioyach%C5%8D%20Ayak%C5%8Djid%C5%8Dri%20Shimogy%C5%8D-ku%20Kyoto%20600-8052",
+      "pending": "Ajustar la reserva a 19-24 oct (hoy 19-25) y confirmar que entren 4 · pendiente",
+      "booking": {
+        "provider": "airbnb",
+        "ref": null,
+        "checkIn": "19 oct",
+        "checkOut": "25 oct",
+        "total": "US$1.078,41"
+      },
+      "note": "Base downtown en Shimogyō-ku · alojamiento compartido con Zava y Ari."
+    },
+    "leg": {
+      "mode": "✈️",
+      "time": "a definir",
+      "detail": "Llegada a Kansai (KIX) → Kioto.",
+      "fromName": "Origen a definir",
+      "toName": "Kioto",
+      "toTerminal": {
+        "name": "Aeropuerto Internacional de Kansai (KIX)",
+        "coords": [
+          34.4347,
+          135.244
+        ],
+        "mode": "air"
+      },
+      "arrival": "2026-10-19T00:00"
+    },
+    "tempMax": "14-25",
+    "tempMin": "5-20",
+    "weatherUpdated": "2026-08-25",
+    "weatherMode": "climatología",
+    "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. El departamento es compartido y queda en Shimogyō-ku, cerca de Karasuma/Shijō y de la Estación de Kioto.",
+    "activities": [
+      {
+        "text": "Arashiyama Monkey Park Iwatayama",
+        "cat": "parques",
+        "coords": [
+          35.011395,
+          135.676625
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama"
+      },
+      {
+        "text": "Bosque de Bambú de Arashiyama",
+        "cat": "parques",
+        "coords": [
+          35.016819,
+          135.671301
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama"
+      },
+      {
+        "text": "Bosque de bambú de Arashiyama",
+        "group": "Arashiyama al amanecer",
+        "cat": "parques",
+        "coords": [
+          35.016492,
+          135.670337
+        ]
+      },
+      {
+        "text": "Tenryu-ji",
+        "group": "Arashiyama al amanecer",
+        "cat": "templos",
+        "coords": [
+          35.015987,
+          135.673826
+        ]
+      },
+      {
+        "text": "Otagi Nenbutsuji",
+        "group": "Arashiyama al amanecer",
+        "cat": "templos",
+        "coords": [
+          35.030943,
+          135.661777
+        ]
+      },
+      {
+        "text": "Kiyomizu-dera",
+        "group": "Templos del este",
+        "cat": "templos",
+        "coords": [
+          34.994358,
+          135.785238
+        ]
+      },
+      {
+        "text": "Yasaka Shrine",
+        "group": "Templos del este",
+        "cat": "templos",
+        "coords": [
+          35.003656,
+          135.778553
+        ]
+      },
+      {
+        "text": "Paseo del Filósofo",
+        "group": "Templos del este",
+        "cat": "parques",
+        "coords": [
+          35.026538,
+          135.795462
+        ]
+      },
+      {
+        "text": "Ginkaku-ji",
+        "group": "Templos del este",
+        "cat": "templos",
+        "coords": [
+          35.027021,
+          135.798206
+        ]
+      },
+      {
+        "text": "Kinkaku-ji",
+        "group": "Kinkaku-ji o Ryoan-ji",
+        "cat": "templos",
+        "coords": [
+          35.040035,
+          135.728514
+        ]
+      },
+      {
+        "text": "Ryoan-ji",
+        "group": "Kinkaku-ji o Ryoan-ji",
+        "cat": "templos",
+        "coords": [
+          35.03213,
+          135.719516
+        ]
+      },
+      {
+        "text": "Mercado Nishiki",
+        "group": "Mercado Nishiki + Kamishichiken",
+        "cat": "comida",
+        "coords": [
+          35.0051,
+          135.766188
+        ]
+      },
+      {
+        "text": "Kamishichiken",
+        "group": "Mercado Nishiki + Kamishichiken",
+        "cat": "barrios",
+        "coords": [
+          35.030161,
+          135.736681
+        ]
+      },
+      {
+        "text": "Fushimi Inari al amanecer (6 AM)",
+        "cat": "templos",
+        "coords": [
+          34.99761,
+          135.773968
+        ]
+      },
+      {
+        "text": "Pontocho de noche, kaiseki ryori",
+        "cat": "comida",
+        "coords": [
+          35.003935,
+          135.771032
+        ]
+      },
+      {
+        "text": "Hirobun (kawadoko / nagashi sōmen, Kibune)",
+        "cat": "comida",
+        "coords": [
+          35.125281,
+          135.7639
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Hirobun"
+      },
+      {
+        "text": "Garden of Fine Arts Kyoto (Tadao Ando)",
+        "cat": "museos",
+        "coords": [
+          35.050655,
+          135.765443
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Garden%20of%20Fine%20Arts%20Kyoto"
+      }
+    ],
+    "daytrips": [
+      {
+        "id": "nara",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/T%C5%8Ddai-ji_Kon-d%C5%8D.jpg/360px-T%C5%8Ddai-ji_Kon-d%C5%8D.jpg",
+        "name": "Nara",
+        "coords": [
+          34.6851,
+          135.8048
+        ],
+        "time": "45 min en JR",
+        "desc": "Todai-ji (Buda gigante), ciervos sueltos, jardín Yoshiki-en."
+      },
+      {
+        "id": "murou",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Murouji%2C_hondou-3.jpg/360px-Murouji%2C_hondou-3.jpg",
+        "name": "Murou-ji + Hasedera",
+        "coords": [
+          34.5378,
+          136.0376
+        ],
+        "time": "1 h 30 min",
+        "desc": "Templo + 400 escalones a Hasedera. Murou Art Forest (Dani Karavan)."
+      },
+      {
+        "id": "miho",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Miho_museum02n3872.jpg/360px-Miho_museum02n3872.jpg",
+        "name": "MIHO MUSEUM",
+        "coords": [
+          34.914917,
+          136.016215
+        ],
+        "time": "1 h 30 a Shigaraki",
+        "url": "https://www.google.com/maps/search/?api=1&query=MIHO%20MUSEUM",
+        "desc": "Museo de I.M. Pei enterrado en la montaña de Shiga."
+      },
+      {
+        "id": "uji",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Byodoin_Phoenix_Hall_Uji_2009.jpg/360px-Byodoin_Phoenix_Hall_Uji_2009.jpg",
+        "name": "Uji",
+        "coords": [
+          34.884513,
+          135.799704
+        ],
+        "time": "30 min en JR/Keihan",
+        "url": "https://www.google.com/maps/search/?api=1&query=Uji",
+        "desc": "Byodo-in (moneda de 10 yenes) + casas de té matcha."
+      },
+      {
+        "id": "hiei",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Sakura_MtHiei.jpg/360px-Sakura_MtHiei.jpg",
+        "name": "Monte Hiei (Enryaku-ji)",
+        "coords": [
+          35.070333,
+          135.840694
+        ],
+        "time": "1 h vía teleférico",
+        "url": "https://www.google.com/maps/search/?api=1&query=Monte%20Hiei",
+        "desc": "Monasterio Tendai en la montaña entre Kioto y el lago Biwa."
+      }
+    ]
+  },
+  {
+    "id": "osaka",
+    "n": 2,
+    "type": "destino",
+    "name": "Osaka",
+    "short": "Osaka",
+    "flag": "🇯🇵",
+    "sharedWith": "Zava y Ari",
+    "coords": [
+      34.6937,
+      135.5023
+    ],
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
+    "imgs": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg"
+    ],
+    "dates": "24-27 oct",
+    "nights": 3,
+    "start": "2026-10-24",
+    "end": "2026-10-27",
+    "arrival": "24 oct · se llega de Kioto en tren (~1 h)",
+    "departure": "27 oct · sigue Tokio en Shinkansen",
+    "lodging": {
+      "name": "川HOUSE Dotonbori (Airbnb)",
+      "type": "Airbnb · departamento entero · 40 m²",
+      "guests": "2 adultos · hace falta lugar para 4 (con Zava y Ari)",
+      "area": "Shimanouchi, Chūō-ku (〒542-0082) · entre Dotonbori y Nihonbashi, caminable a Namba — pleno centro de la movida de Osaka.",
+      "coords": [
+        34.6718,
+        135.5065
+      ],
+      "checkIn": "24 oct",
+      "checkOut": "27 oct",
+      "nights": 3,
+      "booked": true,
+      "checkInFrom": "16:00",
+      "checkOutBy": "10:00",
+      "url": "https://www.airbnb.com/rooms/832299366583259197",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Shimanouchi%20Ch%C5%AB%C5%8D-ku%20Osaka%20542-0082",
+      "pending": "Rebookear a 24-27 oct para 4 · la reserva vigente es 26-31 para 2 · pendiente",
+      "booking": {
+        "provider": "airbnb",
+        "ref": "HMC28MCWF3",
+        "checkIn": "26 oct · desde 16:00",
+        "checkOut": "31 oct · hasta 10:00",
+        "cancel": "Gratis hasta el 26/9 16:00 · reembolso parcial hasta el 19/10",
+        "total": "US$498,89 (pago programado 18/9)",
+        "phone": "+81 70-8924-2407"
+      },
+      "note": "Depto entero de 40 m² con tatami y cama doble, entre Dotonbori y Nihonbashi. Host 川house道頓堀. Alojamiento compartido con Zava y Ari."
+    },
+    "leg": {
+      "mode": "🚄",
+      "time": "~1 h",
+      "detail": "JR Kioto → Osaka + metro Midōsuji a Namba.",
+      "fromTerminal": {
+        "name": "Estación de Kioto",
+        "coords": [
+          34.98585,
+          135.75877
+        ],
+        "mode": "train"
+      },
+      "toTerminal": {
+        "name": "Namba (Osaka)",
+        "coords": [
+          34.66293,
+          135.5023
+        ],
+        "mode": "train"
+      },
+      "why": [
+        "Salto corto dentro de Kansai: la mañana del 24 queda entera en Kioto.",
+        "En Dōtonbori no hay check-in antes de las 16:00."
+      ]
+    },
+    "tempMax": "16-25",
+    "tempMin": "7-18",
+    "weatherUpdated": "2026-08-25",
+    "weatherMode": "climatología",
+    "intro": "Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
+    "activities": [
+      {
+        "text": "Kuromon Ichiba (mercado)",
+        "group": "Kuromon + Sennichimae Doguyasuji",
+        "cat": "comida",
+        "coords": [
+          34.665536,
+          135.507085
+        ]
+      },
+      {
+        "text": "Sennichimae Doguyasuji (cuchillos)",
+        "group": "Kuromon + Sennichimae Doguyasuji",
+        "cat": "compras",
+        "coords": [
+          34.664014,
+          135.503506
+        ]
+      },
+      {
+        "text": "Katsudon Yoshibei (Namba, Doguyasuji)",
+        "cat": "comida",
+        "coords": [
+          34.664137,
+          135.503377
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Katsudon%20Yoshibei%20Namba%20Doguyasuji"
+      },
+      {
+        "text": "Dotonbori (luces, takoyaki, kushikatsu)",
+        "cat": "ocio",
+        "coords": [
+          34.668731,
+          135.501291
+        ]
+      },
+      {
+        "text": "Castillo de Osaka + parque",
+        "cat": "parques",
+        "coords": [
+          34.687257,
+          135.525855
+        ]
+      },
+      {
+        "text": "Tsutenkaku tower",
+        "group": "Shinsekai + Tsutenkaku",
+        "cat": "miradores",
+        "coords": [
+          34.652527,
+          135.506333
+        ]
+      },
+      {
+        "text": "Shinsekai",
+        "group": "Shinsekai + Tsutenkaku",
+        "cat": "barrios",
+        "coords": [
+          34.652196,
+          135.50602
+        ]
+      },
+      {
+        "text": "Oretachino-curry ya",
+        "cat": "comida",
+        "coords": [
+          34.663269,
+          135.503521
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Oretachino-curry%20ya"
+      },
+      {
+        "text": "Umeda Sky Building al atardecer",
+        "cat": "miradores",
+        "coords": [
+          34.705287,
+          135.489653
+        ]
+      },
+      {
+        "text": "Nakazakicho (cafés vintage)",
+        "group": "Barrios con calma",
+        "cat": "barrios",
+        "coords": [
+          34.70688,
+          135.50591
+        ]
+      },
+      {
+        "text": "Amerika-mura",
+        "group": "Barrios con calma",
+        "cat": "barrios",
+        "coords": [
+          34.671932,
+          135.49885
+        ]
+      },
+      {
+        "text": "Shinsaibashi",
+        "group": "Barrios con calma",
+        "cat": "barrios",
+        "coords": [
+          34.672425,
+          135.501036
+        ]
+      },
+      {
+        "text": "Sayamaike Museum (Tadao Ando)",
+        "cat": "museos",
+        "coords": [
+          34.507516,
+          135.551369
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Osaka%20Prefectural%20Sayamaike%20Museum"
+      },
+      {
+        "text": "国境を越えて・祈り",
+        "cat": "museos",
+        "coords": [
+          34.468246,
+          134.069626
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=%E5%9B%BD%E5%A2%83%E3%82%92%E8%B6%8A%E3%81%88%E3%81%A6%E3%83%BB%E7%A5%88%E3%82%8A"
+      },
+      {
+        "text": "SUPER NINTENDO WORLD (USJ)",
+        "cat": "ocio",
+        "coords": [
+          34.665826,
+          135.432312
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=SUPER%20NINTENDO%20WORLD%E2%84%A2"
+      },
+      {
+        "text": "Okonomiyaki y kushikatsu de barrio",
+        "cat": "comida",
+        "coords": [
+          34.668731,
+          135.501291
+        ]
+      }
+    ],
+    "daytrips": [
+      {
+        "id": "naoshima",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg",
+        "name": "Naoshima",
+        "coords": [
+          34.4554,
+          133.9933
+        ],
+        "time": "3 h vía Okayama + ferry",
+        "desc": "Isla de arte: Chichu, Benesse, pumpkin de Kusama."
+      },
+      {
+        "id": "kobe",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg/360px-Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg",
+        "name": "Kobe",
+        "coords": [
+          34.6901,
+          135.1955
+        ],
+        "time": "30 min en tren",
+        "desc": "Carne de Kobe, barrio Kitano (casas extranjeras), puerto y teleférico de Nunobiki. Aprovecha una de las noches extra."
+      },
+      {
+        "id": "murou-art",
+        "name": "Murou Art Forest",
+        "coords": [
+          34.537082,
+          136.031622
+        ],
+        "time": "1 h 30 (Nara)",
+        "url": "https://www.google.com/maps/search/?api=1&query=Murou%20Art%20Forest",
+        "desc": "Esculturas-land art de Dani Karavan en Murou."
+      },
+      {
+        "id": "pl-tower",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Torre_da_Paz.jpg/360px-Torre_da_Paz.jpg",
+        "name": "PL Tower (Great Peace Prayer Tower)",
+        "coords": [
+          34.502226,
+          135.585919
+        ],
+        "time": "40 min a Tondabayashi",
+        "url": "https://www.google.com/maps/search/?api=1&query=PL%20Tower%20%28Great%20Peace%20Prayer%20Tower%29",
+        "desc": "Torre de 180 m de la religión PL Kyodan, al sur de Osaka."
+      }
+    ]
+  },
+  {
+    "id": "tokio-medio",
+    "n": 3,
+    "type": "destino",
+    "name": "Tokio",
+    "short": "Tokio",
+    "flag": "🇯🇵",
+    "sharedWith": "Zava y Ari",
+    "coords": [
+      35.71,
+      139.78
+    ],
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
+    "imgs": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg"
+    ],
+    "dates": "27-31 oct",
+    "nights": 4,
+    "start": "2026-10-27",
+    "end": "2026-10-31",
+    "arrival": "27 oct · se llega de Osaka en Shinkansen (~2 h 30)",
+    "departure": "31 oct · Zava y Ari se quedan una noche más y vuelan el 1/11",
+    "lodging": null,
+    "lodgingTbd": "A definir · para 4 (compartido con Zava y Ari)",
+    "leg": {
+      "mode": "🚄",
+      "time": "~2 h 30",
+      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi).",
+      "toName": "Tokio",
+      "fromTerminal": {
+        "name": "Shin-Ōsaka",
+        "coords": [
+          34.73347,
+          135.50025
+        ],
+        "mode": "train"
+      },
+      "toTerminal": {
+        "name": "Estación de Tokio",
+        "coords": [
+          35.68124,
+          139.76712
+        ],
+        "mode": "train"
+      },
+      "why": [
+        "Todavía no hay hospedaje reservado en Tokio: no hay hora de check-in que ate el horario del tren.",
+        "El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés."
+      ]
+    },
+    "tempMax": "16-24",
+    "tempMin": "6-18",
+    "weatherUpdated": "2026-08-25",
+    "weatherMode": "climatología",
+    "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Zava y Ari se quedan hasta el 1 de noviembre.",
+    "activities": [],
+    "daytrips": []
   }
+];
 
-  function lodgeHtml(node) {
-    var L = node.lodging;
-    if (!L) {
-      return '<div class="sec">🛏️ Hospedaje</div><div class="lodge tbd"><div><div class="lg-name">Sin reservar</div>' +
-        '<div class="lg-sub">' + esc(node.lodgingTbd || '') + '</div></div></div>';
-    }
-    var links = [];
-    if (L.url) links.push('<a href="' + esc(L.url) + '" target="_blank" rel="noopener">Ficha del alojamiento ↗</a>');
-    if (L.mapsUrl) links.push('<a href="' + esc(L.mapsUrl) + '" target="_blank" rel="noopener">Google Maps ↗</a>');
-    var hours = '';
-    if (L.checkInFrom || L.checkInTo) hours += '<span class="lg-h">Check-in ' + esc(L.checkInFrom || '') + (L.checkInTo ? '–' + esc(L.checkInTo) : '') + '</span>';
-    if (L.checkOutBy || L.checkOutFrom) hours += '<span class="lg-h out">Check-out hasta ' + esc(L.checkOutBy || L.checkOutFrom) + '</span>';
-    return '<div class="sec">🛏️ Hospedaje</div><div class="lodge"><div>' +
-      '<div class="lg-name">' + esc(L.name) + '</div>' +
-      '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' +
-      (L.area ? '<div class="lg-area">' + esc(L.area) + '</div>' : '') +
-      (L.checkIn && L.checkOut ? '<div class="lg-sub">' + esc(L.checkIn) + ' → ' + esc(L.checkOut) + (L.nights ? ' · ' + nights(L.nights) : '') + '</div>' : '') +
-      (hours ? '<div>' + hours + '</div>' : '') +
-      (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
-      (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
-      '</div></div>';
+// LA CADENA del viaje: los nodos que efectivamente se encadenan uno atrás del otro.
+// Un nodo `pendiente` (hoy otra parada) sigue estando en `destinations` —tiene ficha, foto,
+// hospedaje reservado y pin en el mapa— pero NO tiene fechas, así que no puede estar en
+// la secuencia: nada de líneas de ruta hacia él, ni etiqueta de fecha, ni un lugar en la
+// curva de temperatura. Todo lo que lee "el anterior" / "el siguiente" usa `chain`.
+const isPendingStop = d => d.type === 'pendiente';
+const chain = destinations.filter(d => !isPendingStop(d));
+// Tramo compartido: el nodo lo declara con `sharedWith` (con quién). Es un atributo del
+// nodo, no un tipo — sigue siendo un destino de la cadena, numerado y verde; lo que
+// agrega es el acento violeta y el badge. La vista filtrada (compartido/) sale de acá.
+const sharedTag = d => d.sharedWith ? '<span class="shared-tag">+ ' + d.sharedWith + '</span>' : '';
+const prevInChain = d => { const i = chain.indexOf(d); return i > 0 ? chain[i - 1] : null; };
+
+// Lugares guardados de Google Maps que no caen dentro de ningún destino (>60km o sin geocodificar): pins/chips sueltos.
+const orphanPlaces = [];
+
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([36, 134], 5);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+const routeCoords = destinations.map(d => d.coords);
+
+// --- Modo discreto: enmascara fechas concretas, hospedajes y vuelos identificables
+// para poder mostrar la app sin exponer datos rastreables. Toggle 🙈 en el header o
+// tecla `d`; persiste en localStorage. DX(real, masked) emite el par .dx/.dm que el
+// CSS alterna según body.discrete; con un solo argumento, en discreto no se muestra nada.
+const DISCRETE_KEY = 'japon-discrete';
+const isDiscrete = () => document.body.classList.contains('discrete');
+const DX = (real, masked) => '<span class="dx">' + real + '</span>' + (masked ? '<span class="dm">' + masked + '</span>' : '');
+// Posición genérica del pin de cama en discreto: cerca del centro de la parada,
+// con un corrimiento fijo para no tapar el marcador numerado.
+const maskedLodgingCoords = d => [d.coords[0] + 0.02, d.coords[1] + 0.025];
+// Borra fechas/horas puntuales de un texto libre (intros) sin tocar duraciones (~1h45, 8 min).
+const _MONTH_RE = '(?:ene|feb|mar|abr|may|jun|jul|ago|sept?|oct|nov|dic)';
+function maskDates(t) {
+  return String(t)
+    .replace(/\d{4}-\d{2}-\d{2}/g, '···')
+    .replace(new RegExp('\\b\\d{1,2}\\s*[-–]\\s*\\d{1,2}\\s+(?:de\\s+)?' + _MONTH_RE + '\\b', 'gi'), '···')
+    .replace(new RegExp('\\b\\d{1,2}\\s+(?:de\\s+)?' + _MONTH_RE + '\\b', 'gi'), '···')
+    .replace(/\b\d{1,2}\s*\/\s*\d{1,2}\b/g, '···')
+    .replace(/\b\d{1,2}:\d{2}\b/g, '···')
+    .replace(/\b[A-Z]{2}\d{1,4}\b/g, '···')
+    .replace(/\b(?:el|del)\s+···/g, '···')
+    .replace(/\b(?:el|del)\s+\d{1,2}\b(?!\s*(?:h\b|%|°))/g, '···')
+    .replace(/···(?:[\s·,;]*···)+/g, '···');
+}
+// Algunas actividades nombran el hospedaje en su propio texto ("Onsen al atardecer en
+// otra parada Ryokan"): en discreto eso destapaba, desde la lista, lo que .lg-name tapa.
+const _LODGING_NAMES = destinations.map(d => d.lodging && d.lodging.name)
+  .filter(Boolean).sort((a, b) => b.length - a.length);
+function maskLodging(t) {
+  let out = String(t);
+  for (const n of _LODGING_NAMES) out = out.split(n).join('···');
+  return out;
+}
+// Prosa libre (intros, `leg.why`): en discreto se le caen las fechas Y el hospedaje.
+const maskFree = t => maskLodging(maskDates(t));
+
+// Modo de transporte de un tramo → estilo de línea + etiqueta. El modo primario
+// se deduce de los emojis del leg (prioridad vuelo > ferry > tren > bus).
+const MODE_STYLE = {
+  air:   { color: '#2563EB', dash: '1, 7',         label: 'Vuelo', icon: '✈️', weight: 2 },  // azul, punteado fino
+  train: { color: '#0F8A5F', dash: null,           label: 'Tren',  icon: '🚆', weight: 4 },  // verde, sólido grueso
+  bus:   { color: '#E08A1E', dash: '11, 8',        label: 'Bus',   icon: '🚌', weight: 3 },  // naranja, guion largo
+  ferry: { color: '#15A6C9', dash: '2, 6, 10, 6',  label: 'Ferry', icon: '⛴️', weight: 3 },  // cyan, guion-punto
+};
+function legType(leg) {
+  const m = (leg && leg.mode) || '';
+  if (m.indexOf('✈️') !== -1) return 'air';
+  if (m.indexOf('⛴️') !== -1) return 'ferry';
+  if (m.indexOf('🚄') !== -1 || m.indexOf('🚆') !== -1) return 'train';
+  if (m.indexOf('🚌') !== -1) return 'bus';
+  return 'train';
+}
+// Sub-detalle de un tramo (segmentos: vuelos/tramos con nº, horarios, avión, tracker).
+function legSegsHtml(leg) {
+  if (!leg || !leg.segments || !leg.segments.length) return '';
+  return '<div class="leg-segs">' + leg.segments.map(s => {
+    if (s.layover) return '<div class="leg-layover"><span>' + s.layover + '</span></div>';
+    return '<a class="leg-seg"' + (s.tracker ? ' href="' + s.tracker + '" target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="seg-route">' + s.route + (s.no ? DX(' <span class="seg-no">' + s.no + '</span>') : '') + '</span>' +
+      '<span class="seg-time">' + (s.when ? DX(s.when + (s.aircraft ? '<br>' : '')) : '') + (s.aircraft || '') + '</span>' +
+    '</a>';
+  }).join('') + '</div>';
+}
+
+// Líneas de ruta POR TRAMO, siguiendo el transporte real (waypoints en leg.via),
+// con color/trazo según el modo. Cada segmento es clickeable (→ abre su ficha en el
+// sidebar) y queda referenciado por el id del tramo para el link inverso.
+// El id de un tramo es el del nodo al que se llega (`otra parada`) y, para el vuelo
+// de vuelta, `<nodo>:out` — el MISMO que emite transfersOf() en itinerary.js, que es
+// lo que permite que la línea del mapa y la ficha de la vista Transportes se
+// encuentren sin una tabla de equivalencias en el medio.
+const legSegments = {};
+const routeLayer = L.layerGroup().addTo(map);   // transporte terrestre (tren/bus/ferry)
+const flightLayer = L.layerGroup().addTo(map);  // vuelos
+function styleFor(mode) {
+  const st = MODE_STYLE[mode];
+  return { color: st.color, weight: st.weight, opacity: mode === 'air' ? 0.65 : 0.82, dashArray: st.dash };
+}
+
+// Tocar un tramo en el mapa. Con las vistas laterales montadas, views.js se registra
+// acá y lo lleva a su ficha en la tab de transportes (pasando por la URL, así el
+// estado es compartible y "atrás" deselecciona). Si las vistas no cargaron, queda el
+// camino de siempre: abrir la card del resumen.
+let legClickHandler = null;
+function pickLeg(id) {
+  if (legClickHandler) { legClickHandler(id); return; }
+  focusTrip(id);
+  highlightSegment(id);
+}
+// Debajo de cada línea va una gemela invisible y mucho más ancha: una polyline de 3-4
+// px no se acierta con el dedo. Va en la MISMA capa que la línea, así el toggle de
+// transporte apaga las dos (capa apagada = nada tocable) y queda al fondo del pane
+// para no robarle el click a ninguna línea visible.
+function hitLine(pts, layer, id) {
+  const hit = L.polyline(pts, { color: '#000', weight: 22, opacity: 0, lineCap: 'round', lineJoin: 'round' }).addTo(layer);
+  hit.on('click', () => pickLeg(id));
+  hit.bringToBack();
+  return hit;
+}
+// Registra los sub-tramos de un leg: los deja clickeables y los indexa por id.
+function registerLeg(id, subsegs) {
+  legSegments[id] = subsegs.map(seg => {
+    const base = seg.style || styleFor(seg.mode);
+    const layer = seg.layer || (seg.mode === 'air' ? flightLayer : routeLayer);
+    const pl = seg.pl || L.polyline(seg.pts, base).addTo(layer);
+    pl.on('click', () => pickLeg(id));
+    return { pl: pl, base: base, hit: hitLine(seg.pts, layer, id) };
+  });
+}
+
+for (let i = 0; i < chain.length - 1; i++) {
+  const a = chain[i], b = chain[i + 1];
+  // Sub-tramos por modo real: si el leg tiene `path` (multi-modal), cada paso se
+  // dibuja con su modo (así los buses aparecen y los vuelos sólo en la parte aérea).
+  // Si no, una sola línea del modo primario (con waypoints `via` si los hay).
+  let subsegs;
+  if (b.leg && b.leg.path) {
+    let from = a.coords;
+    subsegs = b.leg.path.map(step => { const seg = { pts: [from, step.to], mode: step.m }; from = step.to; return seg; });
+  } else {
+    const pts = [a.coords].concat((b.leg && b.leg.via) || []).concat([b.coords]);
+    subsegs = [{ pts: pts, mode: legType(b.leg) }];
   }
+  registerLeg(b.id, subsegs);
+}
 
-  function dtsHtml(node) {
-    if (!node.daytrips.length) return '';
-    return '<div class="sec">Day trips</div>' + node.daytrips.map(function (t) {
-      var href = t.url || gmaps(t.name);
-      return '<div class="dt"><div class="dt-h"><div class="dt-n"><a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(t.name) + '</a></div>' +
-        '<div class="dt-t">' + esc(t.time || '') + '</div></div>' +
-        (t.desc ? '<div class="dt-d">' + esc(t.desc) + '</div>' : '') + '</div>';
-    }).join('');
-  }
+// El tramo seleccionado (`?tramo=` en la URL) se queda marcado en el mapa mientras
+// dure la selección: es lo que ata la ficha abierta en el sidebar con la línea.
+let selectedLeg = null;
+const selStyle = s => ({ weight: s.base.weight + 3, opacity: 1 });
+function paintLeg(id) {
+  (legSegments[id] || []).forEach(s => s.pl.setStyle(id === selectedLeg ? selStyle(s) : s.base));
+}
+// Marcar un tramo (o ninguno, con id nulo). `fit` encuadra: lo hace el deep-link y el
+// click desde la ficha —donde el tramo puede estar fuera de pantalla—, no el click en
+// la línea, que ya la tenés delante. Con el foco de día tomado, el encuadre es del día.
+function selectLeg(id, fit) {
+  const prev = selectedLeg;
+  selectedLeg = legSegments[id] ? id : null;
+  if (prev && prev !== selectedLeg) paintLeg(prev);
+  if (!selectedLeg) return;
+  const bounds = L.latLngBounds([]);
+  (legSegments[selectedLeg] || []).forEach(s => { s.pl.setStyle(selStyle(s)); s.pl.bringToFront(); bounds.extend(s.pl.getBounds()); });
+  if (fit && !dayFocus) { try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {} }
+}
 
-  function cardHtml(node) {
-    return '<article class="card" id="c-' + node.id + '">' +
-      '<div class="c-head"><div class="num">' + node.i + '</div><div>' +
-        '<h2>' + esc(node.name) + '</h2>' +
-        '<div class="c-meta">' + esc(node.dates) + ' · ' + nights(node.nights) + '</div>' +
-      '</div></div>' +
-      (node.imgs.length ? '<div class="gal">' + node.imgs.slice(0, 3).map(function (u) {
-        return '<img src="' + esc(u) + '" loading="lazy" alt="">';
-      }).join('') + '</div>' : '') +
-      '<p class="intro">' + esc(node.intro) + '</p>' +
-      '<div class="ends">' +
-        (node.arrival ? '<div class="end"><b>Llegada</b> · ' + esc(node.arrival) + '</div>' : '') +
-        (node.departure ? '<div class="end"><b>Salida</b> · ' + esc(node.departure) + '</div>' : '') +
+// Resaltar un tramo en el mapa (flash + encuadre). Usado por el click en la fila
+// de transporte del panel y por focusTrip. Resalta TODOS los sub-tramos del leg.
+function highlightSegment(id) {
+  const arr = legSegments[id];
+  if (!arr || !arr.length) return;
+  const bounds = L.latLngBounds([]);
+  arr.forEach(s => {
+    s.pl.setStyle({ color: '#D85A30', weight: 6, opacity: 1, dashArray: null });
+    s.pl.bringToFront();
+    bounds.extend(s.pl.getBounds());
+  });
+  try { map.fitBounds(bounds, { padding: [50, 50], maxZoom: 8 }); } catch (e) {}
+  // Volver al estilo que corresponda: si ese tramo quedó seleccionado, al marcado.
+  setTimeout(() => paintLeg(id), 1800);
+}
+
+// Aeropuertos usados en el viaje (markers ✈).
+const airports = [{ code: 'KIX', name: 'Kansai', coords: [34.4347, 135.244] }];
+
+// Aeropuertos en la MISMA capa que las líneas de vuelo: se prenden y apagan juntos,
+// y `flightLayer` entero cuelga del toggle "Transporte" junto con lo terrestre.
+airports.forEach(ap => {
+  const icon = L.divIcon({ html: '<div class="airport-marker">✈</div>', className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
+  L.marker(ap.coords, { icon }).addTo(flightLayer)
+    .bindPopup('<div class="popup-title">✈ ' + ap.name + ' (' + ap.code + ')</div>');
+});
+
+// Vuelos internacionales de IDA y VUELTA graficados (en flightLayer). NO entran al
+// fitBounds para no achicar Japón; se ven al alejar el zoom.
+const _kixPts = [[34.4347, 135.244], chain[0].coords];
+const _arrivalStyle = { color: MODE_STYLE.air.color, weight: 2, opacity: 0.65, dashArray: '1, 7' };
+const _arrival = L.polyline(_kixPts, _arrivalStyle).addTo(flightLayer)
+  .bindPopup('<div class="popup-title">✈ Llegada · KIX → Kioto</div>');
+registerLeg(chain[0].id, [{ pts: _kixPts, pl: _arrival, style: _arrivalStyle, layer: flightLayer }]);
+
+// Leyenda de modos de transporte (colores de las líneas).
+const routeLegend = L.control({ position: 'topright' });
+routeLegend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'route-legend');
+  div.innerHTML = ['air', 'train', 'bus', 'ferry'].map(k => {
+    const s = MODE_STYLE[k];
+    return '<span class="rl-item"><span class="rl-line" style="border-top-color:' + s.color + '"></span>' + s.icon + ' ' + s.label + '</span>';
+  }).join('');
+  return div;
+};
+routeLegend.addTo(map);
+
+// Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
+function gmapsFromName(name) {
+  return 'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+}
+// `lodging.url` es SIEMPRE la ficha pública del alojamiento (Airbnb, Rakuten, sitio
+// oficial): informativa, no es la reserva. Se rotula por lo que es y no por el dominio
+// — rotularla con el nombre de la OTA hacía que otra parada (reservado en Booking, ficha en
+// Rakuten) dijera "Ver en Rakuten" y se leyera como "acá está mi reserva".
+const HOTEL_LINK_LABEL = 'Ficha del alojamiento';
+
+// De dónde salió la reserva. El dato canónico es `booking.provider`, no la url.
+// `home` = página de reservas de la cuenta: no expone nada sin la sesión de Martín.
+// Cada `home` está probada con browser real (ver la tabla de verificación de la task 491):
+//  · airbnb     → 200, redirige al login conservando el destino /trips.
+//  · booking    → 200/202 (Booking devuelve 202 cuando su anti-bot se activa; la página
+//    renderiza igual), redirige a account.booking.com/sign-in.
+//    OJO: `secure.booking.com/mytrips` era 404 — ese fue el link roto que reportó Martín.
+//  · rakuten    → 200, "Sign in with your Rakuten account". Es el link que el propio mail
+//    de confirmación de otra parada usa para "Go to reservation list".
+//  · rakuten-jp → 200, redirige al SSO de Rakuten. Es el link del mail 予約完了メール.
+// Rakuten son DOS plataformas con cuentas separadas: el sitio global (travel.rakuten.com,
+// USD — ahí está otra parada) y el japonés (travel.rakuten.co.jp, yenes + puntos — ahí está
+// otra parada). La lista de reservas de una NO muestra las de la otra; mandar la de otra parada al
+// sitio global fue exactamente lo que hizo que Martín no encontrara su reserva.
+// Un provider sin link usable va sin `home`: la tarjeta muestra el número de reserva y
+// ningún botón (mejor sin botón que con botón roto).
+const RESV_PROVIDER = {
+  airbnb:       { label: 'Airbnb',        home: 'https://www.airbnb.com/trips/v1' },
+  booking:      { label: 'Booking',       home: 'https://secure.booking.com/myreservations.html' },
+  rakuten:      { label: 'Rakuten',       home: 'https://travel.rakuten.com/USA/en-US/hotel_reservation/list/?category=UPCOMING' },
+  'rakuten-jp': { label: 'Rakuten Japón', home: 'https://my.travel.rakuten.co.jp/mytravel/' }
+};
+
+// Link a la reserva de Martín. Airbnb abre el itinerario concreto cuando sabemos el
+// código; el resto cae en la lista de reservas de la cuenta (todo detrás de login).
+function resvUrl(b) {
+  if (b.url) return b.url;
+  if (b.provider === 'airbnb' && b.ref) return 'https://www.airbnb.com/reservation/itinerary?code=' + encodeURIComponent(b.ref);
+  const p = RESV_PROVIDER[b.provider];
+  return (p && p.home) || '';
+}
+
+// Bloque "Tu reserva": lo que hace falta para resolver algo en el mostrador — número,
+// link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
+// Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
+// El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
+// campo `pin` de Booking en los datos).
+function resvHtml(L) {
+  const b = L && L.booking;
+  if (!b) return '';
+  const p = RESV_PROVIDER[b.provider];
+  const href = resvUrl(b);
+  const rows = [];
+  const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
+  if (b.checkIn) row('Check-in', escHtml(b.checkIn));
+  if (b.checkOut) row('Check-out', escHtml(b.checkOut));
+  if (b.cancel) row('Cancelación', escHtml(b.cancel));
+  if (b.includes) row('Incluye', escHtml(b.includes));
+  if (b.payThere) row('Se paga allá', escHtml(b.payThere));
+  if (b.total) row('Total', escHtml(b.total));
+  if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
+  // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
+  // Booking ID en el global) y el segundo número cuando la reserva tiene dos.
+  const refNote = [b.refLabel, b.ref2 ? (b.ref2Label || 'Reserva') + ' ' + b.ref2 : ''].filter(Boolean).join(' · ');
+  return '<div class="resv dx">' +
+    '<div class="resv-head">' +
+      '<div>' +
+        '<div class="resv-prov">' + (p ? 'Mi reserva en ' + p.label : 'Mi reserva') + '</div>' +
+        (b.ref ? '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' : '') +
+        (refNote ? '<div class="resv-ref2">' + escHtml(refNote) + '</div>' : '') +
       '</div>' +
-      lodgeHtml(node) +
-      (node.activities.length ? '<div class="sec">Qué hacer · ' + node.activities.length + '</div>' + actsHtml(node) : '') +
-      dtsHtml(node) +
-    '</article>';
-  }
+      (href ? '<a class="resv-open" href="' + href + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
+    '</div>' +
+    (rows.length ? '<div class="resv-grid">' + rows.join('') + '</div>' : '') +
+    (b.warn ? '<div class="resv-warn">' + escHtml(b.warn) + '</div>' : '') +
+  '</div>';
+}
 
-  function legHtml(leg) {
-    return '<div class="leg"><span class="leg-mode">' + esc(leg.mode) + '</span>' +
-      '<span><b>' + esc(leg.time) + '</b> · ' + esc(leg.detail) + '</span></div>';
-  }
+// Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
+// Con `galId` (acordeón del itinerario) las fotos abren el lightbox; sin él (modal) van fijas.
+// En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fotos/fechas).
+// Un nodo sin `lodging` pero con `lodgingTbd` muestra la tarjeta igual, vacía y
+// marcada: el hueco es información (Tokio del medio se busca para 4 y no está tomado).
+function lodgingTbdHtml(txt) {
+  return '<div class="card-section-title">🛏️ Hospedaje</div>' +
+    '<div class="lodging-card tbd"><div class="lodging-body">' +
+      '<div class="lodging-name">Sin reservar</div>' +
+      '<div class="lodging-sub">' + escHtml(txt) + '</div>' +
+    '</div></div>';
+}
 
-  var html = '';
-  S.nodes.forEach(function (node, i) {
-    if (i) {
-      var leg = S.legs.filter(function (l) { return l.toId === node.id; })[0];
-      if (leg) html += legHtml(leg);
-    }
-    html += cardHtml(node);
+function lodgingHtml(L, city, galId) {
+  if (!L) return '';
+  const sub = [L.type, L.guests].filter(Boolean).join(' · ');
+  const nightsStr = L.nights ? L.nights + (L.nights === 1 ? ' noche' : ' noches') : '';
+  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (nightsStr ? ' · ' + nightsStr : '')) : '';
+  // Links explícitos: ficha del alojamiento (Airbnb/Rakuten/Booking/oficial) y/o Google Maps.
+  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  // Con bloque "Tu reserva" las fechas y el "✓ Reservado" ya están abajo, con hora: acá
+  // solo van las noches y los links, para no decir dos veces lo mismo en la misma tarjeta.
+  const meta = (L.booking ? [nightsStr] : [dateStr].concat(L.booked ? ['✓ Reservado'] : []))
+    .concat(links).filter(Boolean).join(' · ');
+  // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª es la miniatura de la
+  // tarjeta; el resto va en una tira debajo, igual que la galería del destino.
+  const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
+  const key = 'lodging:' + galId;
+  if (galId) galleries[key] = shots;
+  const shot = (u, gi) => galId
+    ? '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + key + '" data-gi="' + gi + '" alt="">'
+    : '<img class="gallery-thumb gallery-thumb-static" src="' + u + '" loading="lazy" alt="">';
+  const strip = shots.length > 1
+    ? '<div class="detail-gallery lodging-gallery dx">' + shots.slice(1).map((u, i) => shot(u, i + 1)).join('') + '</div>'
+    : '';
+  const inner =
+    (shots.length
+      ? (galId
+          ? '<img class="lodging-img lodging-img-zoom" src="' + shots[0] + '" loading="lazy" data-gal="' + key + '" data-gi="0" alt="">'
+          : '<img class="lodging-img" src="' + shots[0] + '" loading="lazy" alt="">')
+      : '') +
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
+      (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
+      (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
+      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
+      '<div class="lodging-meta">' + meta + '</div>' +
+      // Lo que hay que HACERLE a la reserva: la fecha del nodo ya cambió y la reserva no.
+      (L.pending ? '<div class="lodging-pending">⚠ ' + L.pending + '</div>' : '') +
+    '</div>';
+  const masked =
+    '<div class="lodging-body">' +
+      '<div class="lodging-name">Reservado</div>' +
+      '<div class="lodging-sub">' + [city, nightsStr].filter(Boolean).join(' · ') + '</div>' +
+    '</div>';
+  return '<div class="card-section-title">🛏️ Hospedaje</div>' +
+    '<div class="lodging-card dx">' + inner + '</div>' +
+    strip +
+    resvHtml(L) +
+    '<div class="lodging-card dm">' + masked + '</div>';
+}
+
+// Popup del marcador 🛏️ de hospedaje: nombre + links (ficha del alojamiento / Google Maps).
+function lodgingPopupHtml(L, city) {
+  const lnk = (href, label) => '<a class="mini-pop-maps" href="' + href + '" target="_blank" rel="noopener">' + label + ' →</a>';
+  let h = '<div class="popup-title">🛏️ ' + L.name + '</div>';
+  if (L.url) h += lnk(L.url, HOTEL_LINK_LABEL);
+  if (L.mapsUrl) h += ' ' + lnk(L.mapsUrl, 'Google Maps');
+  const masked = '<div class="popup-title">🛏️ Reservado</div>' + (city ? '<div class="popup-dates">' + city + '</div>' : '');
+  return '<div class="dx">' + h + '</div><div class="dm">' + masked + '</div>';
+}
+
+// Nombres y notas de lugares vienen del dato (captions de IG, títulos de Maps) y
+// se inyectan como HTML: sin escapar, un "<USD 10" abre una etiqueta falsa y se
+// come el resto de la línea del popup.
+const escHtml = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+function miniPopup(img, title, sub, mapsUrl) {
+  return '<div class="mini-pop">' +
+    (img ? '<img class="mini-pop-img" src="' + img + '" loading="lazy" alt="">' : '') +
+    '<div class="popup-title">' + title + '</div>' +
+    (sub ? '<div class="popup-dates">' + sub + '</div>' : '') +
+    (mapsUrl ? '<a class="mini-pop-maps" href="' + mapsUrl + '" target="_blank" rel="noopener">Ver en Google Maps →</a>' : '') +
+  '</div>';
+}
+
+// Categorías de lugares — taxonomía única para reels, guardados de Maps, day
+// trips y la lista "Qué hacer" (data/categories.js). `catOf(nombre, catLegacy)`
+// resuelve: override por nombre → mapeo del `cat` viejo → 'otro'.
+const CAT_META = window.PLACE_TAXONOMY.meta;
+const CAT_ORDER = window.PLACE_TAXONOMY.order;
+const CAT_LABELS = {};
+CAT_ORDER.forEach(c => { CAT_LABELS[c] = CAT_META[c].icon + ' ' + CAT_META[c].label; });
+const catColor = c => (CAT_META[c] || CAT_META.otro).color;
+const catKey = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const CAT_BY_NAME = {};
+Object.keys(window.PLACE_CAT_OVERRIDES).forEach(n => { CAT_BY_NAME[catKey(n)] = window.PLACE_CAT_OVERRIDES[n]; });
+function catOf(name, legacy) {
+  const own = CAT_BY_NAME[catKey(name)];
+  if (own && CAT_META[own]) return own;
+  if (CAT_META[legacy]) return legacy;
+  const mapped = window.PLACE_CAT_LEGACY[legacy];
+  return (mapped && CAT_META[mapped]) ? mapped : 'otro';
+}
+const catOfAct = a => catOf(a.text, a.cat);
+
+// Modelo canónico: una cosa puede tener muchas fuentes y una fuente puede
+// respaldar muchas cosas. Maps e Instagram son provenance, nunca colecciones UI.
+const thingKey = name => catKey(String(name || '').split('(')[0]);
+const sourceThings = window.SOURCE_THINGS || [];
+const sourceThingByIndex = [];
+function mapsSource(name, url) {
+  return { type: 'google_maps', url: url || gmapsFromName(name), label: 'Google Maps' };
+}
+destinations.forEach(d => (d.activities || []).forEach(a => {
+  a.sources = a.sources || [mapsSource(a.text, a.url)];
+}));
+orphanPlaces.forEach(p => { p.sources = p.sources || [mapsSource(p.name, p.url)]; });
+
+function nearestDestination(p) {
+  let dest = destinations.find(d => p.area === d.short || (p.area || '').indexOf(d.short + ' ') === 0);
+  if (dest || p.lat == null) return dest;
+  let bestKm = 30;
+  destinations.forEach(d => {
+    const rad = Math.PI / 180;
+    const a = Math.sin((d.coords[0] - p.lat) * rad / 2) ** 2 +
+      Math.cos(p.lat * rad) * Math.cos(d.coords[0] * rad) * Math.sin((d.coords[1] - p.lon) * rad / 2) ** 2;
+    const km = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (km < bestKm) { bestKm = km; dest = d; }
   });
-  html += '<div class="foot">Sólo el tramo compartido: Kioto, Osaka y Tokio, del 19 al 31 de octubre.</div>';
-  document.getElementById('list').innerHTML = html;
+  return dest;
+}
+sourceThings.forEach((p, sourceIndex) => {
+  const key = thingKey(p.name);
+  let thing = destinations.flatMap(d => d.activities || []).find(a => thingKey(a.text) === key);
+  if (!thing) thing = orphanPlaces.find(a => thingKey(a.name) === key);
+  if (!thing) {
+    const dest = nearestDestination(p);
+    thing = { text: p.name, name: p.name, coords: [p.lat, p.lon], cat: p.cat,
+      area: p.area, note: p.note, sources: [] };
+    if (dest) dest.activities.push(thing);
+    else { thing.lat = p.lat; thing.lon = p.lon; orphanPlaces.push(thing); }
+  }
+  thing.sources = thing.sources || [];
+  (p.sources || []).forEach(s => {
+    if (!thing.sources.some(existing => existing.type === s.type && existing.url === s.url)) thing.sources.push(s);
+  });
+  sourceThingByIndex[sourceIndex] = thing;
+});
 
-  // ---------------------------------------------------------------------- mapa
+function sourceLinksHtml(thing) {
+  return '<span class="source-links">' + (thing.sources || []).map((s, i) =>
+    '<a class="source-link" href="' + escHtml(s.url) + '" target="_blank" rel="noopener" title="' +
+    escHtml(s.owner ? '@' + s.owner : s.label || s.type) + '">' +
+    (s.type === 'instagram_reel' ? '🎬' : '↗ Maps') + '</a>'
+  ).join('') + '</span>';
+}
 
-  var map = L.map('map', { zoomControl: true, scrollWheelZoom: true });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    subdomains: 'abcd', maxZoom: 19,
-    attribution: '&copy; OpenStreetMap &copy; CARTO'
-  }).addTo(map);
+function categoryGroupsHtml(activities, interactive) {
+  return CAT_ORDER.filter(c => activities.some(a => catOfAct(a) === c)).map(c => {
+    const rows = activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c);
+    return '<details class="cat-group">' +
+      '<summary class="cat-head"><span class="cat-name">' + (CAT_LABELS[c] || c) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
+      '<ul class="card-list">' + rows.map(([a, i]) =>
+        interactive && a.coords
+          ? '<li class="thing-row" data-check="' + interactive + ':' + i + '"><button type="button" class="act-row" data-act="' + interactive + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
+          : '<li class="thing-row" data-check="' + interactive + ':' + i + '"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
+      ).join('') + '</ul></details>';
+  }).join('');
+}
 
-  var pts = [], actPins = {};
-  var pop = function (title, sub, href, label) {
-    return '<div class="pop-t">' + title + '</div><div class="pop-s">' + sub + '</div>' +
-      (href ? '<a class="pop-l" href="' + esc(href) + '" target="_blank" rel="noopener">' + (label || 'Ver en Google Maps') + ' →</a>' : '');
+const CHECKLIST_KEY = 'japon-activity-checklist-v1';
+let checkedActivities = new Set();
+try { checkedActivities = new Set(JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '[]')); } catch (e) {}
+
+function syncCheckItem(el) {
+  if (!el || !el.dataset.check) return;
+  const done = checkedActivities.has(el.dataset.check);
+  el.classList.toggle('is-done', done);
+  let button = el.querySelector(':scope > .activity-check');
+  if (!button) {
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'activity-check';
+    el.prepend(button);
+  }
+  button.setAttribute('aria-label', done ? 'Destachar actividad' : 'Tachar actividad');
+  button.setAttribute('aria-pressed', String(done));
+}
+
+function wireChecklist(root) { (root || document).querySelectorAll('[data-check]').forEach(syncCheckItem); }
+
+document.addEventListener('click', (e) => {
+  const button = e.target.closest('.activity-check');
+  if (!button) return;
+  e.preventDefault(); e.stopPropagation();
+  const item = button.closest('[data-check]');
+  const key = item.dataset.check;
+  if (checkedActivities.has(key)) checkedActivities.delete(key); else checkedActivities.add(key);
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify([...checkedActivities]));
+  document.querySelectorAll('[data-check="' + CSS.escape(key) + '"]').forEach(syncCheckItem);
+  refreshSearch();
+});
+
+// Pins de lugares: el color dice la categoría y todos comparten la misma forma.
+// La fuente sólo vive en el popup. Cada pin queda
+// registrado en `placePins` para poder filtrarlo por categoría sin romper los
+// toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
+const placePins = [];
+// Índice de puntos con coords para "cerca tuyo" y para la distancia en el popup
+// (bloque "Mi ubicación", al final del script). `masked` es la etiqueta que se
+// muestra en modo discreto.
+const nearPts = [];
+function nearAdd(m, label, color, masked) {
+  nearPts.push({ m: m, label: label, color: color, masked: masked || null });
+  return m;
+}
+// Ir a un lugar desde la lista cuando su categoría está apagada dejaba el mapa
+// en el punto correcto pero sin pin (el marker está fuera de su layerGroup y el
+// openPopup no hace nada). Volvemos a prender su categoría: el pin aparece y los
+// chips quedan sincronizados con lo que se ve.
+function revealCat(cat) {
+  if (cat && !activeCats.has(cat)) { activeCats.add(cat); applyCatFilter(); }
+}
+function revealPin(m) {
+  const p = placePins.find(x => x.m === m);
+  if (p) { revealCat(p.cat); revealLayer(p.layer); }
+}
+// Volar a un punto del mapa desde cualquier lista (el itinerario del resumen o las
+// vistas laterales): prende su categoría si estaba apagada, encuadra y abre el popup.
+function focusMarker(m) {
+  if (!m) return;
+  revealPin(m);
+  // En foco de día el mapa muestra sólo esa jornada: si el punto que se clickeó no
+  // es de ese día, se suma al foco en vez de dejar el click muerto.
+  showFocused(m);
+  map.flyTo(m.getLatLng(), 14, { duration: 0.8 });
+  m.openPopup();
+}
+function placeIcon(cat, kind, id) {
+  const size = 14;
+  return L.divIcon({
+    html: '<div class="pp" style="--c:' + catColor(cat) + '"' + (id ? ' data-id="' + id + '"' : '') + '></div>',
+    className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+  });
+}
+function placePin(coords, cat, kind, layer, id) {
+  // Guardados y reels quedan por debajo de los marcadores de parada / cama
+  // (antes eran circleMarkers, que viven en un panel inferior al de markers).
+  const m = L.marker(coords, { icon: placeIcon(cat, kind, id), zIndexOffset: -1000 }).addTo(layer);
+  placePins.push({ m: m, layer: layer, cat: cat });
+  return m;
+}
+
+const markers = {};
+const destLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  const isFullday = d.type === 'fullday';
+  const isPending = isPendingStop(d);
+  // La parada en reubicación no tiene número (no está en la secuencia): el pin lo dice
+  // con un "?" y el borde punteado, en vez de mentir un lugar en la cadena.
+  const icon = isPending
+    ? L.divIcon({
+        html: '<div class="marker-num pending" data-id="' + d.id + '">?</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      })
+    : isFullday
+    ? L.divIcon({
+        html: '<div class="marker-diamond-wrap"><div class="marker-diamond" data-id="' + d.id + '"><span>' + d.n + '</span></div></div>',
+        className: '', iconSize: [34, 34], iconAnchor: [17, 17],
+      })
+    : L.divIcon({
+        html: '<div class="marker-num' + (d.sharedWith ? ' shared' : '') + '" data-id="' + d.id + '">' + d.n + '</div>',
+        className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+      });
+  const marker = L.marker(d.coords, { icon }).addTo(destLayer);
+  const datesLine = isPending
+    ? 'en reubicación · ' + DX(d.dates)
+    : isFullday
+    ? DX(d.dates + ' · ') + 'pasar el día'
+    : DX(d.dates + ' · ') + d.nights + ' noches';
+  const title = (d.n ? d.n + '. ' : '') + d.short;
+  marker.bindPopup(
+    miniPopup(d.img, title + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+  );
+  markers[d.id] = marker;
+  nearAdd(marker, title, '#0F6E56');
+});
+
+const dtMarkers = {};
+const dtLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  d.daytrips.forEach(dt => {
+    const cat = catOf(dt.name, dt.cat);
+    const marker = placePin(dt.coords, cat, 'dt', dtLayer, dt.id);
+    marker.bindPopup(
+      miniPopup(dt.img, escHtml(dt.name), CAT_LABELS[cat] + ' · day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time), dt.url || gmapsFromName(dt.name))
+    );
+    dtMarkers[dt.id] = marker;
+    nearAdd(marker, dt.name, catColor(cat));
+  });
+});
+
+// LUGARES GUARDADOS (Google Maps) — círculos del color de su categoría, tanto
+// los de cada destino como los orphans que no caen en ninguno.
+function placePopup(p, sub) {
+  return miniPopup(p.img, escHtml(p.name), sub, p.url || gmapsFromName(p.name));
+}
+
+
+// Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
+// vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
+const actMarkers = {};
+const thingMarkers = new Map();
+const savedPlaceLayer = L.layerGroup().addTo(map);
+destinations.forEach(d => {
+  (d.activities || []).forEach((a, i) => {
+    if (!a.coords) return;
+    const cat = catOfAct(a);
+    const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
+    const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
+      '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
+      (s.owner ? ' · @' + escHtml(s.owner) : '') + ' →</a>').join(' ');
+    m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
+      '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] + '</div>' +
+      (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
+    actMarkers[d.id + ':' + i] = m;
+    thingMarkers.set(a, m);
+    nearAdd(m, a.text, catColor(cat), maskLodging(a.text));
+  });
+});
+
+// Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
+// En modo discreto el pin se corre al centro de la parada y el popup solo dice "Reservado".
+const lodgingLayer = L.layerGroup().addTo(map);
+const lodgingPins = [];
+const lodgingMarkers = {};   // id de nodo → pin de cama (lo usa el foco de día)
+destinations.forEach(d => {
+  const lodg = d.lodging;
+  if (!lodg || !lodg.coords) return;
+  const icon = L.divIcon({
+    html: '<div class="lodging-marker">🛏️</div>',
+    className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+  });
+  const mk = lodgingMarkers[d.id] = L.marker(lodg.coords, { icon }).addTo(lodgingLayer).bindPopup(
+    '<div class="mini-pop">' +
+      '<div class="dx">' +
+        (lodg.img ? '<img class="mini-pop-img" src="' + lodg.img + '" loading="lazy" alt="">' : '') +
+        '<div class="popup-title">🛏️ ' + lodg.name + (lodg.rating ? ' · ' + lodg.rating : '') + '</div>' +
+        '<div class="popup-dates">' + d.short + ' · ' + (lodg.checkIn || '') + ' → ' + (lodg.checkOut || '') +
+          (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+        (lodg.url ? '<a class="mini-pop-maps" href="' + lodg.url + '" target="_blank" rel="noopener">' + (/airbnb/i.test(lodg.url) ? 'Ver en Airbnb' : 'Ver en Google Maps') + ' →</a>' : '') +
+        (lodg.mapsUrl ? ' <a class="mini-pop-maps" href="' + lodg.mapsUrl + '" target="_blank" rel="noopener">Google Maps →</a>' : '') +
+      '</div>' +
+      '<div class="dm">' +
+        '<div class="popup-title">🛏️ Reservado</div>' +
+        '<div class="popup-dates">' + d.short + (lodg.nights ? ' · ' + lodg.nights + ' noches' : '') + '</div>' +
+      '</div>' +
+    '</div>'
+  );
+  mk.on('click', () => pickLodging(d.id));
+  lodgingPins.push({ mk, real: lodg.coords, masked: maskedLodgingCoords(d) });
+  nearAdd(mk, lodg.name, '#7A4FB0', 'Hospedaje · ' + d.short);
+});
+
+// Tocar una cama lleva a su ficha en la tab Hospedajes, igual que tocar una línea lleva
+// a la del tramo: views.js se registra acá y el estado pasa por la URL (`?hosp=`), así
+// es compartible y "atrás" deselecciona. Sin las vistas montadas queda el camino de
+// siempre — abrir la card de esa parada en el resumen, que también trae el hospedaje.
+let lodgingClickHandler = null;
+function pickLodging(id) {
+  if (lodgingClickHandler) { lodgingClickHandler(id); return; }
+  focusTrip(id);
+}
+// El hospedaje seleccionado (`?hosp=` en la URL) queda marcado en el mapa mientras dure
+// la selección: es lo que ata la ficha abierta en el sidebar con su pin. `fit` vuela
+// hasta la cama —lo piden el deep-link y el click en la ficha, donde el pin puede estar
+// fuera de pantalla—; el click en el propio pin no, que ya lo tenés delante.
+let selectedLodging = null;
+function paintLodging(id) {
+  const mk = lodgingMarkers[id];
+  const el = mk && mk.getElement();
+  const pin = el && el.querySelector('.lodging-marker');
+  if (pin) pin.classList.toggle('sel', id === selectedLodging);
+}
+function selectLodging(id, fit) {
+  const prev = selectedLodging;
+  selectedLodging = lodgingMarkers[id] ? id : null;
+  if (prev && prev !== selectedLodging) paintLodging(prev);
+  if (!selectedLodging) return;
+  const mk = lodgingMarkers[selectedLodging];
+  if (fit) {
+    revealLayer(lodgingLayer);   // con la capa apagada, el deep-link dejaba el mapa sin pin
+    showFocused(mk);             // y con el foco de día tomado, la cama puede no ser de ese día
+    map.flyTo(mk.getLatLng(), Math.max(map.getZoom(), 13), { duration: 0.8 });
+    mk.openPopup();
+  }
+  paintLodging(selectedLodging);
+}
+
+const orphanPlaceLayer = L.layerGroup().addTo(map);
+orphanPlaces.forEach(p => {
+  if (p.lat == null || p.lon == null) return;
+  const cat = catOf(p.name, p.cat);
+  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer);
+  const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
+    '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') + ' →</a>').join(' ');
+  m.bindPopup('<div class="mini-pop"><div class="popup-title">' + escHtml(p.name) + '</div><div class="popup-dates">' +
+    CAT_LABELS[cat] + ' · sin destino asignado</div>' + (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
+  thingMarkers.set(p, m);
+  nearAdd(m, p.name, catColor(cat));
+});
+
+const placeCoords = destinations
+  .flatMap(d => (d.activities || []).filter(a => a.coords).map(a => a.coords))
+  .concat(orphanPlaces.filter(p => p.lat != null).map(p => [p.lat, p.lon]));
+const allCoords = routeCoords
+  .concat(destinations.flatMap(d => d.daytrips.map(dt => dt.coords)))
+  .concat(destinations.filter(d => d.lodging && d.lodging.coords).map(d => d.lodging.coords))
+  .concat(placeCoords);
+map.fitBounds(L.latLngBounds(allCoords), { padding: [40, 40] });
+
+const detailsList = document.getElementById('details-list');
+const cards = {};
+const legRows = {};   // id -> la fila de transporte que precede a esa card
+const galleries = {}; // id -> array de URLs de fotos (para el lightbox)
+
+destinations.forEach((d, idx) => {
+  const isFullday = d.type === 'fullday';
+  const isPending = isPendingStop(d);
+  const card = document.createElement('article');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '') + (isPending ? ' pending' : '') +
+    (d.sharedWith ? ' shared' : '');
+  card.dataset.id = d.id;
+
+  const dtHtml = d.daytrips.length > 0
+    ? '<div class="card-section-title">Day trips</div>' +
+      d.daytrips.map(dt =>
+        '<div class="dt-row" data-dt-id="' + dt.id + '">' +
+          '<div class="dt-row-header">' +
+            '<span class="dt-row-name">' + dt.name + '</span>' +
+            '<span class="dt-row-time">' + dt.time + '</span>' +
+          '</div>' +
+          '<div class="dt-row-desc">' + dt.desc + '</div>' +
+        '</div>'
+      ).join('')
+    : '';
+
+  const numHtml = isPending
+    ? '<div class="card-num pending">?</div>'
+    : isFullday
+    ? '<div class="card-num fullday"><span>' + d.n + '</span></div>'
+    : '<div class="card-num">' + d.n + '</div>';
+  const flagCC = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const flagImgHtml = (d.flag && flagCC[d.flag])
+    ? '<img class="dest-flag" src="https://flagcdn.com/' + flagCC[d.flag] + '.svg" alt="' + d.flag + '">'
+    : '';
+  const titleHtml = isPending
+    ? '<h2>' + d.name + '<span class="fullday-tag pending">en reubicación</span></h2>'
+    : isFullday
+    ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
+    : '<h2>' + d.name + '</h2>';
+  // El badge del viaje juntos va en la línea de fechas, NO en el título: el título
+  // es el lugar, y con quién se está es otra cosa (Martín, ronda 2: "Kioto y Osaka
+  // también son con ellos — el título no es el lugar para marcarlo").
+  const metaHtml = isPending
+    ? '<div class="card-meta">' + DX(d.pendingNote || d.dates) + '</div>'
+    : isFullday
+    ? '<div class="card-meta">' + DX(d.dates + ' · ') + 'pasar el día</div>'
+    : '<div class="card-meta">' + DX(d.dates + ' · ') + d.nights + ' noches' + sharedTag(d) + '</div>';
+
+  // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
+  if (d.leg) {
+    const legRow = document.createElement('div');
+    legRow.className = 'leg-row';
+    const prev = prevInChain(d);   // el anterior de la CADENA: una parada pendiente no es punta de nada
+    // dirUrl explícito (vuelo→Google Flights, bus privado→japanbusonline, etc.);
+    // si no, Google Maps directions en transporte público entre los dos nodos.
+    const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+      ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] +
+        '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+      : '');
+    const dirLink = dirHref
+      ? '<a class="leg-dir" target="_blank" rel="noopener" href="' + dirHref + '">' +
+        (d.leg.dirLabel || 'cómo llegar ↗') + '</a>'
+      : '';
+    const t = legType(d.leg);
+    const lt = MODE_STYLE[t];
+    const isAir = t === 'air';
+    const bodyHtml = legSegsHtml(d.leg) + (dirLink ? '<div class="leg-actions">' + dirLink + '</div>' : '');
+    // Los vuelos arrancan expandidos (más espaciosos, como una tarjeta); el resto colapsado.
+    legRow.className = 'leg-row leg-' + t + (isAir ? ' open' : '');
+    legRow.innerHTML =
+      '<div class="leg-head">' +
+        '<span class="leg-mode">' + d.leg.mode + '</span>' +
+        '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+        '<span class="leg-text"><strong>' + d.leg.time + '</strong> · ' + d.leg.detail + '</span>' +
+        '<button type="button" class="leg-ficha" title="Ver ficha del tramo" aria-label="Ver ficha del tramo">⤢</button>' +
+        (bodyHtml ? '<span class="leg-chevron">▸</span>' : '') +
+      '</div>' +
+      (bodyHtml ? '<div class="leg-body">' + bodyHtml + '</div>' : '');
+    // Click en el header → expande/colapsa + resalta el tramo en el mapa (panel → mapa).
+    legRow.querySelector('.leg-head').addEventListener('click', (e) => {
+      if (e.target.closest('.leg-dir') || e.target.closest('.leg-seg') || e.target.closest('.leg-ficha')) return;
+      legRow.classList.toggle('open');
+      highlightSegment(d.id);
+    });
+    legRow.querySelector('.leg-ficha').addEventListener('click', (e) => { e.stopPropagation(); openLegModal(d.id); });
+    detailsList.appendChild(legRow);
+    legRows[d.id] = legRow;
+  }
+
+  const tempsHtml =
+    '<div class="detail-temps">' +
+      '<div class="temp-pill temp-min"><span class="temp-label">Mín</span><span class="temp-value">' + d.tempMin + '°</span></div>' +
+      '<div class="temp-pill temp-max"><span class="temp-label">Máx</span><span class="temp-value">' + d.tempMax + '°</span></div>' +
+      '<span class="temp-note">' + d.weatherMode + '</span>' +
+    '</div>';
+
+  const thumbHtml = d.img ? '<img class="itin-thumb" src="' + d.img + '" loading="lazy" alt="">' : '';
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  galleries[d.id] = gal;
+  const galleryHtml = gal.length
+    ? '<div class="detail-gallery">' + gal.map((u, gi) =>
+        '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
+
+  card.innerHTML =
+    '<div class="itin-head">' +
+      numHtml +
+      thumbHtml +
+      '<div class="card-title-wrap">' +
+        titleHtml +
+        metaHtml +
+      '</div>' +
+      flagImgHtml +
+      '<span class="itin-caret">▸</span>' +
+    '</div>' +
+    '<div class="card-detail">' +
+      galleryHtml +
+      '<button type="button" class="ficha-btn">⤢ Ver ficha completa</button>' +
+      tempsHtml +
+      '<p class="card-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' +
+      (lodgingHtml(d.lodging, d.short, d.id) || (d.lodgingTbd ? lodgingTbdHtml(d.lodgingTbd) : '')) +
+      (d.activities.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+          '<div class="qh-body open">' +
+            categoryGroupsHtml(d.activities, d.id) +
+          '</div>'
+        : '') +
+      dtHtml +
+    '</div>';
+  detailsList.appendChild(card);
+  cards[d.id] = card;
+
+  card.addEventListener('mouseenter', () => { highlightMarker(d.id); });
+  card.addEventListener('mouseleave', () => { unhighlightMarker(d.id); });
+
+  card.querySelector('.itin-head').addEventListener('click', () => {
+    const open = card.classList.toggle('open');
+    if (open) { markers[d.id].openPopup(); map.flyTo(d.coords, 8, { duration: 0.8 }); }
+  });
+
+  card.querySelector('.ficha-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openStopModal(d.id);
+  });
+
+  const qhToggle = card.querySelector('.qh-toggle');
+  if (qhToggle) {
+    qhToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const body = card.querySelector('.qh-body');
+      const open = body.classList.toggle('open');
+      qhToggle.classList.toggle('open', open);
+    });
+  }
+
+  card.querySelectorAll('.act-row').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      focusMarker(actMarkers[btn.dataset.act]);
+    });
+  });
+
+  card.querySelectorAll('.dt-row').forEach(row => {
+    const dtId = row.dataset.dtId;
+    row.addEventListener('mouseenter', (e) => { e.stopPropagation(); highlightDaytrip(dtId); });
+    row.addEventListener('mouseleave', (e) => { e.stopPropagation(); unhighlightDaytrip(dtId); });
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
+      revealPin(dtMarkers[dtId]);
+      dtMarkers[dtId].openPopup();
+      const dt = d.daytrips.find(x => x.id === dtId);
+      map.flyTo(dt.coords, 9, { duration: 0.8 });
+    });
+  });
+});
+
+wireChecklist(detailsList);
+
+// Búsqueda URL-driven. Se busca sin acentos para que "otra parada" encuentre "Nikkō";
+// cada resultado es también un acceso rápido al nodo/ciudad que lo contiene.
+const searchInput = document.getElementById('activity-search');
+const searchClear = document.getElementById('search-clear');
+const searchResults = document.getElementById('search-results');
+const foldSearch = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+const searchIndex = destinations.flatMap(d => (d.activities || []).map((a, i) => ({
+  key: d.id + ':' + i, node: d, name: a.text, marker: actMarkers[d.id + ':' + i]
+})).concat((d.daytrips || []).map(dt => ({ key: null, node: d, name: dt.name, marker: dtMarkers[dt.id] }))));
+
+function writeSearchUrl(value, replace) {
+  const u = new URL(location.href);
+  if (value) u.searchParams.set('q', value); else u.searchParams.delete('q');
+  history[replace ? 'replaceState' : 'pushState']({}, '', u);
+}
+
+function refreshSearch() {
+  if (!searchInput) return;
+  const raw = searchInput.value.trim();
+  const q = foldSearch(raw);
+  searchClear.hidden = !raw;
+  if (!q) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
+  const matches = searchIndex.filter(x => foldSearch(x.name + ' ' + x.node.name + ' ' + x.node.short).includes(q)).slice(0, 40);
+  searchResults.innerHTML = matches.length ? matches.map(x =>
+    '<button type="button" class="search-result' + (x.key && checkedActivities.has(x.key) ? ' done' : '') + '" role="option" data-search-key="' + escHtml(x.key || '') + '" data-node="' + x.node.id + '">' +
+      '<span class="sr-name">' + escHtml(x.name) + '</span><span class="sr-city">' + escHtml(x.node.short) + '</span></button>'
+  ).join('') : '<div class="search-empty">No hay coincidencias</div>';
+  searchResults.hidden = false;
+}
+
+function applySearchFromUrl() {
+  if (!searchInput) return;
+  searchInput.value = new URLSearchParams(location.search).get('q') || '';
+  refreshSearch();
+}
+
+searchInput.addEventListener('input', () => { writeSearchUrl(searchInput.value.trim(), true); refreshSearch(); });
+searchInput.addEventListener('focus', refreshSearch);
+searchClear.addEventListener('click', () => { searchInput.value = ''; writeSearchUrl('', false); refreshSearch(); searchInput.focus(); });
+searchResults.addEventListener('click', (e) => {
+  const row = e.target.closest('.search-result');
+  if (!row) return;
+  const nodeId = row.dataset.node;
+  const resultKey = row.dataset.searchKey;
+  const resultName = row.querySelector('.sr-name').textContent;
+  // El resultado siempre aterriza en el Resumen, que es donde vive la tarjeta del
+  // nodo. No simulamos un click en su header: abrir es estado, no otro gesto.
+  const u = new URL(location.href);
+  u.searchParams.set('tab', 'resumen');
+  history.pushState({}, '', u);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+  const result = searchIndex.find(x => x.node.id === nodeId && (x.key || '') === resultKey && x.name === resultName);
+  if (result && result.marker) focusMarker(result.marker);
+  focusTrip(nodeId);
+  searchResults.hidden = true;
+});
+document.addEventListener('click', e => { if (!e.target.closest('.activity-search')) searchResults.hidden = true; });
+window.addEventListener('popstate', applySearchFromUrl);
+applySearchFromUrl();
+
+// Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
+const _lastDep = destinations[destinations.length - 1].departureLeg;
+if (_lastDep) {
+  const lt = MODE_STYLE[legType(_lastDep)];
+  const depRow = document.createElement('div');
+  depRow.className = 'leg-row leg-' + legType(_lastDep) + ' open';
+  depRow.innerHTML =
+    '<div class="leg-head">' +
+      '<span class="leg-mode">' + _lastDep.mode + '</span>' +
+      '<span class="leg-type" style="color:' + lt.color + '">' + lt.label + '</span>' +
+      '<span class="leg-text"><strong>' + _lastDep.time + '</strong> · ' + _lastDep.detail + '</span>' +
+      '<span class="leg-chevron">▸</span>' +
+    '</div>' +
+    '<div class="leg-body">' + legSegsHtml(_lastDep) + '</div>';
+  depRow.querySelector('.leg-head').addEventListener('click', () => depRow.classList.toggle('open'));
+  detailsList.appendChild(depRow);
+}
+
+// Lugares guardados que no caen en ningún destino: tarjeta propia al final de la lista.
+if (orphanPlaces.length > 0) {
+  const oc = document.createElement('article');
+  oc.className = 'orphan-card';
+  oc.innerHTML =
+    '<h3>Otras cosas para hacer (' + orphanPlaces.length + ')</h3>' +
+    '<p class="orphan-sub">Lugares que no caen dentro de ningún destino del recorrido.</p>' +
+    '<div class="orphan-list">' +
+      orphanPlaces.map(p =>
+        '<span class="saved-chip' + (p.lat == null ? ' no-coord' : '') + '" data-name="' + escHtml(p.name) + '">' + escHtml(p.name) + sourceLinksHtml(p) + '</span>'
+      ).join('') +
+    '</div>';
+  detailsList.appendChild(oc);
+  oc.querySelectorAll('.saved-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      const p = orphanPlaces.find(x => x.name === chip.dataset.name);
+      const m = p && thingMarkers.get(p);
+      if (m) { revealPin(m); map.flyTo(m.getLatLng(), 10, { duration: 0.8 }); m.openPopup(); }
+    });
+  });
+}
+
+function highlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightMarker(id) { const el = document.querySelector('.marker-num[data-id="' + id + '"], .marker-diamond[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+function highlightDaytrip(id) { const el = document.querySelector('.pp[data-id="' + id + '"]'); if (el) el.classList.add('active'); }
+function unhighlightDaytrip(id) { const el = document.querySelector('.pp[data-id="' + id + '"]'); if (el) el.classList.remove('active'); }
+
+// Llevar del mapa al sidebar de forma clara: expandir la card, anclar al inicio del
+// "viaje" (la fila de transporte que precede al destino) y resaltarlo con un flash.
+// Ancla al top del bloque para que la carga de imágenes de abajo no descoloque el scroll.
+function flash(el) {
+  if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1500);
+}
+// --- Deep-linking: ?stop=<id> abre y enfoca una parada (para compartir una vista). ---
+function shareUrl(kind, id) {
+  return location.origin + location.pathname + '?' + kind + '=' + encodeURIComponent(id);
+}
+function setView(kind, id) {  // kind: 'stop' | 'leg' | null
+  const u = new URL(location.href);
+  u.searchParams.delete('stop'); u.searchParams.delete('leg');
+  if (kind && id) u.searchParams.set(kind, id);
+  history.replaceState(null, '', u);
+}
+function hasViewParam() {
+  const s = new URLSearchParams(location.search);
+  return s.get('stop') || s.get('leg');
+}
+// --- Ficha individual por parada (modal): info condensada + mini-mapa con sus pines/rutas. ---
+let _smMap = null, _smLayer = null;
+function ensureStopModal() {
+  let el = document.getElementById('stop-modal');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stop-modal';
+  el.className = 'stop-modal';
+  el.hidden = true;
+  el.innerHTML =
+    '<div class="sm-backdrop"></div>' +
+    '<div class="sm-dialog" role="dialog" aria-modal="true">' +
+      '<div class="sm-topbar">' +
+        '<button type="button" class="sm-share" title="Copiar link a esta parada">🔗 Copiar link</button>' +
+        '<button type="button" class="sm-close" aria-label="Cerrar">×</button>' +
+      '</div>' +
+      '<div class="sm-content"></div>' +
+    '</div>';
+  document.body.appendChild(el);
+  el.querySelector('.sm-backdrop').addEventListener('click', closeStopModal);
+  el.querySelector('.sm-close').addEventListener('click', closeStopModal);
+  return el;
+}
+function closeStopModal() {
+  const el = document.getElementById('stop-modal');
+  if (!el || el.hidden) return;
+  el.hidden = true;
+  document.body.classList.remove('sm-open');
+  if (hasViewParam()) setView(null);
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+
+function smBodyHtml(d) {
+  const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
+  const gal = (d.imgs && d.imgs.length) ? d.imgs : (d.img ? [d.img] : []);
+  const flag = (d.flag && cc[d.flag]) ? '<img class="sm-flag" src="https://flagcdn.com/' + cc[d.flag] + '.svg" alt="">' : '';
+  const meta = isPendingStop(d) ? DX(d.pendingNote || d.dates)
+    : d.type === 'fullday' ? (DX(d.dates + ' · ') + 'pasar el día')
+    : (DX(d.dates + ' · ') + d.nights + ' noches');
+  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
+  const acts = (d.activities && d.activities.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
+        categoryGroupsHtml(d.activities, null) +
+      '</div>'
+    : '';
+  const dts = (d.daytrips && d.daytrips.length)
+    ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
+        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+      '</ul></div>'
+    : '';
+  return (
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + sharedTag(d) + '</div></div></div>' +
+    hero +
+    '<div id="sm-map" class="sm-map"></div>' +
+    (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' : '') +
+    (lodgingHtml(d.lodging, d.short) || (d.lodgingTbd ? lodgingTbdHtml(d.lodgingTbd) : '')) + leg + acts + dts
+  );
+}
+function buildStopMiniMap(d, idx) {
+  const c = document.getElementById('sm-map');
+  if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const pts = [];
+  const a0 = prevInChain(d);
+  if (a0 && d.leg) {  // tramo de llegada, por modo real
+    const a = a0;
+    let subsegs;
+    if (d.leg.path) { let from = a.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+  }
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num' + (isPendingStop(d) ? ' pending' : '') + (d.sharedWith ? ' shared' : '') + '">' + (d.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  pts.push(d.coords);
+  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: catColor(catOfAct(a)), weight: 2, fillColor: catColor(catOfAct(a)), fillOpacity: 0.85 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: catColor(catOf(t.name, t.cat)), weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  if (d.lodging && d.lodging.coords) { const lc = isDiscrete() ? maskedLodgingCoords(d) : d.lodging.coords; L.marker(lc, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging, d.short)); pts.push(lc); }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
+}
+function _wireShare(el, kind, id) {
+  const sb = el.querySelector('.sm-share');
+  sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link';
+  sb.onclick = () => {
+    const link = shareUrl(kind, id);
+    const done = () => { sb.classList.add('copied'); sb.innerHTML = '✓ Link copiado'; setTimeout(() => { sb.classList.remove('copied'); sb.innerHTML = '🔗 Copiar link'; }, 1700); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(link).then(done).catch(() => prompt('Copiá el link:', link));
+    else prompt('Copiá el link:', link);
   };
+}
+function _showModal(el) { el.hidden = false; document.body.classList.add('sm-open'); el.querySelector('.sm-dialog').scrollTop = 0; }
 
-  S.nodes.forEach(function (node) {
-    // La ciudad y su cama caen casi en el mismo punto: el número va arriba, que es el
-    // que ordena la lectura del tramo.
-    L.marker(node.coords, {
-      zIndexOffset: 1000,
-      icon: L.divIcon({ html: '<div class="marker-num">' + node.i + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] })
-    }).addTo(map).bindPopup(pop(esc(node.name), esc(node.dates) + ' · ' + nights(node.nights), gmaps(node.name)));
-    pts.push(node.coords);
+function openStopModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = smBodyHtml(d);
+  _wireShare(el, 'stop', d.id);
+  _showModal(el);
+  setView('stop', id);
+  buildStopMiniMap(d, idx);
+}
 
-    if (node.lodging && node.lodging.coords) {
-      L.marker(node.lodging.coords, {
-        icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
-      }).addTo(map).bindPopup(pop('🛏️ ' + esc(node.lodging.name), esc(node.lodging.checkIn || '') + ' → ' + esc(node.lodging.checkOut || ''),
-        node.lodging.mapsUrl || node.lodging.url));
-      pts.push(node.lodging.coords);
-    }
+// Ficha de un TRAMO de transporte: modo, duración, segmentos + mini-mapa de la ruta real.
+function legBodyHtml(d, idx) {
+  const prev = prevInChain(d);
+  const t = legType(d.leg), lt = MODE_STYLE[t];
+  const origin = prev ? prev.short : 'Buenos Aires';
+  const dirHref = d.leg.dirUrl || ((prev && prev.coords && d.coords)
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + prev.coords[0] + ',' + prev.coords[1] + '&destination=' + d.coords[0] + ',' + d.coords[1] + '&travelmode=transit'
+    : '');
+  const dir = dirHref ? '<a class="sm-act" href="' + dirHref + '" target="_blank" rel="noopener">' + (d.leg.dirLabel || 'Cómo llegar en Maps ↗') + '</a>' : '';
+  return (
+    '<div class="sm-head"><div class="sm-leg-badge" style="background:' + lt.color + '">' + d.leg.mode + '</div>' +
+      '<div><h2 class="sm-title">' + origin + ' → ' + d.short + '</h2>' +
+      '<div class="sm-meta">' + lt.label + ' · ' + d.leg.time + DX(' · llega ' + segStartDate(d.dates)) + '</div></div></div>' +
+    '<div id="sm-map" class="sm-map"></div>' +
+    '<p class="sm-intro">' + d.leg.detail + '</p>' +
+    (d.leg.segments ? '<div class="sm-sec"><div class="card-section-title">Segmentos</div>' + legSegsHtml(d.leg) + '</div>' : '') +
+    (dir ? '<div class="sm-sec">' + dir + '</div>' : '')
+  );
+}
+function buildLegMiniMap(d, idx) {
+  const c = document.getElementById('sm-map'); if (!c) return;
+  if (_smMap) { _smMap.remove(); _smMap = null; }
+  _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  _smLayer = L.layerGroup().addTo(_smMap);
+  const prev = prevInChain(d), pts = [];
+  if (prev) {
+    let subsegs;
+    if (d.leg.path) { let from = prev.coords; subsegs = d.leg.path.map(s => { const seg = { pts: [from, s.to], mode: s.m }; from = s.to; return seg; }); }
+    else { subsegs = [{ pts: [prev.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
+    subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
+    [prev, d].forEach(node => { L.marker(node.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + (node.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(node.short); pts.push(node.coords); });
+  } else {
+    L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num">' + (d.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer).bindPopup(d.short); pts.push(d.coords);
+  }
+  setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 11 }); } catch (e) { _smMap.setView(d.coords, 8); } }, 60);
+}
+function openLegModal(id) {
+  const idx = destinations.findIndex(x => x.id === id);
+  if (idx < 0 || !destinations[idx].leg) return;
+  const d = destinations[idx];
+  const el = ensureStopModal();
+  el.querySelector('.sm-content').innerHTML = legBodyHtml(d, idx);
+  _wireShare(el, 'leg', d.id);
+  _showModal(el);
+  setView('leg', id);
+  buildLegMiniMap(d, idx);
+}
+function focusTrip(id) {
+  const card = cards[id];
+  if (!card) return;
+  card.classList.add('open');
+  if (legRows[id]) legRows[id].classList.add('open');  // expandir el módulo de transporte
+  const anchor = legRows[id] || card;
+  setTimeout(() => {
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    flash(legRows[id]); flash(card);
+  }, 70);
+}
 
-    node.activities.forEach(function (a, i) {
-      if (!a.coords) return;
-      var m = meta(a.cat);
-      var pin = L.circleMarker(a.coords, {
-        radius: 5, color: m.color, weight: 2, fillColor: m.color, fillOpacity: 0.85
-      }).addTo(map).bindPopup(pop(esc(a.text), m.icon + ' ' + esc(m.label) + ' · ' + esc(node.short), a.url || gmaps(a.text)));
-      actPins[node.id + ':' + i] = pin;
-    });
+Object.entries(markers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => { highlightMarker(id); if (cards[id]) cards[id].classList.add('active'); });
+  marker.on('mouseout', () => { unhighlightMarker(id); if (cards[id]) cards[id].classList.remove('active'); });
+  marker.on('click', () => focusTrip(id));
+});
+Object.entries(dtMarkers).forEach(([id, marker]) => {
+  marker.on('mouseover', () => highlightDaytrip(id));
+  marker.on('mouseout', () => unhighlightDaytrip(id));
+});
 
-    node.daytrips.forEach(function (t) {
-      if (!t.coords) return;
-      var m = meta(t.cat);
-      L.circleMarker(t.coords, {
-        radius: 6, color: m.color, weight: 2, fillColor: '#fff', fillOpacity: 0.95
-      }).addTo(map).bindPopup(pop(esc(t.name), m.icon + ' ' + esc(m.label) + ' · day trip desde ' + esc(node.short) + ' · ' + esc(t.time || ''), t.url || gmaps(t.name)));
-    });
+// Labels de fecha en cada segmento de la ruta. La fecha = día en que se hace ese
+// tramo (= fecha de inicio del nodo de destino). El label es parte del tramo: tocarlo
+// hace lo mismo que tocar la línea.
+function segStartDate(s) {
+  const day = s.match(/^\s*(\d{1,2})/);
+  const mon = s.match(/(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)/i);
+  return day && mon ? day[1] + ' ' + mon[1] : s;
+}
+for (let i = 0; i < chain.length - 1; i++) {
+  const a = chain[i], b = chain[i + 1];
+  const mid = [(a.coords[0] + b.coords[0]) / 2, (a.coords[1] + b.coords[1]) / 2];
+  const segIcon = L.divIcon({
+    html: '<div class="seg-date">' + segStartDate(b.dates) + '</div>',
+    className: '', iconSize: [40, 16], iconAnchor: [20, 8],
+  });
+  L.marker(mid, { icon: segIcon, keyboard: false, zIndexOffset: -100 }).addTo(routeLayer)
+    .on('click', () => pickLeg(b.id));
+}
+
+// Capas estructurales del viaje: control Leaflet propio, separado espacial y
+// visualmente de las categorías de lugares que viven abajo.
+// "Actividades" agrupa TODO lo que es un lugar para ir (Maps, day trips y otras
+// fuentes): son la misma familia para quien mira el mapa, y los
+// chips de categoría de abajo ya los cortan más fino.
+const TOGGLES = [
+  { key: 'destinos', label: 'Destinos',   icon: '📍', layers: [destLayer] },
+  { key: 'actividades', label: 'Actividades', icon: '📌', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
+  { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
+  // Un vuelo ES transporte: una sola familia con TODOS los saltos — terrestres
+  // (routeLayer) y aéreos + aeropuertos (flightLayer). Estaban partidos en dos
+  // botones y duplicaban navegación (Martín, 2026-08-25).
+  { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer, flightLayer] },
+];
+// `vuelos` era una familia propia: un link viejo con `layersOff=vuelos` significaba
+// "escondé los saltos" y ahora eso es `transporte`. Se traduce en vez de ignorarse,
+// para que el link compartido siga aterrizando con el mapa como quien lo mandó lo vio.
+const LEGACY_LAYER_KEYS = { vuelos: 'transporte' };
+const inactiveLayers = new Set((new URLSearchParams(location.search).get('layersOff') || '').split(',')
+  .map(k => LEGACY_LAYER_KEYS[k] || k)
+  .filter(k => TOGGLES.some(t => t.key === k)));
+const layerBtns = {};
+let allLayersBtn = null;
+
+const layerOn = key => !inactiveLayers.has(key);
+const allLayersOn = () => inactiveLayers.size === 0;
+
+function writeLayersUrl() {
+  const u = new URL(location.href);
+  if (inactiveLayers.size) u.searchParams.set('layersOff', TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(','));
+  else u.searchParams.delete('layersOff');
+  history.replaceState(null, '', u);
+}
+
+// Prender/apagar una familia. `inactiveLayers` es la INTENCIÓN del usuario y el
+// botón la refleja siempre; mientras el foco de día tiene tomado el mapa la
+// intención se guarda pero no se aplica — se aplica al salir del foco.
+function setLayer(key, on) {
+  const t = TOGGLES.find(x => x.key === key);
+  if (!t) return;
+  on ? inactiveLayers.delete(key) : inactiveLayers.add(key);
+  if (key === 'transporte') map.getContainer().classList.toggle('no-legs', !on);
+  const btn = layerBtns[key];
+  if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', String(on)); }
+  if (!dayFocus) t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
+  if (allLayersBtn) {
+    allLayersBtn.classList.toggle('active', allLayersOn());
+    allLayersBtn.setAttribute('aria-pressed', String(allLayersOn()));
+  }
+}
+
+// Ir a un punto cuya familia está apagada dejaba el mapa encuadrado y sin pin (el
+// mismo agujero que revealCat tapa para las categorías): se prende la familia.
+function revealLayer(layer) {
+  const t = TOGGLES.find(x => x.layers.includes(layer));
+  if (t && !layerOn(t.key)) { setLayer(t.key, true); writeLayersUrl(); }
+}
+
+const layersControl = L.control({ position: 'topright' });
+layersControl.onAdd = function () {
+  const togglesBar = L.DomUtil.create('div', 'map-toggles');
+  allLayersBtn = document.createElement('button');
+  allLayersBtn.type = 'button';
+  allLayersBtn.className = 'mt mt-all' + (allLayersOn() ? ' active' : '');
+  allLayersBtn.title = 'Mostrar u ocultar todo';
+  allLayersBtn.innerHTML = '<span class="mt-ic">👁️</span>Todo';
+  allLayersBtn.addEventListener('click', () => {
+    const on = !allLayersOn();   // algo apagado → prender todo; todo prendido → apagar todo
+    TOGGLES.forEach(t => setLayer(t.key, on));
+    writeLayersUrl();
+  });
+  togglesBar.appendChild(allLayersBtn);
+  TOGGLES.forEach(t => {
+    const btn = document.createElement('button');
+    const onAtLoad = layerOn(t.key);
+    btn.type = 'button';
+    btn.className = 'mt' + (onAtLoad ? ' active' : '');
+    btn.title = t.label;
+    btn.setAttribute('aria-pressed', String(onAtLoad));
+    btn.innerHTML = '<span class="mt-ic">' + t.icon + '</span>' + t.label;
+    if (!onAtLoad) t.layers.forEach(l => map.removeLayer(l));
+    btn.addEventListener('click', () => { setLayer(t.key, !layerOn(t.key)); writeLayersUrl(); });
+    layerBtns[t.key] = btn;
+    togglesBar.appendChild(btn);
+  });
+  L.DomEvent.disableClickPropagation(togglesBar);
+  L.DomEvent.disableScrollPropagation(togglesBar);
+  return togglesBar;
+};
+layersControl.addTo(map);
+map.getContainer().classList.toggle('no-legs', !layerOn('transporte'));  // aterrizar con ?layersOff=transporte
+
+// ------------------------------------------------------- foco de día (task 508)
+// Tocar un día en la vista Días toma el mapa: se apagan todas las familias y quedan
+// sólo los puntos de esa jornada, unidos por la línea del recorrido en el MISMO orden
+// en que la lista los enumera (la vista arma ese orden y lo manda acá — ver dayRoute()
+// en views.js). No es ruteo por calles: es la guía visual de "qué sigue a qué".
+// Salir devuelve el mapa como estaba: capas, categorías y encuadre.
+const focusLayer = L.layerGroup();
+let dayFocus = null;          // { date, prev: {center, zoom}, shown: [markers] }
+let dayExitHandler = null;    // lo registra views.js para que salir también toque la URL
+
+const dayChip = document.createElement('div');
+dayChip.className = 'day-chip';
+const dayChipBtn = document.createElement('button');
+dayChipBtn.type = 'button';
+dayChipBtn.addEventListener('click', () => { dayExitHandler ? dayExitHandler() : exitDayFocus(); });
+dayChip.appendChild(dayChipBtn);
+map.getContainer().appendChild(dayChip);
+L.DomEvent.disableClickPropagation(dayChip);
+
+// El número del recorrido, pintado con el color de la categoría del punto: es el
+// mismo círculo que la lista de la jornada pone delante del ítem.
+const ordIcon = (n, color) => L.divIcon({
+  html: '<div class="rt-ord" style="background:' + color + '">' + n + '</div>',
+  className: '', iconSize: [16, 16], iconAnchor: [-5, 15],
+});
+
+// Un punto que el foco muestra directo sobre el mapa (su layerGroup está apagado).
+// Se anota en `shown` para poder sacarlo al salir sin tocar el grupo del que salió.
+function showFocused(m) {
+  if (!m || !dayFocus || dayFocus.shown.includes(m)) return false;
+  map.addLayer(m);
+  dayFocus.shown.push(m);
+  return true;
+}
+
+// La punta de un traslado: el aeropuerto / la estación / el puerto por donde se entra o
+// se sale de la ciudad ese día. Vive sólo mientras dura el foco (es una punta de ESE
+// día): el pin de aeropuerto de la capa de vuelos no cubre estaciones ni puertos, y con
+// el foco tomado esa capa está apagada igual.
+const termIcon = t => t.icon || (MODE_STYLE[t.mode] || MODE_STYLE.train).icon;
+function terminalMarker(t) {
+  const icon = L.divIcon({
+    html: '<div class="term-marker">' + termIcon(t) + '</div>',
+    className: '', iconSize: [24, 24], iconAnchor: [12, 12],
+  });
+  return L.marker(t.coords, { icon, zIndexOffset: 1100 })
+    .bindPopup('<div class="popup-title">' + termIcon(t) + ' ' + t.name + '</div>');
+}
+
+// spec = { date, label, route: [{ key, cat }, ...] EN ORDEN DE RECORRIDO,
+//          line: [ítems del trazo, en orden], stops: [ids], legs: [ids de tramo] }
+// El orden lo decide la vista (dayRoute() en views.js, que ordena por geografía); acá
+// sólo se dibuja. `line` es el trazo entero y cada ítem es una de tres cosas: `{ bed }`
+// (un hospedaje — la cama de anoche o la de esta noche; cuando son la misma, la línea
+// cierra el círculo), `{ terminal }` (la punta de un traslado del día) o una parada del
+// recorrido, de la que se leen `key` y `cat` y nada más. El mapa no sabe de itinerario.
+function enterDayFocus(spec) {
+  if (!spec) return;
+  // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
+  const prev = dayFocus ? dayFocus.prev : { center: map.getCenter(), zoom: map.getZoom() };
+  clearDayFocusLayers();
+  dayFocus = { date: spec.date, prev, shown: [] };
+  TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
+  // El foco apaga el transporte del viaje entero, pero el salto de ESE día es parte de
+  // la jornada: su línea se queda —y con ella el click a su ficha—. Mismo criterio que
+  // los pines del día, que también entran sin importar los filtros de afuera.
+  (spec.legs || []).forEach(id => (legSegments[id] || []).forEach(s => { showFocused(s.pl); showFocused(s.hit); }));
+
+  const line = [], ord = [];
+  const step = m => { if (m) { showFocused(m); line.push(m.getLatLng()); return m.getLatLng(); } };
+  (spec.line || []).forEach(p => {
+    if (p.bed) { step(lodgingMarkers[p.bed]); return; }
+    if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
+    const ll = step(actMarkers[p.key]);
+    if (ll) ord.push({ ll, color: catColor(p.cat) });
+  });
+  // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
+  // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
+  // la ciudad no dice nada que los puntos no digan ya. Con las camas no alcanza —dos
+  // pines de hotel no cuentan qué pasó ese día—, por eso mira `ord` y no `line`.
+  const ctxPts = [];
+  if (!ord.length) (spec.stops || []).forEach(id => {
+    const m = markers[id];
+    if (m && showFocused(m)) ctxPts.push(m.getLatLng());
   });
 
-  // La línea del tramo: Kioto → Osaka → Tokio, en el orden en que se hace.
-  L.polyline(S.nodes.map(function (n) { return n.coords; }), {
-    color: '#0F8A5F', weight: 3, opacity: 0.75
-  }).addTo(map);
+  if (line.length > 1) {
+    // No se toca (`interactive: false`): es la guía del día, no un objeto con ficha. Y
+    // desde que las puntas son las terminales del salto, el tramo del día queda
+    // exactamente DEBAJO de este trazo — si tomara clicks, taparía el de su línea, que
+    // es lo que abre la ficha del transporte.
+    L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(focusLayer);
+  }
+  // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
+  // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
+  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  focusLayer.addTo(map);
 
-  map.fitBounds(L.latLngBounds(pts).pad(0.12));
+  dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
+  map.getContainer().classList.add('day-focus');
+  // En mobile el mapa está arriba del sidebar y puede haber quedado fuera de la
+  // pantalla: enfocar un día sin que se vea el mapa no muestra nada.
+  if (map.getContainer().getBoundingClientRect().bottom < 80) {
+    map.getContainer().scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
 
-  // Tocar una idea de la lista vuela a su punto, igual que en el site completo.
-  document.getElementById('list').addEventListener('click', function (e) {
-    var b = e.target.closest('.act[data-act]');
-    if (b) {
-      var pin = actPins[b.dataset.act];
-      if (pin) { map.flyTo(pin.getLatLng(), Math.max(map.getZoom(), 13), { duration: 0.6 }); pin.openPopup(); }
-      return;
-    }
-    var img = e.target.closest('.gal img');
-    if (img) {
-      var lb = document.getElementById('lb');
-      lb.querySelector('img').src = img.src;
-      lb.classList.add('on');
-    }
+  // Encuadre: manda el recorrido, camas incluidas —son sus puntas—. La ciudad entra
+  // sólo cuando no hay paradas, porque si no un centroide lejano desarma el zoom.
+  const fit = line.concat(ctxPts);
+  if (fit.length === 1) map.flyTo(fit[0], 14, { duration: 0.7 });
+  else if (fit.length) map.flyToBounds(L.latLngBounds(fit), { padding: [70, 70], maxZoom: 15, duration: 0.7 });
+}
+
+function clearDayFocusLayers() {
+  if (dayFocus) dayFocus.shown.forEach(m => map.removeLayer(m));
+  focusLayer.clearLayers();
+  map.removeLayer(focusLayer);
+}
+
+function exitDayFocus() {
+  if (!dayFocus) return;
+  const prev = dayFocus.prev;
+  clearDayFocusLayers();
+  dayFocus = null;
+  // Volver a la intención del usuario, no a "todo prendido": las familias apagadas
+  // antes del foco siguen apagadas, y las categorías filtradas siguen filtradas
+  // (sus pines nunca volvieron a su layerGroup).
+  TOGGLES.forEach(t => { if (layerOn(t.key)) t.layers.forEach(l => map.addLayer(l)); });
+  map.getContainer().classList.remove('day-focus');
+  map.flyTo(prev.center, prev.zoom, { duration: 0.6 });
+}
+
+const barsWrap = document.createElement('div');
+barsWrap.className = 'map-bars';
+map.getContainer().appendChild(barsWrap);
+L.DomEvent.disableClickPropagation(barsWrap);
+L.DomEvent.disableScrollPropagation(barsWrap);
+
+// Filtro por categoría — los chips son a la vez la leyenda de color de los pines.
+// Con todo prendido, un click aísla esa categoría; después cada click suma o saca.
+// El estado va a la URL (?cat=comida,bar-noche) para poder compartir la vista.
+const activeCats = new Set(CAT_ORDER);
+const catBar = document.createElement('div');
+catBar.className = 'map-cats';
+const catBtns = {};
+CAT_ORDER.forEach(c => {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'mc';
+  btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
+  btn.addEventListener('click', () => {
+    if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
+    else if (activeCats.has(c)) activeCats.delete(c);
+    else activeCats.add(c);
+    applyCatFilter();
   });
+  catBtns[c] = btn;
+  catBar.appendChild(btn);
+});
+const allCatsBtn = document.createElement('button');
+allCatsBtn.type = 'button';
+allCatsBtn.className = 'mc mc-all';
+allCatsBtn.textContent = 'Todo';
+allCatsBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
+catBar.appendChild(allCatsBtn);
+barsWrap.appendChild(catBar);
 
-  document.getElementById('lb').addEventListener('click', function () { this.classList.remove('on'); });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') document.getElementById('lb').classList.remove('on');
+function applyCatFilter(skipUrl) {
+  placePins.forEach(p => {
+    const on = activeCats.has(p.cat);
+    if (on && !p.layer.hasLayer(p.m)) p.layer.addLayer(p.m);
+    else if (!on && p.layer.hasLayer(p.m)) p.layer.removeLayer(p.m);
+  });
+  CAT_ORDER.forEach(c => catBtns[c].classList.toggle('off', !activeCats.has(c)));
+  allCatsBtn.hidden = activeCats.size === CAT_ORDER.length;
+  if (skipUrl) return;
+  const u = new URL(location.href);
+  if (activeCats.size === CAT_ORDER.length) u.searchParams.delete('cat');
+  else u.searchParams.set('cat', CAT_ORDER.filter(c => activeCats.has(c)).join(','));
+  history.replaceState(null, '', u);
+}
+(function () {  // deep-link: ?cat=comida,bar-noche aterriza ya filtrado
+  const s = new URLSearchParams(location.search);
+  let stale = false;
+  if (s.has('cat')) {
+    const want = s.get('cat').split(',').map(c => c.trim()).filter(c => CAT_META[c]);
+    if (want.length) { activeCats.clear(); want.forEach(c => activeCats.add(c)); }
+    // Ninguna categoría válida (link viejo, categoría renombrada): mostrar todo
+    // en vez de un mapa vacío, y limpiar el parámetro muerto de la URL.
+    else stale = true;
+  }
+  applyCatFilter(!stale);
+})();
+
+// Si la URL trae ?stop=<id> o ?leg=<id>, abrir la ficha (modal) correspondiente (vista compartible).
+(function () {
+  const s = new URLSearchParams(location.search);
+  const stop = s.get('stop'), leg = s.get('leg');
+  if (stop && destinations.some(d => d.id === stop)) setTimeout(() => openStopModal(stop), 300);
+  else if (leg && destinations.some(d => d.id === leg)) setTimeout(() => openLegModal(leg), 300);
+})();
+
+// Número de reserva: tap para copiarlo. Es el dato que se dice en el mostrador y
+// tipearlo de un teléfono es justo lo que no se quiere hacer parado en un lobby.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.resv-ref');
+  if (!btn) return;
+  e.stopPropagation();
+  const txt = btn.dataset.copy || btn.textContent;
+  const ok = () => { btn.classList.add('copied'); setTimeout(() => btn.classList.remove('copied'), 1400); };
+  // Sin Clipboard API (Safari viejo, contexto no seguro): seleccionar + execCommand. Si
+  // tampoco copia, el número queda seleccionado y se copia con el menú del sistema — pero
+  // no se dice "copiado", que sería mentira.
+  const fallback = () => {
+    const r = document.createRange(); r.selectNodeContents(btn);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    try { if (document.execCommand('copy')) ok(); } catch (err) {}
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fallback);
+  else fallback();
+});
+
+// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+(function () {
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<span class="lb-btn lb-close">×</span><span class="lb-btn lb-prev">‹</span>' +
+    '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img');
+  let cur = [], idx = 0;
+  const show = () => { img.src = cur[idx]; };
+  const close = () => { lb.classList.remove('open'); img.src = ''; };
+  const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
+  detailsList.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-gal]');
+    if (!t) return;
+    e.stopPropagation();
+    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
+    show(); lb.classList.add('open');
+  });
+  lb.querySelector('.lb-close').addEventListener('click', close);
+  lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+  lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+  lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
   });
 })();
+
+// CHART
+const ctx = document.getElementById('weatherChart').getContext('2d');
+const avg = (range) => { const [lo, hi] = range.split('-').map(Number); return Math.round((lo + hi) / 2); };
+
+const weatherChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: chain.map(d => d.short),
+    datasets: [
+      { label: 'Máx', data: chain.map(d => avg(d.tempMax)), borderColor: '#D85A30', backgroundColor: 'rgba(216, 90, 48, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#D85A30', borderWidth: 2, fill: '+1' },
+      { label: 'Mín', data: chain.map(d => avg(d.tempMin)), borderColor: '#1D9E75', backgroundColor: 'rgba(29, 158, 117, 0.10)', tension: 0.35, pointRadius: 3, pointHoverRadius: 5, pointBackgroundColor: '#1D9E75', borderWidth: 2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: 500 }, padding: 8, boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: { backgroundColor: 'rgba(20, 20, 20, 0.92)', titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 }, padding: 8, cornerRadius: 6,
+        callbacks: {
+          title: (items) => { const d = chain[items[0].dataIndex]; return d.short + (isDiscrete() ? '' : ' · ' + d.dates); },
+          label: (item) => { const d = chain[item.dataIndex]; const range = item.dataset.label === 'Máx' ? d.tempMax : d.tempMin; return item.dataset.label + ': ' + range + '°C'; }
+        }
+      }
+    },
+    onClick: (event, elements) => {
+      if (elements.length > 0) {
+        const idx = elements[0].index;
+        const d = chain[idx];
+        focusTrip(d.id);
+        map.flyTo(d.coords, 7, { duration: 0.8 });
+      }
+    },
+    onHover: (event, elements) => { event.native.target.style.cursor = elements.length > 0 ? 'pointer' : 'default'; },
+    scales: {
+      y: { beginAtZero: false, suggestedMin: 5, suggestedMax: 30, ticks: { callback: (v) => v + '°', font: { size: 10 }, color: 'rgba(0,0,0,0.5)', padding: 4 }, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false } },
+      x: { ticks: { font: { size: 9 }, color: 'rgba(0,0,0,0.55)', maxRotation: 35, minRotation: 35, autoSkip: false }, grid: { display: false, drawBorder: false } }
+    },
+    interaction: { intersect: false, mode: 'index' }
+  }
+});
+
+// Panel de temperatura colapsado por default; resize del chart al abrir (Chart.js
+// no dimensiona bien si el contenedor estaba display:none).
+(function () {
+  const tgl = document.getElementById('chart-toggle');
+  const wrap = document.getElementById('chart-wrap');
+  if (tgl && wrap) {
+    tgl.addEventListener('click', () => {
+      const open = wrap.classList.toggle('open');
+      tgl.classList.toggle('open', open);
+      if (open) setTimeout(() => weatherChart.resize(), 30);
+    });
+  }
+})();
+
+// Toggle del modo discreto: botón 🙈 del header o tecla `d`; persiste en localStorage.
+// Mueve los pines de cama al centro de su parada y re-renderiza la ficha si está abierta
+// (los pares .dx/.dm del resto de la UI se alternan solos por CSS).
+(function () {
+  const btn = document.getElementById('discrete-toggle');
+  function applyDiscrete(on) {
+    document.body.classList.toggle('discrete', on);
+    lodgingPins.forEach(p => p.mk.setLatLng(on ? p.masked : p.real));
+    map.closePopup();
+    try { localStorage.setItem(DISCRETE_KEY, on ? '1' : '0'); } catch (e) {}
+    const s = new URLSearchParams(location.search);
+    if (s.get('stop')) openStopModal(s.get('stop'));
+    else if (s.get('leg')) openLegModal(s.get('leg'));
+  }
+  btn.addEventListener('click', () => applyDiscrete(!isDiscrete()));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'd' && e.key !== 'D') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    applyDiscrete(!isDiscrete());
+  });
+  let saved = null;
+  try { saved = localStorage.getItem(DISCRETE_KEY); } catch (e) {}
+  if (saved === '1') applyDiscrete(true);
+})();
+
+// ── Mi ubicación ────────────────────────────────────────────────────────────
+// Punto azul + círculo de precisión sobre el mapa del viaje, para caminar por
+// Tokio o otra parada y ver qué pin del viaje tenés al lado. El permiso se pide SOLO
+// al tocar el botón (nunca al cargar) y la posición vive en memoria: no se
+// guarda en localStorage ni sale de la página.
+//
+// Botón (esquina inferior derecha): tap 1 = prender · tap 2 = seguir (el mapa se
+// centra en cada update) · tap 3 = apagar. Arrastrar el mapa sale del modo seguir.
+// Con fix activo, cada popup de punto suma "a X m/km" y el punto azul abre la
+// lista de los 5 lugares visibles más cercanos.
+(function () {
+  const meLayer = L.layerGroup().addTo(map);
+  let meMarker = null, meCircle = null, mePos = null, meWatch = null, meState = 'off';
+  let stampTarget = null, nearShown = [];
+
+  const meBtn = document.createElement('button');
+  meBtn.type = 'button';
+  meBtn.className = 'me-btn';
+  meBtn.title = 'Mi ubicación';
+  meBtn.setAttribute('aria-label', 'Mi ubicación');
+  meBtn.setAttribute('aria-pressed', 'false');
+  meBtn.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+      '<circle cx="12" cy="12" r="7"/><path d="M12 1.5v3M12 19.5v3M22.5 12h-3M4.5 12h-3"/>' +
+      '<circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none"/>' +
+    '</svg>';
+  map.getContainer().appendChild(meBtn);
+  L.DomEvent.disableClickPropagation(meBtn);
+
+  const toastEl = document.createElement('div');
+  toastEl.className = 'map-toast';
+  toastEl.setAttribute('role', 'status');
+  map.getContainer().appendChild(toastEl);
+  let toastT = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toastEl.classList.remove('show'), 2800);
+  }
+
+  function fmtDist(km) {
+    if (km < 1) return Math.round(km * 1000) + ' m';
+    return (km < 10 ? km.toFixed(1) : Math.round(km)) + ' km';
+  }
+
+  // "Cerca tuyo" mira sólo lo que está EN el mapa: respeta los toggles de capa y
+  // el filtro por categoría, así la lista siempre coincide con los pines visibles.
+  function nearest(n) {
+    if (!mePos) return [];
+    return nearPts
+      .filter(p => map.hasLayer(p.m))
+      .map(p => {
+        const ll = p.m.getLatLng();
+        return { p: p, km: kmBetween(mePos.lat, mePos.lng, ll.lat, ll.lng) };
+      })
+      .sort((a, b) => a.km - b.km)
+      .slice(0, n);
+  }
+  function nearLabel(p) { return (isDiscrete() && p.masked) ? p.masked : p.label; }
+  function nearHtml() {
+    nearShown = nearest(5);
+    if (!nearShown.length) return '<div class="near"><div class="near-empty">Sin puntos del viaje cerca</div></div>';
+    return '<div class="near">' + nearShown.map((e, i) =>
+      '<button type="button" class="near-row" data-i="' + i + '">' +
+        '<span class="near-dot" style="background:' + e.p.color + '"></span>' +
+        '<span class="near-name">' + escHtml(nearLabel(e.p)) + '</span>' +
+        '<span class="near-km">' + fmtDist(e.km) + '</span>' +
+      '</button>').join('') + '</div>';
+  }
+  function wireNear(popup) {
+    const el = popup && popup.getElement();
+    if (!el) return;
+    el.querySelectorAll('.near-row').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const it = nearShown[Number(btn.dataset.i)];
+        if (!it) return;
+        map.closePopup();
+        map.flyTo(it.p.m.getLatLng(), Math.max(map.getZoom(), 15), { duration: 0.7 });
+        it.p.m.openPopup();
+      });
+    });
+  }
+
+  // Distancia en el popup de cada punto: se estampa al abrir y se refresca con
+  // cada update de posición. El popup se re-renderiza de su HTML original al
+  // reabrirse, así que no hay que limpiar nada.
+  function stampDist(popup) {
+    const el = popup && popup.getElement && popup.getElement();
+    if (!el) return;
+    const wrap = el.querySelector('.mini-pop') || el.querySelector('.leaflet-popup-content');
+    if (!wrap) return;
+    let tag = wrap.querySelector('.popup-dist');
+    const ll = popup.getLatLng && popup.getLatLng();
+    if (!mePos || !ll) { if (tag) tag.remove(); return; }
+    if (!tag) {
+      tag = document.createElement('div');
+      tag.className = 'popup-dist';
+      wrap.appendChild(tag);
+    }
+    tag.textContent = 'a ' + fmtDist(kmBetween(mePos.lat, mePos.lng, ll.lat, ll.lng));
+  }
+  nearPts.forEach(p => p.m.on('popupopen', e => { stampTarget = e.popup; stampDist(e.popup); }));
+  map.on('popupclose', e => { if (e.popup === stampTarget) stampTarget = null; });
+
+  function setState(s) {
+    meState = s;
+    meBtn.classList.toggle('wait', s === 'wait');
+    meBtn.classList.toggle('on', s === 'on');
+    meBtn.classList.toggle('follow', s === 'follow');
+    meBtn.setAttribute('aria-pressed', String(s !== 'off'));
+  }
+
+  function meOff() {
+    if (meWatch != null) navigator.geolocation.clearWatch(meWatch);
+    meWatch = null;
+    mePos = null;
+    meLayer.clearLayers();
+    meMarker = null;
+    meCircle = null;
+    nearShown = [];
+    setState('off');
+    if (stampTarget) stampDist(stampTarget);
+  }
+
+  function drawMe(ll, acc) {
+    if (meMarker) {
+      meMarker.setLatLng(ll);
+      meCircle.setLatLng(ll).setRadius(acc);
+      return;
+    }
+    meMarker = L.marker(ll, {
+      icon: L.divIcon({ html: '<div class="me-dot"></div>', className: '', iconSize: [16, 16], iconAnchor: [8, 8] }),
+      zIndexOffset: 1200, keyboard: false, title: 'Estás acá',
+    }).addTo(meLayer);
+    // El autoPanPadding saca la lista de abajo de la leyenda de modos (arriba) y
+    // de las barras de chips (abajo): son controles, y siempre van sobre el popup.
+    meMarker.bindPopup(nearHtml, {
+      closeButton: false, offset: [0, -2], minWidth: 186, maxWidth: 250,
+      autoPanPaddingTopLeft: [12, 82], autoPanPaddingBottomRight: [12, 72],
+    });
+    meMarker.on('popupopen', e => wireNear(e.popup));
+    meCircle = L.circle(ll, {
+      radius: acc, color: '#1F7AE0', weight: 1, opacity: 0.35,
+      fillColor: '#1F7AE0', fillOpacity: 0.1, interactive: false,
+    }).addTo(meLayer);
+    meCircle.bringToBack();
+  }
+
+  function onFix(pos) {
+    const ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
+    const first = !mePos;
+    mePos = ll;
+    drawMe(ll, pos.coords.accuracy || 0);
+    if (meState === 'wait') setState('on');
+    // El mapa arranca mostrando el viaje entero: al primer fix acercamos a
+    // escala de barrio, si no el punto azul se pierde entre los pines. Si ya
+    // estabas mirando de cerca tu zona, no te movemos la vista.
+    if (first) {
+      if (map.getZoom() < 12 || !map.getBounds().contains(ll)) map.setView(ll, Math.max(map.getZoom(), 14));
+    } else if (meState === 'follow') {
+      map.panTo(ll);   // seguir = mantener el punto centrado, sin tocarte el zoom
+    }
+    if (stampTarget) stampDist(stampTarget);
+    if (meMarker.isPopupOpen()) {
+      meMarker.setPopupContent(nearHtml());
+      wireNear(meMarker.getPopup());
+    }
+  }
+
+  function onErr(err) {
+    // Con un fix ya obtenido, un timeout suelto del watch no apaga nada.
+    if (mePos && err.code !== 1) return;
+    meOff();
+    toast(err.code === 1
+      ? 'Ubicación bloqueada — habilitala en el navegador'
+      : 'No se pudo obtener tu ubicación');
+  }
+
+  meBtn.addEventListener('click', () => {
+    if (meState === 'off') {
+      if (!navigator.geolocation) { toast('Este navegador no comparte ubicación'); return; }
+      setState('wait');
+      meWatch = navigator.geolocation.watchPosition(onFix, onErr,
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 });
+      return;
+    }
+    if (meState === 'wait') { meOff(); return; }            // cancelar mientras busca
+    if (meState === 'on') {                                  // prendido → seguir
+      setState('follow');
+      if (mePos) map.setView(mePos, Math.max(map.getZoom(), 15));
+      return;
+    }
+    meOff();                                                 // siguiendo → apagado
+  });
+  map.on('dragstart', () => { if (meState === 'follow') setState('on'); });
+})();
+
+// ---- Vistas laterales (task 499) -------------------------------------------
+// Las tres vistas nuevas leen el mismo `destinations` y reusan los bloques que ya
+// existen acá (reserva, categorías, escape de HTML). Si esto falla, el resumen
+// —que es todo lo que había antes— tiene que seguir funcionando igual.
+try {
+  mountViews(destinations, {
+    escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
+    catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
+    focusTrip, openStopModal, flash,
+    // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la
+    // misma cosa. La vista manda el estado por la URL (`?tramo=`) y el mapa marca; el
+    // click en la línea entra por `onLegClick` y vuelve por el mismo camino.
+    selectLeg, onLegClick: (fn) => { legClickHandler = fn; },
+    // Hospedajes (task 544): el pin de cama y la ficha de la vista Hospedajes, igual.
+    selectLodging, onLodgingClick: (fn) => { lodgingClickHandler = fn; },
+    // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
+    // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
+    focusAct: (key) => focusMarker(actMarkers[key]),
+    // Foco de día (task 508): la vista arma el recorrido (qué puntos y en qué orden)
+    // y el mapa lo dibuja; salir vuelve por la URL, por eso el chip avisa para acá.
+    focusDay: enterDayFocus, exitDayFocus,
+    onDayExit: (fn) => { dayExitHandler = fn; },
+    wire: (pane) => {
+      wireChecklist(pane);
+      pane.addEventListener('click', (e) => {
+        const act = e.target.closest('[data-act]');
+        if (act) { focusMarker(actMarkers[act.dataset.act]); return; }
+        const jump = e.target.closest('[data-goto]');
+        if (!jump) return;
+        const d = destinations.find(x => x.id === jump.dataset.goto);
+        if (!d) return;
+        if (markers[d.id]) markers[d.id].openPopup();
+        map.flyTo(d.coords, 8, { duration: 0.8 });
+        focusTrip(d.id);   // deja la tarjeta abierta para cuando vuelvas al resumen
+      });
+    }
+  });
+} catch (err) {
+  console.error('vistas laterales:', err);
+  document.getElementById('tab-rail').hidden = true;
+}
 </script>
 </body>
 </html>
