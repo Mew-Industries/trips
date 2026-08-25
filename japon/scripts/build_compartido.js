@@ -5,10 +5,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
 const SRC = path.join(ROOT, 'index.html');
 const OUT = path.join(ROOT, 'compartido', 'index.html');
+const CATEGORIES_SRC = path.join(ROOT, 'data', 'categories.js');
+const CATEGORIES_OUT = path.join(ROOT, 'compartido', 'data', 'categories.js');
 const OLD_DATA = path.join(ROOT, 'compartido', 'data.js');
 const SHARED_IDS = ['kioto', 'osaka', 'tokio-medio'];
 
@@ -51,6 +54,13 @@ function buildData(all) {
     if (!source.sharedWith) throw new Error(`el nodo "${id}" perdió sharedWith`);
     const node = structuredClone(source);
     node.n = index + 1;
+    if (node.lodging && node.lodging.booking) {
+      // La ficha conserva estado y fechas para coordinar el rebooking, pero el link
+      // público no necesita credenciales de reserva, teléfono ni importes privados.
+      for (const field of ['ref', 'ref2', 'refLabel', 'ref2Label', 'phone', 'total']) {
+        delete node.lodging.booking[field];
+      }
+    }
 
     if (id === 'kioto') {
       node.arrival = '19 oct · llegada a KIX y primera noche en Kioto';
@@ -76,6 +86,33 @@ function buildData(all) {
   });
 }
 
+function activityNames(nodes) {
+  const names = new Set();
+  const visit = value => {
+    if (!value || typeof value !== 'object') return;
+    if (typeof value.name === 'string') names.add(value.name);
+    if (Array.isArray(value)) value.forEach(visit);
+    else Object.values(value).forEach(visit);
+  };
+  nodes.forEach(node => (node.activities || []).forEach(visit));
+  return names;
+}
+
+function buildCategories(nodes) {
+  const sandbox = { window: {} };
+  vm.runInNewContext(fs.readFileSync(CATEGORIES_SRC, 'utf8'), sandbox, { filename: CATEGORIES_SRC });
+  const allowed = activityNames(nodes);
+  const overrides = Object.fromEntries(Object.entries(sandbox.window.PLACE_CAT_OVERRIDES)
+    .filter(([name]) => allowed.has(name)));
+  return [
+    '// Generado por scripts/build_compartido.js. Sólo contiene la taxonomía y lugares del viaje servido.',
+    `window.PLACE_TAXONOMY = ${JSON.stringify(sandbox.window.PLACE_TAXONOMY, null, 2)};`,
+    `window.PLACE_CAT_LEGACY = ${JSON.stringify(sandbox.window.PLACE_CAT_LEGACY, null, 2)};`,
+    `window.PLACE_CAT_OVERRIDES = ${JSON.stringify(overrides, null, 2)};`,
+    '',
+  ].join('\n');
+}
+
 function replaceBetween(source, startMarker, endMarker, replacement) {
   const start = source.indexOf(startMarker);
   const end = source.indexOf(endMarker, start);
@@ -94,7 +131,7 @@ function render() {
     .replace('<h1>Japón + Corea</h1>', '<h1>Japón</h1>')
     .replace('<span class="subtitle"><span class="dx">6 oct – 18 nov 2026</span><span class="dm">43 días</span></span>', '<span class="subtitle"><span class="dx">19–31 oct 2026</span><span class="dm">12 días</span></span>')
     .replace(/<div class="header-stats">[\s\S]*?<\/div>\s*<button type="button" class="discrete-btn"/, '<div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> Zava y Ari vuelven</span></div>\n    <button type="button" class="discrete-btn"')
-    .replace('src="data/categories.js"', 'src="../data/categories.js"')
+    .replace('src="data/categories.js"', 'src="data/categories.js"')
     .replace('<script src="data/reels.js"></script>', '<script>window.SOURCE_THINGS = [];</script>')
     .replace('href="views.css"', 'href="../views.css"')
     .replace("from './views.js'", "from '../views.js'")
@@ -139,16 +176,32 @@ function leaks(html) {
 }
 
 const output = render();
+const sharedData = buildData(loadDestinations(fs.readFileSync(SRC, 'utf8')));
+const categoriesOutput = buildCategories(sharedData);
+const servedAssets = [
+  ['compartido/index.html', output],
+  ['compartido/data/categories.js', categoriesOutput],
+  ['views.js', fs.readFileSync(path.join(ROOT, 'views.js'), 'utf8')],
+  ['views.css', fs.readFileSync(path.join(ROOT, 'views.css'), 'utf8')],
+];
 if (process.argv.includes('--check')) {
   const current = fs.existsSync(OUT) ? fs.readFileSync(OUT, 'utf8') : '';
-  const bad = leaks(current);
+  const currentCategories = fs.existsSync(CATEGORIES_OUT) ? fs.readFileSync(CATEGORIES_OUT, 'utf8') : '';
   let ok = true;
   if (current !== output) {
     console.error('✗ compartido/index.html está desactualizado');
     ok = false;
   }
-  if (bad.length) {
-    console.error(`✗ filtraciones en compartido/index.html: ${bad.join(', ')}`);
+  if (currentCategories !== categoriesOutput) {
+    console.error('✗ compartido/data/categories.js está desactualizado');
+    ok = false;
+  }
+  for (const [name, content] of servedAssets) {
+    const inspected = name === 'compartido/index.html' ? current
+      : name === 'compartido/data/categories.js' ? currentCategories : content;
+    const bad = leaks(inspected);
+    if (!bad.length) continue;
+    console.error(`✗ filtraciones en ${name}: ${bad.join(', ')}`);
     ok = false;
   }
   if (ok) console.log('✓ app compartida al día: 3 destinos · app completa · sin filtraciones');
@@ -165,5 +218,7 @@ if (bad.length) {
 }
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, output);
+fs.mkdirSync(path.dirname(CATEGORIES_OUT), { recursive: true });
+fs.writeFileSync(CATEGORIES_OUT, categoriesOutput);
 if (fs.existsSync(OLD_DATA)) fs.unlinkSync(OLD_DATA);
 console.log('✓ generado compartido/index.html · 3 destinos · sin filtraciones');

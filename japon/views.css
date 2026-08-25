@@ -198,8 +198,8 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
 .dy-flight .dy-date { color: #2563EB; }
 
-/* Modo discreto: el mismo criterio que el itinerario de siempre, que en discreto pasa a
-   decir "5 noches" en vez de "8-13 oct". Se cae toda la capa de fechas y horas, y en
+/* Modo discreto: el mismo criterio que el itinerario de siempre, que pasa a mostrar
+   una cantidad de noches. Se cae toda la capa de fechas y horas, y en
    hospedajes además la dirección, las fotos y los links (nombre y número de reserva ya
    se ocultan solos por los pares .dx/.dm del site). Queda la forma del viaje, no el
    cuándo ni el dónde. */

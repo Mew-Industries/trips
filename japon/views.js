@@ -39,7 +39,7 @@ function hoursHtml(L) {
   return '<div class="lg-hours">' + chips.join('') + '</div>';
 }
 
-// El tramo compartido se marca igual en las cuatro vistas: badge violeta con quién, y
+// Los nodos compartidos se marcan igual en las cuatro vistas: badge violeta con quién, y
 // —donde el borde izquierdo está libre— el acento en la tarjeta. El dato es del nodo
 // (`sharedWith`), no de la vista: acá sólo se lo lee.
 const sharedTag = node => (node && node.sharedWith)
@@ -159,8 +159,8 @@ RENDER.transportes = (it, ctx) => {
     const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
       encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
 
-    // Un salto es del tramo compartido cuando lo son sus dos puntas: el que llega a
-    // Kioto (de Shirakawa-go) no lo es, aunque Zava y Ari aterricen ese mismo día.
+    // Un salto es compartido cuando lo son sus dos puntas: el que llega a
+    // Kioto no lo es, aunque Zava y Ari aterricen ese mismo día.
     const shared = t.node.sharedWith && t.prev && t.prev.sharedWith ? t.node : null;
 
     // `data-leg` es el id del tramo, el mismo con el que el mapa indexa su línea: es
@@ -239,8 +239,8 @@ function catGroups(items, ctx) {
 function catListHtml(items, ctx, nodeId) {
   const esc = ctx.escHtml;
 
-  // Hay actividades que nombran el hospedaje ("Onsen al atardecer en Yoshiike
-  // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
+  // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
+  // igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
   const itemHtml = ({ i, act }) => act.coords
     ? '<li data-check="' + nodeId + ':' + i + '"><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
@@ -400,7 +400,7 @@ function orderBlocks(blocks, startLL, endLL) {
 
 // El recorrido de una jornada, en el orden en que se camina. Los puntos se parten por
 // nodo y los nodos van en el orden del itinerario: en un día de traslado no se vuelve
-// sobre los pasos, y mezclar Tokio con Nikko por cercanía sería un recorrido imposible.
+// sobre los pasos, y mezclar ciudades por cercanía sería un recorrido imposible.
 // Dentro de cada nodo manda `orderRoute`. Lo que no tiene coords no entra en la línea
 // (no se le inventan) pero sigue estando en la lista, abajo.
 //
@@ -532,8 +532,8 @@ const dayHasMap = spec => !!(spec.line.length || spec.stops.length);
 function routeListHtml(spec, ctx, day) {
   const esc = ctx.escHtml;
   const shortOf = id => (day.here.find(h => h.node.id === id) || { node: {} }).node.short || '';
-  // Hay actividades que nombran el hospedaje ("Onsen al atardecer en Yoshiike
-  // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
+  // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
+  // igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
   const icon = p => '<span class="rt-ic">' + (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon + '</span>';
   const color = p => (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).color;
