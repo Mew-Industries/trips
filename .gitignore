@@ -21,3 +21,7 @@
 .weather-cron.log
 *.html.tmp
 .wcheck.js
+
+# Python bytecode (japon/votar/scripts)
+__pycache__/
+*.pyc

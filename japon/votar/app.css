@@ -1,0 +1,207 @@
+/* app.css — mazo de votación de actividades (task 548).
+   Misma familia que el site del viaje: crema #f5f4f0, tarjeta blanca, verde
+   #0F6E56 y ámbar #B87814. Acá la app es un juego, así que la tarjeta es
+   grande, el gesto manda y el texto es lo mínimo para decidir. */
+
+:root {
+  --crema: #f5f4f0;
+  --verde: #0F6E56;
+  --ambar: #B87814;
+  --rojo:  #B4483A;
+  --tinta: #1a1a1a;
+  --tenue: #8d8878;
+  --linea: rgba(0,0,0,0.08);
+  /* Alto del mazo: la ventana menos barra, ciudades, botonera y respiros. */
+  --deck-h: min(560px, calc(100vh - 258px));
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--tinta); background: var(--crema);
+  overscroll-behavior: none;
+}
+body { display: flex; flex-direction: column; overflow: hidden; }
+button { font: inherit; }
+
+/* ------------------------------------------------------------------- gate */
+
+.gate { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.gate[hidden] { display: none; }
+.gate-card { text-align: center; max-width: 300px; }
+.gate-mark { font-size: 40px; line-height: 1; margin-bottom: 14px; }
+.gate-card h1 { font-size: 19px; font-weight: 600; margin: 0 0 8px; }
+.gate-card p { font-size: 13.5px; line-height: 1.55; color: var(--tenue); margin: 0; }
+
+/* -------------------------------------------------------------------- app */
+
+.app { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.app[hidden] { display: none; }
+
+.bar {
+  flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: max(10px, env(safe-area-inset-top)) 18px 10px; background: #fff;
+  border-bottom: 1px solid var(--linea);
+}
+.bar-who { min-width: 0; display: flex; flex-direction: column; }
+.who-name { font-size: 14px; font-weight: 600; line-height: 1.2; }
+.who-sub { font-size: 10.5px; color: var(--tenue); letter-spacing: 0.02em; }
+.bar-progress { flex: none; width: 116px; text-align: right; }
+.pg-count { font-size: 11px; font-weight: 600; color: var(--tenue); font-variant-numeric: tabular-nums; }
+.pg-track { height: 3px; margin-top: 5px; border-radius: 2px; background: rgba(0,0,0,0.07); overflow: hidden; }
+.pg-fill { height: 100%; width: 0; border-radius: 2px; background: var(--verde); transition: width 0.25s ease; }
+
+/* Filtro por ciudad — para poder votar "sólo Tokio" en una sentada. */
+.cities {
+  flex: none; display: flex; gap: 6px; padding: 9px 18px; overflow-x: auto;
+  scrollbar-width: none; background: #fff; border-bottom: 1px solid var(--linea);
+}
+.cities::-webkit-scrollbar { display: none; }
+.city {
+  flex: none; border: 1px solid rgba(0,0,0,0.1); background: #fff; color: #3a3a3a;
+  font-size: 11.5px; font-weight: 600; padding: 5px 11px; border-radius: 14px; cursor: pointer;
+  white-space: nowrap; transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.city b { font-weight: 600; color: #b3aea0; margin-left: 5px; font-variant-numeric: tabular-nums; }
+.city.on { color: var(--verde); border-color: rgba(15,110,86,0.4); background: rgba(15,110,86,0.07); }
+.city.on b { color: rgba(15,110,86,0.55); }
+
+/* ------------------------------------------------------------------ mazo */
+
+.stage { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 14px 16px 4px; }
+.deck { position: relative; width: 100%; max-width: 380px; height: var(--deck-h); }
+.deck[hidden] { display: none; }
+
+.card {
+  position: absolute; inset: 0; border-radius: 20px; overflow: hidden;
+  background: #fff; border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 10px 30px rgba(31,28,20,0.13), 0 2px 6px rgba(31,28,20,0.07);
+  display: flex; flex-direction: column; justify-content: flex-end;
+  will-change: transform; touch-action: none; user-select: none; cursor: grab;
+}
+.card.behind { pointer-events: none; }
+.card.top:active { cursor: grabbing; }
+/* Las de atrás sólo insinúan el mazo: apenas más chicas y corridas. */
+.card[data-depth="1"] { transform: translateY(9px) scale(0.965); }
+.card[data-depth="2"] { transform: translateY(18px) scale(0.93); }
+.card[data-depth="1"], .card[data-depth="2"] { box-shadow: 0 6px 18px rgba(31,28,20,0.09); }
+
+.card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+/* Scrim: la foto es de un reel cualquiera, el texto tiene que leerse igual. */
+.card.has-img::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(12,10,6,0.92) 0%, rgba(12,10,6,0.72) 26%, rgba(12,10,6,0.18) 52%, rgba(12,10,6,0.05) 72%);
+}
+/* Sin foto: lavado del color de la categoría, que es la identidad que queda.
+   Va como `background-image` y no como `background`: los lavados son de baja
+   opacidad, y si se llevaran puesto el blanco de `.card` la carta quedaría
+   translúcida y se verían las dos de atrás encimadas. */
+.card.no-img { background-image: linear-gradient(155deg, var(--wash-a), var(--wash-b)); }
+.card.no-img .card-glyph {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%);
+  font-size: 128px; line-height: 1; opacity: 0.14; pointer-events: none;
+}
+
+.card-body { position: relative; z-index: 2; padding: 20px 20px 18px; }
+.card.has-img .card-body { color: #fff; }
+
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.tag {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 12px; white-space: nowrap;
+  background: rgba(255,255,255,0.9); color: var(--tc, #444);
+}
+.card.has-img .tag { background: rgba(255,255,255,0.93); }
+.card.no-img .tag { background: rgba(255,255,255,0.82); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.tag-hood { background: rgba(0,0,0,0.06); color: #5c584f; font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+.card.has-img .tag-hood { background: rgba(255,255,255,0.2); color: #fff; }
+
+.card-name { font-size: 23px; font-weight: 700; line-height: 1.18; margin: 0; letter-spacing: -0.01em; }
+.card.no-img .card-name { font-size: 26px; }
+.card-note { font-size: 13.5px; line-height: 1.5; margin: 9px 0 0; color: #5c584f; }
+.card.has-img .card-note { color: rgba(255,255,255,0.92); }
+
+.card-links { display: flex; gap: 14px; margin-top: 14px; }
+.card-links a {
+  font-size: 11.5px; font-weight: 600; color: var(--verde); text-decoration: none;
+  border-bottom: 1px dotted rgba(15,110,86,0.4); padding-bottom: 1px;
+}
+.card.has-img .card-links a { color: rgba(255,255,255,0.85); border-bottom-color: rgba(255,255,255,0.4); }
+.card-links a:hover { color: var(--tinta); }
+.card.has-img .card-links a:hover { color: #fff; }
+
+/* Sellos del gesto: aparecen mientras se arrastra y dicen a dónde va. */
+.stamp {
+  position: absolute; top: 26px; z-index: 3; opacity: 0; pointer-events: none;
+  font-size: 20px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 7px 14px; border-radius: 10px; border: 3px solid currentColor; background: rgba(255,255,255,0.9);
+}
+.stamp-si   { left: 22px;  color: var(--verde); transform: rotate(-13deg); }
+.stamp-no   { right: 22px; color: var(--rojo);  transform: rotate(13deg); }
+.stamp-star { left: 50%; top: 34%; margin-left: -74px; color: var(--ambar); transform: rotate(-4deg); }
+
+/* -------------------------------------------------------------- terminado */
+
+.done { text-align: center; max-width: 320px; margin: auto; }
+.done[hidden] { display: none; }
+.done-mark { font-size: 38px; line-height: 1; }
+.done-lead { font-size: 15px; font-weight: 600; margin: 12px 0 14px; }
+.done-tally { display: flex; justify-content: center; gap: 22px; margin-bottom: 20px; }
+.dt { display: flex; flex-direction: column; gap: 2px; }
+.dt-n { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.dt-l { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--tenue); }
+.dt-star .dt-n { color: var(--ambar); } .dt-si .dt-n { color: var(--verde); } .dt-no .dt-n { color: #b3aea0; }
+.done-again {
+  border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #5c584f;
+  font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 16px; cursor: pointer;
+}
+.done-again:hover { color: var(--tinta); border-color: rgba(0,0,0,0.25); }
+.done-again[hidden] { display: none; }
+
+/* ------------------------------------------------------------- botonera */
+
+.acts {
+  flex: none; display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 14px 18px max(16px, env(safe-area-inset-bottom));
+}
+.acts[hidden] { display: none; }
+.act {
+  border: 1px solid rgba(0,0,0,0.09); background: #fff; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0;
+  box-shadow: 0 2px 8px rgba(31,28,20,0.1); transition: transform 0.1s, color 0.12s, border-color 0.12s;
+}
+.act:active { transform: scale(0.9); }
+.act:disabled { opacity: 0.35; cursor: default; box-shadow: none; }
+.act:disabled:active { transform: none; }
+.act-undo { width: 42px; height: 42px; font-size: 17px; color: var(--tenue); }
+.act-no   { width: 56px; height: 56px; font-size: 23px; color: var(--rojo); }
+.act-star { width: 50px; height: 50px; font-size: 21px; color: var(--ambar); }
+.act-si   { width: 56px; height: 56px; font-size: 23px; color: var(--verde); }
+.act-no:hover   { border-color: rgba(180,72,58,0.45); }
+.act-star:hover { border-color: rgba(184,120,20,0.45); }
+.act-si:hover   { border-color: rgba(15,110,86,0.45); }
+.act:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+
+/* Aviso de sincronización — sólo aparece cuando algo quedó pendiente. */
+.sync {
+  position: fixed; left: 50%; bottom: max(78px, calc(env(safe-area-inset-bottom) + 78px));
+  transform: translateX(-50%); z-index: 40;
+  font-size: 11.5px; font-weight: 600; color: #8A5A0E;
+  background: rgba(240,184,74,0.2); border: 1px solid rgba(184,120,20,0.3);
+  padding: 5px 12px; border-radius: 14px; backdrop-filter: blur(3px);
+}
+.sync[hidden] { display: none; }
+
+/* ------------------------------------------------------------ desktop */
+
+@media (min-width: 700px) {
+  :root { --deck-h: min(600px, calc(100vh - 250px)); }
+  .deck { max-width: 400px; }
+  .bar, .cities { padding-left: 24px; padding-right: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pg-fill { transition: none; }
+  .act { transition: none; }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#f5f4f0">
+<meta name="robots" content="noindex">
+<title>Votar · Japón 2026</title>
+<link rel="icon" type="image/png" sizes="64x64" href="../favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../favicon-64.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- Sin token no hay app: el mazo, el contador y los botones ni se montan. -->
+<div id="gate" class="gate" hidden>
+  <div class="gate-card">
+    <div class="gate-mark">⛩️</div>
+    <h1>Votar Japón</h1>
+    <p id="gate-msg">Pedile tu link a Martín.</p>
+  </div>
+</div>
+
+<div id="app" class="app" hidden>
+  <header class="bar">
+    <div class="bar-who">
+      <span class="who-name" id="who">—</span>
+      <span class="who-sub">Japón · oct–nov 2026</span>
+    </div>
+    <div class="bar-progress">
+      <span class="pg-count" id="pg-count">0/0</span>
+      <div class="pg-track"><div class="pg-fill" id="pg-fill"></div></div>
+    </div>
+  </header>
+
+  <nav class="cities" id="cities"></nav>
+
+  <main class="stage" id="stage">
+    <div class="deck" id="deck"></div>
+
+    <div class="done" id="done" hidden>
+      <div class="done-mark">🎉</div>
+      <p class="done-lead" id="done-lead">Listo.</p>
+      <div class="done-tally" id="done-tally"></div>
+      <button type="button" class="done-again" id="done-again">Deshacer el último</button>
+    </div>
+  </main>
+
+  <footer class="acts" id="acts">
+    <button type="button" class="act act-undo" id="b-undo" title="Deshacer (Z)" aria-label="Deshacer" disabled>↩</button>
+    <button type="button" class="act act-no"   id="b-no"   title="Paso (←)"     aria-label="Paso">✕</button>
+    <button type="button" class="act act-star" id="b-star" title="Me RE interesa (↑)" aria-label="Me re interesa">★</button>
+    <button type="button" class="act act-si"   id="b-si"   title="Me interesa (→)" aria-label="Me interesa">♥</button>
+  </footer>
+
+  <div class="sync" id="sync" hidden></div>
+</div>
+
+<script src="../data/categories.js"></script>
+<script src="../data/reels.js"></script>
+<script src="frames.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
