@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 198 lugares de la colección IG "japon mew" · 2026-08-25T12:50:06+00:00
+// 214 lugares + 10 tips de la colección IG "japon mew" · 2026-08-25T14:52:20+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -122,6 +122,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Aomori Museum of Art",
+  "lat": 40.807416,
+  "lon": 140.70086,
+  "cat": "museos",
+  "area": "Aomori",
+  "note": "Museo ligado a Yoshitomo Nara; colección chica, el post lo despachó en 30 min pero destaca su tienda.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
+    "owner": "dapple_journal",
+    "caption": "Museo ligado a Yoshitomo Nara; colección chica, el post lo despachó en 30 min pero destaca su tienda."
+   }
+  ]
+ },
+ {
   "name": "BAR PIANO",
   "lat": 35.66005,
   "lon": 139.701498,
@@ -183,6 +199,12 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C_VFd3vPewM/",
     "owner": "_habibarahman"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C-iLB2sInQG/",
+    "owner": "tiffanytchen",
+    "caption": "Tienda de jeans/denim en Ebisu que la autora recomienda por sus vaqueros."
    }
   ]
  },
@@ -273,6 +295,38 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DGjxhh7TcbJ/",
     "owner": "adrianwidjy"
+   }
+  ]
+ },
+ {
+  "name": "Chanel Ginza (Chanel Nexus Hall)",
+  "lat": 35.671286,
+  "lon": 139.765738,
+  "cat": "arquitectura",
+  "area": "Ginza, Tokio",
+  "note": "Flagship de Peter Marino (2004): fachada de cortina de vidrio con ~700.000 LEDs; adentro Chanel Nexus Hall (arte/conciertos gratis) y restaurante de Alain Ducasse arriba.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Db-y_xbiEaq/",
+    "owner": "archdigestsyou",
+    "caption": "Flagship de Peter Marino (2004): fachada de cortina de vidrio con ~700.000 LEDs; adentro Chanel Nexus Hall (arte/conciertos gratis) y restaurante de Alain Ducasse arriba."
+   }
+  ]
+ },
+ {
+  "name": "Chokuritsuenjin (直立猿人)",
+  "lat": 35.561901,
+  "lon": 139.712271,
+  "cat": "ocio",
+  "area": "Kamata, Tokio",
+  "note": "Jazz kissa era Showa abierto en 1975, vinilos y equipo vintage; tragos ¥500–800 y snacks desde ¥300.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcPna9ItwPz/",
+    "owner": "lavivienyc",
+    "caption": "Jazz kissa era Showa abierto en 1975, vinilos y equipo vintage; tragos ¥500–800 y snacks desde ¥300."
    }
   ]
  },
@@ -477,6 +531,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Edo-Tokyo Open Air Architectural Museum",
+  "lat": 35.715572,
+  "lon": 139.512543,
+  "cat": "museos",
+  "area": "Koganei, Tokio",
+  "note": "Museo al aire libre con edificios históricos reubicados: la casa del arquitecto Kunio Maekawa (1942), talleres y una casa de baños de 1929 con mural del Fuji; favorito de la autora para arquitectura y arte.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Daxni-BS1_r/",
+    "owner": "manianiewczas",
+    "caption": "Museo al aire libre con edificios históricos reubicados: la casa del arquitecto Kunio Maekawa (1942), talleres y una casa de baños de 1929 con mural del Fuji; favorito de la autora para arquitectura y arte."
+   }
+  ]
+ },
+ {
   "name": "ENTER Shibuya",
   "lat": 35.663764,
   "lon": 139.702376,
@@ -674,6 +744,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
+   }
+  ]
+ },
+ {
+  "name": "Hachinohe Art Museum",
+  "lat": 40.511704,
+  "lon": 141.491319,
+  "cat": "museos",
+  "area": "Hachinohe, Aomori",
+  "note": "Museo chico con área pública gratis; parada fácil si ya estás en la zona.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
+    "owner": "dapple_journal",
+    "caption": "Museo chico con área pública gratis; parada fácil si ya estás en la zona."
    }
   ]
  },
@@ -1128,6 +1214,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kappabashi",
+  "lat": 35.71058,
+  "lon": 139.787964,
+  "cat": "compras",
+  "area": "Tokio",
+  "note": "Calle de tiendas de utensilios de cocina en Tokio; ahí compró una tabla de cortar japonesa y varios utensilios.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZkh11WIs2y/",
+    "owner": "vitusstenhoej",
+    "caption": "Calle de tiendas de utensilios de cocina en Tokio; ahí compró una tabla de cortar japonesa y varios utensilios."
+   }
+  ]
+ },
+ {
   "name": "Kappabashi Street",
   "lat": 35.71058,
   "lon": 139.787964,
@@ -1154,6 +1256,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-mqqmAyYcI/",
     "owner": "twinspeakeatgo"
+   }
+  ]
+ },
+ {
+  "name": "Karimoku Research Center",
+  "lat": 35.661376,
+  "lon": 139.721086,
+  "cat": "museos",
+  "area": "Nishi-Azabu, Tokio",
+  "note": "Centro de diseño de Karimoku; muestra gratis 'Form Follows Feelings' con instalación de sonido (OJAS/Devon Turnbull) en tres pisos, abierto días de semana.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZLfbS1TSX2/",
+    "owner": "psiminkyoto",
+    "caption": "Centro de diseño de Karimoku; muestra gratis 'Form Follows Feelings' con instalación de sonido (OJAS/Devon Turnbull) en tres pisos, abierto días de semana."
    }
   ]
  },
@@ -1423,13 +1541,19 @@ window.SOURCE_THINGS = [
   "lat": 35.671969,
   "lon": 139.763367,
   "cat": "arquitectura",
-  "area": "Tokio (Ginza)",
-  "note": "Edificio de Renzo Piano revestido con 13.000 bloques de vidrio",
+  "area": "Ginza, Tokio",
+  "note": "Edificio flagship de Hermès de Renzo Piano (2001), torre de 8 pisos con piel de bloques de vidrio que de noche brilla como una linterna.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbQMKjbzURT/",
+    "owner": "matthewarchitect",
+    "caption": "Edificio flagship de Hermès de Renzo Piano (2001), torre de 8 pisos con piel de bloques de vidrio que de noche brilla como una linterna."
    }
   ]
  },
@@ -2054,6 +2178,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Reiyukai Shakaden Temple",
+  "lat": 35.661137,
+  "lon": 139.742203,
+  "cat": "templos",
+  "area": "Minato, Tokio",
+  "note": "Templo brutalista de diseño futurista, parada de arquitectura poco conocida en Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Db-y_xbiEaq/",
+    "owner": "archdigestsyou",
+    "caption": "Templo brutalista de diseño futurista, parada de arquitectura poco conocida en Tokio."
+   }
+  ]
+ },
+ {
   "name": "Round 1 Umeda",
   "lat": 34.703257,
   "lon": 135.501041,
@@ -2274,6 +2414,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Soma pastry shop",
+  "lat": 40.615081,
+  "lon": 141.205015,
+  "cat": "comida",
+  "area": "Towada, Aomori",
+  "note": "Panadería local cerca del Towada Art Center; el post recomienda su apple pie.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
+    "owner": "dapple_journal",
+    "caption": "Panadería local cerca del Towada Art Center; el post recomienda su apple pie."
+   }
+  ]
+ },
+ {
   "name": "sonora Shimokitazawa",
   "lat": 35.662631,
   "lon": 139.66787,
@@ -2300,6 +2456,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
+   }
+  ]
+ },
+ {
+  "name": "Spo-Cha (Round1 Stadium)",
+  "lat": 34.667511,
+  "lon": 135.502862,
+  "cat": "ocio",
+  "area": "Osaka",
+  "note": "Complejo de entretenimiento abierto 24/7 con bowling, billar, arcade y juegos deportivos; recomendado como una de las atracciones más divertidas en Osaka.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbgc1DlOYtw/",
+    "owner": "nofar_moshe_",
+    "caption": "Complejo de entretenimiento abierto 24/7 con bowling, billar, arcade y juegos deportivos; recomendado como una de las atracciones más divertidas en Osaka."
    }
   ]
  },
@@ -2709,6 +2881,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Tokyo Tower",
+  "lat": 35.65858,
+  "lon": 139.745433,
+  "cat": "miradores",
+  "area": "Tokio",
+  "note": "Vista nocturna de la Tokyo Tower iluminada; la torre tiene miradores con panorámica de la ciudad.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbTLepZTZtL/",
+    "owner": "ryuseitenshi18",
+    "caption": "Vista nocturna de la Tokyo Tower iluminada; la torre tiene miradores con panorámica de la ciudad."
+   }
+  ]
+ },
+ {
   "name": "Tonkatsu Marushichi (Monzen-nakacho)",
   "lat": 35.673504,
   "lon": 139.794844,
@@ -2735,6 +2923,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFlUdYQTjXL/",
     "owner": "raimeetravel"
+   }
+  ]
+ },
+ {
+  "name": "Towada Art Center",
+  "lat": 40.614059,
+  "lon": 141.209278,
+  "cat": "museos",
+  "area": "Towada, Aomori",
+  "note": "Museo de arte contemporáneo con esculturas e instalaciones (Kusama, Nara, Do Ho Suh, Shiota); el arte sigue en las calles y el parque, 3-4 hs. El favorito del post en Tohoku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
+    "owner": "dapple_journal",
+    "caption": "Museo de arte contemporáneo con esculturas e instalaciones (Kusama, Nara, Do Ho Suh, Shiota); el arte sigue en las calles y el parque, 3-4 hs. El favorito del post en Tohoku."
    }
   ]
  },
@@ -2814,6 +3018,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Tsukiji Uogashi",
+  "lat": 35.664271,
+  "lon": 139.770418,
+  "cat": "comida",
+  "area": "Tsukiji, Tokio",
+  "note": "Mercado de mariscos justo al lado del de Tsukiji: sushi, sashimi y mariscos frescos a precio local (toro y uni mucho más baratos), sin las multitudes. Dos edificios conectados por un puente.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZuPponRWVl/",
+    "owner": "itsgracechin",
+    "caption": "Mercado de mariscos justo al lado del de Tsukiji: sushi, sashimi y mariscos frescos a precio local (toro y uni mucho más baratos), sin las multitudes. Dos edificios conectados por un puente."
+   }
+  ]
+ },
+ {
   "name": "Ukiyo-e de Kawamura-san (Ninenzaka)",
   "lat": 34.998174,
   "lon": 135.780858,
@@ -2860,6 +3080,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DAVofKKisfc/",
     "owner": "tokyo.explores"
+   }
+  ]
+ },
+ {
+  "name": "Uniqlo Ginza",
+  "lat": 35.671223,
+  "lon": 139.766486,
+  "cat": "compras",
+  "area": "Ginza, Tokio",
+  "note": "Flagship icónico de Uniqlo con 12 plantas de básicos; tienen la tecnología HEATTECH (abrigo) y AIRism (fresco).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZf2nvBMdAx/",
+    "owner": "sasharangel",
+    "caption": "Flagship icónico de Uniqlo con 12 plantas de básicos; tienen la tecnología HEATTECH (abrigo) y AIRism (fresco)."
    }
   ]
  },
@@ -3034,6 +3270,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Yoyogi National Gymnasium",
+  "lat": 35.667647,
+  "lon": 139.700146,
+  "cat": "arquitectura",
+  "area": "Shibuya, Tokio",
+  "note": "Estadio de Kenzo Tange para las Olimpiadas 1964, techo suspendido de cables tipo puente; Bien Cultural Importante.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Db-y_xbiEaq/",
+    "owner": "archdigestsyou",
+    "caption": "Estadio de Kenzo Tange para las Olimpiadas 1964, techo suspendido de cables tipo puente; Bien Cultural Importante."
+   }
+  ]
+ },
+ {
   "name": "ZEROTOKYO",
   "lat": 35.695784,
   "lon": 139.700507,
@@ -3045,6 +3297,155 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
+   }
+  ]
+ },
+ {
+  "name": "Ōedo Antique Market",
+  "lat": 35.677327,
+  "lon": 139.764502,
+  "cat": "compras",
+  "area": "Yūrakuchō, Tokio",
+  "note": "El mercado de antigüedades al aire libre más grande del país (~250 puestos) en la plaza del Tokyo International Forum; dos veces por mes.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Db-y_xbiEaq/",
+    "owner": "archdigestsyou",
+    "caption": "El mercado de antigüedades al aire libre más grande del país (~250 puestos) en la plaza del Tokyo International Forum; dos veces por mes."
+   }
+  ]
+ }
+];
+// Reels sin lugar concreto: consejos del viaje, sin coordenada (task 547).
+window.SOURCE_TIPS = [
+ {
+  "name": "3 bebidas del konbini para dormir mejor y el jet lag",
+  "cat": "tips",
+  "area": "",
+  "note": "En cualquier konbini de Japón conseguís Yakult 1000 (reduce estrés y mejora el sueño), Night Recover (descansar tras un día pesado) o Nerunoda (100 mg de GABA para dormir profundo).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DPB0R_GE6bC/",
+    "owner": "hiromizunoc"
+   }
+  ]
+ },
+ {
+  "name": "Antifaces térmicos MegRhythm para el avión",
+  "cat": "tips",
+  "area": "",
+  "note": "Antifaz de vapor MegRhythm (Kao) que se calienta ~40°C por 20 min y tiene aroma; ideal para relajar en el vuelo largo. Se consigue en cualquier drugstore japonés.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcNFJ7EDbYD/",
+    "owner": "ajaponmevoy"
+   }
+  ]
+ },
+ {
+  "name": "Batting cages en Tokio: actividad barata de noche",
+  "cat": "tips",
+  "area": "Tokio",
+  "note": "Las jaulas de bateo en Tokio abren hasta las 4 AM; ¥400 = 25 pelotas. Plan nocturno barato y divertido.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZlaTvzTGhT/",
+    "owner": "yummieswithyen"
+   }
+  ]
+ },
+ {
+  "name": "Bebidas del konbini contra el jet lag",
+  "cat": "tips",
+  "area": "",
+  "note": "Para dormir mejor y bajar el jet lag, comprá en cualquier konbini (7-Eleven, FamilyMart, Lawson) bebidas japonesas para relajarte: la Yakult Y1000 o bebidas con GABA, tomadas antes de dormir.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DYzYJ0lSM_m/",
+    "owner": "hiromizunoc"
+   }
+  ]
+ },
+ {
+  "name": "Hacete tu propio kimono en Tokio para llevártelo",
+  "cat": "tips",
+  "area": "Tokio",
+  "note": "Taller donde armás un kimono y te lo quedás de souvenir, en vez de alquilarlo. ~68 AUD (kimono básico incluido), 1.5-2hs, upgrade ~20 AUD extra y fee aparte por el obi. Reservás por GetYourGuide.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C-546YSSsaO/",
+    "owner": "shannon_savvytourist"
+   }
+  ]
+ },
+ {
+  "name": "Jabón facial en espuma Senka Perfect Whip",
+  "cat": "tips",
+  "area": "",
+  "note": "Limpiador facial en espuma Senka (cualquier variante de color); clásico de drugstore japonés, económico. Para llevar de compras skincare.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcNFJ7EDbYD/",
+    "owner": "ajaponmevoy"
+   }
+  ]
+ },
+ {
+  "name": "Llevá siempre el pasaporte para el tax free",
+  "cat": "tips",
+  "area": "",
+  "note": "En las compras necesitás mostrar el pasaporte para que te hagan el tax free (devolución de impuestos); llevalo siempre encima.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DL5Ouq7Mo4B/",
+    "owner": "planesconteresa"
+   }
+  ]
+ },
+ {
+  "name": "Máscara capilar Fino Premium Touch",
+  "cat": "tips",
+  "area": "",
+  "note": "Mascarilla reparadora de pelo Fino Premium Touch (Shiseido); barata en drugstores de Japón y deja el pelo muy bien. Buena para comprar allá.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcNFJ7EDbYD/",
+    "owner": "ajaponmevoy"
+   }
+  ]
+ },
+ {
+  "name": "Productos menstruales: farmacia local o Don Quijote",
+  "cat": "tips",
+  "area": "",
+  "note": "En Japón cualquier farmacia o Don Quijote tiene una sección grande de higiene menstrual. Para viajar sirven: sleep shorts que combinan bombacha + toalla (leak-proof y transpirables para calor/humedad), gummies con hierro y ácido fólico para cólicos y fatiga, parches de calor tipo MegRhythm que duran hasta 8 hs, detergente en espuma para sacar manchas y toallitas femeninas sin fragancia ni alcohol.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DasBhYvxPlr/",
+    "owner": "itsgracechin"
+   }
+  ]
+ },
+ {
+  "name": "Tabelog: app para buscar restaurantes locales",
+  "cat": "tips",
+  "area": "",
+  "note": "Tabelog ya está en inglés en el App Store; busca +880.000 restaurantes y locales de comida de Japón, muchos que ni figuran en inglés en Google Maps.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DSPb2R_j2T-/",
+    "owner": "alexweldertravels"
    }
   ]
  }
