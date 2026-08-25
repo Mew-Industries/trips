@@ -610,7 +610,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Nehan-mon%2C_Zuihoden.jpg/500px-Nehan-mon%2C_Zuihoden.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Nehan-mon%2C_Zuihoden.jpg/500px-Nehan-mon%2C_Zuihoden.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/2005_Sendai_Pageant_of_Starlight_in_Jyozenji-dori_Avenue_01.jpg/500px-2005_Sendai_Pageant_of_Starlight_in_Jyozenji-dori_Avenue_01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sendai_statue_Date_Masamune.jpg/500px-Sendai_statue_Date_Masamune.jpg'],
     dates: '14-15 oct', nights: 1, start: '2026-10-14', end: '2026-10-15',
-    arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (al aeropuerto de Sendai ~25 min + vuelo a Sapporo/New Chitose)',
+    arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (línea Access al aeropuerto ~25 min + Peach MM419 16:50 → 18:10 a New Chitose)',
     lodging: {
       name: 'Sendai Kokusai Hotel', type: 'Hotel · centro de Sendai',
       guests: '2 personas',
@@ -642,7 +642,7 @@ const destinations = [
         'El salto a Sendai son ~40 min y hay servicios todo el día: no hay hora límite dura.'
       ] },
     tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
-    intro: 'Base del tramo norte (reemplaza a Ginzan, decidido 2026-06-14: no conseguían buen hospedaje en Ginzan y era mucho trajín por una noche). Ciudad cómoda y bien conectada: la estación concentra todo — los day-trips (Matsushima al este ~30 min, Yamadera al oeste ~55 min) y la línea directa al aeropuerto. Se hace UN day-trip, gyutan a la noche, y al otro día vuelo a Sapporo sin estrés. El hotel está en Aoba-ku Chūō, en pleno centro.',
+    intro: 'Base del tramo norte (reemplaza a Ginzan, decidido 2026-06-14: no conseguían buen hospedaje en Ginzan y era mucho trajín por una noche). Ciudad cómoda y bien conectada: la estación concentra todo — los day-trips (Matsushima al este ~30 min, Yamadera al oeste ~55 min) y la línea directa al aeropuerto. Se hace UN day-trip, gyutan a la noche, y al otro día el vuelo a Sapporo recién sale 16:50, así que la mañana del 15 también queda usable. El hotel está en Aoba-ku Chūō, en pleno centro.',
     activities: [
       { text: 'Jōzenji-dōri', group: 'Jōzenji-dōri + arcades Ichibanchō', cat: 'barrios', coords: [38.266223, 140.87141] },
       { text: 'Arcades Ichibanchō', group: 'Jōzenji-dōri + arcades Ichibanchō', cat: 'compras', coords: [38.259215, 140.872447] },
@@ -661,7 +661,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Sapporo_TV_tower-20091013-RM-162316.jpg/500px-Sapporo_TV_tower-20091013-RM-162316.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg/500px-Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg'],
     dates: '15-17 oct', nights: 2, start: '2026-10-15', end: '2026-10-17',
-    arrival: '15 oct (vuelo desde Sendai)', departure: '17 oct (vuelo New Chitose→Komatsu, sigue a Kanazawa)',
+    arrival: '15 oct (Peach MM419 desde Sendai, llega 18:10 a New Chitose)', departure: '17 oct (vuelo New Chitose→Komatsu, sigue a Kanazawa)',
     lodging: {
       name: 'Airbnb Sapporo (Susukino)', type: 'Airbnb · departamento entero',
       guests: '2 personas',
@@ -674,11 +674,16 @@ const destinations = [
       booking: { provider: 'airbnb', ref: null, checkIn: '15 oct', checkOut: '17 oct', total: 'US$135,94' },
       note: 'Base céntrica en Susukino para los 2 días de Sapporo.'
     },
-    leg: { mode: '🚌✈️', time: '~3 h 30', detail: 'Sendai → aeropuerto de Sendai (~25 min, línea Access) + vuelo a New Chitose (Sapporo).', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sendai%20to%20Sapporo', dirLabel: 'ver vuelos ↗', via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'bus', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }],
+    leg: { mode: '🚆✈️', time: '1 h 20 (vuelo)', detail: 'Sendai → aeropuerto por la línea Access (~25 min) + Peach MM419, jue 15/10 16:50 → 18:10 (New Chitose, terminal doméstica). Reserva 7Y2NTQ, 2 pax, ¥15.180 pagados (tarifa Minimum, con 1 valija despachada de Cata).',
+      departure: '2026-10-15T16:50', arrival: '2026-10-15T18:10',
+      dirUrl: 'https://www.google.com/maps/dir/?api=1&origin=Sendai%20Station&destination=Sendai%20Airport&travelmode=transit', dirLabel: 'cómo llegar al aeropuerto ↗',
+      via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'train', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }],
       fromTerminal: { name: 'Aeropuerto de Sendai (SDJ)', coords: [38.1397, 140.9171], mode: 'air' }, toTerminal: { name: 'New Chitose · Sapporo (CTS)', coords: [42.7752, 141.6923], mode: 'air' },
+      deadline: { by: '2026-10-15T16:20', what: 'cierra el check-in de Peach (30 min antes de la salida); con la valija despachada conviene estar 16:00', departBy: '2026-10-15T15:30' },
       why: [
-        'Del centro de Sendai al aeropuerto son ~25 min por la línea Access.',
-        'El vuelo a New Chitose todavía no está comprado: es lo que va a fijar la hora de salida.'
+        'Del centro de Sendai al aeropuerto son ~25 min por la línea Access, y de New Chitose a Sapporo ~40 min en el Rapid Airport: puerta a puerta son ~4 h.',
+        'Check-in de Peach en kiosko con el QR o el nº de reserva: abre 90 min antes y cierra 30 min antes (por la app, desde 120 min). Cata despacha valija, así que además hay que pasar por el mostrador.',
+        'El vuelo sale a la tarde: la mañana del 15 queda libre para el day-trip de Sendai (Matsushima o Yamadera), volviendo a buscar las valijas al hotel.'
       ] },
     tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
     intro: 'Salto al norte al arranque del viaje, cuando Hokkaido todavía está templado (~17°/7° a mediados de octubre — chaqueta de otoño, no frío). Se llega de Sendai en avión (aeropuerto de Sendai → New Chitose) y se sigue volando a Komatsu para retomar Kanazawa. Es la parte más fresca del recorrido, pero a esta altura del calendario es disfrutable. Sapporo: comida (sopa de curry, ramen miso, mariscos del mercado), parques de Isamu Noguchi y el monte Moiwa al atardecer. El koyo en la montaña recién empieza.',
