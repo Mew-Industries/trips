@@ -396,6 +396,30 @@
   .discrete-btn:hover { opacity: 0.85; }
   body.discrete .discrete-btn { opacity: 1; background: rgba(15,110,86,0.12); }
   .header-right { display: flex; align-items: center; gap: 14px; }
+  .activity-search { flex: none; position: relative; padding: 9px 10px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08); z-index: 25; }
+  .search-box { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border: 1px solid #d8d3c8; border-radius: 10px; background: #f8f7f3; }
+  .search-box:focus-within { border-color: #0F6E56; box-shadow: 0 0 0 2px rgba(15,110,86,0.1); }
+  .search-icon { color: #8d8878; font-size: 14px; }
+  .search-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; color: #1a1a1a; }
+  .search-input::placeholder { color: #aaa497; }
+  .search-clear { border: 0; background: none; color: #8d8878; cursor: pointer; font-size: 18px; padding: 6px; line-height: 1; }
+  .search-results { position: absolute; left: 10px; right: 10px; top: calc(100% - 3px); max-height: min(54vh, 430px); overflow-y: auto; background: #fff; border: 1px solid #d8d3c8; border-radius: 10px; box-shadow: 0 10px 30px rgba(35,31,24,0.16); padding: 5px; }
+  .search-results[hidden] { display: none; }
+  .search-result { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 10px; text-align: left; border: 0; background: none; border-radius: 7px; padding: 8px 9px; cursor: pointer; font: inherit; }
+  .search-result:hover, .search-result:focus-visible { background: rgba(15,110,86,0.07); outline: none; }
+  .search-result.done .sr-name { text-decoration: line-through; color: #aaa497; }
+  .sr-name { font-size: 12.5px; line-height: 1.35; color: #333; }
+  .sr-city { font-size: 10px; font-weight: 700; color: #0F6E56; text-transform: uppercase; letter-spacing: .05em; padding-top: 2px; }
+  .search-empty { padding: 14px 10px; font-size: 12px; color: #8d8878; text-align: center; }
+  [data-check] { position: relative; }
+  .activity-check { flex: none; width: 44px; min-height: 44px; margin: -10px 1px -10px -10px; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #aaa497; vertical-align: middle; }
+  .activity-check::before { content: ''; width: 15px; height: 15px; border: 1.5px solid currentColor; border-radius: 50%; background: #fff; }
+  .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
+  [data-check].is-done .activity-check { color: #0F6E56; }
+  [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
+  [data-check].is-done .act-row, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
+  .thing-row[data-check], .sg-list li[data-check], .rt-item[data-check] { display: flex; align-items: center; }
+  .rt-item[data-check] > .sg-item { flex: 1; }
 
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
@@ -450,6 +474,14 @@
 </div>
 
 <div class="side-pane">
+<div class="activity-search" role="search">
+  <div class="search-box">
+    <span class="search-icon" aria-hidden="true">⌕</span>
+    <input class="search-input" id="activity-search" type="search" placeholder="Buscar lugar o actividad" autocomplete="off" aria-label="Buscar lugar o actividad" aria-controls="search-results">
+    <button class="search-clear" id="search-clear" type="button" aria-label="Limpiar búsqueda" hidden>×</button>
+  </div>
+  <div class="search-results" id="search-results" role="listbox" hidden></div>
+</div>
 <nav class="tab-rail" id="tab-rail" aria-label="Vistas del itinerario"></nav>
 <div class="views" id="views">
 
@@ -1767,11 +1799,44 @@ function categoryGroupsHtml(activities, interactive) {
       '<summary class="cat-head"><span class="cat-name">' + (CAT_LABELS[c] || c) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
       '<ul class="card-list">' + rows.map(([a, i]) =>
         interactive && a.coords
-          ? '<li class="thing-row"><button type="button" class="act-row" data-act="' + interactive + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
-          : '<li class="thing-row"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
+          ? '<li class="thing-row" data-check="' + interactive + ':' + i + '"><button type="button" class="act-row" data-act="' + interactive + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
+          : '<li class="thing-row" data-check="' + interactive + ':' + i + '"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
       ).join('') + '</ul></details>';
   }).join('');
 }
+
+const CHECKLIST_KEY = 'japon-activity-checklist-v1';
+let checkedActivities = new Set();
+try { checkedActivities = new Set(JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '[]')); } catch (e) {}
+
+function syncCheckItem(el) {
+  if (!el || !el.dataset.check) return;
+  const done = checkedActivities.has(el.dataset.check);
+  el.classList.toggle('is-done', done);
+  let button = el.querySelector(':scope > .activity-check');
+  if (!button) {
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'activity-check';
+    el.prepend(button);
+  }
+  button.setAttribute('aria-label', done ? 'Destachar actividad' : 'Tachar actividad');
+  button.setAttribute('aria-pressed', String(done));
+}
+
+function wireChecklist(root) { (root || document).querySelectorAll('[data-check]').forEach(syncCheckItem); }
+
+document.addEventListener('click', (e) => {
+  const button = e.target.closest('.activity-check');
+  if (!button) return;
+  e.preventDefault(); e.stopPropagation();
+  const item = button.closest('[data-check]');
+  const key = item.dataset.check;
+  if (checkedActivities.has(key)) checkedActivities.delete(key); else checkedActivities.add(key);
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify([...checkedActivities]));
+  document.querySelectorAll('[data-check="' + CSS.escape(key) + '"]').forEach(syncCheckItem);
+  refreshSearch();
+});
 
 // Pins de lugares: el color dice la categoría y todos comparten la misma forma.
 // La fuente sólo vive en el popup. Cada pin queda
@@ -2167,6 +2232,68 @@ destinations.forEach((d, idx) => {
     });
   });
 });
+
+wireChecklist(detailsList);
+
+// Búsqueda URL-driven. Se busca sin acentos para que "Nikko" encuentre "Nikkō";
+// cada resultado es también un acceso rápido al nodo/ciudad que lo contiene.
+const searchInput = document.getElementById('activity-search');
+const searchClear = document.getElementById('search-clear');
+const searchResults = document.getElementById('search-results');
+const foldSearch = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+const searchIndex = destinations.flatMap(d => (d.activities || []).map((a, i) => ({
+  key: d.id + ':' + i, node: d, name: a.text, marker: actMarkers[d.id + ':' + i]
+})).concat((d.daytrips || []).map(dt => ({ key: null, node: d, name: dt.name, marker: dtMarkers[dt.id] }))));
+
+function writeSearchUrl(value, replace) {
+  const u = new URL(location.href);
+  if (value) u.searchParams.set('q', value); else u.searchParams.delete('q');
+  history[replace ? 'replaceState' : 'pushState']({}, '', u);
+}
+
+function refreshSearch() {
+  if (!searchInput) return;
+  const raw = searchInput.value.trim();
+  const q = foldSearch(raw);
+  searchClear.hidden = !raw;
+  if (!q) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
+  const matches = searchIndex.filter(x => foldSearch(x.name + ' ' + x.node.name + ' ' + x.node.short).includes(q)).slice(0, 40);
+  searchResults.innerHTML = matches.length ? matches.map(x =>
+    '<button type="button" class="search-result' + (x.key && checkedActivities.has(x.key) ? ' done' : '') + '" role="option" data-search-key="' + escHtml(x.key || '') + '" data-node="' + x.node.id + '">' +
+      '<span class="sr-name">' + escHtml(x.name) + '</span><span class="sr-city">' + escHtml(x.node.short) + '</span></button>'
+  ).join('') : '<div class="search-empty">No hay coincidencias</div>';
+  searchResults.hidden = false;
+}
+
+function applySearchFromUrl() {
+  if (!searchInput) return;
+  searchInput.value = new URLSearchParams(location.search).get('q') || '';
+  refreshSearch();
+}
+
+searchInput.addEventListener('input', () => { writeSearchUrl(searchInput.value.trim(), true); refreshSearch(); });
+searchInput.addEventListener('focus', refreshSearch);
+searchClear.addEventListener('click', () => { searchInput.value = ''; writeSearchUrl('', false); refreshSearch(); searchInput.focus(); });
+searchResults.addEventListener('click', (e) => {
+  const row = e.target.closest('.search-result');
+  if (!row) return;
+  const nodeId = row.dataset.node;
+  const resultKey = row.dataset.searchKey;
+  const resultName = row.querySelector('.sr-name').textContent;
+  // El resultado siempre aterriza en el Resumen, que es donde vive la tarjeta del
+  // nodo. No simulamos un click en su header: abrir es estado, no otro gesto.
+  const u = new URL(location.href);
+  u.searchParams.set('tab', 'resumen');
+  history.pushState({}, '', u);
+  window.dispatchEvent(new PopStateEvent('popstate'));
+  const result = searchIndex.find(x => x.node.id === nodeId && (x.key || '') === resultKey && x.name === resultName);
+  if (result && result.marker) focusMarker(result.marker);
+  focusTrip(nodeId);
+  searchResults.hidden = true;
+});
+document.addEventListener('click', e => { if (!e.target.closest('.activity-search')) searchResults.hidden = true; });
+window.addEventListener('popstate', applySearchFromUrl);
+applySearchFromUrl();
 
 // Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
 const _lastDep = destinations[destinations.length - 1].departureLeg;
@@ -3079,6 +3206,7 @@ try {
     focusDay: enterDayFocus, exitDayFocus,
     onDayExit: (fn) => { dayExitHandler = fn; },
     wire: (pane) => {
+      wireChecklist(pane);
       pane.addEventListener('click', (e) => {
         const act = e.target.closest('[data-act]');
         if (act) { focusMarker(actMarkers[act.dataset.act]); return; }

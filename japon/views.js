@@ -243,8 +243,8 @@ function catListHtml(items, ctx, nodeId) {
   // Ryokan"): en discreto el nombre se cae, igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
   const itemHtml = ({ i, act }) => act.coords
-    ? '<li><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
-    : '<li class="sg-item plain">' + label(act) + '</li>';
+    ? '<li data-check="' + nodeId + ':' + i + '"><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
+    : '<li class="sg-item plain" data-check="' + nodeId + ':' + i + '">' + label(act) + '</li>';
 
   return catGroups(items, ctx).map(g => {
     const meta = ctx.CAT_META[g.cat] || ctx.CAT_META.otro;
@@ -551,7 +551,7 @@ function routeListHtml(spec, ctx, day) {
     node = nid; grp = p.group;
     // Los de una salida van indentados: si no, el primer ítem suelto que viene después
     // se lee como si todavía perteneciera al rótulo de arriba.
-    return head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + '" style="--c:' + color(p) + '">' +
+    return head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' +
       '<button type="button" class="sg-item" data-act="' + p.key + '" data-ord="' + (i + 1) + '">' +
         (p.time ? '<span class="rt-t dx">' + p.time + '</span>' : '') + icon(p) + label(p.act) +
       '</button></li>';
@@ -559,7 +559,7 @@ function routeListHtml(spec, ctx, day) {
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
   const rest = spec.loose.map(p =>
-    '<li class="rt-item plain" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + '</li>').join('');
+    '<li class="rt-item plain" data-check="' + p.key + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + '</li>').join('');
 
   return (items ? '<ol class="rt-list">' + items + '</ol>' : '') +
     (rest ? '<ul class="rt-list rt-rest">' + rest + '</ul>' : '');
@@ -680,6 +680,7 @@ export function mountViews(destinations, ctx) {
     const node = byId[box.dataset.node];
     if (!node) return;
     box.innerHTML = catListHtml((node.activities || []).map((act, i) => ({ i, act })), ctx, node.id);
+    if (ctx.wire) ctx.wire(box);
   }
 
   // `?tab=` manda; un `?dia=` sin tab explícito abre Días, que es de donde sale el
