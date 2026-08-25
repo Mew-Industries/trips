@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 221 lugares + 12 tips de la colección IG "japon mew" · 2026-08-25T14:53:51+00:00
+// 271 lugares + 14 tips de la colección IG "japon mew" · 2026-08-25T15:44:50+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -123,6 +123,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ameya-Yokocho Market",
+  "lat": 35.709003,
+  "lon": 139.774626,
+  "cat": "compras",
+  "area": "Ueno, Tokio",
+  "note": "Mercado callejero de comida y bazar junto a Ueno.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Mercado callejero de comida y bazar junto a Ueno."
+   }
+  ]
+ },
+ {
   "name": "An vintage",
   "lat": 35.659702,
   "lon": 139.667272,
@@ -160,6 +176,82 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Asakusa Hanayashiki",
+  "lat": 35.715461,
+  "lon": 139.794877,
+  "cat": "ocio",
+  "area": "Asakusa, Tokio",
+  "note": "El parque de diversiones más antiguo de Japón.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "El parque de diversiones más antiguo de Japón."
+   }
+  ]
+ },
+ {
+  "name": "ATOM Tokyo",
+  "lat": 35.658306,
+  "lon": 139.695405,
+  "cat": "ocio",
+  "area": "Shibuya, Tokio",
+  "note": "Club recomendado como foreigner-friendly en el reel.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcHztkDhSkM/",
+    "owner": "angelinaxie_",
+    "caption": "Club nocturno en Shinjuku recomendado para salir de fiesta."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C2gdzbtLrwM/",
+    "owner": "hellomyly",
+    "caption": "Club recomendado como foreigner-friendly en el reel."
+   }
+  ]
+ },
+ {
+  "name": "Baia",
+  "lat": 35.66164,
+  "lon": 139.699075,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Club lindo de tres niveles con pista chica; ponían música americana y throwbacks, público mayormente extranjero.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DX5oZS7srSt/",
+    "owner": "katieleia",
+    "caption": "Club lindo de tres niveles con pista chica; ponían música americana y throwbacks, público mayormente extranjero."
+   }
+  ]
+ },
+ {
+  "name": "Bar Centifolia",
+  "lat": 35.656356,
+  "lon": 139.734192,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Cocktail bar de experiencia especial: te reciben con champagne, un asiento en la barra siempre libre para ver la preparación; cócteles ¥4.000 (el signature ¥5.000) + ¥1.000 de cubierto. Abre 20:30–03:00, cerrado miércole",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcU0sq2v9ao/",
+    "owner": "tans.pantry",
+    "caption": "Reservar 15 días antes; ir por los asientos de la barra."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZPz2WZqxC6/",
+    "owner": "alikainwanderlust",
+    "caption": "Cocktail bar de experiencia especial: te reciben con champagne, un asiento en la barra siempre libre para ver la preparación; cócteles ¥4.000 (el signature ¥5.000) + ¥1.000 de cubierto. Abre 20:30–03:00, cerrado miércole"
+   }
+  ]
+ },
+ {
   "name": "BAR PIANO",
   "lat": 35.66005,
   "lon": 139.701498,
@@ -186,6 +278,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
+   }
+  ]
+ },
+ {
+  "name": "Beer Hall Lion Ginza",
+  "lat": 35.669202,
+  "lon": 139.763159,
+  "cat": "comida",
+  "area": "Ginza, Tokio",
+  "note": "Cervecería histórica en Ginza.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Cervecería histórica en Ginza."
    }
   ]
  },
@@ -217,6 +325,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEuZVSpvB4I/",
     "owner": "my_season___"
+   }
+  ]
+ },
+ {
+  "name": "Benizuru",
+  "lat": 35.711904,
+  "lon": 139.791882,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Pancakes; no se puede reservar, hay que hacer fila desde las 6am para el primer turno del día.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcU0sq2v9ao/",
+    "owner": "tans.pantry",
+    "caption": "Pancakes; no se puede reservar, hay que hacer fila desde las 6am para el primer turno del día."
    }
   ]
  },
@@ -303,6 +427,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDGHzKVzwyx/",
     "owner": "thefoodinbox"
+   }
+  ]
+ },
+ {
+  "name": "Cat Cafe MOCHA",
+  "lat": 35.661048,
+  "lon": 139.69738,
+  "cat": "ocio",
+  "area": "Shibuya, Tokio",
+  "note": "Cat café en Shibuya.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Cat café en Shibuya."
    }
   ]
  },
@@ -419,12 +559,28 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Club Harlem",
+  "lat": 35.658306,
+  "lon": 139.695274,
+  "cat": "ocio",
+  "area": "Shinjuku, Tokio",
+  "note": "Club nocturno en Shinjuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcHztkDhSkM/",
+    "owner": "angelinaxie_",
+    "caption": "Club nocturno en Shinjuku."
+   }
+  ]
+ },
+ {
   "name": "clubasia",
   "lat": 35.658997,
   "lon": 139.695309,
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
-  "note": "Club histórico de Shibuya, línea techno/rave",
+  "note": "Venue multi-piso, el más grande de la lista, con techno y line-up multi-género.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -460,6 +616,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
+   }
+  ]
+ },
+ {
+  "name": "Daikoku PA",
+  "lat": 35.461905,
+  "lon": 139.680512,
+  "cat": "otros",
+  "area": "Yokohama",
+  "note": "Área de descanso legendaria donde se juntan los autos más icónicos de Japón; meca de la cultura JDM.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbnQpsfJQPj/",
+    "owner": "akebono_tokyo_drive",
+    "caption": "Área de descanso legendaria donde se juntan los autos más icónicos de Japón; meca de la cultura JDM."
    }
   ]
  },
@@ -554,6 +726,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ebisu Dagashi Bar (えびす駄菓子バー)",
+  "lat": 35.647561,
+  "lon": 139.707638,
+  "cat": "comida",
+  "area": "Ebisu, Tokio",
+  "note": "Izakaya de dagashi: pagás la cerveza y todos los snacks de la pared (chocolate, donas mini) son gratis; una de las últimas de su tipo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DaBHLsJvyCM/",
+    "owner": "tylerregantravels",
+    "caption": "Izakaya de dagashi: pagás la cerveza y todos los snacks de la pared (chocolate, donas mini) son gratis; una de las últimas de su tipo."
+   }
+  ]
+ },
+ {
   "name": "Echizen Daibutsu",
   "lat": 36.053649,
   "lon": 136.519213,
@@ -590,7 +778,7 @@ window.SOURCE_THINGS = [
   "lon": 139.702376,
   "cat": "ocio",
   "area": "Tokio (Shibuya)",
-  "note": "Club chico de techno en Shibuya",
+  "note": "Club en planta alta, interior ecléctico y funky, música variada; conviene chequear el DJ antes de ir.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -726,6 +914,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ginza Six",
+  "lat": 35.669769,
+  "lon": 139.764176,
+  "cat": "compras",
+  "area": "Ginza, Tokio",
+  "note": "Gran complejo comercial de lujo en Ginza.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Gran complejo comercial de lujo en Ginza."
+   }
+  ]
+ },
+ {
   "name": "Gohanya Isshin",
   "lat": 35.007536,
   "lon": 135.76539,
@@ -737,6 +941,28 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
+   }
+  ]
+ },
+ {
+  "name": "Golden Gai",
+  "lat": 35.694112,
+  "lon": 139.704761,
+  "cat": "ocio",
+  "area": "Shinjuku, Tokio",
+  "note": "Laberinto de callejones con bares diminutos en Shinjuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DVloYaujtLs/",
+    "owner": "agusbaioni",
+    "caption": "Callejones de bares diminutos en Shinjuku; el post lo recomienda como el mejor lugar para socializar y tomar sake con japoneses y extranjeros. Llevar efectivo, varios lugares no aceptan tarjeta."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Laberinto de callejones con bares diminutos en Shinjuku."
    }
   ]
  },
@@ -782,6 +1008,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDUVpkoPUt9/",
     "owner": "kyoto__diaries"
+   }
+  ]
+ },
+ {
+  "name": "Hachiko Statue",
+  "lat": 35.659055,
+  "lon": 139.700629,
+  "cat": "otros",
+  "area": "Shibuya, Tokio",
+  "note": "Estatua del perro Hachiko, punto de encuentro icónico.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Estatua del perro Hachiko, punto de encuentro icónico."
    }
   ]
  },
@@ -1193,6 +1435,38 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kabuki-za Theatre",
+  "lat": 35.669425,
+  "lon": 139.767745,
+  "cat": "ocio",
+  "area": "Ginza, Tokio",
+  "note": "Principal teatro de kabuki de Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Principal teatro de kabuki de Tokio."
+   }
+  ]
+ },
+ {
+  "name": "Kabukicho",
+  "lat": 35.696083,
+  "lon": 139.702625,
+  "cat": "barrios",
+  "area": "Shinjuku, Tokio",
+  "note": "Barrio de entretenimiento nocturno de Shinjuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Barrio de entretenimiento nocturno de Shinjuku."
+   }
+  ]
+ },
+ {
   "name": "Kagawa Ippuku ART",
   "lat": 35.656665,
   "lon": 139.704416,
@@ -1284,6 +1558,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kappabashi Kitchenware Street",
+  "lat": 35.676423,
+  "lon": 139.650027,
+  "cat": "compras",
+  "area": "Asakusa, Tokio",
+  "note": "Calle de artículos de cocina y comida de plástico.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Calle de artículos de cocina y comida de plástico."
+   }
+  ]
+ },
+ {
   "name": "Kappabashi Street",
   "lat": 35.71058,
   "lon": 139.787964,
@@ -1357,6 +1647,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DJW3RUwJRwV/",
     "owner": "agrainoftime"
+   }
+  ]
+ },
+ {
+  "name": "Kibune (貴船)",
+  "lat": 35.122091,
+  "lon": 135.76291,
+  "cat": "barrios",
+  "area": "Kioto",
+  "note": "Valle al norte de Kioto famoso por el kawadoko: plataformas de comida montadas sobre el río, ideal en verano. Se llega en el tren Eizan hacia las montañas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbu-1FJhsCG/",
+    "owner": "wasabi___i",
+    "caption": "Valle al norte de Kioto famoso por el kawadoko: plataformas de comida montadas sobre el río, ideal en verano. Se llega en el tren Eizan hacia las montañas."
    }
   ]
  },
@@ -1547,6 +1853,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Lambert",
+  "lat": 35.6804,
+  "lon": 139.769017,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Bar de matcha muy lindo; solo con reserva, no acepta walk-ins.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcU0sq2v9ao/",
+    "owner": "tans.pantry",
+    "caption": "Bar de matcha muy lindo; solo con reserva, no acepta walk-ins."
+   }
+  ]
+ },
+ {
   "name": "LEGOLAND Japan",
   "lat": 35.050607,
   "lon": 136.843829,
@@ -1573,6 +1895,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
+   }
+  ]
+ },
+ {
+  "name": "LIVE HAUS",
+  "lat": 35.659549,
+  "lon": 139.667526,
+  "cat": "ocio",
+  "area": "Shimokitazawa, Tokio",
+  "note": "Live house subterránea en Shimokitazawa que rompe la tradición: sets de bandas de día, rock de noche y DJs de madrugada; sin cover para turistas extranjeros, solo pagás una bebida. B1F, 2-14-2 Kitazawa, a 3 min de la est",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DYpY6hkB-kV/",
+    "owner": "tokyo24h.journey",
+    "caption": "Live house subterránea en Shimokitazawa que rompe la tradición: sets de bandas de día, rock de noche y DJs de madrugada; sin cover para turistas extranjeros, solo pagás una bebida. B1F, 2-14-2 Kitazawa, a 3 min de la est"
    }
   ]
  },
@@ -1793,6 +2131,38 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Mitsuki",
+  "lat": 35.65659,
+  "lon": 139.695746,
+  "cat": "ocio",
+  "area": "Tokio (Shibuya)",
+  "note": "Sótano en Shibuya con luces neón oscuras, simple y limpio: solo música y baile.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DazDAcDtbKK/",
+    "owner": "xtjpark",
+    "caption": "Sótano en Shibuya con luces neón oscuras, simple y limpio: solo música y baile."
+   }
+  ]
+ },
+ {
+  "name": "Mitsukoshi Ginza",
+  "lat": 35.671286,
+  "lon": 139.765738,
+  "cat": "compras",
+  "area": "Ginza, Tokio",
+  "note": "Icónica tienda departamental en Ginza.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Icónica tienda departamental en Ginza."
+   }
+  ]
+ },
+ {
   "name": "munimuni",
   "lat": 34.703526,
   "lon": 135.503393,
@@ -1834,6 +2204,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DD_V1otSCv9/",
     "owner": "japanfashion_by_worldshopping"
+   }
+  ]
+ },
+ {
+  "name": "Nakamise Shopping Street",
+  "lat": 35.711841,
+  "lon": 139.796454,
+  "cat": "compras",
+  "area": "Asakusa, Tokio",
+  "note": "Calle de puestos tradicionales que lleva al Senso-ji.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Calle de puestos tradicionales que lleva al Senso-ji."
    }
   ]
  },
@@ -1899,6 +2285,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMPq74ZvFfs/",
     "owner": "_neova_"
+   }
+  ]
+ },
+ {
+  "name": "Neverland Tokyo",
+  "lat": 35.693825,
+  "lon": 139.703356,
+  "cat": "ocio",
+  "area": "Shinjuku, Tokio",
+  "note": "Club nocturno en Shinjuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcHztkDhSkM/",
+    "owner": "angelinaxie_",
+    "caption": "Club nocturno en Shinjuku."
    }
   ]
  },
@@ -1984,6 +2386,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Nonbei Yokocho",
+  "lat": 35.65995,
+  "lon": 139.701533,
+  "cat": "ocio",
+  "area": "Shibuya, Tokio",
+  "note": "Callejón de bares minúsculos junto a las vías en Shibuya.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Callejón de bares minúsculos junto a las vías en Shibuya."
+   }
+  ]
+ },
+ {
   "name": "NUDE TRUMP",
   "lat": 35.662931,
   "lon": 139.70059,
@@ -2010,6 +2428,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMSlc1FSe4p/",
     "owner": "techno.japan_"
+   }
+  ]
+ },
+ {
+  "name": "Oh-Jo Building",
+  "lat": 35.694422,
+  "lon": 139.702505,
+  "cat": "ocio",
+  "area": "Tokio (Shinjuku)",
+  "note": "Castillo renovado convertido en espacio de fiesta multi-piso con DJs y varios géneros (el autor no fue, lo menciona de oídas).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DazDAcDtbKK/",
+    "owner": "xtjpark",
+    "caption": "Castillo renovado convertido en espacio de fiesta multi-piso con DJs y varios géneros (el autor no fue, lo menciona de oídas)."
    }
   ]
  },
@@ -2065,6 +2499,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTVMFiAAW5d/",
     "owner": "nakajapatonic"
+   }
+  ]
+ },
+ {
+  "name": "Omoide Yokocho",
+  "lat": 35.692704,
+  "lon": 139.699578,
+  "cat": "comida",
+  "area": "Shinjuku, Tokio",
+  "note": "Callejón estrecho de puestos de yakitori e izakayas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Callejón estrecho de puestos de yakitori e izakayas."
    }
   ]
  },
@@ -2254,6 +2704,38 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Rainbow Bridge",
+  "lat": 35.638212,
+  "lon": 139.75768,
+  "cat": "arquitectura",
+  "area": "Tokio",
+  "note": "Puente icónico de Tokio que cruza la bahía; parada de fotos clásica en los tours nocturnos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbnQpsfJQPj/",
+    "owner": "akebono_tokyo_drive",
+    "caption": "Puente icónico de Tokio que cruza la bahía; parada de fotos clásica en los tours nocturnos."
+   }
+  ]
+ },
+ {
+  "name": "Red Tokyo Tower",
+  "lat": 35.65845,
+  "lon": 139.745595,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Arcade futurista dentro de la Torre de Tokio: trampolín, escalada, arquería, VR, carreras y peleas de robots.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C-pltBtvpVo/",
+    "owner": "whereisyorick",
+    "caption": "Arcade futurista dentro de la Torre de Tokio: trampolín, escalada, arquería, VR, carreras y peleas de robots."
+   }
+  ]
+ },
+ {
   "name": "Reiyukai Shakaden Temple",
   "lat": 35.661137,
   "lon": 139.742203,
@@ -2320,6 +2802,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Samurai Museum",
+  "lat": 35.695484,
+  "lon": 139.703543,
+  "cat": "museos",
+  "area": "Shinjuku, Tokio",
+  "note": "Museo dedicado a la cultura samurái.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Museo dedicado a la cultura samurái."
+   }
+  ]
+ },
+ {
   "name": "Seirinkan",
   "lat": 35.642876,
   "lon": 139.699039,
@@ -2335,6 +2833,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Senso-ji Temple",
+  "lat": 35.714765,
+  "lon": 139.796655,
+  "cat": "templos",
+  "area": "Asakusa, Tokio",
+  "note": "Templo budista más antiguo de Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Templo budista más antiguo de Tokio."
+   }
+  ]
+ },
+ {
   "name": "Shibori shop Kyoto (@annabel_scanlen)",
   "lat": 35.011564,
   "lon": 135.768149,
@@ -2346,6 +2860,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DMmU9aYT2Tl/",
     "owner": "annabel_scanlen"
+   }
+  ]
+ },
+ {
+  "name": "Shibuya Crossing",
+  "lat": 35.659482,
+  "lon": 139.70056,
+  "cat": "otros",
+  "area": "Shibuya, Tokio",
+  "note": "El cruce peatonal más famoso de Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "El cruce peatonal más famoso de Tokio."
    }
   ]
  },
@@ -2376,6 +2906,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/Dam07ousMsi/",
     "owner": "shrinemarathon.injapan"
+   }
+  ]
+ },
+ {
+  "name": "Shibuya Sky",
+  "lat": 35.658672,
+  "lon": 139.701985,
+  "cat": "miradores",
+  "area": "Shibuya, Tokio",
+  "note": "Mirador al aire libre en lo alto de Shibuya Scramble Square.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Mirador al aire libre en lo alto de Shibuya Scramble Square."
    }
   ]
  },
@@ -2421,6 +2967,38 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFBXdeHTFeC/",
     "owner": "mixx.michi"
+   }
+  ]
+ },
+ {
+  "name": "Shinjuku Gyoen National Garden",
+  "lat": 35.685176,
+  "lon": 139.710052,
+  "cat": "parques",
+  "area": "Shinjuku, Tokio",
+  "note": "Gran jardín nacional, ideal en temporada de sakura.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Gran jardín nacional, ideal en temporada de sakura."
+   }
+  ]
+ },
+ {
+  "name": "Shinobazu Pond",
+  "lat": 35.712245,
+  "lon": 139.770828,
+  "cat": "parques",
+  "area": "Ueno, Tokio",
+  "note": "Estanque con lotos dentro del parque Ueno.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Estanque con lotos dentro del parque Ueno."
    }
   ]
  },
@@ -2707,6 +3285,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "T2 Tokyo",
+  "lat": 35.694113,
+  "lon": 139.699087,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Club nuevo y espacioso, con drink tickets y lásers; mezcla EDM/pop/kpop, su favorito, abierto hasta el amanecer.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DX5oZS7srSt/",
+    "owner": "katieleia",
+    "caption": "Club nuevo y espacioso, con drink tickets y lásers; mezcla EDM/pop/kpop, su favorito, abierto hasta el amanecer."
+   }
+  ]
+ },
+ {
   "name": "Takenoya (baño privado)",
   "lat": 34.667416,
   "lon": 135.509304,
@@ -2718,6 +3312,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DAx3lFkyCLD/",
     "owner": "goenjapan_travel"
+   }
+  ]
+ },
+ {
+  "name": "Takeshita Street",
+  "lat": 35.671034,
+  "lon": 139.705182,
+  "cat": "compras",
+  "area": "Harajuku, Tokio",
+  "note": "Calle peatonal de moda juvenil y crepes en Harajuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Calle peatonal de moda juvenil y crepes en Harajuku."
    }
   ]
  },
@@ -2880,6 +3490,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "The Pizza Bar on 38th",
+  "lat": 35.686974,
+  "lon": 139.773033,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Pizza omakase de 8 asientos (Mandarin Oriental), votada 2ª mejor del mundo. Reservar por el hotel ~1 mes antes.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcU0sq2v9ao/",
+    "owner": "tans.pantry",
+    "caption": "Pizza omakase de 8 asientos (Mandarin Oriental), votada 2ª mejor del mundo. Reservar por el hotel ~1 mes antes."
+   }
+  ]
+ },
+ {
   "name": "The Rail Kitchen Chikugo",
   "lat": 33.590497,
   "lon": 130.398734,
@@ -3001,6 +3627,54 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-ql_dSRpOn/",
     "owner": "morgsvstheworld"
+   }
+  ]
+ },
+ {
+  "name": "Tokyo Metropolitan Government Building",
+  "lat": 35.689481,
+  "lon": 139.691686,
+  "cat": "miradores",
+  "area": "Shinjuku, Tokio",
+  "note": "Miradores gratuitos con vista panorámica de Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Miradores gratuitos con vista panorámica de Tokio."
+   }
+  ]
+ },
+ {
+  "name": "Tokyo National Museum",
+  "lat": 35.718835,
+  "lon": 139.776522,
+  "cat": "museos",
+  "area": "Ueno, Tokio",
+  "note": "El mayor museo de arte y arqueología de Japón.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "El mayor museo de arte y arqueología de Japón."
+   }
+  ]
+ },
+ {
+  "name": "Tokyo Skytree",
+  "lat": 35.710063,
+  "lon": 139.8107,
+  "cat": "miradores",
+  "area": "Sumida, Tokio",
+  "note": "Torre y mirador junto al río Sumida.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Torre y mirador junto al río Sumida."
    }
   ]
  },
@@ -3164,6 +3838,54 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ueno Park",
+  "lat": 35.714756,
+  "lon": 139.773431,
+  "cat": "parques",
+  "area": "Ueno, Tokio",
+  "note": "Gran parque con museos y zoológico.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Gran parque con museos y zoológico."
+   }
+  ]
+ },
+ {
+  "name": "Ueno Toshogu Shrine",
+  "lat": 35.715372,
+  "lon": 139.770733,
+  "cat": "templos",
+  "area": "Ueno, Tokio",
+  "note": "Santuario dorado dentro del parque Ueno.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Santuario dorado dentro del parque Ueno."
+   }
+  ]
+ },
+ {
+  "name": "Ueno Zoo",
+  "lat": 35.716015,
+  "lon": 139.772882,
+  "cat": "otros",
+  "area": "Ueno, Tokio",
+  "note": "Zoológico de Ueno, con pandas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Zoológico de Ueno, con pandas."
+   }
+  ]
+ },
+ {
   "name": "Ukiyo-e de Kawamura-san (Ninenzaka)",
   "lat": 34.998174,
   "lon": 135.780858,
@@ -3265,6 +3987,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Vent",
+  "lat": 35.665185,
+  "lon": 139.712855,
+  "cat": "ocio",
+  "area": "Tokio (Omotesando/Shibuya)",
+  "note": "Club de techno con interior brutalista tipo Blade Runner, buenos DJs y política de no cámaras; el que postea lo recomienda fuerte.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DazDAcDtbKK/",
+    "owner": "xtjpark",
+    "caption": "Club de techno con interior brutalista tipo Blade Runner, buenos DJs y política de no cámaras; el que postea lo recomienda fuerte."
+   }
+  ]
+ },
+ {
   "name": "VENT Tokyo",
   "lat": 35.665185,
   "lon": 139.712855,
@@ -3276,6 +4014,44 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
+   }
+  ]
+ },
+ {
+  "name": "Wako Ginza",
+  "lat": 35.67157,
+  "lon": 139.76505,
+  "cat": "arquitectura",
+  "area": "Ginza, Tokio",
+  "note": "Edificio y torre del reloj, símbolo de Ginza.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Edificio y torre del reloj, símbolo de Ginza."
+   }
+  ]
+ },
+ {
+  "name": "WARP Shinjuku",
+  "lat": 35.695225,
+  "lon": 139.701307,
+  "cat": "ocio",
+  "area": "Shinjuku, Tokio",
+  "note": "Club popular con temática alien/espacial y varios pisos; a ella le resultó apretado y saturado.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C2gdzbtLrwM/",
+    "owner": "hellomyly",
+    "caption": "Club recomendado como foreigner-friendly en el reel."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DX5oZS7srSt/",
+    "owner": "katieleia",
+    "caption": "Club popular con temática alien/espacial y varios pisos; a ella le resultó apretado y saturado."
    }
   ]
  },
@@ -3299,13 +4075,25 @@ window.SOURCE_THINGS = [
   "lat": 35.658389,
   "lon": 139.694977,
   "cat": "ocio",
-  "area": "Tokio (Shibuya)",
-  "note": "Uno de los clubs de electrónica más conocidos de Tokio",
+  "area": "Shibuya, Tokio",
+  "note": "Club de EDM/techno con vending machine de cerveza adentro; grande pero mejor ir temprano.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DazDAcDtbKK/",
     "owner": "xtjpark"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C2gdzbtLrwM/",
+    "owner": "hellomyly",
+    "caption": "Club de techno en Shibuya, foreigner-friendly según el post."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DX5oZS7srSt/",
+    "owner": "katieleia",
+    "caption": "Club de EDM/techno con vending machine de cerveza adentro; grande pero mejor ir temprano."
    }
   ]
  },
@@ -3355,6 +4143,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Yakiniku Jumbo",
+  "lat": 35.646989,
+  "lon": 139.73141,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Yakiniku top; reservar ~1 mes antes y pre-ordenar el corte especial. Te cocinan todo: no toques las pinzas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcU0sq2v9ao/",
+    "owner": "tans.pantry",
+    "caption": "Yakiniku top; reservar ~1 mes antes y pre-ordenar el corte especial. Te cocinan todo: no toques las pinzas."
+   }
+  ]
+ },
+ {
   "name": "Yamane Nikuten",
   "lat": 35.694172,
   "lon": 139.700989,
@@ -3381,6 +4185,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DF4rvy7O4RM/",
     "owner": "twosometravellers"
+   }
+  ]
+ },
+ {
+  "name": "Yanaka Ginza",
+  "lat": 35.727697,
+  "lon": 139.765723,
+  "cat": "barrios",
+  "area": "Yanaka, Tokio",
+  "note": "Calle comercial de barrio old-Tokyo con ambiente retro.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Calle comercial de barrio old-Tokyo con ambiente retro."
    }
   ]
  },
@@ -3416,12 +4236,28 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Yoyogi Park",
+  "lat": 35.670065,
+  "lon": 139.694966,
+  "cat": "parques",
+  "area": "Shibuya, Tokio",
+  "note": "Gran parque urbano junto a Harajuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DV6rznqCJ9O/",
+    "owner": "japan.compass",
+    "caption": "Gran parque urbano junto a Harajuku."
+   }
+  ]
+ },
+ {
   "name": "ZEROTOKYO",
   "lat": 35.695784,
   "lon": 139.700507,
   "cat": "ocio",
   "area": "Tokio (Shinjuku)",
-  "note": "Mega club en el subsuelo de la Kabukicho Tower",
+  "note": "Nightclub grande, más orientado a alcohol y bottle service; el autor solo iría por un DJ puntual.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -3498,6 +4334,19 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYzYJ0lSM_m/",
     "owner": "hiromizunoc"
+   }
+  ]
+ },
+ {
+  "name": "Bratto: alquiler mensual barato en Japón",
+  "cat": "tips",
+  "area": "",
+  "note": "Web japonesa (bratto) de departamentos por mes: buscás por ciudad/barrio, filtrás \"Foreigners welcome\" y sale mucho más barato que hotel — en el video, Shinjuku por ~28.000 yen / 10 días (~180 USD). Sirve para la estadía larga.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DTUpokCCcgI/",
+    "owner": "nicchpmn"
    }
   ]
  },
@@ -3602,6 +4451,19 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DSPb2R_j2T-/",
     "owner": "alexweldertravels"
+   }
+  ]
+ },
+ {
+  "name": "Tren Hankyu Garaku Kyoto–Osaka: barato y escénico",
+  "cat": "tips",
+  "area": "Kyoto / Osaka",
+  "note": "En vez del Shinkansen, tomá el Hankyu Kyo-train Garaku (Línea Kyoto, Limited Express) entre Osaka-umeda y Kyoto-kawaramachi: ¥400 (~US$2.60) vs ~¥3000/US$30, 45 min, decorado estilo ryokan. No necesita reserva, se paga tocando la tarjeta IC. Solo corre 4 veces por día los fines de semana y feriados.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcEE8R8xhth/",
+    "owner": "2chasingtime"
    }
   ]
  }
