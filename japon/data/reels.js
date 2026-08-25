@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 214 lugares + 10 tips de la colección IG "japon mew" · 2026-08-25T14:52:20+00:00
+// 221 lugares + 12 tips de la colección IG "japon mew" · 2026-08-25T14:53:51+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -28,6 +28,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
+   }
+  ]
+ },
+ {
+  "name": "21st Century Museum of Contemporary Art",
+  "lat": 36.560871,
+  "lon": 136.658525,
+  "cat": "museos",
+  "area": "Kanazawa",
+  "note": "Museo de arte contemporáneo circular, famoso por la piscina de Leandro Erlich.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo de arte contemporáneo circular, famoso por la piscina de Leandro Erlich."
    }
   ]
  },
@@ -127,13 +143,19 @@ window.SOURCE_THINGS = [
   "lon": 140.70086,
   "cat": "museos",
   "area": "Aomori",
-  "note": "Museo ligado a Yoshitomo Nara; colección chica, el post lo despachó en 30 min pero destaca su tienda.",
+  "note": "Museo de arte junto al yacimiento Sannai-Maruyama, hogar del perro gigante de Nara.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
     "owner": "dapple_journal",
     "caption": "Museo ligado a Yoshitomo Nara; colección chica, el post lo despachó en 30 min pero destaca su tienda."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo de arte junto al yacimiento Sannai-Maruyama, hogar del perro gigante de Nara."
    }
   ]
  },
@@ -164,6 +186,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DESHgTZyVmd/",
     "owner": "amandakhoo"
+   }
+  ]
+ },
+ {
+  "name": "Benesse House Museum",
+  "lat": 34.445223,
+  "lon": 133.990853,
+  "cat": "museos",
+  "area": "Isla Naoshima",
+  "note": "Museo-hotel de Tadao Ando integrado al paisaje de la isla de arte.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo-hotel de Tadao Ando integrado al paisaje de la isla de arte."
    }
   ]
  },
@@ -914,6 +952,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Hiroshi Senju Museum",
+  "lat": 36.335397,
+  "lon": 138.597344,
+  "cat": "museos",
+  "area": "Karuizawa",
+  "note": "Museo del pintor Hiroshi Senju con arquitectura abierta al bosque.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo del pintor Hiroshi Senju con arquitectura abierta al bosque."
+   }
+  ]
+ },
+ {
   "name": "Hitachi Seaside Park",
   "lat": 36.405864,
   "lon": 140.596487,
@@ -1412,6 +1466,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kyocera Museum of Art",
+  "lat": 35.012861,
+  "lon": 135.783554,
+  "cat": "museos",
+  "area": "Kioto",
+  "note": "Museo municipal de arte de Kioto, renovado, en el barrio de Okazaki.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo municipal de arte de Kioto, renovado, en el barrio de Okazaki."
+   }
+  ]
+ },
+ {
   "name": "Kyoto International Conference Center",
   "lat": 35.061491,
   "lon": 135.783294,
@@ -1837,13 +1907,19 @@ window.SOURCE_THINGS = [
   "lat": 35.662257,
   "lon": 139.717094,
   "cat": "museos",
-  "area": "Tokio (Aoyama)",
-  "note": "Galería privada + jardín japonés clásico con casas de té",
+  "area": "Tokio",
+  "note": "Museo de arte asiático con un jardín japonés precioso en Aoyama.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZMeI8IDSPN/",
     "owner": "mariatebloeva"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Museo de arte asiático con un jardín japonés precioso en Aoyama."
    }
   ]
  },
@@ -2661,6 +2737,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Taro Okamoto Memorial Museum",
+  "lat": 35.661308,
+  "lon": 139.715583,
+  "cat": "museos",
+  "area": "Tokio",
+  "note": "Casa-taller del artista Taro Okamoto convertida en museo, en Aoyama.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Casa-taller del artista Taro Okamoto convertida en museo, en Aoyama."
+   }
+  ]
+ },
+ {
   "name": "teamLab Planets",
   "lat": 35.649121,
   "lon": 139.789774,
@@ -2711,6 +2803,22 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Teshima Art Museum",
+  "lat": 34.489703,
+  "lon": 134.090334,
+  "cat": "museos",
+  "area": "Isla Teshima",
+  "note": "Estructura de hormigón tipo gota de agua, una sola obra-espacio de Rei Naito.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Estructura de hormigón tipo gota de agua, una sola obra-espacio de Rei Naito."
+   }
+  ]
+ },
+ {
   "name": "The Liquor Museum (FamilyMart)",
   "lat": 35.661971,
   "lon": 139.703795,
@@ -2737,6 +2845,22 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
     "owner": "shotaspov"
+   }
+  ]
+ },
+ {
+  "name": "The National Art Center",
+  "lat": 35.665289,
+  "lon": 139.726374,
+  "cat": "museos",
+  "area": "Tokio",
+  "note": "Gran centro de exposiciones de Kisho Kurokawa con fachada de vidrio ondulada, en Roppongi.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Gran centro de exposiciones de Kisho Kurokawa con fachada de vidrio ondulada, en Roppongi."
    }
   ]
  },
@@ -2931,14 +3055,20 @@ window.SOURCE_THINGS = [
   "lat": 40.614059,
   "lon": 141.209278,
   "cat": "museos",
-  "area": "Towada, Aomori",
-  "note": "Museo de arte contemporáneo con esculturas e instalaciones (Kusama, Nara, Do Ho Suh, Shiota); el arte sigue en las calles y el parque, 3-4 hs. El favorito del post en Tohoku.",
+  "area": "Aomori",
+  "note": "Centro de arte contemporáneo con instalaciones repartidas por la ciudad.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DcSFLx9JD7x/",
     "owner": "dapple_journal",
     "caption": "Museo de arte contemporáneo con esculturas e instalaciones (Kusama, Nara, Do Ho Suh, Shiota); el arte sigue en las calles y el parque, 3-4 hs. El favorito del post en Tohoku."
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
+    "owner": "viewsfromjapan_",
+    "caption": "Centro de arte contemporáneo con instalaciones repartidas por la ciudad."
    }
   ]
  },
@@ -3398,6 +3528,19 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Llevá efectivo: la mayoría de los locales solo cobran en cash",
+  "cat": "tips",
+  "area": "",
+  "note": "La mayoría de los establecimientos en Japón piden pago en efectivo; sin cash podés quedarte sin comer aunque tengas tarjeta.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZaU0KuxolD/",
+    "owner": "mafevidald"
+   }
+  ]
+ },
+ {
   "name": "Llevá siempre el pasaporte para el tax free",
   "cat": "tips",
   "area": "",
@@ -3433,6 +3576,19 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DasBhYvxPlr/",
     "owner": "itsgracechin"
+   }
+  ]
+ },
+ {
+  "name": "Reservá online los restos con fila para saltártela",
+  "cat": "tips",
+  "area": "",
+  "note": "Muchos locales populares dejan pagar la reserva por su web (unos 2000 yenes / USD 14): entrás casi al instante mientras el resto espera en la fila bajo la lluvia.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZaU0KuxolD/",
+    "owner": "mafevidald"
    }
   ]
  },
