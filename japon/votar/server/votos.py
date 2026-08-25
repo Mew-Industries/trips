@@ -76,6 +76,7 @@ def connect():
 
 def init_db():
     os.makedirs(DATA_DIR, exist_ok=True)
+    os.chmod(DATA_DIR, 0o700)
     con = connect()
     with con:
         con.execute(
@@ -94,6 +95,13 @@ def init_db():
                 " VALUES (?,?,?,?)",
                 (uid, name, secrets.token_hex(10), now_iso()),
             )
+    # La db guarda los tokens, que son las credenciales de los cuatro: no tiene
+    # por qué leerla nadie más que el dueño del proceso.
+    for suffix in ("", "-wal", "-shm"):
+        try:
+            os.chmod(DB_PATH + suffix, 0o600)
+        except FileNotFoundError:
+            pass
     # Los links personales en texto plano, para poder mandárselos a cada uno sin
     # tener que abrir la db. Sólo lectura del dueño: son credenciales.
     path = os.path.join(DATA_DIR, "links.md")
