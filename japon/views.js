@@ -236,15 +236,18 @@ function catGroups(items, ctx) {
 // mapa (data/categories.js), para que la lista y el mapa se lean como una sola cosa.
 // Cada ítem con `coords` es un botón que vuela a su punto; el que no las tiene va como
 // texto (no se le inventan coordenadas).
-function catListHtml(items, ctx, nodeId) {
+// Los `items` salen del pool de la CIUDAD (`[{ act, key }]`, ver `cityActivities` en
+// index.html): la clave es la de la parada dueña de la actividad, no la del nodo que
+// está mostrando la lista.
+function catListHtml(items, ctx) {
   const esc = ctx.escHtml;
 
   // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
   // igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
-  const itemHtml = ({ i, act }) => act.coords
-    ? '<li data-check="' + nodeId + ':' + i + '"><button type="button" class="sg-item" data-act="' + nodeId + ':' + i + '">' + label(act) + '</button></li>'
-    : '<li class="sg-item plain" data-check="' + nodeId + ':' + i + '">' + label(act) + '</li>';
+  const itemHtml = ({ key, act }) => act.coords
+    ? '<li data-check="' + key + '"><button type="button" class="sg-item" data-act="' + key + '">' + label(act) + '</button></li>'
+    : '<li class="sg-item plain" data-check="' + key + '">' + label(act) + '</li>';
 
   return catGroups(items, ctx).map(g => {
     const meta = ctx.CAT_META[g.cat] || ctx.CAT_META.otro;
@@ -598,14 +601,18 @@ RENDER.dias = (it, ctx) => {
     const spec = routeOf(day, ctx);
     const sug = routeListHtml(spec, ctx, day);
 
-    // El reparto del día muestra dos o tres cosas de un nodo que tiene treinta: acá
-    // abajo está el catálogo entero del nodo, para que nada del itinerario quede
-    // invisible. El cuerpo se arma recién al abrirlo (ver mountViews).
-    const all = day.here.map(h => h.node).filter(n => (n.activities || []).length).map(n =>
-      '<details class="sg-all"><summary>todo lo de ' + esc(n.short) +
-        ' <b>' + n.activities.length + '</b></summary>' +
-        '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
-      '</details>').join('');
+    // El reparto del día muestra dos o tres cosas de una ciudad que tiene cuarenta:
+    // acá abajo está el catálogo entero de la ciudad —el de TODAS sus visitas, que
+    // Tokio son tres paradas y una sola lista—, para que nada quede invisible. El
+    // cuerpo se arma recién al abrirlo (ver mountViews).
+    const seenCity = new Set();
+    const all = day.here.map(h => h.node)
+      .filter(n => !seenCity.has(ctx.cityLabel(n)) && seenCity.add(ctx.cityLabel(n)))
+      .filter(n => ctx.cityActivities(n).length).map(n =>
+        '<details class="sg-all"><summary>todo lo de ' + esc(ctx.cityLabel(n)) +
+          ' <b>' + ctx.cityActivities(n).length + '</b></summary>' +
+          '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
+        '</details>').join('');
 
     // El botón lleva el mapa a esa jornada (foco de día, task 508). No abre nada en el
     // sidebar: la lista ya está acá, lo que cambia es lo que se ve al lado.
@@ -672,14 +679,14 @@ export function mountViews(destinations, ctx) {
   // Con una sola vista el riel no aporta nada: no se muestra.
   rail.hidden = tabs.length < 2;
 
-  // El catálogo completo de un nodo se repite en cada uno de sus días (Tokio son 32
-  // actividades × 6 días): armarlo al montar la vista serían ~800 botones que casi
+  // El catálogo completo de una ciudad se repite en cada uno de sus días (Tokio son 216
+  // actividades × 16 días): armarlo al montar la vista serían miles de botones que casi
   // nadie abre. Se llena la primera vez que se despliega y queda.
   function fillCatalog(box) {
     if (!box || box.firstChild) return;
     const node = byId[box.dataset.node];
     if (!node) return;
-    box.innerHTML = catListHtml((node.activities || []).map((act, i) => ({ i, act })), ctx, node.id);
+    box.innerHTML = catListHtml(ctx.cityActivities(node), ctx);
     if (ctx.wire) ctx.wire(box);
   }
 

@@ -200,6 +200,9 @@
   .card-list li { font-size: 12px; line-height: 1.5; color: #333; margin-bottom: 1px; }
   .qh-toggle { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: none; padding: 6px 0 2px; cursor: pointer; gap: 6px; }
   .qh-toggle .card-section-title { margin: 0; }
+  /* La lista es de la ciudad, no de esta visita: se avisa y no se explica más. */
+  .qh-shared { margin-right: auto; font-size: 10px; color: #b0aa9c; letter-spacing: 0.2px; }
+  .card-section-title .qh-shared { margin: 0 0 0 8px; text-transform: none; letter-spacing: 0.2px; }
   .qh-caret { font-size: 10px; color: #999; transition: transform 0.15s; }
   .qh-toggle.open .qh-caret { transform: rotate(90deg); }
   .qh-body { display: none; }
@@ -969,7 +972,7 @@ const destinations = [
         'El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés.'
       ] },
     tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-08-25', weatherMode: 'climatología',
-    intro: 'Cuatro noches en Tokio con Zava y Ari, entre Osaka y Fukuoka. El alojamiento se busca para los cuatro y todavía no está reservado. El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11). Qué hacer sale del catálogo de las otras dos paradas de Tokio (1 y 15): esta no repite la lista.',
+    intro: 'Cuatro noches en Tokio con Zava y Ari, entre Osaka y Fukuoka. El alojamiento se busca para los cuatro y todavía no está reservado. El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
     activities: [],
     daytrips: []
   },
@@ -1784,6 +1787,56 @@ sourceThings.forEach((p, sourceIndex) => {
   sourceThingByIndex[sourceIndex] = thing;
 });
 
+// ------------------------------------------------------------ el pool de la ciudad
+// Tokio son tres paradas del itinerario (llegada, medio, final) y una sola ciudad: lo
+// que hay para hacer ahí no depende de en cuál de las tres visitas estés, y repartir
+// las actividades entre las tres fichas es un corte arbitrario que esconde cosas.
+// El grupo se DERIVA acá: los `activities` de cada nodo quedan intactos porque de ese
+// orden sale el reparto por día (ver itinerary.js). Cada ítem del pool viaja con la
+// clave de su parada dueña (`<nodo>:<i>`), así el pin del mapa, el tachado y la
+// búsqueda siguen apuntando al mismo objeto de siempre.
+const CITY_RULES = [['tokio', /tok(io|yo)/], ['kioto', /k(io|yo)to/], ['osaka', /osaka/]];
+const cityKeyOf = d => {
+  const k = catKey(d.short || d.name || d.id);
+  const rule = CITY_RULES.find(([, re]) => re.test(k));
+  return rule ? rule[0] : k;
+};
+const cityNodes = new Map();
+destinations.forEach(d => {
+  const key = cityKeyOf(d);
+  if (!cityNodes.has(key)) cityNodes.set(key, []);
+  cityNodes.get(key).push(d);
+});
+const cityGroupOf = d => cityNodes.get(cityKeyOf(d)) || [d];
+// El nombre de la CIUDAD, no el de la parada: "Tokio", no "Tokio fin".
+const cityLabel = d => cityGroupOf(d)[0].short;
+
+// La unión de las `activities` de las paradas de una ciudad, en orden de itinerario y
+// sin repetir un lugar que dos paradas hayan cargado por separado (mismo nombre
+// normalizado = misma cosa, igual criterio que `thingKey` usa para fundir fuentes).
+const cityPools = new Map();
+function cityActivities(d) {
+  const key = cityKeyOf(d);
+  if (!cityPools.has(key)) {
+    const seen = new Set(), pool = [];
+    cityGroupOf(d).forEach(node => (node.activities || []).forEach((act, i) => {
+      const name = thingKey(act.text);
+      if (seen.has(name)) return;
+      seen.add(name);
+      pool.push({ act, key: node.id + ':' + i });
+    }));
+    cityPools.set(key, pool);
+  }
+  return cityPools.get(key);
+}
+// Los day trips también estaban repartidos por parada (los 6 de Tokio colgaban de la
+// llegada), y un day trip se hace desde cualquier visita a esa ciudad.
+function cityDaytrips(d) {
+  const seen = new Set();
+  return cityGroupOf(d).flatMap(node => node.daytrips || [])
+    .filter(dt => (seen.has(dt.id) ? false : seen.add(dt.id)));
+}
+
 function sourceLinksHtml(thing) {
   return '<span class="source-links">' + (thing.sources || []).map((s, i) =>
     '<a class="source-link" href="' + escHtml(s.url) + '" target="_blank" rel="noopener" title="' +
@@ -1792,15 +1845,18 @@ function sourceLinksHtml(thing) {
   ).join('') + '</span>';
 }
 
-function categoryGroupsHtml(activities, interactive) {
-  return CAT_ORDER.filter(c => activities.some(a => catOfAct(a) === c)).map(c => {
-    const rows = activities.map((a, i) => [a, i]).filter(([a]) => catOfAct(a) === c);
+// `entries` son los ítems del pool de la ciudad (`[{ act, key }]`, ver cityActivities):
+// la clave con la que se tacha y se vuela al pin es la de la parada DUEÑA, no la de la
+// ficha que está mostrando la lista.
+function categoryGroupsHtml(entries, interactive) {
+  return CAT_ORDER.filter(c => entries.some(e => catOfAct(e.act) === c)).map(c => {
+    const rows = entries.filter(e => catOfAct(e.act) === c);
     return '<details class="cat-group">' +
       '<summary class="cat-head"><span class="cat-name">' + (CAT_LABELS[c] || c) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
-      '<ul class="card-list">' + rows.map(([a, i]) =>
+      '<ul class="card-list">' + rows.map(({ act: a, key }) =>
         interactive && a.coords
-          ? '<li class="thing-row" data-check="' + interactive + ':' + i + '"><button type="button" class="act-row" data-act="' + interactive + ':' + i + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
-          : '<li class="thing-row" data-check="' + interactive + ':' + i + '"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
+          ? '<li class="thing-row" data-check="' + key + '"><button type="button" class="act-row" data-act="' + key + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
+          : '<li class="thing-row" data-check="' + key + '"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
       ).join('') + '</ul></details>';
   }).join('');
 }
@@ -2069,9 +2125,17 @@ destinations.forEach((d, idx) => {
     (d.sharedWith ? ' shared' : '');
   card.dataset.id = d.id;
 
-  const dtHtml = d.daytrips.length > 0
+  // Lo que se hace acá es lo de la CIUDAD, no lo de esta visita en particular.
+  const cityActs = cityActivities(d);
+  const cityDts = cityDaytrips(d);
+  const visits = cityGroupOf(d).length;
+  const sharedNote = visits > 1
+    ? '<span class="qh-shared">' + escHtml(cityLabel(d)) + ' · las ' + visits + ' visitas</span>'
+    : '';
+
+  const dtHtml = cityDts.length > 0
     ? '<div class="card-section-title">Day trips</div>' +
-      d.daytrips.map(dt =>
+      cityDts.map(dt =>
         '<div class="dt-row" data-dt-id="' + dt.id + '">' +
           '<div class="dt-row-header">' +
             '<span class="dt-row-name">' + dt.name + '</span>' +
@@ -2178,10 +2242,10 @@ destinations.forEach((d, idx) => {
       tempsHtml +
       '<p class="card-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' +
       (lodgingHtml(d.lodging, d.short, d.id) || (d.lodgingTbd ? lodgingTbdHtml(d.lodgingTbd) : '')) +
-      (d.activities.length > 0
-        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + d.activities.length + '</span><span class="qh-caret">▸</span></button>' +
+      (cityActs.length > 0
+        ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + cityActs.length + '</span>' + sharedNote + '<span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
-            categoryGroupsHtml(d.activities, d.id) +
+            categoryGroupsHtml(cityActs, true) +
           '</div>'
         : '') +
       dtHtml +
@@ -2227,7 +2291,7 @@ destinations.forEach((d, idx) => {
       e.stopPropagation();
       revealPin(dtMarkers[dtId]);
       dtMarkers[dtId].openPopup();
-      const dt = d.daytrips.find(x => x.id === dtId);
+      const dt = cityDts.find(x => x.id === dtId);
       map.flyTo(dt.coords, 9, { duration: 0.8 });
     });
   });
@@ -2404,14 +2468,19 @@ function smBodyHtml(d) {
     : (DX(d.dates + ' · ') + d.nights + ' noches');
   const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
   const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
-  const acts = (d.activities && d.activities.length)
-    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + d.activities.length + '</div>' +
-        categoryGroupsHtml(d.activities, null) +
+  const cityActs = cityActivities(d);
+  const cityDts = cityDaytrips(d);
+  const visits = cityGroupOf(d).length;
+  const sharedNote = visits > 1
+    ? '<span class="qh-shared">' + escHtml(cityLabel(d)) + ' · las ' + visits + ' visitas</span>' : '';
+  const acts = cityActs.length
+    ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + cityActs.length + sharedNote + '</div>' +
+        categoryGroupsHtml(cityActs, false) +
       '</div>'
     : '';
-  const dts = (d.daytrips && d.daytrips.length)
+  const dts = cityDts.length
     ? '<div class="sm-sec"><div class="card-section-title">Day trips</div><ul class="card-list">' +
-        d.daytrips.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
+        cityDts.map(t => '<li>' + (t.url ? '<a class="sm-act" href="' + t.url + '" target="_blank" rel="noopener">' + t.name + ' ↗</a>' : t.name) + (t.desc ? '<div class="sm-dt-desc">' + t.desc + '</div>' : '') + '</li>').join('') +
       '</ul></div>'
     : '';
   return (
@@ -2440,8 +2509,8 @@ function buildStopMiniMap(d, idx) {
   }
   L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num' + (isPendingStop(d) ? ' pending' : '') + (d.sharedWith ? ' shared' : '') + '">' + (d.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
   pts.push(d.coords);
-  (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: catColor(catOfAct(a)), weight: 2, fillColor: catColor(catOfAct(a)), fillOpacity: 0.85 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
-  (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: catColor(catOf(t.name, t.cat)), weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
+  cityActivities(d).forEach(({ act: a }) => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: catColor(catOfAct(a)), weight: 2, fillColor: catColor(catOfAct(a)), fillOpacity: 0.85 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
+  cityDaytrips(d).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: catColor(catOf(t.name, t.cat)), weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });
   if (d.lodging && d.lodging.coords) { const lc = isDiscrete() ? maskedLodgingCoords(d) : d.lodging.coords; L.marker(lc, { icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] }) }).addTo(_smLayer).bindPopup(lodgingPopupHtml(d.lodging, d.short)); pts.push(lc); }
   setTimeout(() => { _smMap.invalidateSize(); try { _smMap.fitBounds(L.latLngBounds(pts), { padding: [30, 30], maxZoom: 12 }); } catch (e) { _smMap.setView(d.coords, 10); } }, 60);
 }
@@ -3191,6 +3260,9 @@ try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
     catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
+    // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
+    // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
+    cityActivities, cityLabel,
     focusTrip, openStopModal, flash,
     // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la
     // misma cosa. La vista manda el estado por la URL (`?tramo=`) y el mapa marca; el
