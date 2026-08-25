@@ -32,6 +32,8 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
   Los mismos tres, más deshacer, están en la botonera; en desktop andan
   además ← → ↑ y `Z`.
 - **La card muestra el reel, no una foto del reel** (ronda 2). Ver abajo.
+- **El texto de la card sale de `descriptions.js`** (ronda 3), no de la `note`
+  de `reels.js`. Ver abajo.
 - **Retomar**: el servidor es la fuente de verdad, y el orden del mazo es un
   barajado determinístico por token. Abrir el link en otro teléfono cae en el
   mismo lugar. El deshacer también sobrevive a la recarga: `/votes` devuelve el
@@ -79,6 +81,37 @@ Instagram** apenas arranca, y eso una página de error no lo puede fingir. Llega
 en ~1 s (medido sobre 8 posteos distintos). El timeout de 6,5 s destapa el mapa,
 pero el oído queda abierto 30 s más: con mala señal el reel puede llegar tarde,
 y cuando llega se pone encima.
+
+## El texto de la card
+
+`descriptions.js` (`window.VOTAR_DESCS`, keyed por `place_id`) es un archivo
+**curado a mano**, con dos a cuatro oraciones por lugar: qué es, por qué vale
+la pena y el dato práctico que cambia la decisión cuando se lo sabe (hay que
+reservar, la temporada no da, cuánto lleva). La regla al escribirlas es que lo
+que no se sabe no se inventa: antes que un horario alucinado va una línea de
+menos. Cubre los 185 lugares del mazo y `check_votar.js` falla si aparece uno
+sin descripción.
+
+Vive en `votar/` y no en `data/` **a propósito**: `data/reels.js` y
+`data/categories.js` los reescribe el pipeline de Instagram cada vez que entran
+reels nuevos, y un archivo escrito a mano ahí adentro dura hasta la próxima
+corrida. Si mañana se suma un lugar y nadie le escribe la descripción, la card
+cae sola a la `note` de `reels.js` (una línea) y el chequeo avisa.
+
+En la card el texto arranca **recortado a tres líneas**, con un "más" que lo
+abre: atrás está el reel andando y taparlo entero con texto sería cambiar un
+problema por otro. El botón aparece sólo si el texto de verdad no entraba —eso
+se **mide** en `noteToggle()`, no se estima por largo de string, porque depende
+del ancho del teléfono y del tamaño de letra del sistema— y sólo en la card de
+arriba, que es la única que se lee entera.
+
+Abierta, la descripción tiene un tope de alto y arriba de eso scrollea adentro.
+Ese scroll lo mueve `app.js` a mano, en el `pointermove`: la card entera es
+`touch-action: none` para que el arrastre sea del mazo, eso lo heredan los
+hijos, y entonces el navegador no scrollea el párrafo solo. Con las
+descripciones de hoy (405 caracteres la más larga) el texto entra sin scroll en
+un viewport de 390×844, así que ese camino es el seguro para el día que alguien
+escriba una más larga.
 
 ## Backend
 
@@ -160,7 +193,11 @@ el `/aggregate` con dos votantes, y —desde la ronda 2— que el mazo no traiga
 comida ni bar-noche pero sí todo el resto de la taxonomía, que la card de arriba
 embeba el reel, que con el iframe puesto el swipe táctil siga votando, que el
 toque quieto active el reel y el botón lo devuelva, y que cortando Instagram
-aparezca el mini-mapa y se pueda seguir swipeando igual. `check_keepalive.py` manda a mano los requests
+aparezca el mini-mapa y se pueda seguir swipeando igual. Desde la ronda 3
+también chequea que los 185 lugares tengan descripción curada, que la card
+muestre ésa y no la `note`, que el "más" aparezca exactamente cuando el texto
+se recorta, que abrirlo no vote, que con el texto abierto la card no se
+desborde ni empuje la botonera, y que el swipe táctil siga votando igual. `check_keepalive.py` manda a mano los requests
 rotos que ningún cliente HTTP normal deja mandar y comprueba que no se lleven
 puesto al request siguiente de la misma conexión; corre igual contra el puerto
 local (`127.0.0.1 9202`) que contra el dominio, y contra el dominio es más

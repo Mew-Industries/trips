@@ -94,12 +94,16 @@
   }
 
   var FRAMES = window.VOTAR_FRAMES || {};
+  // `descriptions.js` es curado a mano y va aguas abajo de los generadores: la
+  // card muestra eso. La `note` de reels.js queda de red por si entra un lugar
+  // nuevo antes de que alguien le escriba la descripción.
+  var DESCS = window.VOTAR_DESCS || {};
   var PLACES = (window.SOURCE_THINGS || []).map(function (t) {
     var reel = (t.sources || []).filter(function (s) { return s.type === 'instagram_reel'; })[0];
     return {
       id: placeId(t.name),
       name: t.name,
-      note: t.note || '',
+      note: DESCS[placeId(t.name)] || t.note || '',
       area: t.area || '',
       city: cityOf(t.area),
       hood: hoodOf(t.area) || placeOf(t.area),
@@ -231,7 +235,12 @@
           (p.hood ? '<span class="tag tag-hood">' + esc(p.hood) + '</span>' : '') +
         '</div>' +
         '<h2 class="card-name">' + esc(p.name) + '</h2>' +
-        (p.note ? '<p class="card-note">' + esc(p.note) + '</p>' : '') +
+        // La descripción arranca recortada a tres líneas: el reel que está
+        // atrás tiene que seguir viéndose. El "más" lo abre, y sólo aparece en
+        // la card de arriba —las de atrás se ven por el borde— y sólo si el
+        // texto de verdad no entraba (lo mide `render`).
+        (p.note ? '<p class="card-note">' + esc(p.note) + '</p>' +
+                  (top ? '<button type="button" class="note-more" hidden>más</button>' : '') : '') +
         '<div class="card-links">' + links.join('') + '</div>' +
       '</div>';
   }
@@ -375,6 +384,20 @@
     }).catch(function () { /* sin mapa la card sigue siendo la de siempre */ });
   }
 
+  /* El "más" de la descripción. No se decide por largo de string —eso depende
+     del ancho del teléfono y del tamaño de letra del sistema— sino midiendo:
+     si el texto completo no entra en las tres líneas del recorte, aparece el
+     botón; si entraba, no hay nada que abrir y el botón no se ve. */
+  function noteToggle(card) {
+    var note = card.querySelector('.card-note'), more = card.querySelector('.note-more');
+    if (!note || !more) return;
+    if (note.scrollHeight <= note.clientHeight + 2) return;
+    more.hidden = false;
+    more.addEventListener('click', function () {
+      more.textContent = note.classList.toggle('open') ? 'menos' : 'más';
+    });
+  }
+
   function render() {
     var left = queueLeft();
     var total = pool().length;
@@ -382,6 +405,10 @@
     $('pg-fill').style.width = (total ? ((total - left.length) / total) * 100 : 0) + '%';
     $('b-undo').disabled = history.length === 0;
 
+    // El mazo se destapa ANTES de dibujar: `noteToggle` mide si la descripción
+    // entra recortada, y sobre un `hidden` todas las alturas dan cero.
+    var finished = left.length === 0;
+    deckEl.hidden = finished;
     deckEl.innerHTML = '';
     // Sólo las tres de arriba viven en el DOM: el mazo son 272 lugares. Se
     // pintan al revés para que la de más abajo quede primera y la top última.
@@ -390,6 +417,7 @@
     var top = deckEl.querySelector('.card.top');
     if (top) {
       drag(top);
+      noteToggle(top);
       var back = top.querySelector('.media-back');
       if (back) back.addEventListener('click', function () { top.classList.remove('playing'); });
       // El embed pesa medio mega: se monta un tick después de que la card ya
@@ -399,8 +427,6 @@
       })(top, visible[0]);
     }
 
-    var finished = left.length === 0;
-    deckEl.hidden = finished;
     $('done').hidden = !finished;
     $('acts').hidden = false;
     $('b-no').disabled = $('b-si').disabled = $('b-star').disabled = finished;
@@ -477,21 +503,32 @@
   }
 
   function drag(card) {
-    var sx = 0, sy = 0, dx = 0, dy = 0, on = false, fromShield = false;
+    var sx = 0, sy = 0, dx = 0, dy = 0, ly = 0, on = false, fromShield = false, scroller = null;
     var si = card.querySelector('.stamp-si'), no = card.querySelector('.stamp-no'),
         st = card.querySelector('.stamp-star');
 
+    // Una descripción abierta que no entra en la card se scrollea con el dedo,
+    // y ese arrastre no puede ser un voto. No alcanza con `touch-action` en el
+    // párrafo: la card entera es `touch-action: none` y eso se hereda, así que
+    // el scroll lo movemos a mano acá. El resto de la card sigue swipeando.
+    function scrollableNote(t) {
+      var n = t.closest && t.closest('.card-note.open');
+      return (n && n.scrollHeight > n.clientHeight + 2) ? n : null;
+    }
+
     card.addEventListener('pointerdown', function (e) {
-      // Los links y el botón de volver al mazo se tocan, no se arrastran.
-      if (e.target.closest('a, .media-back')) return;
+      // Los links, el "más" y el botón de volver al mazo se tocan, no se arrastran.
+      if (e.target.closest('a, .media-back, .note-more')) return;
       fromShield = !!e.target.closest('.media-shield');
-      on = true; sx = e.clientX; sy = e.clientY; dx = dy = 0;
+      scroller = scrollableNote(e.target);
+      on = true; sx = e.clientX; sy = ly = e.clientY; dx = dy = 0;
       card.setPointerCapture(e.pointerId);
       card.style.transition = 'none';
     });
 
     card.addEventListener('pointermove', function (e) {
       if (!on) return;
+      if (scroller) { scroller.scrollTop -= e.clientY - ly; ly = e.clientY; return; }
       dx = e.clientX - sx; dy = e.clientY - sy;
       card.style.transform = 'translate(' + dx + 'px,' + dy + 'px) rotate(' + (dx / 18) + 'deg)';
       // El gesto vertical sólo cuenta si es claramente vertical: si no,
@@ -506,6 +543,7 @@
       if (!on) return;
       on = false;
       try { card.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (scroller) { scroller = null; return; }
       var up = dy < -UP_THRESH && Math.abs(dy) > Math.abs(dx) * 1.4;
       if (up) return vote('star');
       if (dx > THRESH) return vote('si');

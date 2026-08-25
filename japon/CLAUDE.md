@@ -240,6 +240,8 @@ miraron y se dejaron donde estaban tienen su motivo anotado ahí al lado.
 
 `catOf(nombre, catLegacy)` en `index.html` resuelve override → legacy → `otro`. **Por qué aguas abajo:** `build_reels_js.py` (workspace, fuera de este repo) sigue escribiendo su `cat` viejo en `data/reels.js` y el sync de Maps no toca `index.html`, así que regenerar reels nunca resetea una categoría.
 
+Por la misma razón, **el texto largo de cada lugar vive en `votar/descriptions.js`** (task 548 ronda 3), escrito a mano y keyed por `place_id`: en `data/` la próxima corrida del pipeline de reels se lo llevaría puesto. La app de votación lo muestra ahí y cae a la `note` de `reels.js` si falta; `node japon/votar/scripts/check_votar.js` avisa si entró un lugar nuevo al mazo sin descripción.
+
 En el mapa: **el color del pin es la categoría y la forma es la fuente** (● guardado de Maps · ◆ reel · ◎ day trip; la leyenda de formas está arriba a la derecha con la de transportes). Los **chips de categoría** abajo del mapa filtran y hacen de leyenda de color a la vez: con todo prendido un click aísla esa categoría, después cada click suma/saca, y el chip "Todo" vuelve al estado completo. El estado va a la URL (`?cat=comida,bar-noche`), así que un deep-link aterriza ya filtrado.
 
 Verificación (cada lugar tiene exactamente una categoría de la taxonomía, y avisa de overrides que dejaron de matchear):

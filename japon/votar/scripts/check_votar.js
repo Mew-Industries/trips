@@ -221,6 +221,93 @@ const settle = (page) => page.waitForFunction(
   }
   await clearVotes(TOKEN2);
 
+  // ------------------------------------- descripciones largas (ronda 3)
+  {
+    const ctx = await browser.newContext({
+      viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
+    });
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    // Sin Instagram a propósito: lo que se mide acá es el texto, y un embed
+    // que tarda distinto en cada corrida mueve las alturas.
+    await page.route('**instagram.com**', (r) => r.abort());
+    await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.card.top');
+
+    const gaps = await page.evaluate(() => {
+      const d = window.VOTAR_DESCS || {};
+      return window.VOTAR_PLACES.filter((p) => !d[p.id]).map((p) => p.id);
+    });
+    const nDesc = await page.evaluate(() => Object.keys(window.VOTAR_DESCS || {}).length);
+    ok('todos los lugares del mazo tienen descripción curada', gaps.length === 0,
+      gaps.length ? `faltan ${gaps.length}: ${gaps.slice(0, 5).join(', ')}` : `${nDesc} descripciones`);
+
+    const shape = await page.evaluate(() => {
+      const t = Object.values(window.VOTAR_DESCS || {});
+      const len = t.map((s) => s.length).sort((a, b) => a - b);
+      return {
+        min: len[0], med: len[len.length >> 1], max: len[len.length - 1],
+        cortas: t.filter((s) => (s.match(/[.!?]/g) || []).length < 2).length,
+      };
+    });
+    ok('y ninguna quedó en una sola oración suelta', shape.cortas === 0 && shape.min > 100,
+      `min ${shape.min} · mediana ${shape.med} · max ${shape.max}`);
+
+    const curada = await page.evaluate(() => {
+      const card = document.querySelector('.card.top');
+      return card.querySelector('.card-note').textContent === window.VOTAR_DESCS[card.dataset.place];
+    });
+    ok('la card muestra la descripción curada, no la note de reels.js', curada, await topName(page));
+
+    // Los textos más cortos entran en las tres líneas y no tienen nada que
+    // abrir: se avanza hasta el primero que sí se recorta, que es el caso.
+    const clamped = () => page.locator('.card.top .card-note')
+      .evaluate((n) => n.scrollHeight > n.clientHeight + 2);
+    let hops = 0;
+    while (hops < 8 && !(await clamped())) {
+      await page.locator('#b-no').click(); await page.waitForTimeout(450); hops++;
+    }
+    ok('el "más" aparece exactamente cuando el texto no entra recortado',
+      (await clamped()) === (await page.locator('.card.top .note-more').isVisible()),
+      `${hops} card(s) hasta una recortada`);
+
+    const votesBefore = await page.locator('#pg-count').innerText();
+    const closedH = await page.locator('.card.top .card-note').evaluate((n) => n.clientHeight);
+    await page.locator('.card.top .note-more').click();
+    await page.waitForTimeout(250);
+    const openH = await page.locator('.card.top .card-note').evaluate((n) => n.clientHeight);
+    ok('el "más" abre el texto entero', openH > closedH && !(await clamped()),
+      `${closedH}px → ${openH}px`);
+    ok('y tocar "más" no vota', (await page.locator('#pg-count').innerText()) === votesBefore,
+      votesBefore);
+    ok('el botón pasa a decir "menos"',
+      (await page.locator('.card.top .note-more').innerText()).trim() === 'menos');
+
+    // El criterio duro de la ronda 3: el texto largo no puede romper la card.
+    ok('con la descripción abierta el cuerpo sigue adentro de la card',
+      await page.locator('.card.top').evaluate((c) => {
+        const b = c.querySelector('.card-body').getBoundingClientRect();
+        const r = c.getBoundingClientRect();
+        return b.top >= r.top - 1 && b.bottom <= r.bottom + 1 && b.height < r.height;
+      }));
+    ok('y el mazo no empuja la botonera',
+      await page.evaluate(() => {
+        const d = document.getElementById('deck').getBoundingClientRect();
+        const a = document.getElementById('acts').getBoundingClientRect();
+        return d.bottom <= a.top + 1;
+      }));
+    await page.screenshot({ path: path.join(SHOTS, 'votar-desc-abierta.png') });
+
+    const nd = await topName(page);
+    await touchSwipe(page, cdp, 200, 0);
+    ok('con la descripción abierta el swipe táctil sigue votando', (await topName(page)) !== nd,
+      `${nd} → ${await topName(page)}`);
+    ok('y la card siguiente vuelve a arrancar recortada',
+      await page.locator('.card.top .card-note').evaluate((n) => !n.classList.contains('open')));
+    await ctx.close();
+  }
+  await clearVotes(TOKEN2);
+
   // --------------------------------------------------- mobile: los 3 gestos
   await clearVotes(TOKEN);
   {
@@ -234,7 +321,7 @@ const settle = (page) => page.waitForFunction(
     await page.goto(`${BASE}/japon/votar/?u=${TOKEN}`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.card.top');
 
-    ok('la card trae nombre + categoría + barrio + note',
+    ok('la card trae nombre + categoría + barrio + descripción',
       (await page.locator('.card.top .card-name').count()) === 1 &&
       (await page.locator('.card.top .tag').count()) === 2 &&
       (await page.locator('.card.top .card-note').count()) === 1,
