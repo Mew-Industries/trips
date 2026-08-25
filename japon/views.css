@@ -110,10 +110,11 @@
 /* La ficha y su línea en el mapa son el mismo tramo: tocar una marca la otra. La
    seleccionada se queda con el anillo verde mientras dure la selección (el flash de
    `.flash` avisa cuál acaba de llegar); el resto sólo insinúa que es tocable. */
-.v-card[data-leg] { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s; }
-.v-card[data-leg]:hover { border-color: rgba(15,110,86,0.25); }
-.v-card[data-leg].on { border-color: rgba(15,110,86,0.55); box-shadow: 0 0 0 2px rgba(15,110,86,0.13); }
-@media (prefers-reduced-motion: reduce) { .v-card[data-leg] { transition: none; } }
+   Lo mismo vale para la ficha del hospedaje y su pin de cama (task 544). */
+.v-card[data-leg], .v-card[data-hosp] { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s; }
+.v-card[data-leg]:hover, .v-card[data-hosp]:hover { border-color: rgba(15,110,86,0.25); }
+.v-card[data-leg].on, .v-card[data-hosp].on { border-color: rgba(15,110,86,0.55); box-shadow: 0 0 0 2px rgba(15,110,86,0.13); }
+@media (prefers-reduced-motion: reduce) { .v-card[data-leg], .v-card[data-hosp] { transition: none; } }
 
 /* --------------------------------------------------------------------- días */
 

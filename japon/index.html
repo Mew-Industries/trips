@@ -116,6 +116,8 @@
   .chart-wrap.open { display: block; }
   .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
   .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  /* La cama cuya ficha está abierta en el sidebar (?hosp=) queda marcada mientras dure la selección. */
+  .lodging-marker.sel { border-color: #5B2E96; box-shadow: 0 0 0 3px rgba(122,79,176,0.3), 0 2px 6px rgba(0,0,0,0.3); }
   /* Punta de un traslado en el foco de día (aeropuerto/estación/puerto): mismo verde de la línea del recorrido. */
   .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
   .mini-pop { min-width: 150px; max-width: 210px; }
@@ -1827,9 +1829,45 @@ destinations.forEach(d => {
       '</div>' +
     '</div>'
   );
+  mk.on('click', () => pickLodging(d.id));
   lodgingPins.push({ mk, real: lodg.coords, masked: maskedLodgingCoords(d) });
   nearAdd(mk, lodg.name, '#7A4FB0', 'Hospedaje · ' + d.short);
 });
+
+// Tocar una cama lleva a su ficha en la tab Hospedajes, igual que tocar una línea lleva
+// a la del tramo: views.js se registra acá y el estado pasa por la URL (`?hosp=`), así
+// es compartible y "atrás" deselecciona. Sin las vistas montadas queda el camino de
+// siempre — abrir la card de esa parada en el resumen, que también trae el hospedaje.
+let lodgingClickHandler = null;
+function pickLodging(id) {
+  if (lodgingClickHandler) { lodgingClickHandler(id); return; }
+  focusTrip(id);
+}
+// El hospedaje seleccionado (`?hosp=` en la URL) queda marcado en el mapa mientras dure
+// la selección: es lo que ata la ficha abierta en el sidebar con su pin. `fit` vuela
+// hasta la cama —lo piden el deep-link y el click en la ficha, donde el pin puede estar
+// fuera de pantalla—; el click en el propio pin no, que ya lo tenés delante.
+let selectedLodging = null;
+function paintLodging(id) {
+  const mk = lodgingMarkers[id];
+  const el = mk && mk.getElement();
+  const pin = el && el.querySelector('.lodging-marker');
+  if (pin) pin.classList.toggle('sel', id === selectedLodging);
+}
+function selectLodging(id, fit) {
+  const prev = selectedLodging;
+  selectedLodging = lodgingMarkers[id] ? id : null;
+  if (prev && prev !== selectedLodging) paintLodging(prev);
+  if (!selectedLodging) return;
+  const mk = lodgingMarkers[selectedLodging];
+  if (fit) {
+    revealLayer(lodgingLayer);   // con la capa apagada, el deep-link dejaba el mapa sin pin
+    showFocused(mk);             // y con el foco de día tomado, la cama puede no ser de ese día
+    map.flyTo(mk.getLatLng(), Math.max(map.getZoom(), 13), { duration: 0.8 });
+    mk.openPopup();
+  }
+  paintLodging(selectedLodging);
+}
 
 const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
@@ -2917,6 +2955,8 @@ try {
     // misma cosa. La vista manda el estado por la URL (`?tramo=`) y el mapa marca; el
     // click en la línea entra por `onLegClick` y vuelve por el mismo camino.
     selectLeg, onLegClick: (fn) => { legClickHandler = fn; },
+    // Hospedajes (task 544): el pin de cama y la ficha de la vista Hospedajes, igual.
+    selectLodging, onLodgingClick: (fn) => { lodgingClickHandler = fn; },
     // Un ítem de una vista lateral vuela al punto en el mapa SIN cambiar de tab:
     // el mapa está a la vista, así que sacarte de donde estabas no tendría sentido.
     focusAct: (key) => focusMarker(actMarkers[key]),

@@ -54,7 +54,7 @@ RENDER.hospedajes = (it, ctx) => {
       '</div>';
 
     if (!L) {
-      return '<div class="v-card lg-pending"><div class="lg-row">' + when +
+      return '<div class="v-card lg-pending" data-hosp="' + node.id + '"><div class="lg-row">' + when +
         '<div class="lg-main"><div class="lg-body">' +
           '<div class="lg-name">Sin reservar</div>' +
           '<div class="lg-sub">' + esc(node.name) + ' · ' + nightsWord(nights) + '</div>' +
@@ -67,7 +67,9 @@ RENDER.hospedajes = (it, ctx) => {
     if (L.mapsUrl) links.push('<a href="' + L.mapsUrl + '" target="_blank" rel="noopener">Google Maps ↗</a>');
     const total = L.booking && L.booking.total;
 
-    return '<div class="v-card"><div class="lg-row">' + when +
+    // `data-hosp` es el id del nodo, el mismo con el que el mapa indexa su pin de cama:
+    // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
+    return '<div class="v-card" data-hosp="' + node.id + '"><div class="lg-row">' + when +
       '<div class="lg-main">' +
         (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" alt="">' : '') +
         '<div class="lg-body">' +
@@ -615,6 +617,7 @@ export function mountViews(destinations, ctx) {
   it.days.forEach(d => { dayByDate[d.date] = d; });
   const legById = {};
   it.transfers.forEach(t => { legById[t.id] = t; });
+  const hospIds = new Set(it.lodgings.map(l => l.node.id));
   const tabs = TABS.filter(t => t.id === 'resumen' || RENDER[t.id]);
   const panes = { resumen: document.getElementById('view-resumen') };
   const btns = {};
@@ -652,13 +655,15 @@ export function mountViews(destinations, ctx) {
   }
 
   // `?tab=` manda; un `?dia=` sin tab explícito abre Días, que es de donde sale el
-  // foco, y un `?tramo=` abre Transportes, que es donde vive su ficha: el link
-  // compartido tiene que aterrizar en la lista que le corresponde.
+  // foco, un `?tramo=` abre Transportes y un `?hosp=` abre Hospedajes, que es donde
+  // vive cada ficha: el link compartido tiene que aterrizar en la lista que le
+  // corresponde.
   function current() {
     const s = new URLSearchParams(location.search);
     if (panes[s.get('tab')]) return s.get('tab');
     if (s.get('dia') && panes.dias) return 'dias';
     if (legById[s.get('tramo')] && panes.transportes) return 'transportes';
+    if (hospIds.has(s.get('hosp')) && panes.hospedajes) return 'hospedajes';
     return 'resumen';
   }
 
@@ -676,6 +681,13 @@ export function mountViews(destinations, ctx) {
     return legById[id] ? id : null;
   }
 
+  // El hospedaje seleccionado, con el mismo criterio: `?hosp=` es el id del nodo donde
+  // se duerme, y uno que no está en la lista se ignora.
+  function currentHosp() {
+    const id = new URLSearchParams(location.search).get('hosp');
+    return hospIds.has(id) ? id : null;
+  }
+
   let shownTab = null;
 
   function show(id) {
@@ -691,9 +703,11 @@ export function mountViews(destinations, ctx) {
         if (s) fillCatalog(s.parentNode.querySelector('.sg-all-body'));
       });
       done[id] = true;
-      // Las fichas recién existen ahora: si ya había un tramo seleccionado (deep-link
-      // que aterrizó en otra tab), hay que volver a marcarlo sobre el HTML nuevo.
+      // Las fichas recién existen ahora: si ya había un tramo o un hospedaje
+      // seleccionado (deep-link que aterrizó en otra tab), hay que volver a marcarlo
+      // sobre el HTML nuevo.
       if (id === 'transportes') shownLeg = null;
+      if (id === 'hospedajes') shownHosp = null;
     }
     // El mapa vive fuera de las tabs y no se esconde nunca: cambiar de tab no lo
     // redimensiona, así que ya no hay que invalidarle el tamaño al volver.
@@ -786,6 +800,69 @@ export function mountViews(destinations, ctx) {
     legNoFit = false;
   }
 
+  // --------------------------------------------------- hospedajes (task 544)
+  // Misma historia que los tramos, con la cama: el pin del mapa y la ficha de la vista
+  // Hospedajes son dos caras del mismo alojamiento. Tocar el pin abre su ficha (que es
+  // lo que pidió Martín) y tocar la ficha marca el pin; el estado vive en `?hosp=<id>`,
+  // así el link es compartible y "atrás" deselecciona sin sacarte de la vista.
+  let shownHosp = null;
+  // El encuadre lo pide quien no tiene la cama delante (deep-link, click en la ficha);
+  // el click en el propio pin no, que ya lo estás mirando.
+  let hospNoFit = false;
+
+  function showHosp(id) {
+    const pane = panes.hospedajes;
+    let card = null;
+    if (pane) {
+      pane.querySelectorAll('[data-hosp]').forEach(el => {
+        const on = el.dataset.hosp === id;
+        el.classList.toggle('on', on);
+        if (on) card = el;
+      });
+    }
+    if (id !== shownHosp && card) {
+      // Que la ficha se vea ENTERA (mismo criterio que la del tramo): si ya entra
+      // completa no se toca el scroll, y una más alta que la pantalla se ancla arriba.
+      const r = card.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (!pane.hidden && (r.top < 0 || r.bottom > vh)) {
+        card.scrollIntoView({ block: r.height <= vh - 24 ? 'center' : 'start', behavior: 'smooth' });
+      }
+      if (ctx.flash) ctx.flash(card);
+    }
+    if (ctx.selectLodging) ctx.selectLodging(id, !hospNoFit && !!id);
+    shownHosp = id;
+  }
+
+  // Seleccionar un hospedaje (o soltarlo). `toggle` es para el click en la ficha —volver
+  // a tocarla la suelta—; desde el mapa no, que tocar dos veces el mismo pin tiene que
+  // dar lo mismo. La tab se fija explícitamente: es donde vive la ficha.
+  function goHosp(id, opts) {
+    const o = opts || {};
+    const u = new URL(location.href);
+    const keep = id && !(o.toggle && id === currentHosp());
+    if (keep) { u.searchParams.set('tab', 'hospedajes'); u.searchParams.set('hosp', id); }
+    else u.searchParams.delete('hosp');
+    // Volver a tocar el MISMO pin no agrega una entrada al histórico, pero sí vuelve a
+    // marcar la ficha: es el gesto de "esta, ¿dónde estaba?".
+    if (u.href === location.href) { shownHosp = null; hospNoFit = !!o.fromMap; showHosp(currentHosp()); hospNoFit = false; return; }
+    history.pushState(null, '', u);
+    hospNoFit = !!o.fromMap;
+    apply();
+    hospNoFit = false;
+  }
+
+  if (panes.hospedajes) {
+    panes.hospedajes.addEventListener('click', (e) => {
+      // Los links y botones de la ficha (ver en Airbnb, Maps, ir a la parada) son suyos.
+      if (e.target.closest('a, button')) return;
+      const card = e.target.closest('[data-hosp]');
+      if (card) goHosp(card.dataset.hosp, { toggle: true });
+    });
+  }
+  // Tocar la cama en el mapa entra por acá: mismo estado, mismo histórico.
+  if (ctx.onLodgingClick) ctx.onLodgingClick((id) => goHosp(id, { fromMap: true }));
+
   if (panes.transportes) {
     panes.transportes.addEventListener('click', (e) => {
       // Los links y botones de la ficha (cómo llegar, tracker, ir al punto) son suyos.
@@ -801,14 +878,16 @@ export function mountViews(destinations, ctx) {
     show(current());
     showDay(currentDay());
     showLeg(currentLeg());
+    showHosp(currentHosp());
   }
 
   function go(id) {
     const u = new URL(location.href);
-    // El resumen no lleva parámetro… salvo que haya un `?dia=`/`?tramo=`, que valen por
-    // su tab cuando no hay `tab=` explícito: ahí hay que escribirlo, o tocar "Resumen"
-    // no te saca de la vista implicada (y quedás sin poder volver sin soltar el foco).
-    const implied = u.searchParams.get('dia') || u.searchParams.get('tramo');
+    // El resumen no lleva parámetro… salvo que haya un `?dia=`/`?tramo=`/`?hosp=`, que
+    // valen por su tab cuando no hay `tab=` explícito: ahí hay que escribirlo, o tocar
+    // "Resumen" no te saca de la vista implicada (y quedás sin poder volver sin soltar
+    // el foco).
+    const implied = u.searchParams.get('dia') || u.searchParams.get('tramo') || u.searchParams.get('hosp');
     if (id === 'resumen' && !implied) u.searchParams.delete('tab');
     else u.searchParams.set('tab', id);
     history.pushState(null, '', u);

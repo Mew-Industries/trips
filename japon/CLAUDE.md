@@ -83,7 +83,7 @@ El site tiene **el mapa fijo a la izquierda** y, a la derecha, un sidebar con un
 
 Archivos: **`views.css`** (todo el estilo nuevo —incluido el layout de dos columnas— con un `<link>` en el head) + **`views.js`** (riel, ruteo y las tres vistas nuevas) + **`itinerary.js`** (la capa derivada; `clustersOf()` emite `{ i, act }` porque `i` es la clave del pin, `actMarkers['<nodo>:<i>']`). En `index.html` solo se agregaron el `<link>`, un `import`, la estructura `.shell` > `.map-pane` + `.side-pane` y la llamada a `mountViews(destinations, ctx)` al final del módulo — envuelta en `try/catch`: si una vista explota, el resumen sigue funcionando.
 
-Ruteo por URL: `?tab=hospedajes|transportes|dias` (sin parámetro = resumen), con `pushState`, así que back/forward andan y el link es compartible. Un `?tab=` desconocido cae en resumen. `?dia=` y `?tramo=` valen por su tab cuando no hay `tab=` explícito; por eso, si alguno está puesto, tocar "Resumen" en el riel **escribe** `tab=resumen` en vez de borrar el parámetro (si no, el implícito te devolvía a la vista de la que querías salir).
+Ruteo por URL: `?tab=hospedajes|transportes|dias` (sin parámetro = resumen), con `pushState`, así que back/forward andan y el link es compartible. Un `?tab=` desconocido cae en resumen. `?dia=`, `?tramo=` y `?hosp=` valen por su tab cuando no hay `tab=` explícito; por eso, si alguno está puesto, tocar "Resumen" en el riel **escribe** `tab=resumen` en vez de borrar el parámetro (si no, el implícito te devolvía a la vista de la que querías salir).
 
 ## Un tramo, dos caras: la línea y su ficha (2026-08-11 · task 510)
 
@@ -99,6 +99,19 @@ La polyline del mapa y la tarjeta de la vista Transportes son **el mismo tramo**
 - **Reversibilidad**: es un commit sobre las 4 vistas (499/500) y el foco de día (508). Revertirlo devuelve el click de la línea a "expandir la card del resumen" (`focusTrip`), que es el camino que sigue vivo como fallback si `views.js` no monta.
 
 Verificación (navegador de verdad, los 16 saltos + mobile + capas + foco): `node evidence/510/tooling/check.mjs http://127.0.0.1:8123` en el workspace de Mew, contra un `python3 -m http.server` servido desde `japon/`.
+
+## Una cama, dos caras: el pin y su ficha (2026-08-25 · task 544)
+
+Lo mismo que la 510, con el hospedaje. Martín: «clickear en un hospedaje en el mapa lleve a la ficha del panel lateral». El pin 🛏️ del mapa y la tarjeta de la vista **Hospedajes** son el mismo alojamiento, y tocar cualquiera de los dos selecciona los dos.
+
+- **El id es el del nodo donde se duerme** (`sendai`, `hakone`, `kioto`): el mapa ya indexaba el pin en `lodgingMarkers[d.id]` y la ficha ahora lo lleva en `data-hosp`. Sin tabla de equivalencias, igual que los tramos.
+- **Estado en la URL**: `?tab=hospedajes&hosp=<nodo>`, con `pushState` — el link aterriza con la ficha marcada y a la vista, "atrás" deselecciona, y volver a tocar la ficha la suelta. Tocar el pin desde otra tab te lleva a Hospedajes; tocarlo dos veces no ensucia el histórico.
+- **El popup del pin no se toca**: sigue abriéndose con el mismo contenido (nombre, fechas, link a Airbnb/Maps) — el click hace las dos cosas, como el de los pines de destino, que abren popup y expanden su card.
+- **El encuadre lo pide el que no tiene la cama delante**: deep-link y click en la ficha vuelan al pin (`flyTo` a zoom ≥13) y le abren el popup; el click en el propio pin no —ya lo estás mirando—. `revealLayer(lodgingLayer)` prende la familia si estaba apagada y `showFocused()` mete la cama en el foco de día si no era de esa jornada; sin eso, un `?hosp=` con `layersOff=hospedaje` dejaba el mapa en el punto correcto y sin pin.
+- **Marcado**: la ficha lleva el mismo anillo verde que la del tramo (`.v-card[data-hosp].on`) más el flash; el pin, `.lodging-marker.sel` (borde violeta más oscuro + halo).
+- **Fallback**: si `views.js` no monta, el click en el pin cae en `focusTrip(d.id)` — abre la card de esa parada en el resumen, que también trae el hospedaje.
+
+Verificación (navegador de verdad, los 12 pines uno por uno + mobile + deep-link + back): `node evidence/544/tooling/check.mjs <base>` en el workspace de Mew.
 
 ## Foco de día y capas del mapa (2026-08-11 · task 508)
 
