@@ -73,14 +73,19 @@ export const nightsWord = n => n + (n === 1 ? ' noche' : ' noches');
 
 // ---------------------------------------------------------------- hospedajes
 
-// Los 13 nodos donde se duerme, en orden. Los que todavía no tienen `lodging`
-// aparecen igual, marcados como pendientes: un hueco en la lista es información.
+// Los nodos donde se duerme, en orden. Los que todavía no tienen `lodging` aparecen
+// igual, marcados como pendientes: un hueco en la lista es información.
+//
+// Los `pendiente` (una parada sacada de la cadena pero con la reserva viva — Koyasan
+// desde el 25/8) también entran: la reserva sigue existiendo y hay que hacerle algo.
+// Van con `pending: true` y sin fechas, que es exactamente su estado.
 export function lodgingsOf(dests) {
-  return dests.filter(d => d.type === 'destino').map(d => ({
+  return dests.filter(d => d.type === 'destino' || d.type === 'pendiente').map(d => ({
     node: d,
     lodging: d.lodging || null,
+    pending: d.type === 'pendiente',
     start: d.start, end: d.end,
-    nights: d.nights || (d.start && d.end ? diffDays(d.start, d.end) : 0)
+    nights: d.type === 'pendiente' ? 0 : (d.nights || (d.start && d.end ? diffDays(d.start, d.end) : 0))
   }));
 }
 
@@ -98,7 +103,12 @@ function legEnds(dests, i, kind) {
 
 // Un salto por cada `leg` (llegada al nodo) más el `departureLeg` final. El orden es
 // el del itinerario, que es también el cronológico.
-export function transfersOf(dests) {
+//
+// Se recorre la CADENA, sin los nodos `pendiente`: una parada sin fecha no es punta de
+// ningún salto. Si no se filtrara, el nodo anterior al de llegada sería el pendiente y
+// la ficha del tramo diría "Koyasan → Hakone" cuando en realidad se llega desde Seúl.
+export function transfersOf(all) {
+  const dests = all.filter(d => d.type !== 'pendiente');
   const out = [];
   dests.forEach((d, i) => {
     const add = (leg, kind) => {

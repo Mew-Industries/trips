@@ -129,9 +129,10 @@ def main() -> int:
     html = INDEX.read_text()
     stamp = date.today().isoformat()
 
-    # iterate destination blocks: each starts at "id: '...', n: N,"
+    # iterate destination blocks: each starts at "id: '...', n: N," — a stop that is out
+    # of the chain (type 'pendiente') carries "n: null" and is a block all the same.
     block_re = re.compile(
-        r"id:\s*'(?P<id>[^']+)',\s*n:\s*\d+,\s*(?:type:\s*'[^']*',\s*)?name:\s*'(?P<name>[^']+)'", )
+        r"id:\s*'(?P<id>[^']+)',\s*n:\s*(?:\d+|null),\s*(?:type:\s*'[^']*',\s*)?name:\s*'(?P<name>[^']+)'", )
     edits = []
     for m in block_re.finditer(html):
         sid = m.group("id"); name = m.group("name")

@@ -45,19 +45,29 @@ function hoursHtml(L) {
 
 RENDER.hospedajes = (it, ctx) => {
   const esc = ctx.escHtml;
-  const rows = it.lodgings.map(({ node, lodging: L, start, end, nights }) => {
-    const when =
-      '<div class="lg-when">' +
-        '<div class="lg-dates">' + fmtRange(start, end) + '</div>' +
-        '<div class="lg-nights">' + nightsWord(nights) + '</div>' +
-        '<button type="button" class="lg-city v-goto" data-goto="' + node.id + '">' + esc(node.short) + '</button>' +
-      '</div>';
+  const rows = it.lodgings.map(({ node, lodging: L, start, end, nights, pending }) => {
+    // Una parada en reubicación no tiene fechas que mostrar: tiene un estado.
+    const when = pending
+      ? '<div class="lg-when">' +
+          // La fecha candidata va en `.lg-dates`, que es lo que se cae en modo discreto;
+          // el estado ("a reubicar") queda, porque no dice cuándo ni dónde.
+          '<div class="lg-dates">' + esc(node.dates || '') + '</div>' +
+          '<div class="lg-nights tbd">a reubicar</div>' +
+          '<button type="button" class="lg-city v-goto" data-goto="' + node.id + '">' + esc(node.short) + '</button>' +
+        '</div>'
+      : '<div class="lg-when">' +
+          '<div class="lg-dates">' + fmtRange(start, end) + '</div>' +
+          '<div class="lg-nights">' + nightsWord(nights) + '</div>' +
+          '<button type="button" class="lg-city v-goto" data-goto="' + node.id + '">' + esc(node.short) + '</button>' +
+        '</div>';
 
     if (!L) {
+      // `lodgingTbd` es lo que se sabe del hospedaje que falta (para cuántos, con quién).
       return '<div class="v-card lg-pending" data-hosp="' + node.id + '"><div class="lg-row">' + when +
         '<div class="lg-main"><div class="lg-body">' +
           '<div class="lg-name">Sin reservar</div>' +
           '<div class="lg-sub">' + esc(node.name) + ' · ' + nightsWord(nights) + '</div>' +
+          (node.lodgingTbd ? '<div class="lg-warn">' + esc(node.lodgingTbd) + '</div>' : '') +
         '</div></div></div></div>';
     }
 
@@ -76,6 +86,9 @@ RENDER.hospedajes = (it, ctx) => {
           '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span></div>' +
           (L.type || L.guests ? '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' : '') +
           (L.area ? '<div class="lg-area">' + esc(L.area) + '</div>' : '') +
+          // Lo que hay que hacerle a la reserva (rebookear, ajustar fechas, ampliar a 4):
+          // va arriba de los horarios, que son los de la reserva vieja.
+          (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
           hoursHtml(L) +
           (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
           // El costo vive en el bloque de reserva; sin reserva cargada va acá.
@@ -86,9 +99,11 @@ RENDER.hospedajes = (it, ctx) => {
     '</div></div>';
   });
 
-  const conRes = it.lodgings.filter(l => l.lodging).length;
-  return '<div class="v-title">Hospedajes <span>' + conRes + ' de ' + it.lodgings.length + ' reservados · ' +
-    it.lodgings.reduce((a, l) => a + l.nights, 0) + ' noches</span></div>' + rows.join('');
+  // El contador cuenta la CADENA: la parada en reubicación no es una noche del viaje.
+  const firmes = it.lodgings.filter(l => !l.pending);
+  const conRes = firmes.filter(l => l.lodging).length;
+  return '<div class="v-title">Hospedajes <span>' + conRes + ' de ' + firmes.length + ' reservados · ' +
+    firmes.reduce((a, l) => a + l.nights, 0) + ' noches</span></div>' + rows.join('');
 };
 
 // ------------------------------------------------------------ 3 · transportes
