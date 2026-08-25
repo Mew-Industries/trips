@@ -661,7 +661,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Odori_Park_in_Sapporo_1936.jpg/500px-Odori_Park_in_Sapporo_1936.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Sapporo_TV_tower-20091013-RM-162316.jpg/500px-Sapporo_TV_tower-20091013-RM-162316.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg/500px-Sapporo_Clock_Tower_Hokkaido_Japan_2.jpg'],
     dates: '15-17 oct', nights: 2, start: '2026-10-15', end: '2026-10-17',
-    arrival: '15 oct (Peach MM419 desde Sendai, llega 18:10 a New Chitose)', departure: '17 oct (vuelo New Chitose→Komatsu, sigue a Kanazawa)',
+    arrival: '15 oct (Peach MM419 desde Sendai, llega 18:10 a New Chitose)', departure: '17 oct (ANA NH1174 11:55 → 13:30, New Chitose terminal D → Komatsu, sigue a Kanazawa)',
     lodging: {
       name: 'Airbnb Sapporo (Susukino)', type: 'Airbnb · departamento entero',
       guests: '2 personas',
@@ -711,7 +711,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG/500px-Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG/500px-Fountain_Kenrokuen_Garden_Kanazawa_Japan.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Higashi_Chaya_district%2C_Kanazawa_%283810723944%29.jpg/500px-Higashi_Chaya_district%2C_Kanazawa_%283810723944%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/20190705_Kanazawa_Castle-14.jpg/500px-20190705_Kanazawa_Castle-14.jpg'],
     dates: '17-19 oct', nights: 2, start: '2026-10-17', end: '2026-10-19',
-    arrival: '17 oct (vuelo Sapporo→Komatsu, primera noche acá)', departure: '19 oct (vía Shirakawa-go de paso, sigue a Kioto)',
+    arrival: '17 oct (ANA NH1174 desde New Chitose, aterriza 13:30 en Komatsu; primera noche acá)', departure: '19 oct (vía Shirakawa-go de paso, sigue a Kioto)',
     lodging: {
       name: 'Airbnb Kanazawa (Kōrinbō)', type: 'Airbnb · departamento entero',
       guests: '2 personas',
@@ -724,13 +724,22 @@ const destinations = [
       booking: { provider: 'airbnb', ref: null, checkIn: '17 oct', checkOut: '19 oct', total: 'US$165,43' },
       note: 'Base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
     },
-    leg: { mode: '✈️🚆', time: '~1 h 40 (vuelo)', detail: 'Vuelo New Chitose → Komatsu + tren a Kanazawa.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Sapporo%20to%20Komatsu', dirLabel: 'ver vuelos ↗', via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'train', to: [36.5613, 136.6562] }],
+    leg: { mode: '✈️🚌', time: '1 h 35 (vuelo)', detail: 'Sapporo → New Chitose en el Rapid Airport (~37 min) + ANA NH1174, sáb 17/10 11:55 → 13:30 (New Chitose terminal D → Komatsu) + bus del aeropuerto a Kanazawa. Reserva EPVZXU, 2 pax, ¥27.580 pagados (tarifa Simple, 20 kg despachados por pax).',
+      departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30',
+      dirUrl: 'https://www.google.com/maps/dir/?api=1&origin=Sapporo%20Station&destination=New%20Chitose%20Airport&travelmode=transit', dirLabel: 'cómo llegar al aeropuerto ↗',
+      via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'bus', to: [36.5613, 136.6562] }],
       fromTerminal: { name: 'New Chitose · Sapporo (CTS)', coords: [42.7752, 141.6923], mode: 'air' }, toTerminal: { name: 'Komatsu · Kanazawa (KMQ)', coords: [36.3946, 136.4076], mode: 'air' },
+      deadline: { by: '2026-10-17T11:35', what: 'cierra el despacho de equipaje de ANA en New Chitose (20 min antes de la salida) y la puerta de embarque a las 11:45; con las dos valijas conviene estar 10:55', departBy: '2026-10-17T09:50' },
       why: [
-        'El vuelo New Chitose → Komatsu todavía no está comprado: es lo que va a fijar la hora de salida de Sapporo.'
+        'De Susukino a New Chitose son ~1 h (caminata a la estación de Sapporo + Rapid Airport ~37 min), y de Komatsu a Kanazawa ~55 min en la limusina del aeropuerto, que sale ~15 min después de que aterriza el vuelo: puerta a puerta son ~4 h 30.',
+        'La tarifa Simple incluye 20 kg despachados por pax, así que hay que pasar por el mostrador: ANA cierra el despacho 20 min antes de la salida y la puerta 10 min antes.',
+        'La limusina para en Kōrinbō, a media cuadra del Airbnb: se llega a Kanazawa a media tarde y el primer paseo entra el mismo día.'
+      ],
+      segments: [
+        { route: 'CTS → KMQ', no: 'NH1174', when: '17 oct 11:55 → 13:30', departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30', aircraft: 'A321 · 1h35', tracker: 'https://flightaware.com/live/flight/ANA1174' }
       ] },
     tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-08-24', weatherMode: 'climatología',
-    intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (vuelo New Chitose → Komatsu + tren), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
+    intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (ANA NH1174 a Komatsu + limusina del aeropuerto), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
     activities: [
       { text: 'Distrito samurái Nagamachi', cat: 'barrios', coords: [36.563627, 136.651333] },
       { text: 'Super 2nd Street Shimeno (second hand)', cat: 'compras', coords: [36.581172, 136.615598], url: "https://www.google.com/maps/search/?api=1&query=Super%202nd%20Street%20Kanazawa%20Shimeno" },
