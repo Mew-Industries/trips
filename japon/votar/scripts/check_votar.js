@@ -27,6 +27,11 @@ const TOKEN = process.env.TOKEN;
 const TOKEN2 = process.env.TOKEN2;
 const SHOTS = process.env.SHOTS || path.join(__dirname, '..', '..', '..', '..', 'shots');
 
+// Las categorías que Martín pidió no votar: comer y tomar se deciden en el
+// momento (ronda 2), y las tiendas sueltas más el cajón de `otro` no son un
+// plan que se priorice entre cuatro (ronda 4).
+const EXCLUIDAS = ['comida', 'bar-noche', 'compras', 'otro'];
+
 let failed = 0;
 const ok = (name, cond, extra) => {
   console.log(`${cond ? '✓' : '✗'} ${name}${extra ? '  — ' + extra : ''}`);
@@ -124,18 +129,20 @@ const settle = (page) => page.waitForFunction(
     await page.waitForSelector('.card.top');
 
     // El filtro se mira sobre el mazo que armó la app, no sobre una copia del
-    // criterio: `VOTAR_PLACES` es lo que efectivamente se va a swipear.
+    // criterio: `VOTAR_PLACES` es lo que efectivamente se va a swipear. La
+    // lista está escrita acá a mano a propósito: es la decisión de producto
+    // (qué no se vota), no un espejo de la constante de `app.js` — si alguien
+    // toca `SKIP_CATS` sin que nadie lo haya pedido, este chequeo se cae.
     const cats = await page.evaluate(() => [...new Set(window.VOTAR_PLACES.map(p => p.cat))].sort());
     const n = await page.evaluate(() => window.VOTAR_PLACES.length);
-    ok('el mazo deja afuera comida y bar-noche',
-      !cats.includes('comida') && !cats.includes('bar-noche'), `${n} lugares · ${cats.join(', ')}`);
+    ok('el mazo deja afuera comida, bar-noche, compras y otro',
+      !EXCLUIDAS.some((c) => cats.includes(c)), `${n} lugares · ${cats.join(', ')}`);
     // Excluir es más robusto que incluir, pero sólo si de verdad no se llevó
     // puesta ninguna otra: la taxonomía crece (`taller` es de ayer).
-    const missing = await page.evaluate(() => {
+    const missing = await page.evaluate((skip) => {
       const inDeck = new Set(window.VOTAR_PLACES.map(p => p.cat));
-      return window.PLACE_TAXONOMY.order.filter(
-        (c) => c !== 'comida' && c !== 'bar-noche' && !inDeck.has(c));
-    });
+      return window.PLACE_TAXONOMY.order.filter((c) => !skip.includes(c) && !inDeck.has(c));
+    }, EXCLUIDAS);
     ok('y no deja afuera ninguna otra categoría de la taxonomía',
       missing.length === 0, missing.length ? `faltan ${missing.join(', ')}` : cats.join(', '));
 
@@ -238,9 +245,13 @@ const settle = (page) => page.waitForFunction(
       const d = window.VOTAR_DESCS || {};
       return window.VOTAR_PLACES.filter((p) => !d[p.id]).map((p) => p.id);
     });
+    // El archivo tiene más textos que el mazo: los de las categorías que la
+    // ronda 4 sacó siguen ahí. Lo que se cuenta acá es la cobertura del mazo.
+    const nDeck = await page.evaluate(() => window.VOTAR_PLACES.length);
     const nDesc = await page.evaluate(() => Object.keys(window.VOTAR_DESCS || {}).length);
     ok('todos los lugares del mazo tienen descripción curada', gaps.length === 0,
-      gaps.length ? `faltan ${gaps.length}: ${gaps.slice(0, 5).join(', ')}` : `${nDesc} descripciones`);
+      gaps.length ? `faltan ${gaps.length}: ${gaps.slice(0, 5).join(', ')}`
+        : `${nDeck}/${nDeck} del mazo · ${nDesc} textos en el archivo`);
 
     const shape = await page.evaluate(() => {
       const t = Object.values(window.VOTAR_DESCS || {});

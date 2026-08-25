@@ -12,12 +12,17 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
 - **Datos**: no tiene copia propia. Lee `../data/reels.js` (`SOURCE_THINGS`, 272
   lugares) y `../data/categories.js` (taxonomía, colores, íconos), o sea
   exactamente lo mismo que la app principal.
-- **Qué entra al mazo**: todo menos `comida` y `bar-noche` — 185 de los 272.
-  Comer y tomar no se vota (pedido de Martín): se decide en el momento y con
-  hambre. El corte es por **exclusión** sobre la categoría ya resuelta, no por
-  lista de incluidas: la taxonomía crece (`taller` salió el mismo día) y una
-  categoría nueva tiene que entrar sola. Los votos ya emitidos sobre un lugar
-  excluido **no se borran** del KV: dejan de aparecer y listo.
+- **Qué entra al mazo**: todo menos `comida`, `bar-noche`, `compras` y `otro`
+  — 121 de los 272. Comer y tomar no se vota: se decide en el momento y con
+  hambre. Las sesenta de `compras` son casi todas thrift shops sueltas y los
+  cuatro de `otro` son el cajón de sastre de la taxonomía; ninguna de las dos
+  cosas es un plan que valga la pena ordenar entre cuatro personas. Los dos
+  cortes los pidió Martín (rondas 2 y 4), y el segundo es por volumen: 185
+  cards seguían siendo demasiadas para votar de a ratos. El corte es por
+  **exclusión** sobre la categoría ya resuelta, no por lista de incluidas: la
+  taxonomía crece (`taller` salió el mismo día) y una categoría nueva tiene
+  que entrar sola. Los votos ya emitidos sobre un lugar excluido **no se
+  borran** de la db: dejan de aparecer y listo.
 - **Identidad**: un link por persona, `?u=<token>`. El token no es adivinable,
   identifica y autoriza; sin token conocido la app muestra el gate y no monta
   el mazo. No hay login. En el journal el token sale enmascarado (`?u=<token>`):
@@ -89,8 +94,10 @@ y cuando llega se pone encima.
 la pena y el dato práctico que cambia la decisión cuando se lo sabe (hay que
 reservar, la temporada no da, cuánto lleva). La regla al escribirlas es que lo
 que no se sabe no se inventa: antes que un horario alucinado va una línea de
-menos. Cubre los 185 lugares del mazo y `check_votar.js` falla si aparece uno
-sin descripción.
+menos. Cubre los 121 lugares del mazo y `check_votar.js` falla si aparece uno
+sin descripción. Las 64 de `compras` y `otro` estaban escritas cuando la ronda
+4 sacó esas dos categorías y quedaron en el archivo: si alguna vuelve al mazo,
+vuelve con su texto puesto.
 
 Vive en `votar/` y no en `data/` **a propósito**: `data/reels.js` y
 `data/categories.js` los reescribe el pipeline de Instagram cada vez que entran
@@ -190,11 +197,12 @@ votos. Si igual se le pasa el de una persona, no arranca.
 `check_votar.js` levanta la app con Playwright y prueba el gesto de verdad
 (mouse y touch por CDP), el deshacer, retomar tras recargar, el gate sin token,
 el `/aggregate` con dos votantes, y —desde la ronda 2— que el mazo no traiga
-comida ni bar-noche pero sí todo el resto de la taxonomía, que la card de arriba
-embeba el reel, que con el iframe puesto el swipe táctil siga votando, que el
+ninguna de las cuatro categorías excluidas pero sí todo el resto de la
+taxonomía, que la card de arriba embeba el reel, que con el iframe puesto el
+swipe táctil siga votando, que el
 toque quieto active el reel y el botón lo devuelva, y que cortando Instagram
 aparezca el mini-mapa y se pueda seguir swipeando igual. Desde la ronda 3
-también chequea que los 185 lugares tengan descripción curada, que la card
+también chequea que los lugares del mazo tengan descripción curada, que la card
 muestre ésa y no la `note`, que el "más" aparezca exactamente cuando el texto
 se recorta, que abrirlo no vote, que con el texto abierto la card no se
 desborde ni empuje la botonera, y que el swipe táctil siga votando igual. `check_keepalive.py` manda a mano los requests

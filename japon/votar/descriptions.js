@@ -13,8 +13,10 @@
  * no da, cuánto lleva). Lo que no se sabe no se inventa: antes que un horario
  * alucinado va una línea de menos.
  *
- * Cobertura: los 185 lugares del mazo (todo menos `comida` y `bar-noche`).
- * `check_votar.js` falla si aparece uno sin descripción.
+ * Cobertura: los 121 lugares del mazo de hoy, y de yapa los 64 de `compras` y
+ * `otro`, que estaban escritos cuando la ronda 4 los sacó. No se borraron: si
+ * mañana alguna vuelve al mazo, vuelve con su texto puesto. `check_votar.js`
+ * falla si un lugar del mazo no tiene el suyo.
  */
 window.VOTAR_DESCS = {
 

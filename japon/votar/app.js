@@ -80,11 +80,14 @@
     return parts.length === 2 ? parts[0].trim() : '';
   }
 
-  // Comer y tomar no se votan: se deciden en el momento y con hambre (pedido
-  // explícito de Martín). Se excluye por categoría RESUELTA y por exclusión, no
-  // por lista de incluidas: así una categoría nueva de la taxonomía (`taller`
-  // fue la última) entra sola al mazo sin tocar este archivo.
-  var SKIP_CATS = { 'comida': 1, 'bar-noche': 1 };
+  // Lo que no se vota. Comer y tomar se deciden en el momento y con hambre;
+  // las tiendas —`compras` son sesenta thrift shops sueltas— y el cajón de
+  // sastre de `otro` no son un plan que valga la pena priorizar entre cuatro
+  // (los dos pedidos son de Martín, rondas 2 y 4). Se excluye por categoría
+  // RESUELTA y por exclusión, no por lista de incluidas: así una categoría
+  // nueva de la taxonomía (`taller` fue la última) entra sola al mazo sin
+  // tocar este archivo.
+  var SKIP_CATS = { 'comida': 1, 'bar-noche': 1, 'compras': 1, 'otro': 1 };
 
   // El shortcode del reel es lo único que necesita el embed de Instagram. Los
   // datos traen la URL como /p/<code>/, pero /reel/ y /tv/ son lo mismo.
@@ -142,7 +145,7 @@
 
   /* Orden barajado pero determinístico por persona: cada uno ve su propio
      recorrido y siempre el mismo, así recargar retoma exactamente donde iba
-     (y dos personas no arrancan las 272 por el mismo lado). */
+     (y dos personas no arrancan el mazo por el mismo lado). */
   function seededOrder(list, seed) {
     var h = 0;
     for (var i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
@@ -279,7 +282,7 @@
     var media = card.querySelector('.card-media');
     if (!media) return;
     // Sin reel no hay nada que embeber: si el lugar tiene coordenada, la card
-    // muestra dónde queda. Hoy los 272 lugares vienen de un reel, así que este
+    // muestra dónde queda. Hoy todos los lugares vienen de un reel, así que este
     // camino es el del dato que todavía no existe (y el del embed que falla).
     if (!p.ig) return mapFallback(card, p);
 
@@ -410,7 +413,7 @@
     var finished = left.length === 0;
     deckEl.hidden = finished;
     deckEl.innerHTML = '';
-    // Sólo las tres de arriba viven en el DOM: el mazo son 272 lugares. Se
+    // Sólo las tres de arriba viven en el DOM: el mazo son más de cien. Se
     // pintan al revés para que la de más abajo quede primera y la top última.
     var visible = left.slice(0, 3);
     for (var i = visible.length - 1; i >= 0; i--) deckEl.appendChild(buildCard(visible[i], i));
