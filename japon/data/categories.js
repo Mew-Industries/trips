@@ -11,7 +11,7 @@
 // Verificación: node scripts/check_categories.js
 
 window.PLACE_TAXONOMY = {
-  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'],
+  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'taller', 'compras', 'barrio', 'otro'],
   meta: {
     'comida':       { label: 'Comida',     icon: '🍜',  color: '#D8452F' },
     'bar-noche':    { label: 'Bar/noche',  icon: '🍸',  color: '#6D4AA8' },
@@ -25,6 +25,22 @@ window.PLACE_TAXONOMY = {
     'arte':         { label: 'Arte',       icon: '🎨',  color: '#A733B5' },
     'arquitectura': { label: 'Arquitectura', icon: '🏛️', color: '#237C78' },
     'actividad':    { label: 'Actividades', icon: '🎢', color: '#0F8FA8' },
+    // Talleres: el plan del lugar es APRENDER o HACER algo con instrucción y
+    // volver con la pieza (forjar un shuriken, soplar un vaso, tejer una
+    // bufanda, hornear senbei). El corte contra `actividad` es quién hace: acá
+    // lo hacés vos, allá se visita, se pasea o te lo dan hecho (parque de
+    // diversiones, onsen, karting, tour). Un museo que además ofrece un
+    // workshop sigue siendo museo — el plan de fondo es la colección.
+    // El oliva es el único hueco de tono que quedaba. En Lab la rueda ya estaba
+    // ocupada de 144° (verde de parques) hasta 87° (mostaza de tips) dando la
+    // vuelta larga; este cae en 109°, en el medio de esa franja vacía, a ΔE2000
+    // ≥ 20 de las diez categorías del mapa — casi el doble del par más cerrado
+    // que ya convivía (bar-noche vs arte, ΔE 11.6). Va oscuro a propósito
+    // (L 44, 5.6:1 contra blanco): el color se ve en un punto de 9px en el chip
+    // y detrás del número blanco del recorrido del día, los dos sobre el mapa
+    // claro. El marrón —el otro candidato obvio para "taller"— se descartó:
+    // queda pegado al ocre de templo-museo, que son 93 pines.
+    'taller':       { label: 'Talleres',   icon: '🛠️', color: '#646E0E' },
     'compras':      { label: 'Compras',    icon: '🛍️', color: '#D4408C' },
     'barrio':       { label: 'Barrios',    icon: '🏙️', color: '#3B6FD4' },
     'otro':         { label: 'Otros',      icon: '✨',  color: '#8C8C8C' },
@@ -112,6 +128,28 @@ window.PLACE_CAT_OVERRIDES = {
   'Aomori Museum of Art': 'arte',
   'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)': 'arte',
   'Museo de Arte Leeum': 'arte',
+
+  // --- Talleres: te sentás a hacer la pieza y te la llevás ---
+  // Todos venían de `ocio` → `actividad`, mezclados con clubes, onsen y parques
+  // de diversiones. Lo que los junta no es el rubro (metal, vidrio, comida,
+  // electrónica) sino el plan: alguien te enseña y el resultado te lo llevás.
+  'Aisorashi (anillos)': 'taller',              // hacés tu propio anillo, 75-90 min
+  'CHOYA Ume Studio Kyoto': 'taller',           // armás tu umeshu catando ciruelas
+  'Fusion Museum (knit)': 'taller',             // tejés tu bufanda en bici-máquina
+  'Ichihara Shouten (zori)': 'taller',          // sandalias zori a medida con el artesano
+  'Junintoiro (senbei)': 'taller',              // horneás tus galletas senbei
+  'Karaki Mokkou': 'taller',                    // te hacés tu par de ohashi de madera
+  'Mod Tokyo': 'taller',                        // desarmás y customizás una Game Boy
+  'Oshimaya Chochin (Namidabashi)': 'taller',   // farolitos chochin con el dueño
+  'Studio J-45': 'taller',                      // soplás tu propio vaso de vidrio
+  'studio NIN': 'taller',                       // forjás shuriken/kunai o una hoja
+  'Unimocc Art Gallery Café': 'taller',         // pintás tu torta-lienzo
+  // Mirados y dejados donde estaban: Oita Fragrance Museum y Suginami Animation
+  // Museum son museos que ADEMÁS tienen workshop (el plan es la colección);
+  // Honjo Life Safety Learning Center es un simulador guiado, no salís con nada
+  // hecho; UNIQLO UTme! es un kiosco dentro de un local (el plan es comprar la
+  // remera); "KAIT Workshop" es el nombre del edificio de Ishigami, no un curso;
+  // y la casa-taller de Taro Okamoto es el atelier del artista, ya museo.
 
   // --- Reels que el legacy dejaba mal clasificados ---
   'Nintendo Museum': 'templo-museo',

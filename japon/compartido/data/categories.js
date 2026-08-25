@@ -8,6 +8,7 @@ window.PLACE_TAXONOMY = {
     "arte",
     "arquitectura",
     "actividad",
+    "taller",
     "compras",
     "barrio",
     "otro"
@@ -47,6 +48,11 @@ window.PLACE_TAXONOMY = {
       "label": "Actividades",
       "icon": "🎢",
       "color": "#0F8FA8"
+    },
+    "taller": {
+      "label": "Talleres",
+      "icon": "🛠️",
+      "color": "#646E0E"
     },
     "compras": {
       "label": "Compras",
