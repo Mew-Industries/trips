@@ -51,6 +51,8 @@
      controles que el foco pisa no se muestran — decir dos cosas distintas sobre lo
      mismo confunde más que ayudar. El chip es la única salida. */
   #map.day-focus .map-bars, #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
+  /* La leyenda de modos explica las líneas de transporte: sin ellas dibujadas, sobra. */
+  #map.no-legs .route-legend { display: none; }
   .day-chip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1001; display: none; }
   #map.day-focus .day-chip { display: block; }
   .day-chip button { font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; padding: 7px 14px; border-radius: 16px; border: 0; background: #0F6E56; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
@@ -1400,7 +1402,8 @@ const airports = [
   { code: 'IAH', name: 'Houston (escala)', coords: [29.9844, 264.6586] },
   { code: 'EZE', name: 'Buenos Aires Ezeiza', coords: [-34.8222, 301.4642] }
 ];
-// Aeropuertos en la MISMA capa que las líneas de vuelo (toggle "Vuelos" agrupa ambos).
+// Aeropuertos en la MISMA capa que las líneas de vuelo: se prenden y apagan juntos,
+// y `flightLayer` entero cuelga del toggle "Transporte" junto con lo terrestre.
 airports.forEach(ap => {
   const icon = L.divIcon({ html: '<div class="airport-marker">✈</div>', className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
   L.marker(ap.coords, { icon }).addTo(flightLayer)
@@ -2285,10 +2288,17 @@ const TOGGLES = [
   { key: 'destinos', label: 'Destinos',   icon: '📍', layers: [destLayer] },
   { key: 'actividades', label: 'Actividades', icon: '📌', layers: [savedPlaceLayer, dtLayer, orphanPlaceLayer] },
   { key: 'hospedaje', label: 'Hospedajes', icon: '🛏️', layers: [lodgingLayer] },
-  { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer] },
-  { key: 'vuelos', label: 'Vuelos',     icon: '✈️', layers: [flightLayer] },
+  // Un vuelo ES transporte: una sola familia con TODOS los saltos — terrestres
+  // (routeLayer) y aéreos + aeropuertos (flightLayer). Estaban partidos en dos
+  // botones y duplicaban navegación (Martín, 2026-08-25).
+  { key: 'transporte', label: 'Transporte', icon: '🚆', layers: [routeLayer, flightLayer] },
 ];
+// `vuelos` era una familia propia: un link viejo con `layersOff=vuelos` significaba
+// "escondé los saltos" y ahora eso es `transporte`. Se traduce en vez de ignorarse,
+// para que el link compartido siga aterrizando con el mapa como quien lo mandó lo vio.
+const LEGACY_LAYER_KEYS = { vuelos: 'transporte' };
 const inactiveLayers = new Set((new URLSearchParams(location.search).get('layersOff') || '').split(',')
+  .map(k => LEGACY_LAYER_KEYS[k] || k)
   .filter(k => TOGGLES.some(t => t.key === k)));
 const layerBtns = {};
 let allLayersBtn = null;
@@ -2310,6 +2320,7 @@ function setLayer(key, on) {
   const t = TOGGLES.find(x => x.key === key);
   if (!t) return;
   on ? inactiveLayers.delete(key) : inactiveLayers.add(key);
+  if (key === 'transporte') map.getContainer().classList.toggle('no-legs', !on);
   const btn = layerBtns[key];
   if (btn) { btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', String(on)); }
   if (!dayFocus) t.layers.forEach(l => on ? map.addLayer(l) : map.removeLayer(l));
@@ -2358,6 +2369,7 @@ layersControl.onAdd = function () {
   return togglesBar;
 };
 layersControl.addTo(map);
+map.getContainer().classList.toggle('no-legs', !layerOn('transporte'));  // aterrizar con ?layersOff=transporte
 
 // ------------------------------------------------------- foco de día (task 508)
 // Tocar un día en la vista Días toma el mapa: se apagan todas las familias y quedan
