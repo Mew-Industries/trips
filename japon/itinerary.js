@@ -117,7 +117,9 @@ export function transfersOf(all) {
       const date = dayOf(leg.departure) || (kind === 'out' ? d.end : d.start);
       out.push({
         id: d.id + (kind === 'out' ? ':out' : ''),
-        node: d, kind, leg, date,
+        // `node` es el nodo al que se LLEGA (y el que le da el id al tramo); `prev`, el
+        // nodo del que se sale — el vuelo de vuelta sale del propio nodo final.
+        node: d, prev: kind === 'out' ? d : (dests[i - 1] || null), kind, leg, date,
         from: ends.from, to: ends.to,
         departure: leg.departure || null,
         arrival: leg.arrival || null,

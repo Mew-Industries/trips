@@ -39,6 +39,13 @@ function hoursHtml(L) {
   return '<div class="lg-hours">' + chips.join('') + '</div>';
 }
 
+// El tramo compartido se marca igual en las cuatro vistas: badge violeta con quién, y
+// —donde el borde izquierdo está libre— el acento en la tarjeta. El dato es del nodo
+// (`sharedWith`), no de la vista: acá sólo se lo lee.
+const sharedTag = node => (node && node.sharedWith)
+  ? '<span class="shared-tag">+ ' + node.sharedWith + '</span>' : '';
+const sharedCls = node => (node && node.sharedWith) ? ' shared' : '';
+
 // ------------------------------------------------------------- 2 · hospedajes
 // Las 13 paradas donde se duerme, en orden. La que todavía no tiene reserva
 // aparece igual: el hueco es parte de la información.
@@ -63,9 +70,9 @@ RENDER.hospedajes = (it, ctx) => {
 
     if (!L) {
       // `lodgingTbd` es lo que se sabe del hospedaje que falta (para cuántos, con quién).
-      return '<div class="v-card lg-pending" data-hosp="' + node.id + '"><div class="lg-row">' + when +
+      return '<div class="v-card lg-pending' + sharedCls(node) + '" data-hosp="' + node.id + '"><div class="lg-row">' + when +
         '<div class="lg-main"><div class="lg-body">' +
-          '<div class="lg-name">Sin reservar</div>' +
+          '<div class="lg-name">Sin reservar' + sharedTag(node) + '</div>' +
           '<div class="lg-sub">' + esc(node.name) + ' · ' + nightsWord(nights) + '</div>' +
           (node.lodgingTbd ? '<div class="lg-warn">' + esc(node.lodgingTbd) + '</div>' : '') +
         '</div></div></div></div>';
@@ -79,11 +86,11 @@ RENDER.hospedajes = (it, ctx) => {
 
     // `data-hosp` es el id del nodo, el mismo con el que el mapa indexa su pin de cama:
     // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
-    return '<div class="v-card" data-hosp="' + node.id + '"><div class="lg-row">' + when +
+    return '<div class="v-card' + sharedCls(node) + '" data-hosp="' + node.id + '"><div class="lg-row">' + when +
       '<div class="lg-main">' +
         (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" alt="">' : '') +
         '<div class="lg-body">' +
-          '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span></div>' +
+          '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span>' + sharedTag(node) + '</div>' +
           (L.type || L.guests ? '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' : '') +
           (L.area ? '<div class="lg-area">' + esc(L.area) + '</div>' : '') +
           // Lo que hay que hacerle a la reserva (rebookear, ajustar fechas, ampliar a 4):
@@ -152,8 +159,13 @@ RENDER.transportes = (it, ctx) => {
     const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
       encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
 
+    // Un salto es del tramo compartido cuando lo son sus dos puntas: el que llega a
+    // Kioto (de Shirakawa-go) no lo es, aunque Zava y Ari aterricen ese mismo día.
+    const shared = t.node.sharedWith && t.prev && t.prev.sharedWith ? t.node : null;
+
     // `data-leg` es el id del tramo, el mismo con el que el mapa indexa su línea: es
     // lo que hace que tocar una lleve a la otra, en los dos sentidos.
+
     return '<div class="v-card" data-leg="' + t.id + '"><div class="tr-row tr-' + kind + '">' +
       '<div class="tr-when">' +
         '<div class="tr-date">' + fmtDate(t.date) + '</div>' +
@@ -162,7 +174,7 @@ RENDER.transportes = (it, ctx) => {
       '</div>' +
       '<div class="tr-main">' +
         '<div class="tr-route"><button type="button" class="v-goto" data-goto="' + t.node.id + '">' +
-          esc(t.from) + '<span class="tr-arrow">→</span>' + esc(t.to) + '</button></div>' +
+          esc(t.from) + '<span class="tr-arrow">→</span>' + esc(t.to) + '</button>' + sharedTag(shared) + '</div>' +
         (leg.detail ? '<div class="tr-detail">' + esc(leg.detail) + '</div>' : '') +
         '<div class="tr-times">' +
           timeChip('Sale', t.departure, t.date, 'go') +
@@ -563,7 +575,8 @@ RENDER.dias = (it, ctx) => {
   const rows = it.days.map(day => {
     const where = day.here.length
       ? day.here.map(h => '<button type="button" class="v-goto" data-goto="' + h.node.id + '">' + esc(h.node.short) +
-          '</button><span class="dy-role' + (h.role === 'de paso' ? ' paso' : '') + '">' + h.role + '</span>').join('<span class="tr-arrow">→</span>')
+          '</button><span class="dy-role' + (h.role === 'de paso' ? ' paso' : '') + '">' + h.role + '</span>' +
+          sharedTag(h.node)).join('<span class="tr-arrow">→</span>')
       : (day.inFlight ? '✈️ En vuelo' : 'Fin del viaje');
 
     const sleep = day.sleep && day.sleep.lodging

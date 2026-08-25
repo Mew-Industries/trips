@@ -156,6 +156,49 @@ mostrar lo que efectivamente está reservado. Un nodo sin `lodging` puede declar
 **`lodgingTbd`** (string) y muestra la tarjeta igual, punteada y con "Sin reservar" — es lo
 que hace el Tokio del medio ("a definir · para 4, compartido con Zava y Ari").
 
+## Tramo compartido: `sharedWith` y la vista `/japon/compartido/` (2026-08-25 · task 545 ronda 2)
+
+Kioto (19-24), Osaka (24-27) y el Tokio del medio (27-31) se hacen **con Zava y Ari**. Eso
+es un atributo del nodo, no un tipo: siguen siendo destinos de la cadena, numerados y
+verdes.
+
+- **`sharedWith: 'Zava y Ari'`** en el nodo. De ahí salen el badge `+ Zava y Ari` y el
+  acento **violeta `#6C4BB6`** en el borde izquierdo de la tarjeta (`.dest-card.shared`),
+  el halo del pin del mapa (`.marker-num.shared`) y las fichas de las vistas laterales
+  (`.v-card.shared` en views.css). El badge (`.shared-tag`) va en la **línea de fechas, no
+  en el título** — Martín, ronda 2: «Kioto y Osaka también son con ellos, el título no es
+  el lugar para marcarlo»; por eso el nodo se llama `Tokio (medio)` a secas. En
+  **Transportes** el borde izquierdo ya es el color del modo, así que ahí va sólo el badge,
+  y sólo en los saltos con las **dos** puntas compartidas (el que llega a Kioto viene de
+  Shirakawa-go: no lo es). Para eso `transfersOf()` emite ahora `prev` además de `node`.
+- **`/japon/compartido/`** es la versión filtrada que se le manda a ellos: sólo las tres
+  paradas, renumeradas 1-2-3, con sus dos saltos internos, hospedajes (sin la reserva) y
+  el "qué hacer". **Es una página aparte, no un `?view=`**: el itinerario entero vive en el
+  array `destinations` de `index.html`, así que filtrarlo en runtime dejaría igual las 15
+  paradas dentro del documento que recibe quien abre el link. Esconder por CSS no es
+  filtrar.
+- El dato de esa página es **`compartido/data.js`, generado**, y la fuente de verdad sigue
+  siendo `index.html` — no hay un segundo registro del viaje:
+
+  ```
+  node japon/scripts/build_compartido.js            # regenera compartido/data.js
+  node japon/scripts/build_compartido.js --check     # falla si quedó viejo o si se filtró algo
+  ```
+
+  ⚠️ **Si tocás fechas, hospedaje o actividades de Kioto/Osaka/Tokio-medio, regenerá.**
+  El `--check` es lo que lo caza (y corre en segundos).
+- El generador copia por **allowlist** (campo por campo) y **reescribe la prosa** en su
+  tabla `OVERRIDES`: el `intro`/`arrival`/`departure` de `destinations` está escrito para
+  Martín y Cata y nombra el resto del viaje. Del `lodging` se copia dónde y cómo entrar,
+  **nunca el `booking`** (código, importe, teléfono del host). La categoría de cada lugar
+  se resuelve en el generador con `data/categories.js` y viaja ya resuelta, así la página
+  compartida no carga ese archivo —sus overrides nombran lugares de todo el viaje—.
+  `--check` además falla si aparece cualquier palabra de `FORBIDDEN` (las otras paradas,
+  los otros hospedajes, los códigos de reserva) en `compartido/`.
+
+Verificación (browser de verdad, las tres marcas + la vista filtrada + su HTML servido):
+`node evidence/545/tooling/check-r2.mjs <base> <shots>` en el workspace de Mew.
+
 ## Foco de día y capas del mapa (2026-08-11 · task 508)
 
 **Foco de día.** Cada jornada de la vista Días tiene un botón **"ver en mapa"** que le da el mapa a ese día solo: se apagan todas las familias de capas y quedan los puntos de esa jornada —las actividades del día, la cama de anoche y la de esta noche, y las terminales del traslado si hay—, unidos por una polyline punteada, con `flyToBounds` + padding. **No es ruteo por calles** (pedía dependencia externa + API key en un site sin build step): es la guía visual de qué sigue a qué.
@@ -229,7 +272,7 @@ HTML + JavaScript + Leaflet 1.9.4 + Chart.js 4.4, todo por CDN, **sin build step
 **Galería de fotos**: cada nodo tiene `imgs: [...]` (3 fotos) renderizadas como `.gallery-thumb` en el detalle; click → lightbox full-screen con ‹/› y Esc. `img` (single, para thumb+popup) = `imgs[0]`. **Fuente: Wikimedia Commons search por FACETAS** (3 queries distintas por destino, ej. Kioto = Fushimi Inari torii / Arashiyama bamboo / Kiyomizu-dera) para que las 3 fotos caractericen aspectos diferentes en vez de repetir lo mismo. (Openverse/Flickr CC se descartó: rate-limita con 429 y daba fotos poco variadas.) Para refrescar fotos: editar el dict FACETS en el script de fetch y re-correr. **Transporte**: `leg.time` son duraciones REALES scrapeadas de Google Maps directions (door-to-door); `leg.dirUrl`/`dirLabel` opcionales overridean el link "cómo llegar" — vuelos → Google Flights ("ver vuelos"), bus privado Kanazawa→Shirakawa → japanbusonline.com ("reservar bus"), resto → Google Maps directions transit. ⚠️ Shirakawa-go→Koyasan dio ~7h door-to-door (tramo largo, posible candidato a repensar). La card es un header clickeable (`.itin-head`) + detalle oculto (`.card-detail`, se muestra con la clase `.open`). **La temperatura vive dentro del detalle** (no siempre visible). Dentro, "Qué hacer" es otro acordeón colapsado por default. Los nodos "de paso" muestran "· de paso (por el día)". Cada actividad geolocalizada linkea a su punto en el mapa; el link a Google Maps vive en el popup del punto. **Coords reales de Google** (no Nominatim) — ver `projects/japan-trip/data/master_coords.json`.
 - **Nikko como pivote del chain norte**: Nikko (de paso) ya NO va entre Tokio y Kanazawa, sino entre Tokio y Sendai — es el primer salto del recorrido norte (Tokio→Nikko→Ichinoseki→Sendai→Sapporo, todo hacia arriba, sin volver sobre los pasos). Desde Sapporo se vuela a Komatsu para retomar Kanazawa/Kansai. Esto resolvió el día imposible que había cuando Sapporo iba antes que Nikko.
 - **Tohoku (Sendai)**: parada de 1 noche elegida por Martín (financiada sacando 1 noche de Tokio final, 7→6). Sendai como hub: gyutan, Zuihōden, daytrips a Matsushima y Zaō Fox Village. Swap posible a una parada foliage más al norte (Towada/Oirase, Aomori) pero esa pide 2n. Los lugares guardados Zuihōden + Zaō Fox Village salieron de orphans a Sendai (orphans 19→17).
-- **Cambios (25 ago 2026 · task 545)**: se suman **Zava y Ari** al tramo del medio (19/10 KIX → 1/11 desde Tokio). Kioto 6n→**5n** (19-24), Osaka 5n→**3n** (24-27, y ya no se llega de Koyasan sino de Kioto en tren), **Tokio del medio 4n** (27-31, sin hospedaje todavía, se busca para 4) y el salto del 31/10 dejó de ser el Shinkansen Shin-Osaka→Hakata: ahora es un **vuelo Tokio→Fukuoka sin comprar** ("a definir"). Fukuoka, Hakone y Tokio final no se tocaron. Las reservas de Kioto y Osaka siguen con las fechas viejas y llevan su aviso de rebooking en la tarjeta.
+- **Cambios (25 ago 2026 · task 545)**: se suman **Zava y Ari** al tramo del medio (19/10 KIX → 1/11 desde Tokio). Kioto 6n→**5n** (19-24), Osaka 5n→**3n** (24-27, y ya no se llega de Koyasan sino de Kioto en tren), **Tokio del medio 4n** (27-31, sin hospedaje todavía, se busca para 4) y el salto del 31/10 dejó de ser el Shinkansen Shin-Osaka→Hakata: ahora es un **vuelo Tokio→Fukuoka sin comprar** ("a definir"). Fukuoka, Hakone y Tokio final no se tocaron. Las reservas de Kioto y Osaka siguen con las fechas viejas y llevan su aviso de rebooking en la tarjeta. **Ronda 2**: los tres nodos llevan `sharedWith` (badge violeta, sin nombrarlos en el título) y existe `/japon/compartido/`, la vista filtrada del tramo para mandarles — ver su sección arriba.
 - **Cambios (jun 2026)**: chain norte al arranque (Nikko→Sendai 1n→Sapporo 2n), financiado con −1 Tokio inicial, −1 Koyasan, −1 Tokio final; agregar Sendai corrió todo el medio del viaje +1 día. Sin Noboribetsu/Hakodate e Hiroshima/Miyajima; Osaka 5n; ventana de vuelo 6/10–18/11.
 - **Silver Week** (~19–23 sep) cae ANTES del viaje (arranca 6/10) — el viaje la esquiva por completo.
 - Estado: vuelos FIRMES (tickets del 6/10, ambos tramos confirmados con números/horarios reales).

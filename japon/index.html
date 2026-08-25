@@ -177,6 +177,13 @@
   .dest-card.fullday:hover { border-color: rgba(184, 120, 20, 0.7); }
   .dest-card.fullday.active { border-color: #B87814; box-shadow: 0 2px 12px rgba(184, 120, 20, 0.18); }
   .fullday-tag.pending { color: #8d6a1f; background: rgba(169, 164, 151, 0.22); }
+  /* Tramo compartido (Kioto/Osaka/Tokio del medio): el nodo sigue siendo de la cadena
+     —verde, numerado— y el acento violeta dice con quién. Un badge y un borde: el
+     resto de la tarjeta no cambia. */
+  .shared-tag { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: 0.4px; color: #58399B; background: rgba(108, 75, 182, 0.14); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  .dest-card.shared { border-left: 3px solid #6C4BB6; }
+  .dest-card.shared:hover { border-color: rgba(108, 75, 182, 0.4); border-left-color: #6C4BB6; }
+  .dest-card.shared.active { border-color: #6C4BB6; box-shadow: 0 2px 12px rgba(108, 75, 182, 0.18); }
   .fullday-tag { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #8A5A0E; background: rgba(240, 184, 74, 0.22); border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
   .card-title-wrap h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
   .card-meta { font-size: 11px; color: #666; }
@@ -350,6 +357,8 @@
 
   .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
   .marker-num.pending { background: #fff; border: 2px dashed #A9A497; color: #8d8878; }
+  /* Nodo del tramo compartido: halo violeta alrededor del pin de la cadena. */
+  .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
   /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual. */
   .pp { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; margin: 1px; }
@@ -792,6 +801,7 @@ const destinations = [
   },
   {
     id: 'kioto', n: 8, type: 'destino', name: 'Kioto', short: 'Kioto', flag: '🇯🇵',
+    sharedWith: 'Zava y Ari',
     coords: [35.0116, 135.7681],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg'],
@@ -848,6 +858,7 @@ const destinations = [
   },
   {
     id: 'osaka', n: 9, type: 'destino', name: 'Osaka', short: 'Osaka', flag: '🇯🇵',
+    sharedWith: 'Zava y Ari',
     coords: [34.6937, 135.5023],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg'],
@@ -909,7 +920,8 @@ const destinations = [
     // Tokio del MEDIO (re-armado del 25/8): el tramo con Zava y Ari termina acá. Ellos
     // se quedan hasta el 1/11; Martín y Cata siguen a Fukuoka el 31. Las ideas de Tokio
     // viven en las paradas 1 y 15 — este nodo no duplica el catálogo.
-    id: 'tokio-medio', n: 10, type: 'destino', name: 'Tokio (medio, con Zava y Ari)', short: 'Tokio medio', flag: '🇯🇵',
+    id: 'tokio-medio', n: 10, type: 'destino', name: 'Tokio (medio)', short: 'Tokio medio', flag: '🇯🇵',
+    sharedWith: 'Zava y Ari',
     coords: [35.7100, 139.7800],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg'],
@@ -1256,6 +1268,10 @@ const destinations = [
 // curva de temperatura. Todo lo que lee "el anterior" / "el siguiente" usa `chain`.
 const isPendingStop = d => d.type === 'pendiente';
 const chain = destinations.filter(d => !isPendingStop(d));
+// Tramo compartido: el nodo lo declara con `sharedWith` (con quién). Es un atributo del
+// nodo, no un tipo — sigue siendo un destino de la cadena, numerado y verde; lo que
+// agrega es el acento violeta y el badge. La vista filtrada (compartido/) sale de acá.
+const sharedTag = d => d.sharedWith ? '<span class="shared-tag">+ ' + d.sharedWith + '</span>' : '';
 const prevInChain = d => { const i = chain.indexOf(d); return i > 0 ? chain[i - 1] : null; };
 
 // Lugares guardados de Google Maps que no caen dentro de ningún destino (>60km o sin geocodificar): pins/chips sueltos.
@@ -1825,7 +1841,7 @@ destinations.forEach(d => {
         className: '', iconSize: [34, 34], iconAnchor: [17, 17],
       })
     : L.divIcon({
-        html: '<div class="marker-num" data-id="' + d.id + '">' + d.n + '</div>',
+        html: '<div class="marker-num' + (d.sharedWith ? ' shared' : '') + '" data-id="' + d.id + '">' + d.n + '</div>',
         className: '', iconSize: [30, 30], iconAnchor: [15, 15],
       });
   const marker = L.marker(d.coords, { icon }).addTo(destLayer);
@@ -1984,7 +2000,8 @@ destinations.forEach((d, idx) => {
   const isFullday = d.type === 'fullday';
   const isPending = isPendingStop(d);
   const card = document.createElement('article');
-  card.className = 'dest-card' + (isFullday ? ' fullday' : '') + (isPending ? ' pending' : '');
+  card.className = 'dest-card' + (isFullday ? ' fullday' : '') + (isPending ? ' pending' : '') +
+    (d.sharedWith ? ' shared' : '');
   card.dataset.id = d.id;
 
   const dtHtml = d.daytrips.length > 0
@@ -2014,11 +2031,14 @@ destinations.forEach((d, idx) => {
     : isFullday
     ? '<h2>' + d.name + '<span class="fullday-tag">de paso</span></h2>'
     : '<h2>' + d.name + '</h2>';
+  // El badge del tramo compartido va en la línea de fechas, NO en el título: el título
+  // es el lugar, y con quién se está es otra cosa (Martín, ronda 2: "Kioto y Osaka
+  // también son con ellos — el título no es el lugar para marcarlo").
   const metaHtml = isPending
     ? '<div class="card-meta">' + DX(d.pendingNote || d.dates) + '</div>'
     : isFullday
     ? '<div class="card-meta">' + DX(d.dates + ' · ') + 'pasar el día</div>'
-    : '<div class="card-meta">' + DX(d.dates + ' · ') + d.nights + ' noches</div>';
+    : '<div class="card-meta">' + DX(d.dates + ' · ') + d.nights + ' noches' + sharedTag(d) + '</div>';
 
   // Fila de transporte: cómo se llega a este nodo desde el anterior (va ANTES de la card).
   if (d.leg) {
@@ -2268,7 +2288,7 @@ function smBodyHtml(d) {
       '</ul></div>'
     : '';
   return (
-    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + '</div></div></div>' +
+    '<div class="sm-head">' + flag + '<div><h2 class="sm-title">' + d.name + '</h2><div class="sm-meta">' + meta + sharedTag(d) + '</div></div></div>' +
     hero +
     '<div id="sm-map" class="sm-map"></div>' +
     (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' : '') +
@@ -2291,7 +2311,7 @@ function buildStopMiniMap(d, idx) {
     else { subsegs = [{ pts: [a.coords].concat(d.leg.via || []).concat([d.coords]), mode: legType(d.leg) }]; }
     subsegs.forEach(seg => { L.polyline(seg.pts, styleFor(seg.mode)).addTo(_smLayer); seg.pts.forEach(p => pts.push(p)); });
   }
-  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num' + (isPendingStop(d) ? ' pending' : '') + '">' + (d.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
+  L.marker(d.coords, { icon: L.divIcon({ html: '<div class="marker-num' + (isPendingStop(d) ? ' pending' : '') + (d.sharedWith ? ' shared' : '') + '">' + (d.n || '?') + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(_smLayer);
   pts.push(d.coords);
   (d.activities || []).forEach(a => { if (a.coords) { L.circleMarker(a.coords, { radius: 5, color: catColor(catOfAct(a)), weight: 2, fillColor: catColor(catOfAct(a)), fillOpacity: 0.85 }).addTo(_smLayer).bindPopup(a.text); pts.push(a.coords); } });
   (d.daytrips || []).forEach(t => { if (t.coords) { L.circleMarker(t.coords, { radius: 5, color: catColor(catOf(t.name, t.cat)), weight: 2.5, fillColor: '#fff', fillOpacity: 1 }).addTo(_smLayer).bindPopup(t.name); pts.push(t.coords); } });

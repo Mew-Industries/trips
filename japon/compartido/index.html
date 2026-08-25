@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Japón — tramo compartido · 19-31 oct 2026</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="64x64" href="../favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!--
+  Vista compartida del tramo Kioto → Osaka → Tokio (19-31 oct), para mandarle a Zava y
+  Ari. Es una página aparte, no un filtro del site: el itinerario completo vive en el
+  array `destinations` de ../index.html y filtrarlo en runtime dejaría igual las 15
+  paradas dentro del documento. Acá el dato ya viene recortado desde el generador
+  (scripts/build_compartido.js → data.js), que copia por allowlist. La app completa
+  sigue siendo la de /japon/.
+-->
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a1a; background: #f5f4f0; }
+
+  .hd { padding: 13px 20px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .hd h1 { font-size: 16px; font-weight: 600; margin: 0; }
+  .hd .sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .hd .note { font-size: 11.5px; color: #58399B; background: rgba(108,75,182,0.1); border-radius: 5px; padding: 4px 8px; margin-top: 7px; display: inline-block; line-height: 1.4; }
+
+  .shell { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); height: calc(100vh - 74px); }
+  .map-pane { border-right: 1px solid rgba(0,0,0,0.08); }
+  #map { height: 100%; width: 100%; background: #e9e6de; }
+  .list { overflow-y: auto; padding: 14px 16px 40px; }
+  .list-inner { max-width: 720px; margin: 0 auto; }
+
+  .card { background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); border-left: 3px solid #6C4BB6; padding: 14px 16px; margin-bottom: 10px; }
+  .c-head { display: flex; align-items: center; gap: 12px; }
+  .num { width: 28px; height: 28px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: #04342C; flex: none; }
+  .c-head h2 { font-size: 15px; font-weight: 600; margin: 0 0 1px; line-height: 1.2; }
+  .c-meta { font-size: 11px; color: #666; }
+  .gal { display: flex; gap: 6px; margin: 11px 0 10px; }
+  .gal img { width: 33.33%; height: 88px; object-fit: cover; border-radius: 7px; background: #ece9e2; cursor: zoom-in; }
+  .intro { font-size: 12px; color: #555; line-height: 1.55; margin: 0 0 10px; }
+  .ends { display: flex; flex-direction: column; gap: 3px; margin-bottom: 4px; }
+  .end { font-size: 11.5px; color: #6e6a5f; line-height: 1.4; }
+  .end b { color: #1a1a1a; font-weight: 600; }
+
+  .sec { font-size: 10px; color: #999; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 12px 0 5px; }
+  .lodge { display: flex; gap: 10px; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 9px 10px; }
+  .lodge.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
+  .lg-name { font-size: 13px; font-weight: 600; line-height: 1.25; }
+  .lodge.tbd .lg-name { color: #8d8878; }
+  .lg-sub { font-size: 11px; color: #777; margin-top: 1px; }
+  .lg-area { font-size: 11px; color: #8d8878; line-height: 1.45; margin-top: 4px; }
+  .lg-h { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 11px; background: rgba(15,110,86,0.09); color: #0F6E56; margin: 6px 6px 0 0; }
+  .lg-h.out { background: rgba(0,0,0,0.045); color: #6e6a5f; }
+  .lg-links { margin-top: 7px; font-size: 11px; display: flex; flex-wrap: wrap; gap: 10px; }
+  .lg-links a { color: #1D9E75; }
+  .lg-warn { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240,184,74,0.18); border-radius: 5px; padding: 4px 7px; margin-top: 6px; line-height: 1.35; }
+
+  .cat { border-left: 2px solid var(--c); padding-left: 9px; margin-bottom: 9px; }
+  .cat-head { font-size: 10.5px; font-weight: 700; color: var(--c); letter-spacing: 0.02em; margin-bottom: 3px; }
+  .grp { font-size: 10.5px; color: #a29d90; font-style: italic; margin: 4px 0 1px; }
+  .acts { list-style: none; margin: 0; padding: 0; }
+  .acts li { margin-bottom: 1px; }
+  .act { border: 0; background: none; padding: 2px 0; font: inherit; font-size: 12px; line-height: 1.45; color: #333; text-align: left; cursor: pointer; }
+  .act:hover { color: #0F6E56; }
+  .act.plain { cursor: default; color: #555; }
+
+  .dt { border-top: 1px solid rgba(0,0,0,0.06); padding: 6px 0 5px; }
+  .dt:first-of-type { border-top: 0; }
+  .dt-h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .dt-n { font-size: 12px; font-weight: 600; }
+  .dt-n a { color: #1a1a1a; text-decoration: none; }
+  .dt-n a:hover { color: #0F6E56; }
+  .dt-t { font-size: 10.5px; color: #999; white-space: nowrap; }
+  .dt-d { font-size: 11px; color: #777; line-height: 1.45; margin-top: 1px; }
+
+  .leg { margin: 3px 0 3px 16px; padding: 5px 8px 6px 12px; border-left: 3px solid #0F8A5F; border-radius: 0 6px 6px 0; font-size: 11px; color: #888; display: flex; align-items: baseline; gap: 7px; }
+  .leg b { color: #444; }
+  .leg-mode { font-size: 13px; }
+
+  .foot { font-size: 11px; color: #a29d90; text-align: center; padding: 16px 8px 4px; line-height: 1.5; }
+
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+  .pop-t { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .pop-s { font-size: 11px; color: #777; }
+  .pop-l { display: inline-block; font-size: 11px; color: #1D9E75; margin-top: 5px; }
+  .leaflet-popup-content { margin: 10px 12px; }
+
+  .lb { position: fixed; inset: 0; z-index: 4000; background: rgba(20,18,15,0.93); display: none; align-items: center; justify-content: center; }
+  .lb.on { display: flex; }
+  .lb img { max-width: 94vw; max-height: 88vh; border-radius: 6px; }
+  .lb button { position: absolute; top: 14px; right: 16px; background: none; border: 0; color: #fff; font-size: 26px; cursor: pointer; line-height: 1; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .shell { grid-template-columns: 1fr; height: auto; }
+    .map-pane { height: 46vh; position: sticky; top: 0; z-index: 500; border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
+    .list { overflow: visible; padding: 12px 12px 32px; }
+    .gal img { height: 74px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <h1 id="t"></h1>
+  <div class="sub" id="s"></div>
+  <div class="note" id="n"></div>
+</header>
+
+<div class="shell">
+  <div class="map-pane"><div id="map"></div></div>
+  <div class="list"><div class="list-inner" id="list"></div></div>
+</div>
+
+<div class="lb" id="lb"><button type="button" aria-label="Cerrar">✕</button><img alt=""></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  var S = window.SEGMENT;
+
+  // Las mismas diez categorías del site (data/categories.js). Acá va sólo la tabla de
+  // color/ícono: la categoría de cada lugar ya viene resuelta en data.js, así el
+  // archivo de overrides —que nombra lugares de todo el viaje— no se carga en esta
+  // página.
+  var CAT = {
+    'comida':       { label: 'Comida',            icon: '🍜',  color: '#D8452F' },
+    'bar-noche':    { label: 'Bar/noche',         icon: '🍸',  color: '#6D4AA8' },
+    'parque':       { label: 'Parques',           icon: '🌳',  color: '#3E9B4F' },
+    'templo-museo': { label: 'Templos y museos',  icon: '⛩️', color: '#C9891C' },
+    'arte':         { label: 'Arte',              icon: '🎨',  color: '#A733B5' },
+    'arquitectura': { label: 'Arquitectura',      icon: '🏛️', color: '#237C78' },
+    'actividad':    { label: 'Actividades',       icon: '🎢',  color: '#0F8FA8' },
+    'compras':      { label: 'Compras',           icon: '🛍️', color: '#D4408C' },
+    'barrio':       { label: 'Barrios',           icon: '🏙️', color: '#3B6FD4' },
+    'otro':         { label: 'Otros',             icon: '✨',  color: '#8C8C8C' },
+  };
+  var ORDER = ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'compras', 'barrio', 'otro'];
+  var meta = function (c) { return CAT[c] || CAT.otro; };
+
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  };
+  var gmaps = function (q) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); };
+  var nights = function (n) { return n + (n === 1 ? ' noche' : ' noches'); };
+
+  document.getElementById('t').textContent = S.title;
+  document.getElementById('s').textContent = S.subtitle;
+  document.getElementById('n').textContent = S.note;
+
+  // ------------------------------------------------------------------- listado
+
+  // "Qué hacer" agrupado por la taxonomía que también colorea los pines: la lista y el
+  // mapa se leen como una sola cosa. Lo que comparte `group` es una salida y va junto,
+  // con su rótulo; lo que no tiene coords va como texto (no se le inventa un punto).
+  function actsHtml(node) {
+    var byCat = {};
+    node.activities.forEach(function (a, i) {
+      (byCat[a.cat] = byCat[a.cat] || []).push({ i: i, a: a });
+    });
+    return ORDER.filter(function (c) { return byCat[c]; }).map(function (c) {
+      var m = meta(c), rows = byCat[c], out = '', lastGrp = null, open = false;
+      rows.forEach(function (r) {
+        var g = r.a.group || null;
+        if (g !== lastGrp) {
+          if (open) { out += '</ul>'; open = false; }
+          if (g) out += '<div class="grp">' + esc(g) + '</div>';
+        }
+        if (!open) { out += '<ul class="acts">'; open = true; }
+        lastGrp = g;
+        out += '<li>' + (r.a.coords
+          ? '<button type="button" class="act" data-act="' + node.id + ':' + r.i + '">' + esc(r.a.text) + '</button>'
+          : '<span class="act plain">' + esc(r.a.text) + '</span>') + '</li>';
+      });
+      if (open) out += '</ul>';
+      return '<div class="cat" style="--c:' + m.color + '"><div class="cat-head">' + m.icon + ' ' + esc(m.label) + '</div>' + out + '</div>';
+    }).join('');
+  }
+
+  function lodgeHtml(node) {
+    var L = node.lodging;
+    if (!L) {
+      return '<div class="sec">🛏️ Hospedaje</div><div class="lodge tbd"><div><div class="lg-name">Sin reservar</div>' +
+        '<div class="lg-sub">' + esc(node.lodgingTbd || '') + '</div></div></div>';
+    }
+    var links = [];
+    if (L.url) links.push('<a href="' + esc(L.url) + '" target="_blank" rel="noopener">Ficha del alojamiento ↗</a>');
+    if (L.mapsUrl) links.push('<a href="' + esc(L.mapsUrl) + '" target="_blank" rel="noopener">Google Maps ↗</a>');
+    var hours = '';
+    if (L.checkInFrom || L.checkInTo) hours += '<span class="lg-h">Check-in ' + esc(L.checkInFrom || '') + (L.checkInTo ? '–' + esc(L.checkInTo) : '') + '</span>';
+    if (L.checkOutBy || L.checkOutFrom) hours += '<span class="lg-h out">Check-out hasta ' + esc(L.checkOutBy || L.checkOutFrom) + '</span>';
+    return '<div class="sec">🛏️ Hospedaje</div><div class="lodge"><div>' +
+      '<div class="lg-name">' + esc(L.name) + '</div>' +
+      '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' +
+      (L.area ? '<div class="lg-area">' + esc(L.area) + '</div>' : '') +
+      (L.checkIn && L.checkOut ? '<div class="lg-sub">' + esc(L.checkIn) + ' → ' + esc(L.checkOut) + (L.nights ? ' · ' + nights(L.nights) : '') + '</div>' : '') +
+      (hours ? '<div>' + hours + '</div>' : '') +
+      (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
+      (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
+      '</div></div>';
+  }
+
+  function dtsHtml(node) {
+    if (!node.daytrips.length) return '';
+    return '<div class="sec">Day trips</div>' + node.daytrips.map(function (t) {
+      var href = t.url || gmaps(t.name);
+      return '<div class="dt"><div class="dt-h"><div class="dt-n"><a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(t.name) + '</a></div>' +
+        '<div class="dt-t">' + esc(t.time || '') + '</div></div>' +
+        (t.desc ? '<div class="dt-d">' + esc(t.desc) + '</div>' : '') + '</div>';
+    }).join('');
+  }
+
+  function cardHtml(node) {
+    return '<article class="card" id="c-' + node.id + '">' +
+      '<div class="c-head"><div class="num">' + node.i + '</div><div>' +
+        '<h2>' + esc(node.name) + '</h2>' +
+        '<div class="c-meta">' + esc(node.dates) + ' · ' + nights(node.nights) + '</div>' +
+      '</div></div>' +
+      (node.imgs.length ? '<div class="gal">' + node.imgs.slice(0, 3).map(function (u) {
+        return '<img src="' + esc(u) + '" loading="lazy" alt="">';
+      }).join('') + '</div>' : '') +
+      '<p class="intro">' + esc(node.intro) + '</p>' +
+      '<div class="ends">' +
+        (node.arrival ? '<div class="end"><b>Llegada</b> · ' + esc(node.arrival) + '</div>' : '') +
+        (node.departure ? '<div class="end"><b>Salida</b> · ' + esc(node.departure) + '</div>' : '') +
+      '</div>' +
+      lodgeHtml(node) +
+      (node.activities.length ? '<div class="sec">Qué hacer · ' + node.activities.length + '</div>' + actsHtml(node) : '') +
+      dtsHtml(node) +
+    '</article>';
+  }
+
+  function legHtml(leg) {
+    return '<div class="leg"><span class="leg-mode">' + esc(leg.mode) + '</span>' +
+      '<span><b>' + esc(leg.time) + '</b> · ' + esc(leg.detail) + '</span></div>';
+  }
+
+  var html = '';
+  S.nodes.forEach(function (node, i) {
+    if (i) {
+      var leg = S.legs.filter(function (l) { return l.toId === node.id; })[0];
+      if (leg) html += legHtml(leg);
+    }
+    html += cardHtml(node);
+  });
+  html += '<div class="foot">Sólo el tramo compartido: Kioto, Osaka y Tokio, del 19 al 31 de octubre.</div>';
+  document.getElementById('list').innerHTML = html;
+
+  // ---------------------------------------------------------------------- mapa
+
+  var map = L.map('map', { zoomControl: true, scrollWheelZoom: true });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+    subdomains: 'abcd', maxZoom: 19,
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+
+  var pts = [], actPins = {};
+  var pop = function (title, sub, href, label) {
+    return '<div class="pop-t">' + title + '</div><div class="pop-s">' + sub + '</div>' +
+      (href ? '<a class="pop-l" href="' + esc(href) + '" target="_blank" rel="noopener">' + (label || 'Ver en Google Maps') + ' →</a>' : '');
+  };
+
+  S.nodes.forEach(function (node) {
+    // La ciudad y su cama caen casi en el mismo punto: el número va arriba, que es el
+    // que ordena la lectura del tramo.
+    L.marker(node.coords, {
+      zIndexOffset: 1000,
+      icon: L.divIcon({ html: '<div class="marker-num">' + node.i + '</div>', className: '', iconSize: [30, 30], iconAnchor: [15, 15] })
+    }).addTo(map).bindPopup(pop(esc(node.name), esc(node.dates) + ' · ' + nights(node.nights), gmaps(node.name)));
+    pts.push(node.coords);
+
+    if (node.lodging && node.lodging.coords) {
+      L.marker(node.lodging.coords, {
+        icon: L.divIcon({ html: '<div class="lodging-marker">🛏️</div>', className: '', iconSize: [28, 28], iconAnchor: [14, 14] })
+      }).addTo(map).bindPopup(pop('🛏️ ' + esc(node.lodging.name), esc(node.lodging.checkIn || '') + ' → ' + esc(node.lodging.checkOut || ''),
+        node.lodging.mapsUrl || node.lodging.url));
+      pts.push(node.lodging.coords);
+    }
+
+    node.activities.forEach(function (a, i) {
+      if (!a.coords) return;
+      var m = meta(a.cat);
+      var pin = L.circleMarker(a.coords, {
+        radius: 5, color: m.color, weight: 2, fillColor: m.color, fillOpacity: 0.85
+      }).addTo(map).bindPopup(pop(esc(a.text), m.icon + ' ' + esc(m.label) + ' · ' + esc(node.short), a.url || gmaps(a.text)));
+      actPins[node.id + ':' + i] = pin;
+    });
+
+    node.daytrips.forEach(function (t) {
+      if (!t.coords) return;
+      var m = meta(t.cat);
+      L.circleMarker(t.coords, {
+        radius: 6, color: m.color, weight: 2, fillColor: '#fff', fillOpacity: 0.95
+      }).addTo(map).bindPopup(pop(esc(t.name), m.icon + ' ' + esc(m.label) + ' · day trip desde ' + esc(node.short) + ' · ' + esc(t.time || ''), t.url || gmaps(t.name)));
+    });
+  });
+
+  // La línea del tramo: Kioto → Osaka → Tokio, en el orden en que se hace.
+  L.polyline(S.nodes.map(function (n) { return n.coords; }), {
+    color: '#0F8A5F', weight: 3, opacity: 0.75
+  }).addTo(map);
+
+  map.fitBounds(L.latLngBounds(pts).pad(0.12));
+
+  // Tocar una idea de la lista vuela a su punto, igual que en el site completo.
+  document.getElementById('list').addEventListener('click', function (e) {
+    var b = e.target.closest('.act[data-act]');
+    if (b) {
+      var pin = actPins[b.dataset.act];
+      if (pin) { map.flyTo(pin.getLatLng(), Math.max(map.getZoom(), 13), { duration: 0.6 }); pin.openPopup(); }
+      return;
+    }
+    var img = e.target.closest('.gal img');
+    if (img) {
+      var lb = document.getElementById('lb');
+      lb.querySelector('img').src = img.src;
+      lb.classList.add('on');
+    }
+  });
+
+  document.getElementById('lb').addEventListener('click', function () { this.classList.remove('on'); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.getElementById('lb').classList.remove('on');
+  });
+})();
+</script>
+</body>
+</html>
