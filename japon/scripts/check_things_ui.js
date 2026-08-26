@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-/** Regression checks for the city pool + barrio-first activity catalog. */
+/** Regression checks for the city pool + flat, filterable activity catalog. */
 const fs = require('fs');
 const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const checks = [
-  ['barrios usan grupos colapsables con cantidad',
-    /<details class="cat-group hood-group">/.test(html) && /class="cat-count"/.test(html)],
-  ['orden intra-barrio usa distancia al hospedaje',
+  ['la lista abre plana sin navegación por barrios',
+    /class="card-list activity-list"/.test(html) &&
+    !/<details class="cat-group hood-group">/.test(html) &&
+    !/class="cat-count"/.test(html)],
+  ['la lista plana mantiene orden por distancia al hospedaje',
     /entries\.slice\(\)\.sort\(\(a, b\) => activityDistance\(a\.act, node\) - activityDistance\(b\.act, node\)\)/.test(html)],
   ['chips combinables persisten en acat',
     /data-activity-chip/.test(html) && /searchParams\.set\('acat'/.test(html)],
@@ -23,14 +25,14 @@ const checks = [
     /\.thing-row \{ display: flex;/.test(html) && /\.act-row \{[^}]*width: auto;/.test(html)],
   ['targets de fuentes siguen siendo táctiles en mobile',
     /@media \(max-width: 900px\)[\s\S]*\.source-link \{ min-height: 32px; line-height: 32px;/.test(html)],
-  ['la ficha completa reutiliza el agrupado por barrio',
-    /categoryGroupsHtml\(cityActs, d, false\)/.test(html)],
+  ['la ficha completa reutiliza la lista plana filtrable',
+    /activityCatalogHtml\(cityActs, d, false\)/.test(html)],
   // task 552: la lista es de la ciudad, no de la visita. Si alguien vuelve a pasarle
   // `d.activities` a la lista, Tokio se fragmenta otra vez entre sus tres paradas.
   ['la lista sale del pool de la ciudad, no de la parada',
     /function cityActivities\(d\)/.test(html) &&
-    /categoryGroupsHtml\(cityActs, d, true\)/.test(html) &&
-    !/categoryGroupsHtml\(d\.activities/.test(html)],
+    /activityCatalogHtml\(cityActs, d, true\)/.test(html) &&
+    !/activityCatalogHtml\(d\.activities/.test(html)],
 ];
 
 let failed = 0;

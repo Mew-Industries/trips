@@ -357,8 +357,7 @@
   .activity-filters::-webkit-scrollbar { display: none; }
   .activity-chip { flex: none; border: 1px solid rgba(15,110,86,.18); border-radius: 14px; background: #fff; color: #6e6a5f; padding: 4px 8px; font: inherit; font-size: 10px; cursor: pointer; }
   .activity-chip.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
-  .hood-group[hidden], .activity-featured[hidden], .thing-row[hidden] { display: none; }
-  .hood-head { color: #0F6E56; }
+  .activity-featured[hidden], .thing-row[hidden] { display: none; }
   .activity-note { display: block; margin-top: 1px; color: #8d8878; font-size: 10.5px; line-height: 1.35; text-decoration: none; }
   .activity-featured { margin: 4px 0 8px; padding: 7px 9px; border-radius: 8px; background: rgba(240,184,74,.11); }
   .featured-label { margin-bottom: 3px; color: #8A5A0E; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
@@ -1907,14 +1906,6 @@ function sourceLinksHtml(thing) {
 const activityCatsFromUrl = () => new Set((new URLSearchParams(location.search).get('acat') || '')
   .split(',').filter(c => CAT_META[c]));
 let selectedActivityCats = activityCatsFromUrl();
-function neighborhoodOf(a, node) {
-  const area = String(a.area || '').trim();
-  const paren = area.match(/\(([^)]+)\)/);
-  if (paren) return paren[1];
-  const parts = area.split(',').map(s => s.trim()).filter(Boolean);
-  if (parts.length > 1 && cityKeyOf(parts[parts.length - 1]) === cityOfNode(node || {})) return parts[0];
-  return 'Otros';
-}
 function activityDistance(a, node) {
   const bed = node && node.lodging && node.lodging.coords;
   if (!bed || !a.coords) return Number.POSITIVE_INFINITY;
@@ -1932,25 +1923,18 @@ function activityRowHtml(entry, node, interactive) {
   return '<li class="thing-row" data-check="' + key + '" data-activity-cat="' + catOfAct(a) + '" data-search-text="' +
     escHtml(catKey([a.text, a.note, a.area].filter(Boolean).join(' '))) + '">' + body + sourceLinksHtml(a) + '</li>';
 }
-function categoryGroupsHtml(entries, node, interactive = true) {
+function activityCatalogHtml(entries, node, interactive = true) {
   const ordered = entries.slice().sort((a, b) => activityDistance(a.act, node) - activityDistance(b.act, node));
   const cats = CAT_ORDER.filter(c => ordered.some(e => catOfAct(e.act) === c));
   const chips = '<div class="activity-filters" aria-label="Filtrar por categoría">' + cats.map(c =>
     '<button type="button" class="activity-chip' + (selectedActivityCats.has(c) ? ' on' : '') + '" data-activity-chip="' + c + '" aria-pressed="' + selectedActivityCats.has(c) + '">' +
     CAT_META[c].icon + ' ' + escHtml(CAT_META[c].label) + '</button>').join('') + '</div>';
   const featured = ordered.filter(e => e.act.destacado);
-  const byHood = new Map();
-  ordered.filter(e => !e.act.destacado).forEach(e => {
-    const hood = neighborhoodOf(e.act, node);
-    if (!byHood.has(hood)) byHood.set(hood, []);
-    byHood.get(hood).push(e);
-  });
+  const regular = ordered.filter(e => !e.act.destacado);
   const featuredHtml = featured.length
     ? '<div class="activity-featured"><div class="featured-label">★ Destacados</div><ul class="card-list">' + featured.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></div>' : '';
-  const groups = [...byHood].map(([hood, rows]) => '<details class="cat-group hood-group">' +
-    '<summary class="cat-head hood-head"><span class="cat-name">' + escHtml(hood) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
-    '<ul class="card-list">' + rows.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></details>').join('');
-  return '<div class="activity-catalog">' + chips + featuredHtml + groups + '</div>';
+  const list = '<ul class="card-list activity-list">' + regular.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul>';
+  return '<div class="activity-catalog">' + chips + featuredHtml + list + '</div>';
 }
 
 const CHECKLIST_KEY = 'japon-activity-checklist-v2';
@@ -2387,7 +2371,7 @@ destinations.forEach((d, idx) => {
       (cityActs.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + cityActs.length + '</span>' + sharedNote + '<span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
-            categoryGroupsHtml(cityActs, d, true) +
+            activityCatalogHtml(cityActs, d, true) +
           '</div>'
         : '') +
       dtHtml +
@@ -2491,11 +2475,6 @@ function applyActivityFilters() {
     catalog.querySelectorAll('.thing-row[data-activity-cat]').forEach(row => {
       row.hidden = !!((selectedActivityCats.size && !selectedActivityCats.has(row.dataset.activityCat)) ||
         (q && !row.dataset.searchText.includes(q)));
-    });
-    catalog.querySelectorAll('.hood-group').forEach(group => {
-      const visible = [...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
-      group.hidden = !visible;
-      if (q && visible) group.open = true;
     });
     catalog.querySelectorAll('.activity-featured').forEach(group => {
       group.hidden = ![...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
@@ -2674,7 +2653,7 @@ function smBodyHtml(d) {
     ? '<span class="qh-shared">' + escHtml(cityLabel(d)) + ' · las ' + visits + ' visitas</span>' : '';
   const acts = cityActs.length
     ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + cityActs.length + sharedNote + '</div>' +
-        categoryGroupsHtml(cityActs, d, false) +
+        activityCatalogHtml(cityActs, d, false) +
       '</div>'
     : '';
   const dts = cityDts.length
@@ -3484,7 +3463,7 @@ try {
     // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
     cityActivities, cityLabel,
-    activityId, activityGroupsHtml: categoryGroupsHtml,
+    activityId, activityGroupsHtml: activityCatalogHtml,
     nodeById: Object.fromEntries(destinations.map(d => [d.id, d])),
     focusTrip, openStopModal, flash,
     // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la
