@@ -843,19 +843,26 @@ const destinations = [
     dates: '19-24 oct', nights: 5, start: '2026-10-19', end: '2026-10-24',
     arrival: '19 oct (llega de Shirakawa-go, primera noche acá; se suman Zava y Ari, que aterrizan en KIX)', departure: '24 oct (sigue a Osaka)',
     lodging: {
-      name: 'Airbnb Kioto (Shimogyō-ku)', type: 'Airbnb · departamento entero',
-      guests: '2 personas · a compartir con Zava y Ari (4 pax)',
-      area: 'Shimogyō-ku, sobre Ayakōji-dōri · downtown sur, a pasos de Karasuma/Shijō — caminable a Nishiki y Pontocho, y cerca de la Estación de Kioto (clave para los daytrips por JR). Dirección: 44 Shioyachō (Ayakōjidōri), Shimogyō-ku, Kyōto-shi 600-8052.',
-      coords: [34.9981, 135.7588],
-      checkIn: '19 oct', checkOut: '24 oct', nights: 5, booked: true,
-      url: 'https://www.airbnb.com/rooms/19373663',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=44%20Shioyach%C5%8D%20Ayak%C5%8Djid%C5%8Dri%20Shimogy%C5%8D-ku%20Kyoto%20600-8052',
-      // `booking` es lo que está COMPRADO hoy (19-25 para 2) y `pending` lo que falta
-      // hacerle: el nodo ya vale 19-24 y la reserva todavía no se tocó.
-      pending: 'Ajustar la reserva a 19-24 oct (hoy 19-25) y confirmar que entren 4 · pendiente',
-      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '19 oct', checkOut: '25 oct', total: 'US$1.078,41' },
-      note: 'Base downtown en Shimogyō-ku · alojamiento compartido con Zava y Ari.'
+      name: 'Kyotofish · Kamogawa', type: 'Airbnb · machiya entera de 180 m²', rating: '★4,86',
+      guests: '4 personas · con Zava y Ari',
+      area: 'Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 — la casa da al río entre Gojō y Shichijō, a pasos de Kiyamachi y a ~15 min a pie de la Estación de Kioto (clave para los daytrips por JR).',
+      coords: [34.9940, 135.7671],
+      checkIn: '19 oct', checkOut: '23 oct', nights: 4, booked: true,
+      checkInFrom: '16:00', checkOutBy: '10:00',
+      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/2a8a376d-0b41-4a42-b98a-71dd6b3faa63.jpeg?im_w=720',
+      imgs: [
+        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/2a8a376d-0b41-4a42-b98a-71dd6b3faa63.jpeg?im_w=720',
+        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/6fe239a4-b11d-40cb-a2b0-3952fe526703.jpeg?im_w=720',
+        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/62ac0dfa-e645-4eb8-865a-f206c36c2703.jpeg?im_w=720',
+        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/6d1edc51-305d-44b0-9167-a5ac9232ad80.jpeg?im_w=720'
+      ],
+      url: 'https://www.airbnb.com/rooms/1065587248882014284',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=348-2%20Yatsuyanagich%C5%8D%20Shimogy%C5%8D-ku%20Kyoto%20600-8112',
+      // Sin bloque `booking`: la reserva no está en la cuenta de Martín (la tomó otro de los
+      // cuatro), así que no hay número ni link que él pueda abrir. Las horas van arriba,
+      // en `checkInFrom`/`checkOutBy`.
+      pending: 'La reserva cubre 19-23 (4 noches) y el nodo llega hasta el 24: falta resolver la noche del 23.',
+      note: 'Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con Zava y Ari.'
     },
     leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }],
       fromTerminal: { name: 'Terminal de buses de Shirakawa-go', coords: [36.26195, 136.90689], mode: 'bus' }, toTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' },

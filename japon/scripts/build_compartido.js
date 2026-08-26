@@ -65,7 +65,7 @@ function buildData(all) {
     if (id === 'kioto') {
       node.arrival = '19 oct · llegada a KIX y primera noche en Kioto';
       node.departure = '24 oct · sigue Osaka';
-      node.intro = 'Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. El departamento es compartido y queda en Shimogyō-ku, cerca de Karasuma/Shijō y de la Estación de Kioto.';
+      node.intro = 'Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.';
       node.leg = {
         mode: '✈️', time: 'a definir', detail: 'Llegada a Kansai (KIX) → Kioto.',
         fromName: 'Origen a definir', toName: 'Kioto',
