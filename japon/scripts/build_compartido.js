@@ -94,8 +94,8 @@ function buildData(all) {
       node.name = 'Tokio';
       node.short = 'Tokio';
       node.arrival = '27 oct · se llega de Osaka en Shinkansen (~2 h 30)';
-      node.departure = '31 oct · Zava y Ari se quedan una noche más y vuelan el 1/11';
-      node.intro = 'Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Zava y Ari se quedan hasta el 1 de noviembre.';
+      node.departure = '31 oct · los amigos se quedan una noche más y vuelan el 1/11';
+      node.intro = 'Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.';
     }
     return node;
   });
@@ -145,7 +145,7 @@ function render() {
     .replace('<title>Japón + Corea · oct-nov 2026</title>', '<title>Japón · 19-31 oct 2026</title>')
     .replace('<h1>Japón + Corea</h1>', '<h1>Japón</h1>')
     .replace('<span class="subtitle"><span class="dx">6 oct – 18 nov 2026</span><span class="dm">43 días</span></span>', '<span class="subtitle"><span class="dx">19–31 oct 2026</span><span class="dm">12 días</span></span>')
-    .replace(/<div class="header-stats">[\s\S]*?<\/div>\s*<button type="button" class="discrete-btn"/, '<div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> Zava y Ari vuelven</span></div>\n    <button type="button" class="discrete-btn"')
+    .replace(/<div class="header-stats">[\s\S]*?<\/div>\s*<button type="button" class="discrete-btn"/, '<div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> vuelven los amigos</span></div>\n    <button type="button" class="discrete-btn"')
     .replace('src="data/categories.js"', 'src="data/categories.js"')
     .replace('<script src="data/reels.js"></script>', '<script>window.SOURCE_THINGS = [];</script>')
     .replace('href="views.css"', 'href="../views.css"')

@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 272 lugares + 14 tips de los DM de IG (japonn + grupo zava+ari) · 2026-08-25T15:51:55+00:00
+// 272 lugares + 14 tips de los DM de IG (japonn + grupo de amigos) · 2026-08-25T15:51:55+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",

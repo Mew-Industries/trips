@@ -22,22 +22,9 @@ const TABS = [
 // su pane es el <main class="dashboard"> que ya existe en index.html.
 const RENDER = {};
 
-// Ventana de horario como chip. Sin dato no se inventa: la tarjeta dice, una sola
-// vez, que las horas todavía no están (típico de los Airbnb, que no las declaran).
-function hourChip(label, from, to, cls) {
-  const v = from && to ? from + '–' + to : from ? 'desde ' + from : 'hasta ' + to;
-  return '<span class="lg-h ' + cls + '">' + label + ' ' + v + '</span>';
-}
-function hoursHtml(L) {
-  const chips = [];
-  if (L.checkInFrom || L.checkInTo) chips.push(hourChip('Check-in', L.checkInFrom, L.checkInTo, ''));
-  if (L.checkOutFrom || L.checkOutBy) chips.push(hourChip('Check-out', L.checkOutFrom, L.checkOutBy, 'out'));
-  if (!chips.length) chips.push('<span class="lg-h tbd">Horarios a definir</span>');
-  // El bloque "Tu reserva" ya trae las horas cuando las hay: no repetirlas arriba.
-  const b = L.booking;
-  if (b && /\d:\d\d/.test((b.checkIn || '') + (b.checkOut || ''))) return '';
-  return '<div class="lg-hours">' + chips.join('') + '</div>';
-}
+// Los chips de horario y la línea de links son los mismos que arma el resumen
+// (`hoursHtml` / `lodgingLinks` en index.html): las dos vistas muestran el mismo
+// hospedaje, así que el criterio de qué se dice —y qué no se repite— vive en un solo lado.
 
 // Los nodos compartidos se marcan igual en las cuatro vistas: badge violeta con quién, y
 // —donde el borde izquierdo está libre— el acento en la tarjeta. El dato es del nodo
@@ -84,9 +71,9 @@ RENDER.hospedajes = (it, ctx) => {
     const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
     const galKey = 'hosp:' + node.id;
     if (ctx.galleries) ctx.galleries[galKey] = shots;
-    const links = [];
-    if (L.url) links.push('<a href="' + L.url + '" target="_blank" rel="noopener">' + ctx.HOTEL_LINK_LABEL + ' ↗</a>');
-    if (L.mapsUrl) links.push('<a href="' + L.mapsUrl + '" target="_blank" rel="noopener">Google Maps ↗</a>');
+    // Ficha, Maps y —cuando lleva a otro lado— la reserva: una sola línea de links. Las
+    // fechas ya están en la columna de la izquierda, así que no vuelven acá.
+    const links = ctx.lodgingLinks(L, '');
 
     // `data-hosp` es el id del nodo, el mismo con el que el mapa indexa su pin de cama:
     // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
@@ -100,7 +87,7 @@ RENDER.hospedajes = (it, ctx) => {
           // Lo que hay que hacerle a la reserva (rebookear, ajustar fechas, ampliar a 4):
           // va arriba de los horarios, que son los de la reserva vieja.
           (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
-          hoursHtml(L) +
+          ctx.hoursHtml(L) +
           (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
         '</div>' +
         ctx.resvHtml(L) +
@@ -162,7 +149,7 @@ RENDER.transportes = (it, ctx) => {
       encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
 
     // Un salto es compartido cuando lo son sus dos puntas: el que llega a
-    // Kioto no lo es, aunque Zava y Ari aterricen ese mismo día.
+    // Kioto no lo es, aunque los amigos aterricen ese mismo día.
     const shared = t.node.sharedWith && t.prev && t.prev.sharedWith ? t.node : null;
 
     // `data-leg` es el id del tramo, el mismo con el que el mapa indexa su línea: es

@@ -250,7 +250,7 @@
      se leen igual. */
   .lodging-card { display: block; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; overflow: hidden; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
   .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
-  .lodging-img { display: block; width: 100%; height: 168px; object-fit: cover; background: #ece9e2; }
+  .lodging-img { display: block; width: 100%; height: 140px; object-fit: cover; background: #ece9e2; }
   .lodging-img-zoom { cursor: zoom-in; transition: opacity 0.12s; }
   .lodging-img-zoom:hover { opacity: 0.9; }
   .lodging-body { min-width: 0; padding: 8px 10px 9px; }
@@ -262,22 +262,31 @@
   .lodging-pending { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240, 184, 74, 0.18); border-radius: 5px; padding: 4px 7px; margin-top: 6px; line-height: 1.35; }
   .lodging-card.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
   .lodging-card.tbd .lodging-name { color: #8d8878; }
-  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-meta { font-size: 11px; color: #444; font-weight: 600; margin-top: 4px; line-height: 1.5; }
   .lodging-link { color: #1D9E75; text-decoration: underline; }
   .lodging-link:hover { color: #0F6E56; }
-  /* "Tu reserva": los datos que se usan parado en el mostrador (número, horarios,
-     teléfono). Barra verde a la izquierda para despegarlo de la ficha del hotel. */
-  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 8px 10px 9px; margin: -4px 0 10px; }
-  .resv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  /* La descripción del lugar, plegada: cerrada es un renglón, abierta el texto de
+     siempre. Mismo triángulo y mismo gris que el resto de los desplegables del site. */
+  .lodging-more { margin-top: 5px; font-size: 11px; color: #777; line-height: 1.4; }
+  .lodging-more > summary { display: inline-flex; align-items: baseline; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #b0aa9c; cursor: pointer; list-style: none; }
+  .lodging-more > summary::-webkit-details-marker { display: none; }
+  .lodging-more > summary::before { content: '▸'; color: #cfc9bb; font-size: 9px; display: inline-block; transition: transform 0.15s; }
+  .lodging-more[open] > summary::before { transform: rotate(90deg); }
+  .lodging-more > summary:hover { color: #0F6E56; }
+  .lodging-more > summary:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { .lodging-more > summary::before { transition: none; } }
+  /* Lo que se usa parado en el mostrador: el número de reserva y las condiciones. Sin
+     título propio ni fechas —las fechas están arriba, en la tarjeta—, sólo la barra
+     verde a la izquierda para despegarlo de la ficha del hotel (Martín, 26/8). */
+  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 7px 10px 8px; margin: -2px 0 10px; }
+  .resv-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
   .resv-prov { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #0F6E56; }
-  .resv-ref { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 2px 0 0; text-align: left; cursor: pointer; transition: color 0.12s; }
+  .resv-ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; transition: color 0.12s; }
   .resv-ref:hover { color: #0F6E56; }
   .resv-ref.copied { color: #1D9E75; }
   .resv-ref.copied::after { content: ' ✓ copiado'; font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0; }
-  .resv-ref2 { font-size: 10px; color: #888; margin-top: 2px; }
-  .resv-open { flex-shrink: 0; margin-top: 2px; font-size: 11px; font-weight: 600; color: #1D9E75; text-decoration: underline; white-space: nowrap; }
-  .resv-open:hover { color: #0F6E56; }
-  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 7px; }
+  .resv-ref2 { font-size: 10px; color: #888; }
+  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 5px; }
   .resv-row { display: flex; gap: 7px; font-size: 11px; line-height: 1.5; }
   .resv-k { flex-shrink: 0; min-width: 66px; color: #999; }
   .resv-v { min-width: 0; color: #444; }
@@ -288,7 +297,7 @@
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
   .lodging-gallery { margin-top: -6px; }
-  .lodging-gallery .gallery-thumb { height: 64px; }
+  .lodging-gallery .gallery-thumb { height: 54px; }
   /* Por encima de la ficha de parada (z-index 4000): la foto del hospedaje también se
      abre desde adentro del modal. */
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
@@ -461,7 +470,7 @@
     .map-toggles .mt-ic { font-size: 13px; }
     .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
     .cat-head { min-height: 36px; }
-    .lodging-img { height: 140px; }
+    .lodging-img { height: 120px; }
     .lb-prev, .lb-next { font-size: 40px; padding: 0 10px; }
   }
 </style>
@@ -474,7 +483,7 @@
     <span class="subtitle"><span class="dx">19–31 oct 2026</span><span class="dm">12 días</span></span>
   </div>
   <div class="header-right">
-    <div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> Zava y Ari vuelven</span></div>
+    <div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> vuelven los amigos</span></div>
     <button type="button" class="discrete-btn" id="discrete-toggle" title="Modo discreto (d)">🙈</button>
   </div>
 </header>
@@ -536,7 +545,7 @@ const destinations = [
     "name": "Kioto",
     "short": "Kioto",
     "flag": "🇯🇵",
-    "sharedWith": "Zava y Ari",
+    "sharedWith": "amigos",
     "coords": [
       35.0116,
       135.7681
@@ -557,8 +566,8 @@ const destinations = [
       "name": "Kyotofish · Kamogawa",
       "type": "Airbnb · machiya entera de 180 m²",
       "rating": "★4,86",
-      "guests": "4 personas · con Zava y Ari",
-      "area": "Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 — la casa da al río entre Gojō y Shichijō, a pasos de Kiyamachi y a ~15 min a pie de la Estación de Kioto (clave para los daytrips por JR).",
+      "guests": "4 personas · con amigos",
+      "area": "Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 · ~15 min a pie de la Estación de Kioto",
       "coords": [
         34.994,
         135.7671
@@ -584,7 +593,7 @@ const destinations = [
         "checkIn": "19 oct · desde 16:00",
         "checkOut": "24 oct · hasta 10:00"
       },
-      "note": "Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con Zava y Ari."
+      "note": "Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con amigos."
     },
     "leg": {
       "mode": "✈️",
@@ -828,7 +837,7 @@ const destinations = [
     "name": "Osaka",
     "short": "Osaka",
     "flag": "🇯🇵",
-    "sharedWith": "Zava y Ari",
+    "sharedWith": "amigos",
     "coords": [
       34.6937,
       135.5023
@@ -848,8 +857,8 @@ const destinations = [
     "lodging": {
       "name": "Mercure Tokyu Stay Osaka Namba",
       "type": "Hotel · Superior Queen 25 m², no fumador",
-      "guests": "2 adultos · Zava y Ari paran por su cuenta",
-      "area": "Nishi-Shinsaibashi (2-2-4, Chūō-ku 〒542-0086) — a 5 min a pie de Namba y de Shinsaibashi (línea Midōsuji), entre Midōsuji-dōri y Dotonbori.",
+      "guests": "2 adultos · los amigos paran por su cuenta",
+      "area": "A 5 min a pie de Namba y Shinsaibashi (línea Midōsuji) · Nishi-Shinsaibashi 2-2-4, Chūō-ku 〒542-0086",
       "coords": [
         34.67062,
         135.49964
@@ -1107,7 +1116,7 @@ const destinations = [
     "name": "Tokio",
     "short": "Tokio",
     "flag": "🇯🇵",
-    "sharedWith": "Zava y Ari",
+    "sharedWith": "amigos",
     "coords": [
       35.71,
       139.78
@@ -1123,9 +1132,9 @@ const destinations = [
     "start": "2026-10-27",
     "end": "2026-10-31",
     "arrival": "27 oct · se llega de Osaka en Shinkansen (~2 h 30)",
-    "departure": "31 oct · Zava y Ari se quedan una noche más y vuelan el 1/11",
+    "departure": "31 oct · los amigos se quedan una noche más y vuelan el 1/11",
     "lodging": null,
-    "lodgingTbd": "A definir · para 4 (compartido con Zava y Ari)",
+    "lodgingTbd": "A definir · para 4 (compartido con amigos)",
     "leg": {
       "mode": "🚄",
       "time": "~2 h 30",
@@ -1156,7 +1165,7 @@ const destinations = [
     "tempMin": "6-18",
     "weatherUpdated": "2026-08-26",
     "weatherMode": "climatología",
-    "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Zava y Ari se quedan hasta el 1 de noviembre.",
+    "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [],
     "daytrips": []
   }
@@ -1424,8 +1433,51 @@ function resvUrl(b) {
   return (p && p.home) || '';
 }
 
-// Bloque "Tu reserva": lo que hace falta para resolver algo en el mostrador — número,
-// link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
+// Las cadenas de `booking.checkIn/checkOut` traen la fecha adelante ("24 oct · 14:00–
+// 01:00"), y esa fecha ya está en la línea de fechas de la tarjeta: de acá sale sólo la
+// parte con hora, con el matiz que la acompañe. Sin hora no queda nada — repetir "8 oct"
+// abajo de "8 → 13 oct" era exactamente la redundancia que Martín marcó (26/8).
+function hourPart(s) {
+  if (!s) return '';
+  const at = s.indexOf('·');
+  const rest = (at >= 0 ? s.slice(at + 1) : s).trim();
+  return /\d{1,2}:\d{2}/.test(rest) ? rest : '';
+}
+
+// Ventana de check-in / check-out como chips. El dato sale de la reserva y, si ahí no
+// está, de los campos del hospedaje. Sin dato no se inventa: la tarjeta dice una sola
+// vez que las horas todavía no están (típico de los Airbnb, que no las declaran).
+function hoursHtml(L) {
+  const b = (L && L.booking) || {};
+  const win = (from, to) => from && to ? from + '–' + to : from ? 'desde ' + from : 'hasta ' + to;
+  const chip = (label, txt, cls) => '<span class="lg-h ' + cls + '">' + label + ' ' + escHtml(txt) + '</span>';
+  const cin = hourPart(b.checkIn) || ((L.checkInFrom || L.checkInTo) ? win(L.checkInFrom, L.checkInTo) : '');
+  const cout = hourPart(b.checkOut) || ((L.checkOutFrom || L.checkOutBy) ? win(L.checkOutFrom, L.checkOutBy) : '');
+  const chips = [];
+  if (cin) chips.push(chip('Check-in', cin, ''));
+  if (cout) chips.push(chip('Check-out', cout, 'out'));
+  if (!chips.length) chips.push('<span class="lg-h tbd">Horarios a definir</span>');
+  return '<div class="lg-hours">' + chips.join('') + '</div>';
+}
+
+// Los links de una tarjeta de hospedaje, en una sola línea: ficha pública, Google Maps y
+// —cuando lleva a otro lado que la ficha— la reserva. El "Abrir" ya no vive en un
+// sub-bloque propio: es un link más de esta línea (Martín, 26/8).
+function lodgingLinks(L, cls) {
+  const lnk = (href, label) => '<a' + (cls ? ' class="' + cls + '"' : '') +
+    ' href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const href = L.booking ? resvUrl(L.booking) : '';
+  if (href && href !== L.url) links.push(lnk(href, 'Mi reserva'));
+  return links;
+}
+
+// Lo que queda de la reserva una vez que las fechas y el "Abrir" subieron a la tarjeta:
+// el número para el mostrador, el deadline de cancelación, qué incluye, qué se paga allá
+// y el teléfono. Sin nada de eso —los Airbnb sin código todavía cargado— no se dibuja
+// nada: la tarjeta ya dijo todo lo que hay.
 // Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
 // El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
 // campo `pin` de Booking en los datos) — ni lo que costó: **el site no muestra plata**
@@ -1436,27 +1488,24 @@ function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
   const p = RESV_PROVIDER[b.provider];
-  const href = resvUrl(b);
   const rows = [];
   const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
-  if (b.checkIn) row('Check-in', escHtml(b.checkIn));
-  if (b.checkOut) row('Check-out', escHtml(b.checkOut));
   if (b.cancel) row('Cancelación', escHtml(b.cancel));
   if (b.includes) row('Incluye', escHtml(b.includes));
   if (b.payThere) row('Se paga allá', escHtml(b.payThere));
   if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
-  // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
+  // Al lado del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
   // Booking ID en el global) y el segundo número cuando la reserva tiene dos.
   const refNote = [b.refLabel, b.ref2 ? (b.ref2Label || 'Reserva') + ' ' + b.ref2 : ''].filter(Boolean).join(' · ');
-  return '<div class="resv dx">' +
-    '<div class="resv-head">' +
-      '<div>' +
-        '<div class="resv-prov">' + (p ? 'Mi reserva en ' + p.label : 'Mi reserva') + '</div>' +
-        (b.ref ? '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' : '') +
-        (refNote ? '<div class="resv-ref2">' + escHtml(refNote) + '</div>' : '') +
-      '</div>' +
-      (href ? '<a class="resv-open" href="' + href + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
-    '</div>' +
+  const head = b.ref
+    ? '<div class="resv-head">' +
+        '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' +
+        '<span class="resv-prov">' + escHtml(p ? p.label : 'reserva') + '</span>' +
+        (refNote ? '<span class="resv-ref2">' + escHtml(refNote) + '</span>' : '') +
+      '</div>'
+    : '';
+  if (!head && !rows.length && !b.warn) return '';
+  return '<div class="resv dx">' + head +
     (rows.length ? '<div class="resv-grid">' + rows.join('') + '</div>' : '') +
     (b.warn ? '<div class="resv-warn">' + escHtml(b.warn) + '</div>' : '') +
   '</div>';
@@ -1480,16 +1529,11 @@ function lodgingHtml(L, city, galId) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
   const nightsStr = L.nights ? L.nights + (L.nights === 1 ? ' noche' : ' noches') : '';
-  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (nightsStr ? ' · ' + nightsStr : '')) : '';
-  // Links explícitos: ficha del alojamiento (Airbnb/Rakuten/Booking/oficial) y/o Google Maps.
-  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
-  const links = [];
-  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
-  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
-  // Con bloque "Tu reserva" las fechas y el "✓ Reservado" ya están abajo, con hora: acá
-  // solo van las noches y los links, para no decir dos veces lo mismo en la misma tarjeta.
-  const meta = (L.booking ? [nightsStr] : [dateStr].concat(L.booked ? ['✓ Reservado'] : []))
-    .concat(links).filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? L.checkIn + ' → ' + L.checkOut : '';
+  // Una sola línea para el cuándo y para los links —ficha, Maps y la reserva—: antes las
+  // fechas estaban acá Y otra vez en el bloque de la reserva, con su propio título.
+  const meta = [dateStr, nightsStr].filter(Boolean).join(' · ');
+  const metaHtml = [meta].concat(lodgingLinks(L, 'lodging-link')).filter(Boolean).join(' · ');
   // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª va arriba de la ficha,
   // a lo ancho; el resto en una tira debajo, igual que la galería del destino. Tocar
   // cualquiera abre el lightbox en esa foto y se recorren las demás desde ahí.
@@ -1509,10 +1553,13 @@ function lodgingHtml(L, city, galId) {
       '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
       (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
       (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
-      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
-      '<div class="lodging-meta">' + meta + '</div>' +
+      '<div class="lodging-meta">' + metaHtml + '</div>' +
+      hoursHtml(L) +
       // Lo que hay que HACERLE a la reserva: la fecha del nodo ya cambió y la reserva no.
       (L.pending ? '<div class="lodging-pending">⚠ ' + L.pending + '</div>' : '') +
+      // La descripción del lugar es lo único largo que quedaba en la tarjeta: se pliega,
+      // no se pierde. Cerrada ocupa un renglón.
+      (L.note ? '<details class="lodging-more"><summary>Detalle</summary>' + L.note + '</details>' : '') +
     '</div>';
   const masked =
     '<div class="lodging-body">' +
@@ -3240,7 +3287,7 @@ const weatherChart = new Chart(ctx, {
 // —que es todo lo que había antes— tiene que seguir funcionando igual.
 try {
   mountViews(destinations, {
-    escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
+    escHtml, resvHtml, resvUrl, RESV_PROVIDER, hoursHtml, lodgingLinks,
     // Mismo lightbox que el resumen: la vista registra su galería acá y marca las fotos
     // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
     galleries,

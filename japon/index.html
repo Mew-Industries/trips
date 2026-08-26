@@ -250,7 +250,7 @@
      se leen igual. */
   .lodging-card { display: block; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; overflow: hidden; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
   .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
-  .lodging-img { display: block; width: 100%; height: 168px; object-fit: cover; background: #ece9e2; }
+  .lodging-img { display: block; width: 100%; height: 140px; object-fit: cover; background: #ece9e2; }
   .lodging-img-zoom { cursor: zoom-in; transition: opacity 0.12s; }
   .lodging-img-zoom:hover { opacity: 0.9; }
   .lodging-body { min-width: 0; padding: 8px 10px 9px; }
@@ -262,22 +262,31 @@
   .lodging-pending { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240, 184, 74, 0.18); border-radius: 5px; padding: 4px 7px; margin-top: 6px; line-height: 1.35; }
   .lodging-card.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
   .lodging-card.tbd .lodging-name { color: #8d8878; }
-  .lodging-meta { font-size: 11px; color: #0F6E56; font-weight: 600; margin-top: 3px; }
+  .lodging-meta { font-size: 11px; color: #444; font-weight: 600; margin-top: 4px; line-height: 1.5; }
   .lodging-link { color: #1D9E75; text-decoration: underline; }
   .lodging-link:hover { color: #0F6E56; }
-  /* "Tu reserva": los datos que se usan parado en el mostrador (número, horarios,
-     teléfono). Barra verde a la izquierda para despegarlo de la ficha del hotel. */
-  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 8px 10px 9px; margin: -4px 0 10px; }
-  .resv-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  /* La descripción del lugar, plegada: cerrada es un renglón, abierta el texto de
+     siempre. Mismo triángulo y mismo gris que el resto de los desplegables del site. */
+  .lodging-more { margin-top: 5px; font-size: 11px; color: #777; line-height: 1.4; }
+  .lodging-more > summary { display: inline-flex; align-items: baseline; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #b0aa9c; cursor: pointer; list-style: none; }
+  .lodging-more > summary::-webkit-details-marker { display: none; }
+  .lodging-more > summary::before { content: '▸'; color: #cfc9bb; font-size: 9px; display: inline-block; transition: transform 0.15s; }
+  .lodging-more[open] > summary::before { transform: rotate(90deg); }
+  .lodging-more > summary:hover { color: #0F6E56; }
+  .lodging-more > summary:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; border-radius: 3px; }
+  @media (prefers-reduced-motion: reduce) { .lodging-more > summary::before { transition: none; } }
+  /* Lo que se usa parado en el mostrador: el número de reserva y las condiciones. Sin
+     título propio ni fechas —las fechas están arriba, en la tarjeta—, sólo la barra
+     verde a la izquierda para despegarlo de la ficha del hotel (Martín, 26/8). */
+  .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 7px 10px 8px; margin: -2px 0 10px; }
+  .resv-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
   .resv-prov { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #0F6E56; }
-  .resv-ref { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 17px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 2px 0 0; text-align: left; cursor: pointer; transition: color 0.12s; }
+  .resv-ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; transition: color 0.12s; }
   .resv-ref:hover { color: #0F6E56; }
   .resv-ref.copied { color: #1D9E75; }
   .resv-ref.copied::after { content: ' ✓ copiado'; font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0; }
-  .resv-ref2 { font-size: 10px; color: #888; margin-top: 2px; }
-  .resv-open { flex-shrink: 0; margin-top: 2px; font-size: 11px; font-weight: 600; color: #1D9E75; text-decoration: underline; white-space: nowrap; }
-  .resv-open:hover { color: #0F6E56; }
-  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 7px; }
+  .resv-ref2 { font-size: 10px; color: #888; }
+  .resv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1px 16px; margin-top: 5px; }
   .resv-row { display: flex; gap: 7px; font-size: 11px; line-height: 1.5; }
   .resv-k { flex-shrink: 0; min-width: 66px; color: #999; }
   .resv-v { min-width: 0; color: #444; }
@@ -288,7 +297,7 @@
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
   .lodging-gallery { margin-top: -6px; }
-  .lodging-gallery .gallery-thumb { height: 64px; }
+  .lodging-gallery .gallery-thumb { height: 54px; }
   /* Por encima de la ficha de parada (z-index 4000): la foto del hospedaje también se
      abre desde adentro del modal. */
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
@@ -461,7 +470,7 @@
     .map-toggles .mt-ic { font-size: 13px; }
     .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
     .cat-head { min-height: 36px; }
-    .lodging-img { height: 140px; }
+    .lodging-img { height: 120px; }
     .lb-prev, .lb-next { font-size: 40px; padding: 0 10px; }
   }
 </style>
@@ -542,9 +551,9 @@ const destinations = [
     dates: '8-13 oct', nights: 5, start: '2026-10-08', end: '2026-10-13',
     arrival: '8 oct (HANEDA/HND, llegada del vuelo desde Houston)', departure: '13 oct (día en Nikko de paso, sigue al norte)',
     lodging: {
-      name: 'Shinoka c08 — studio en Shinjuku', type: 'Airbnb · studio (unidad entera)',
+      name: 'Shinoka c08', type: 'Airbnb · studio entero',
       guests: '2 huéspedes · 1 cama · 1 baño',
-      area: '5-chōme-11-2 Shinjuku, Shinjuku City, Tokio 160-0022 · a 3 min a pie de la estación Shinjuku-sanchome (centro, zona comercial)',
+      area: 'A 3 min a pie de Shinjuku-sanchome · 5-chōme-11-2 Shinjuku, Tokio 160-0022',
       coords: [35.69116, 139.70681],
       checkIn: '8 oct', checkOut: '13 oct', nights: 5, booked: true,
       // Fotos del listing, copiadas al repo: el CDN de Airbnb rota las URLs y quedarían
@@ -554,10 +563,9 @@ const destinations = [
       url: 'https://www.airbnb.com/rooms/1105430570374679874',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=5-chome-11-2%20Shinjuku%2C%20Shinjuku%20City%2C%20Tokyo%20160-0022',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '8 oct', checkOut: '13 oct' },
-      // El pendiente de cargar el total al sheet ya está hecho, y de todos modos la plata
-      // no se habla en el site (Martín, 25/8).
-      note: 'La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar).'
+      // Sin `note`: la dirección exacta la manda Airbnb al confirmar, y decirlo en la
+      // tarjeta era un renglón por hospedaje que no aportaba (Martín, 26/8).
+      booking: { provider: 'airbnb', ref: null, checkIn: '8 oct', checkOut: '13 oct' }
     },
     leg: { mode: '✈️', time: '~30 h · 1 escala', detail: 'Ida EZE → Tokio Haneda · United Polaris business',
       fromTerminal: { name: 'Buenos Aires · Ezeiza (EZE)', coords: [-34.8222, 301.4642], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
@@ -656,9 +664,9 @@ const destinations = [
     dates: '13-14 oct', nights: 1, start: '2026-10-13', end: '2026-10-14',
     arrival: '13 oct noche (llega de Nikko; día largo Tokio → Nikko de paso → norte)', departure: '14 oct (Geibikei a la mañana en bote; sin horario límite — shinkansen corto ~40 min a Sendai; opcional escaparse a Chūson-ji)',
     lodging: {
-      name: 'Airbnb Ichinoseki (Nihongi)', type: 'Airbnb · casa entera',
+      name: 'Ichinoseki (Nihongi)', type: 'Airbnb · casa entera',
       guests: '6 huéspedes · 2 dormitorios · 4 camas · 1 baño',
-      area: '2-1 Nihongi 2F, Ichinoseki, Iwate 021-0835 · a 3 min a pie de la estación de Ichinoseki (de ahí salen el Geibikei y el shinkansen a Sendai; ~17 min en auto a Chūson-ji)',
+      area: 'A 3 min a pie de la estación de Ichinoseki · 2-1 Nihongi 2F, Iwate 021-0835',
       coords: [38.9274, 141.1417],
       checkIn: '13 oct', checkOut: '14 oct', nights: 1, booked: true,
       img: 'img/lodging/ichinoseki-nihongi-1.jpg',
@@ -694,9 +702,9 @@ const destinations = [
     dates: '14-15 oct', nights: 1, start: '2026-10-14', end: '2026-10-15',
     arrival: '14 oct (llega de Ichinoseki por Shinkansen ~40 min, tras el Geibikei de la mañana)', departure: '15 oct (línea Access al aeropuerto ~25 min + Peach MM419 16:50 → 18:10 a New Chitose)',
     lodging: {
-      name: 'Sendai Kokusai Hotel', type: 'Hotel · centro de Sendai',
+      name: 'Sendai Kokusai Hotel',
       guests: '2 personas',
-      area: 'Aoba-ku Chūō 4-6-1, Sendai (Miyagi) · a pasos de la estación: day-trips (Matsushima / Yamadera) + línea directa al aeropuerto',
+      area: 'A pasos de la estación (day-trips y directo al aeropuerto) · Aoba-ku Chūō 4-6-1, Miyagi',
       coords: [38.2606, 140.8819],
       checkIn: '14 oct', checkOut: '15 oct', nights: 1, booked: true, checkInFrom: '15:00', checkOutBy: '11:00',
       img: 'img/sendai-kokusai-exterior.jpg',
@@ -745,9 +753,9 @@ const destinations = [
     dates: '15-17 oct', nights: 2, start: '2026-10-15', end: '2026-10-17',
     arrival: '15 oct (Peach MM419 desde Sendai, llega 18:10 a New Chitose)', departure: '17 oct (ANA NH1174 11:55 → 13:30, New Chitose terminal D → Komatsu, sigue a Kanazawa)',
     lodging: {
-      name: 'Airbnb Sapporo (Susukino)', type: 'Airbnb · departamento entero',
+      name: 'Sapporo (Susukino)', type: 'Airbnb · departamento entero',
       guests: '2 personas',
-      area: 'Glass Shiseikan (資生館) 301, Minami 4 Jōnishi, Chūō-ku, Sapporo 064-0804 · en pleno Susukino: comida (ramen miso, sopa de curry, jingisukan, mercado Nijō) y movida nocturna a pasos; sobre la línea de subte Namboku, a 1-2 paradas de la estación de Sapporo para el tren al aeropuerto New Chitose',
+      area: 'En pleno Susukino, sobre la línea Namboku · Glass Shiseikan (資生館) 301, Minami 4 Jōnishi, Chūō-ku 064-0804',
       coords: [43.0554, 141.3525],
       checkIn: '15 oct', checkOut: '17 oct', nights: 2, booked: true,
       img: 'img/lodging/sapporo-susukino-1.jpg',
@@ -797,9 +805,9 @@ const destinations = [
     dates: '17-19 oct', nights: 2, start: '2026-10-17', end: '2026-10-19',
     arrival: '17 oct (ANA NH1174 desde New Chitose, aterriza 13:30 en Komatsu; primera noche acá)', departure: '19 oct (vía Shirakawa-go de paso, sigue a Kioto)',
     lodging: {
-      name: 'Airbnb Kanazawa (Kōrinbō)', type: 'Airbnb · departamento entero',
+      name: 'Kanazawa (Kōrinbō)', type: 'Airbnb · departamento entero',
       guests: '2 personas',
-      area: 'Kōrinbō, Kanazawa (Ishikawa) · zona céntrica caminable: a pasos del Kenroku-en, el castillo, Nagamachi (barrio samurái) y el Museo del Siglo XXI, con la mejor concentración de restaurantes/bares (Katamachi al lado). Dirección exacta pendiente — el host la manda unos días antes del check-in',
+      area: 'Kōrinbō (Ishikawa) · a pasos del Kenroku-en, el castillo, Nagamachi y Katamachi',
       coords: [36.5612, 136.6553],
       checkIn: '17 oct', checkOut: '19 oct', nights: 2, booked: true,
       img: 'img/lodging/kanazawa-korinbo-1.jpg',
@@ -865,16 +873,16 @@ const destinations = [
   },
   {
     id: 'kioto', n: 8, type: 'destino', name: 'Kioto', short: 'Kioto', flag: '🇯🇵',
-    sharedWith: 'Zava y Ari',
+    sharedWith: 'amigos',
     coords: [35.0116, 135.7681],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg'],
     dates: '19-24 oct', nights: 5, start: '2026-10-19', end: '2026-10-24',
-    arrival: '19 oct (llega de Shirakawa-go, primera noche acá; se suman Zava y Ari, que aterrizan en KIX)', departure: '24 oct (sigue a Osaka)',
+    arrival: '19 oct (llega de Shirakawa-go, primera noche acá; se suman los amigos, que aterrizan en KIX)', departure: '24 oct (sigue a Osaka)',
     lodging: {
       name: 'Kyotofish · Kamogawa', type: 'Airbnb · machiya entera de 180 m²', rating: '★4,86',
-      guests: '4 personas · con Zava y Ari',
-      area: 'Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 — la casa da al río entre Gojō y Shichijō, a pasos de Kiyamachi y a ~15 min a pie de la Estación de Kioto (clave para los daytrips por JR).',
+      guests: '4 personas · con amigos',
+      area: 'Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 · ~15 min a pie de la Estación de Kioto',
       coords: [34.9940, 135.7671],
       checkIn: '19 oct', checkOut: '24 oct', nights: 5, booked: true,
       checkInFrom: '16:00', checkOutBy: '10:00',
@@ -886,13 +894,13 @@ const destinations = [
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=348-2%20Yatsuyanagich%C5%8D%20Shimogy%C5%8D-ku%20Kyoto%20600-8112',
       booking: {
         provider: 'airbnb', ref: 'HMYZ4QJ8AP',
-        // La reserva está en la cuenta de Ari, así que el itinerario de Airbnb no abre con
+        // La reserva está en la cuenta de un amigo, así que el itinerario de Airbnb no abre con
         // la sesión de Martín: "Abrir" va a la ficha de la casa, que es lo que sí puede ver.
-        // Tampoco va la política de cancelación: la maneja Ari y no la tenemos.
+        // Tampoco va la política de cancelación: la maneja él y no la tenemos.
         url: 'https://www.airbnb.com/rooms/1065587248882014284',
         checkIn: '19 oct · desde 16:00', checkOut: '24 oct · hasta 10:00'
       },
-      note: 'Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con Zava y Ari.'
+      note: 'Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con amigos.'
     },
     leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }],
       fromTerminal: { name: 'Terminal de buses de Shirakawa-go', coords: [36.26195, 136.90689], mode: 'bus' }, toTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' },
@@ -900,7 +908,7 @@ const destinations = [
         'Se llega a Kioto la misma noche del día de paso por Shirakawa-go.'
       ] },
     tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-08-26', weatherMode: 'climatología',
-    intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y el 24 se sigue a Osaka. Acá arranca el tramo con Zava y Ari (llegan el 19 a KIX): Kioto, Osaka y Tokio los cuatro juntos, y acá además compartiendo la casa (en Osaka cada pareja para por su cuenta). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 5 noches dan tiempo a cada zona sin atropello.',
+    intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y el 24 se sigue a Osaka. Acá arranca el tramo con amigos (llegan el 19 a KIX): Kioto, Osaka y Tokio los cuatro juntos, y acá además compartiendo la casa (en Osaka cada pareja para por su cuenta). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 5 noches dan tiempo a cada zona sin atropello.',
     activities: [
       { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
       { text: 'Bosque de Bambú de Arashiyama', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" },
@@ -930,7 +938,7 @@ const destinations = [
   },
   {
     id: 'osaka', n: 9, type: 'destino', name: 'Osaka', short: 'Osaka', flag: '🇯🇵',
-    sharedWith: 'Zava y Ari',
+    sharedWith: 'amigos',
     coords: [34.6937, 135.5023],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg'],
@@ -938,8 +946,8 @@ const destinations = [
     arrival: '24 oct (llega de Kioto, los cuatro)', departure: '27 oct (Shinkansen a Tokio)',
     lodging: {
       name: 'Mercure Tokyu Stay Osaka Namba', type: 'Hotel · Superior Queen 25 m², no fumador',
-      guests: '2 adultos · Zava y Ari paran por su cuenta',
-      area: 'Nishi-Shinsaibashi (2-2-4, Chūō-ku 〒542-0086) — a 5 min a pie de Namba y de Shinsaibashi (línea Midōsuji), entre Midōsuji-dōri y Dotonbori.',
+      guests: '2 adultos · los amigos paran por su cuenta',
+      area: 'A 5 min a pie de Namba y Shinsaibashi (línea Midōsuji) · Nishi-Shinsaibashi 2-2-4, Chūō-ku 〒542-0086',
       coords: [34.67062, 135.49964],
       checkIn: '24 oct', checkOut: '27 oct', nights: 3, booked: true,
       checkInFrom: '14:00', checkInTo: '01:00', checkOutBy: '11:00',
@@ -994,18 +1002,18 @@ const destinations = [
     ]
   },
   {
-    // Tokio del MEDIO (re-armado del 25/8): el tramo con Zava y Ari termina acá. Ellos
+    // Tokio del MEDIO (re-armado del 25/8): el tramo con amigos termina acá. Ellos
     // se quedan hasta el 1/11; Martín y Cata siguen a Fukuoka el 31. Las ideas de Tokio
     // viven en las paradas 1 y 15 — este nodo no duplica el catálogo.
     id: 'tokio-medio', n: 10, type: 'destino', name: 'Tokio (medio)', short: 'Tokio medio', flag: '🇯🇵',
-    sharedWith: 'Zava y Ari',
+    sharedWith: 'amigos',
     coords: [35.7100, 139.7800],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg'],
     dates: '27-31 oct', nights: 4, start: '2026-10-27', end: '2026-10-31',
-    arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka; Zava y Ari se quedan una noche más y vuelan el 1/11)',
+    arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka; los amigos se quedan una noche más y vuelan el 1/11)',
     lodging: null,
-    lodgingTbd: 'A definir · para 4 (compartido con Zava y Ari)',
+    lodgingTbd: 'A definir · para 4 (compartido con amigos)',
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Tokio (Nozomi).',
       toName: 'Tokio',
       fromTerminal: { name: 'Shin-Ōsaka', coords: [34.73347, 135.50025], mode: 'train' }, toTerminal: { name: 'Estación de Tokio', coords: [35.68124, 139.76712], mode: 'train' },
@@ -1014,7 +1022,7 @@ const destinations = [
         'El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés.'
       ] },
     tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-08-26', weatherMode: 'climatología',
-    intro: 'Cuatro noches en Tokio con Zava y Ari, entre Osaka y Fukuoka. El alojamiento se busca para los cuatro y todavía no está reservado. El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
+    intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka. El alojamiento se busca para los cuatro y todavía no está reservado. El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
     activities: [],
     daytrips: []
   },
@@ -1028,7 +1036,7 @@ const destinations = [
     lodging: {
       name: 'The Royal Park Canvas Fukuoka Nakasu', type: 'Hotel · king room river view, esquina 29 m², no fumador',
       guests: '2 adultos',
-      area: 'Nakasu (5-6 Nakasu, Hakata-ku) — la isla de los yatais, entre Tenjin y Hakata; a pasos del río Naka.',
+      area: 'Nakasu, la isla de los yatais entre Tenjin y Hakata · 5-6 Nakasu, Hakata-ku',
       coords: [33.5936, 130.4053],
       checkIn: '31 oct', checkOut: '3 nov', nights: 3, booked: true, checkInFrom: '15:00', checkInTo: '23:00', checkOutBy: '11:00',
       img: 'img/fukuoka-canvas-cuarto.jpg',
@@ -1056,7 +1064,7 @@ const destinations = [
       fromTerminal: { name: 'Aeropuerto de Tokio (HND o NRT, a definir)', coords: [35.5494, 139.7798], mode: 'air' }, toTerminal: { name: 'Fukuoka (FUK)', coords: [33.5859, 130.4510], mode: 'air' },
       why: [
         'El vuelo todavía no está comprado: el aeropuerto de salida y el horario se fijan al reservar.',
-        'Zava y Ari NO viajan en este salto: se quedan en Tokio y vuelan el 1/11.',
+        'Los amigos NO viajan en este salto: se quedan en Tokio y vuelan el 1/11.',
         'El check-in del Royal Park Canvas va hasta las 23:00: entra cualquier vuelo de la tarde.'
       ] },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-08-26', weatherMode: 'climatología',
@@ -1085,9 +1093,9 @@ const destinations = [
     dates: '3-6 nov', nights: 3, start: '2026-11-03', end: '2026-11-06',
     arrival: '3 nov (vuelo BX 506 desde Fukuoka, llega 13:00)', departure: '6 nov (KTX a Seúl)',
     lodging: {
-      name: 'Stay On Thing 스테이온띵 (Airbnb)', type: 'Airbnb · casa entera privada', rating: '★4.72',
+      name: 'Stay On Thing 스테이온띵', type: 'Airbnb · casa entera privada', rating: '★4.72',
       guests: '2 dormitorios · 3 camas · 1 baño · reserva a nombre de 1 adulto (máx 6)',
-      area: 'Seomyeon/Jeonpo (서면•전포), Busanjin-gu — a 5 min de la estación Jeonpo, el barrio de cafés y movida de Busan.',
+      area: 'A 5 min de la estación Jeonpo · Seomyeon/Jeonpo (서면•전포), Busanjin-gu',
       coords: [35.1531, 129.0642],
       checkIn: '3 nov', checkOut: '6 nov', nights: 3, booked: true, checkInFrom: '16:00', checkOutBy: '11:00',
       img: 'img/lodging/busan-stayonthing-1.jpg',
@@ -1141,9 +1149,9 @@ const destinations = [
     dates: '6-10 nov', nights: 4, start: '2026-11-06', end: '2026-11-10',
     arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (vuelo de vuelta a Japón)',
     lodging: {
-      name: 'Hanok premium en Bukchon (Gahoe-dong)', type: 'Airbnb · hanok premium', rating: '★4.95',
+      name: 'Hanok premium en Bukchon (Gahoe-dong)', type: 'Airbnb', rating: '★4.95',
       guests: '2 dormitorios · 2 camas · 1 baño compartido',
-      area: 'Bukchon-ro 12-gil 35-9, Gahoe-dong, Jongno-gu, Seúl 03056 · corazón de la aldea hanok de Bukchon',
+      area: 'Corazón de la aldea hanok · Bukchon-ro 12-gil 35-9, Gahoe-dong, Jongno-gu 03056',
       coords: [37.5823, 126.9858],
       checkIn: '6 nov', checkOut: '10 nov', nights: 4, booked: true,
       img: 'img/lodging/seul-hanok-1.jpg',
@@ -1192,7 +1200,7 @@ const destinations = [
   },
   {
     // Koyasan salió de la cadena el 25/8: era 25-26 oct entre Kioto y Osaka, y ese tramo
-    // ahora es de los cuatro (con Zava y Ari). `type: 'pendiente'` = la parada existe y la
+    // ahora es de los cuatro (con amigos). `type: 'pendiente'` = la parada existe y la
     // reserva del shukubo sigue viva, pero no ocupa ninguna noche del viaje: sin
     // `start`/`end` no entra ni en los días, ni en los tramos, ni en la cadena del mapa.
     // Candidato: 10-11 nov, post-Seúl — arrastra el vuelo de salida de Seúl (KIX en vez
@@ -1205,9 +1213,9 @@ const destinations = [
     pendingNote: 'En reubicación · candidato 10-11 nov (post-Seúl) · decisión final pendiente',
     arrival: 'a definir (candidato: 10 nov, volando de Seúl a KIX + Nankai y funicular)', departure: 'a definir (candidato: 11 nov, sigue a Hakone)',
     lodging: {
-      name: 'Koyasan Shukubo Hōjō-in (宝城院)', type: 'Shukubo · alojamiento en templo ★★★',
+      name: 'Hōjō-in (宝城院), Koyasan', type: 'Shukubo · alojamiento en templo ★★★',
       guests: 'Habitación Familiar Deluxe · 2 personas',
-      area: 'Hōjō-in, 156 Koyasan, Koya, Ito District, Wakayama 648-0211 · baño compartido, tatami, vista al jardín',
+      area: '156 Koyasan, Koya, Wakayama 648-0211 · tatami, baño compartido y vista al jardín',
       coords: [34.2150716, 135.5794376],
       checkIn: '25 oct', checkOut: '26 oct', nights: 1, booked: true, checkInFrom: '15:00', checkInTo: '17:00', checkOutFrom: '08:00', checkOutBy: '09:00',
       // La reserva del shukubo NO se tocó: sigue siendo 25-26 oct. Si Koyasan se
@@ -1232,7 +1240,7 @@ const destinations = [
     // y el nuevo (Seúl → KIX → Koyasan) recién existe cuando se decida.
     leg: null,
     tempMax: '8-19', tempMin: '2-12', weatherUpdated: '2026-08-26', weatherMode: 'climatología',
-    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Salió del 25-26 oct (ese tramo ahora es Kioto-Osaka-Tokio con Zava y Ari) y está en reubicación: el candidato es 10-11 nov, volando de Seúl a KIX, con Hakone corriéndose a 11-13 y Tokio final a 13-17. La reserva del Hōjō-in sigue viva con las fechas viejas.',
+    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Salió del 25-26 oct (ese tramo ahora es Kioto-Osaka-Tokio con amigos) y está en reubicación: el candidato es 10-11 nov, volando de Seúl a KIX, con Hakone corriéndose a 11-13 y Tokio final a 13-17. La reserva del Hōjō-in sigue viva con las fechas viejas.',
     activities: [
       { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
       { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
@@ -1251,9 +1259,9 @@ const destinations = [
     dates: '10-12 nov', nights: 2, start: '2026-11-10', end: '2026-11-12',
     arrival: '10 nov (vuelo Seúl→Tokio + Romancecar a Hakone)', departure: '12 nov (Romancecar/Shinkansen a Tokio)',
     lodging: {
-      name: 'Yoshiike Ryokan', type: 'Ryokan ★★★★ · onsen',
+      name: 'Yoshiike Ryokan', type: '★★★★ · onsen',
       guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa',
-      area: '597 Yumoto, Hakone (Kanagawa) · ~7 min a pie de la estación Hakone-Yumoto (terminal del Romancecar) · jardín japonés propio, baños termales interiores y al aire libre',
+      area: '~7 min a pie de Hakone-Yumoto, terminal del Romancecar · 597 Yumoto, Kanagawa',
       coords: [35.2286, 139.1058],
       checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: true, checkInFrom: '16:00',
       img: 'img/yoshiike-exterior.jpg',
@@ -1639,8 +1647,51 @@ function resvUrl(b) {
   return (p && p.home) || '';
 }
 
-// Bloque "Tu reserva": lo que hace falta para resolver algo en el mostrador — número,
-// link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
+// Las cadenas de `booking.checkIn/checkOut` traen la fecha adelante ("24 oct · 14:00–
+// 01:00"), y esa fecha ya está en la línea de fechas de la tarjeta: de acá sale sólo la
+// parte con hora, con el matiz que la acompañe. Sin hora no queda nada — repetir "8 oct"
+// abajo de "8 → 13 oct" era exactamente la redundancia que Martín marcó (26/8).
+function hourPart(s) {
+  if (!s) return '';
+  const at = s.indexOf('·');
+  const rest = (at >= 0 ? s.slice(at + 1) : s).trim();
+  return /\d{1,2}:\d{2}/.test(rest) ? rest : '';
+}
+
+// Ventana de check-in / check-out como chips. El dato sale de la reserva y, si ahí no
+// está, de los campos del hospedaje. Sin dato no se inventa: la tarjeta dice una sola
+// vez que las horas todavía no están (típico de los Airbnb, que no las declaran).
+function hoursHtml(L) {
+  const b = (L && L.booking) || {};
+  const win = (from, to) => from && to ? from + '–' + to : from ? 'desde ' + from : 'hasta ' + to;
+  const chip = (label, txt, cls) => '<span class="lg-h ' + cls + '">' + label + ' ' + escHtml(txt) + '</span>';
+  const cin = hourPart(b.checkIn) || ((L.checkInFrom || L.checkInTo) ? win(L.checkInFrom, L.checkInTo) : '');
+  const cout = hourPart(b.checkOut) || ((L.checkOutFrom || L.checkOutBy) ? win(L.checkOutFrom, L.checkOutBy) : '');
+  const chips = [];
+  if (cin) chips.push(chip('Check-in', cin, ''));
+  if (cout) chips.push(chip('Check-out', cout, 'out'));
+  if (!chips.length) chips.push('<span class="lg-h tbd">Horarios a definir</span>');
+  return '<div class="lg-hours">' + chips.join('') + '</div>';
+}
+
+// Los links de una tarjeta de hospedaje, en una sola línea: ficha pública, Google Maps y
+// —cuando lleva a otro lado que la ficha— la reserva. El "Abrir" ya no vive en un
+// sub-bloque propio: es un link más de esta línea (Martín, 26/8).
+function lodgingLinks(L, cls) {
+  const lnk = (href, label) => '<a' + (cls ? ' class="' + cls + '"' : '') +
+    ' href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
+  const links = [];
+  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
+  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
+  const href = L.booking ? resvUrl(L.booking) : '';
+  if (href && href !== L.url) links.push(lnk(href, 'Mi reserva'));
+  return links;
+}
+
+// Lo que queda de la reserva una vez que las fechas y el "Abrir" subieron a la tarjeta:
+// el número para el mostrador, el deadline de cancelación, qué incluye, qué se paga allá
+// y el teléfono. Sin nada de eso —los Airbnb sin código todavía cargado— no se dibuja
+// nada: la tarjeta ya dijo todo lo que hay.
 // Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
 // El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
 // campo `pin` de Booking en los datos) — ni lo que costó: **el site no muestra plata**
@@ -1651,27 +1702,24 @@ function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
   const p = RESV_PROVIDER[b.provider];
-  const href = resvUrl(b);
   const rows = [];
   const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
-  if (b.checkIn) row('Check-in', escHtml(b.checkIn));
-  if (b.checkOut) row('Check-out', escHtml(b.checkOut));
   if (b.cancel) row('Cancelación', escHtml(b.cancel));
   if (b.includes) row('Incluye', escHtml(b.includes));
   if (b.payThere) row('Se paga allá', escHtml(b.payThere));
   if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
-  // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
+  // Al lado del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
   // Booking ID en el global) y el segundo número cuando la reserva tiene dos.
   const refNote = [b.refLabel, b.ref2 ? (b.ref2Label || 'Reserva') + ' ' + b.ref2 : ''].filter(Boolean).join(' · ');
-  return '<div class="resv dx">' +
-    '<div class="resv-head">' +
-      '<div>' +
-        '<div class="resv-prov">' + (p ? 'Mi reserva en ' + p.label : 'Mi reserva') + '</div>' +
-        (b.ref ? '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' : '') +
-        (refNote ? '<div class="resv-ref2">' + escHtml(refNote) + '</div>' : '') +
-      '</div>' +
-      (href ? '<a class="resv-open" href="' + href + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
-    '</div>' +
+  const head = b.ref
+    ? '<div class="resv-head">' +
+        '<button type="button" class="resv-ref" data-copy="' + escHtml(b.ref) + '">' + escHtml(b.ref) + '</button>' +
+        '<span class="resv-prov">' + escHtml(p ? p.label : 'reserva') + '</span>' +
+        (refNote ? '<span class="resv-ref2">' + escHtml(refNote) + '</span>' : '') +
+      '</div>'
+    : '';
+  if (!head && !rows.length && !b.warn) return '';
+  return '<div class="resv dx">' + head +
     (rows.length ? '<div class="resv-grid">' + rows.join('') + '</div>' : '') +
     (b.warn ? '<div class="resv-warn">' + escHtml(b.warn) + '</div>' : '') +
   '</div>';
@@ -1695,16 +1743,11 @@ function lodgingHtml(L, city, galId) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
   const nightsStr = L.nights ? L.nights + (L.nights === 1 ? ' noche' : ' noches') : '';
-  const dateStr = (L.checkIn && L.checkOut) ? (L.checkIn + ' → ' + L.checkOut + (nightsStr ? ' · ' + nightsStr : '')) : '';
-  // Links explícitos: ficha del alojamiento (Airbnb/Rakuten/Booking/oficial) y/o Google Maps.
-  const lnk = (href, label) => '<a class="lodging-link" href="' + href + '" target="_blank" rel="noopener">' + label + ' ↗</a>';
-  const links = [];
-  if (L.url) links.push(lnk(L.url, HOTEL_LINK_LABEL));
-  if (L.mapsUrl) links.push(lnk(L.mapsUrl, 'Google Maps'));
-  // Con bloque "Tu reserva" las fechas y el "✓ Reservado" ya están abajo, con hora: acá
-  // solo van las noches y los links, para no decir dos veces lo mismo en la misma tarjeta.
-  const meta = (L.booking ? [nightsStr] : [dateStr].concat(L.booked ? ['✓ Reservado'] : []))
-    .concat(links).filter(Boolean).join(' · ');
+  const dateStr = (L.checkIn && L.checkOut) ? L.checkIn + ' → ' + L.checkOut : '';
+  // Una sola línea para el cuándo y para los links —ficha, Maps y la reserva—: antes las
+  // fechas estaban acá Y otra vez en el bloque de la reserva, con su propio título.
+  const meta = [dateStr, nightsStr].filter(Boolean).join(' · ');
+  const metaHtml = [meta].concat(lodgingLinks(L, 'lodging-link')).filter(Boolean).join(' · ');
   // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª va arriba de la ficha,
   // a lo ancho; el resto en una tira debajo, igual que la galería del destino. Tocar
   // cualquiera abre el lightbox en esa foto y se recorren las demás desde ahí.
@@ -1724,10 +1767,13 @@ function lodgingHtml(L, city, galId) {
       '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
       (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
       (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
-      (L.note ? '<div class="lodging-area" style="font-style:italic">' + L.note + '</div>' : '') +
-      '<div class="lodging-meta">' + meta + '</div>' +
+      '<div class="lodging-meta">' + metaHtml + '</div>' +
+      hoursHtml(L) +
       // Lo que hay que HACERLE a la reserva: la fecha del nodo ya cambió y la reserva no.
       (L.pending ? '<div class="lodging-pending">⚠ ' + L.pending + '</div>' : '') +
+      // La descripción del lugar es lo único largo que quedaba en la tarjeta: se pliega,
+      // no se pierde. Cerrada ocupa un renglón.
+      (L.note ? '<details class="lodging-more"><summary>Detalle</summary>' + L.note + '</details>' : '') +
     '</div>';
   const masked =
     '<div class="lodging-body">' +
@@ -3455,7 +3501,7 @@ const weatherChart = new Chart(ctx, {
 // —que es todo lo que había antes— tiene que seguir funcionando igual.
 try {
   mountViews(destinations, {
-    escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
+    escHtml, resvHtml, resvUrl, RESV_PROVIDER, hoursHtml, lodgingLinks,
     // Mismo lightbox que el resumen: la vista registra su galería acá y marca las fotos
     // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
     galleries,
