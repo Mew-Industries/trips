@@ -2,6 +2,9 @@
 // abre desde el acordeón, desde la ficha de parada y desde la vista Hospedajes;
 // las flechas recorren; el "atrás" del celular lo cierra sin sacarte del sitio;
 // con una sola foto no muestra flechas.
+// Desde la ronda 2 del 26/8 (task 557) las fotos del hospedaje viven en un carrusel: la
+// foto que se toca es la que se está mirando, y abrir el lightbox en ESA foto es lo que
+// reemplaza a la vieja tira de miniaturas.
 //
 // No es parte de ninguna suite: necesita Chromium y el sitio servido. Levantarlo con
 //   python3 -m http.server 8611 --bind 127.0.0.1   (desde la raíz del repo)
@@ -43,7 +46,7 @@ await page.waitForTimeout(1500);
 const urlAntes = page.url();
 await page.click('.dest-card[data-id="sendai"] .itin-head');
 await page.waitForTimeout(900);
-await page.click('.dest-card[data-id="sendai"] .lodging-img');
+await page.click('.dest-card[data-id="sendai"] .lgc-track img >> nth=0');
 await page.waitForTimeout(500);
 let s = await lbState(page);
 check('resumen · la foto del hospedaje abre el lightbox', s.open && s.src.includes('sendai-kokusai-exterior'), s.src);
@@ -59,11 +62,16 @@ s = await lbState(page);
 check('resumen · el atrás cierra el lightbox', !s.open);
 check('resumen · el atrás no saca del sitio', s.url === urlAntes, s.url);
 
-// miniatura de la tira → abre en ESA foto
-await page.click('.dest-card[data-id="sendai"] .lodging-gallery .gallery-thumb');
+// carrusel: la flecha pasa a la 2ª foto y tocarla abre el lightbox en ESA foto. El
+// timeout largo es a propósito: el click con el que termina un swipe no tiene que abrir
+// nada, y el guard que lo evita dura 350 ms desde el último scroll del carrusel.
+await page.click('.dest-card[data-id="sendai"] .lgc-nav.next');
+await page.waitForTimeout(900);
+await page.click('.dest-card[data-id="sendai"] .lgc-track img >> nth=1');
 await page.waitForTimeout(400);
 s = await lbState(page);
-check('resumen · la miniatura abre en su propia foto', s.open && s.src.includes('sendai-kokusai-twin'), s.src);
+check('resumen · el carrusel abre el lightbox en la foto que se está mirando',
+  s.open && s.src.includes('sendai-kokusai-twin'), s.src);
 await page.keyboard.press('Escape');
 await page.waitForTimeout(400);
 check('resumen · Escape cierra el lightbox', !(await lbState(page)).open);
@@ -74,7 +82,7 @@ await page.waitForTimeout(400);
 await page.goto(BASE + '?stop=kioto', { waitUntil: 'networkidle', timeout: 60000 });
 await page.waitForTimeout(2500);
 check('ficha · el modal de Kioto abre por deep-link', await page.isVisible('#stop-modal .sm-dialog'));
-await page.click('#stop-modal .lodging-img');
+await page.click('#stop-modal .lgc-track img >> nth=0');
 await page.waitForTimeout(500);
 s = await lbState(page);
 check('ficha · la foto del hospedaje abre el lightbox', s.open && s.src.includes('kioto-machiya-4'), s.src);
@@ -93,7 +101,7 @@ check('ficha · Escape cierra la foto y deja el modal abierto',
 // ------------------------------------------------------- 3 · vista Hospedajes
 await page.goto(BASE + '?tab=hospedajes', { waitUntil: 'networkidle', timeout: 60000 });
 await page.waitForTimeout(2000);
-await page.click('[data-hosp="kioto"] .lg-img');
+await page.click('[data-hosp="kioto"] .lgc-track img >> nth=0');
 await page.waitForTimeout(500);
 s = await lbState(page);
 check('hospedajes · la foto abre el lightbox', s.open && s.src.includes('kioto-machiya-4'), s.src);
@@ -123,10 +131,10 @@ check('una sola foto · sin flechas y a pantalla completa', singleOk);
 
 // Una galería que no está registrada no debe abrir un lightbox vacío.
 await page.evaluate(() => {
-  const el = document.querySelector('[data-hosp="kioto"] .lg-img');
+  const el = document.querySelector('[data-hosp="kioto"] .lgc-track img');
   el.setAttribute('data-gal', '__no-existe__');
 });
-await page.click('[data-hosp="kioto"] .lg-img');
+await page.click('[data-hosp="kioto"] .lgc-track img >> nth=0');
 await page.waitForTimeout(300);
 s = await lbState(page);
 check('galería inexistente · no abre un lightbox vacío', !s.open);

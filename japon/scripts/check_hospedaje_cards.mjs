@@ -2,6 +2,11 @@
 // Martín marcó el 26/8 (task 557), en las dos superficies —el acordeón del resumen y la
 // vista Hospedajes—, a ancho desktop y mobile, y en la app principal y en la compartida.
 // Además: ningún texto visible nombra a los amigos del tramo compartido.
+//
+// Ronda 2 (misma fecha, «sigue tomando bastante real estate, y hay dos partes con
+// imágenes»): UNA sola zona de imagen por tarjeta —el carrusel— y el bloque de la reserva
+// plegado por default. Las dos cosas se chequean acá abajo, más un techo de altura por
+// tarjeta: el Sendai que Martín mandó en esa ronda medía 483 px y ninguna pasa de 430.
 // No es parte de ninguna suite: necesita Chromium y el sitio servido. Levantarlo con
 //   python3 -m http.server 8611 --bind 127.0.0.1   (desde la raíz del repo)
 // y después:
@@ -41,9 +46,19 @@ for (const [app, base] of [['principal', ROOT], ['compartido', ROOT + 'compartid
       links: [...c.querySelectorAll('.lg-links a')].map(a => a.innerText),
       dates: (c.querySelector('.lg-dates') || {}).innerText || '',
       nights: (c.querySelector('.lg-nights') || {}).innerText || '',
-      resvHead: (c.querySelector('.resv-head') || {}).innerText || '',
-      resvKeys: [...c.querySelectorAll('.resv-k')].map(e => e.innerText),
-      hasLodging: !!c.querySelector('.lg-img, .lg-links'),
+      hours: (c.querySelector('.lg-hours') || {}).innerText || '',
+      // `textContent` y no `innerText`: adentro de un <details> cerrado nada se renderiza
+      // y `innerText` devolvería '' — el chequeo daría verde por invisible, no por limpio.
+      resvHead: (c.querySelector('.resv-head') || {}).textContent || '',
+      resvKeys: [...c.querySelectorAll('.resv-k')].map(e => e.getAttribute('data-k') || e.textContent),
+      // Ronda 2: una sola banda de fotos y la reserva plegada.
+      zonas: c.querySelectorAll('.lgc').length + c.querySelectorAll('.lg-img, .gallery-thumb').length,
+      chips: c.querySelectorAll('.lg-h').length,
+      // Plegada = adentro de un <details> cerrado. `getClientRects()` no sirve: Chromium
+      // le deja caja al contenido de un <details> cerrado (lo esconde con content-visibility).
+      resvSuelta: [...c.querySelectorAll('.resv')].some(r => !r.closest('details.lodging-more:not([open])')),
+      alto: Math.round(c.getBoundingClientRect().height),
+      hasLodging: !!c.querySelector('.lgc, .lg-links'),
     })));
     const minCards = app === 'compartido' ? 3 : 13;
     check(`${tag} · hay tarjetas`, cards.length >= minCards, `${cards.length} tarjetas`);
@@ -61,6 +76,14 @@ for (const [app, base] of [['principal', ROOT], ['compartido', ROOT + 'compartid
         c.resvKeys.join(',') || '(sin filas)');
       // (4) links: ficha y/o Maps siguen ahí
       check(`${tag} · ${c.id} · links en la tarjeta`, c.links.length >= 1, c.links.join(' · '));
+      // (5) ronda 2: una sola zona de imagen, sin la tira de thumbnails de al lado
+      check(`${tag} · ${c.id} · una sola zona de imagen`, c.zonas === 1, `${c.zonas} zonas`);
+      // (6) ronda 2: la reserva está plegada y los horarios son una línea, no chips
+      check(`${tag} · ${c.id} · la reserva viene plegada`, !c.resvSuelta);
+      check(`${tag} · ${c.id} · horarios en una línea de texto`,
+        c.chips === 0 && /Check-in|Check-out|Horarios/.test(c.hours), c.hours.replace(/\n/g, ' '));
+      // (7) ronda 2: techo de altura — el Sendai que Martín marcó medía 394 px acá
+      check(`${tag} · ${c.id} · la tarjeta no pasa de 430 px`, c.alto <= 430, `${c.alto} px`);
     }
     const tHosp = await page.evaluate(() => document.body.innerText);
     check(`${tag} · hospedajes sin nombres propios`, nombres(tHosp).length === 0, nombres(tHosp).join(','));
@@ -73,17 +96,68 @@ for (const [app, base] of [['principal', ROOT], ['compartido', ROOT + 'compartid
     await page.waitForTimeout(2000);
     const metas = await page.$$eval('.lodging-card.dx', els => els.map(c => ({
       meta: (c.querySelector('.lodging-meta') || {}).innerText || '',
-      links: [...c.querySelectorAll('.lodging-meta a')].length,
+      links: [...c.querySelectorAll('.lodging-links a')].length,
       italic: !!c.querySelector('[style*="italic"]'),
+      zonas: c.querySelectorAll('.lgc').length + c.querySelectorAll('.lodging-img, .gallery-thumb').length,
+      resvSuelta: [...c.querySelectorAll('.resv')].some(r => !r.closest('details.lodging-more:not([open])')),
+      alto: Math.round(c.getBoundingClientRect().height),
     })));
     check(`${tag} · resumen · hay tarjetas`, metas.length >= 2, `${metas.length} tarjetas`);
     for (const [i, m] of metas.entries()) {
-      // Fechas, noches y links en UNA línea; el "Abrir" de la reserva es un link más.
-      check(`${tag} · resumen · tarjeta ${i + 1} · fechas + noches + links en una línea`,
-        /→/.test(m.meta) && /noche/.test(m.meta) && m.links >= 1, m.meta.replace(/\n/g, ' '));
+      // Fechas, noches y horas de entrada/salida en UNA línea; los links, en la de abajo.
+      check(`${tag} · resumen · tarjeta ${i + 1} · fechas + noches + horarios en una línea`,
+        /→/.test(m.meta) && /noche/.test(m.meta) && /Check-in|Check-out|Horarios/.test(m.meta),
+        m.meta.replace(/\n/g, ' '));
+      check(`${tag} · resumen · tarjeta ${i + 1} · links en la tarjeta`, m.links >= 1, `${m.links} links`);
       check(`${tag} · resumen · tarjeta ${i + 1} · sin la línea en itálica`, !m.italic);
+      // Ronda 2: una sola banda de fotos, reserva plegada y techo de altura (el Sendai
+      // que Martín marcó medía 483 px de bloque; la tarjeta sola no pasa de 430).
+      check(`${tag} · resumen · tarjeta ${i + 1} · una sola zona de imagen`, m.zonas === 1, `${m.zonas} zonas`);
+      check(`${tag} · resumen · tarjeta ${i + 1} · la reserva viene plegada`, !m.resvSuelta);
+      check(`${tag} · resumen · tarjeta ${i + 1} · no pasa de 430 px`, m.alto <= 430, `${m.alto} px`);
     }
-    // El detalle plegado también se audita: se abre todo antes de leer el texto.
+    // El carrusel: el toggle de fotos es UNO por tarjeta y de verdad pasa a la siguiente.
+    const carrusel = await page.$('.lodging-card.dx .lgc:not(.single)');
+    if (carrusel) {
+      const antes = await carrusel.evaluate(el => el.querySelector('.lgc-track').scrollLeft);
+      await carrusel.evaluate(el => el.querySelector('.lgc-nav.next').click());
+      await page.waitForTimeout(700);
+      const despues = await carrusel.evaluate(el => ({
+        x: el.querySelector('.lgc-track').scrollLeft,
+        dot: [...el.querySelectorAll('.lgc-dots i')].findIndex(d => d.classList.contains('on')),
+        start: el.classList.contains('at-start'),
+      }));
+      check(`${tag} · resumen · la flecha pasa a la foto siguiente`, despues.x > antes, `${antes} → ${despues.x}`);
+      check(`${tag} · resumen · el punto sigue a la foto`, despues.dot === 1, `punto ${despues.dot}`);
+      check(`${tag} · resumen · la flecha de volver se prende`, !despues.start);
+      // En el celular el que pasa las fotos es el dedo: el scroll-snap nativo. Y el click
+      // con el que termina un swipe no tiene que abrir el lightbox.
+      const snap = await carrusel.evaluate(el => {
+        const st = getComputedStyle(el.querySelector('.lgc-track'));
+        return st.overflowX + ' / ' + st.scrollSnapType;
+      });
+      check(`${tag} · resumen · se pasa con el dedo (scroll-snap)`, /^auto \/ x mandatory$/.test(snap), snap);
+      await carrusel.evaluate(el => {
+        const t = el.querySelector('.lgc-track');
+        t.scrollTo({ left: 0 });
+        setTimeout(() => el.querySelector('.lgc-track img').click(), 30);
+      });
+      await page.waitForTimeout(400);
+      check(`${tag} · resumen · el click que cierra un swipe no abre el lightbox`,
+        !await page.evaluate(() => document.querySelector('.lightbox').classList.contains('open')));
+      // Y pasado el swipe, tocar la foto sí abre el lightbox donde corresponde.
+      await page.waitForTimeout(500);
+      await carrusel.evaluate(el => el.querySelector('.lgc-track img').click());
+      await page.waitForTimeout(400);
+      const lb = await page.evaluate(() => document.querySelector('.lightbox').classList.contains('open'));
+      check(`${tag} · resumen · pasado el swipe, la foto abre el lightbox`, lb);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(400);
+    } else {
+      check(`${tag} · resumen · hay un carrusel con varias fotos`, false);
+    }
+    // El detalle plegado también se audita —ahí adentro está la reserva—: se abre todo
+    // antes de leer el texto.
     await page.$$eval('.lodging-more', els => els.forEach(e => { e.open = true; }));
     await page.waitForTimeout(300);
     const tRes = await page.evaluate(() => document.body.innerText);

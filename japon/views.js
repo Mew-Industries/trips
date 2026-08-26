@@ -22,9 +22,10 @@ const TABS = [
 // su pane es el <main class="dashboard"> que ya existe en index.html.
 const RENDER = {};
 
-// Los chips de horario y la línea de links son los mismos que arma el resumen
-// (`hoursHtml` / `lodgingLinks` en index.html): las dos vistas muestran el mismo
-// hospedaje, así que el criterio de qué se dice —y qué no se repite— vive en un solo lado.
+// El carrusel de fotos, la línea de horarios y la de links son los mismos que arma el
+// resumen (`carouselHtml` / `hoursParts` / `lodgingLinks` en index.html): las dos vistas
+// muestran el mismo hospedaje, así que el criterio de qué se dice —y qué no se repite—
+// vive en un solo lado.
 
 // Los nodos compartidos se marcan igual en las cuatro vistas: badge violeta con quién, y
 // —donde el borde izquierdo está libre— el acento en la tarjeta. El dato es del nodo
@@ -65,21 +66,24 @@ RENDER.hospedajes = (it, ctx) => {
         '</div></div></div></div>';
     }
 
-    // La foto va ARRIBA y a lo ancho (Martín, 26/8): al costado dejaba la ficha —y el
-    // bloque de reserva que la sigue— en una columna angosta con media tarjeta vacía.
-    // Tocarla abre el mismo lightbox del resumen, con el resto de las fotos.
+    // Una sola zona de imagen (Martín, 26/8 ronda 2): la foto de arriba ES el carrusel,
+    // con el resto de las fotos del alojamiento adentro. Tocarla abre el mismo lightbox
+    // del resumen.
     const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
     const galKey = 'hosp:' + node.id;
     if (ctx.galleries) ctx.galleries[galKey] = shots;
     // Ficha, Maps y —cuando lleva a otro lado— la reserva: una sola línea de links. Las
     // fechas ya están en la columna de la izquierda, así que no vuelven acá.
     const links = ctx.lodgingLinks(L, '');
+    // El bloque de la reserva se pliega, igual que en el resumen: la tarjeta se lee de un
+    // vistazo y el número para el mostrador está a un toque.
+    const resv = ctx.resvHtml(L);
 
     // `data-hosp` es el id del nodo, el mismo con el que el mapa indexa su pin de cama:
     // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
     return '<div class="v-card' + sharedCls(node) + '" data-hosp="' + node.id + '"><div class="lg-row">' + when +
       '<div class="lg-main">' +
-        (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" data-gal="' + galKey + '" data-gi="0" alt="">' : '') +
+        ctx.carouselHtml(shots, galKey, 'lg-shots') +
         '<div class="lg-body">' +
           '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span>' + sharedTag(node) + '</div>' +
           (L.type || L.guests ? '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' : '') +
@@ -87,10 +91,10 @@ RENDER.hospedajes = (it, ctx) => {
           // Lo que hay que hacerle a la reserva (rebookear, ajustar fechas, ampliar a 4):
           // va arriba de los horarios, que son los de la reserva vieja.
           (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
-          ctx.hoursHtml(L) +
+          '<div class="lg-hours">' + ctx.hoursParts(L).join(' · ') + '</div>' +
           (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
+          (resv ? '<details class="lodging-more"><summary>Reserva</summary>' + resv + '</details>' : '') +
         '</div>' +
-        ctx.resvHtml(L) +
       '</div>' +
     '</div></div>';
   });

@@ -250,9 +250,24 @@
      se leen igual. */
   .lodging-card { display: block; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; overflow: hidden; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
   .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
-  .lodging-img { display: block; width: 100%; height: 140px; object-fit: cover; background: #ece9e2; }
-  .lodging-img-zoom { cursor: zoom-in; transition: opacity 0.12s; }
-  .lodging-img-zoom:hover { opacity: 0.9; }
+  /* Carrusel: la única banda de fotos de la tarjeta. El scroll-snap hace el swipe del
+     celular sin JS; las flechas y los puntos flotan encima y sólo aparecen con más de una
+     foto (`.single` las apaga porque no existen en el HTML). */
+  .lgc { position: relative; background: #ece9e2; }
+  .lgc-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; }
+  .lgc-track::-webkit-scrollbar { display: none; }
+  .lgc-track img { flex: 0 0 100%; width: 100%; height: 140px; object-fit: cover; scroll-snap-align: center; cursor: zoom-in; background: #ece9e2; }
+  .lgc-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border: 0; border-radius: 50%; background: rgba(0,0,0,0.42); color: #fff; font-size: 17px; line-height: 1; padding: 0 0 2px; cursor: pointer; opacity: 0.85; transition: opacity 0.12s, background 0.12s; }
+  .lgc-nav:hover { opacity: 1; background: rgba(0,0,0,0.62); }
+  .lgc-nav.prev { left: 6px; }
+  .lgc-nav.next { right: 6px; }
+  .lgc.at-start .lgc-nav.prev, .lgc.at-end .lgc-nav.next { opacity: 0; pointer-events: none; }
+  /* Los puntos van sobre la foto, así que necesitan su propio piso: sin el degradé se
+     pierden contra un cielo blanco o una pared clara. */
+  .lgc-dots { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: flex-end; gap: 5px; height: 26px; padding-bottom: 6px; pointer-events: none; background: linear-gradient(transparent, rgba(0,0,0,0.32)); }
+  .lgc-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: background 0.12s; }
+  .lgc-dots i.on { background: #fff; }
+  @media (prefers-reduced-motion: reduce) { .lgc-nav, .lgc-dots i { transition: none; } }
   .lodging-body { min-width: 0; padding: 8px 10px 9px; }
   .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
   .lodging-sub { font-size: 11px; color: #666; }
@@ -263,10 +278,14 @@
   .lodging-card.tbd { background: rgba(0,0,0,0.02); border-style: dashed; }
   .lodging-card.tbd .lodging-name { color: #8d8878; }
   .lodging-meta { font-size: 11px; color: #444; font-weight: 600; margin-top: 4px; line-height: 1.5; }
+  .lodging-hours { font-weight: 500; color: #8d8878; }
+  .lg-hh { white-space: nowrap; }
+  .lodging-links { font-size: 11px; margin-top: 2px; line-height: 1.5; color: #b9b3a5; }
   .lodging-link { color: #1D9E75; text-decoration: underline; }
   .lodging-link:hover { color: #0F6E56; }
-  /* La descripción del lugar, plegada: cerrada es un renglón, abierta el texto de
-     siempre. Mismo triángulo y mismo gris que el resto de los desplegables del site. */
+  /* Lo que no se mira de un vistazo, plegado: la descripción del lugar y el bloque de la
+     reserva. Cerrado es un renglón, abierto el contenido de siempre. Mismo triángulo y
+     mismo gris que el resto de los desplegables del site. */
   .lodging-more { margin-top: 5px; font-size: 11px; color: #777; line-height: 1.4; }
   .lodging-more > summary { display: inline-flex; align-items: baseline; gap: 5px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #b0aa9c; cursor: pointer; list-style: none; }
   .lodging-more > summary::-webkit-details-marker { display: none; }
@@ -277,8 +296,10 @@
   @media (prefers-reduced-motion: reduce) { .lodging-more > summary::before { transition: none; } }
   /* Lo que se usa parado en el mostrador: el número de reserva y las condiciones. Sin
      título propio ni fechas —las fechas están arriba, en la tarjeta—, sólo la barra
-     verde a la izquierda para despegarlo de la ficha del hotel (Martín, 26/8). */
+     verde a la izquierda para despegarlo del resto (Martín, 26/8). Desde la ronda 2 vive
+     adentro del desplegable: se busca a propósito, no se lee scrolleando. */
   .resv { border: 1px solid rgba(15,110,86,0.2); border-left: 3px solid #0F6E56; border-radius: 8px; background: rgba(15,110,86,0.05); padding: 7px 10px 8px; margin: -2px 0 10px; }
+  .lodging-more .resv, .lg-body .resv { margin: 6px 0 0; }
   .resv-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
   .resv-prov { font-size: 9px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #0F6E56; }
   .resv-ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.02em; color: #1a1a1a; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; transition: color 0.12s; }
@@ -296,8 +317,6 @@
   .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
-  .lodging-gallery { margin-top: -6px; }
-  .lodging-gallery .gallery-thumb { height: 54px; }
   /* Por encima de la ficha de parada (z-index 4000): la foto del hospedaje también se
      abre desde adentro del modal. */
   .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
@@ -478,7 +497,7 @@
     .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
     .activity-top .source-link { min-height: 18px; padding: 0 2px; line-height: 18px; }
     .cat-head { min-height: 36px; }
-    .lodging-img { height: 120px; }
+    .lgc-track img { height: 120px; }
     .lb-prev, .lb-next { font-size: 40px; padding: 0 10px; }
   }
 </style>
@@ -1452,20 +1471,33 @@ function hourPart(s) {
   return /\d{1,2}:\d{2}/.test(rest) ? rest : '';
 }
 
-// Ventana de check-in / check-out como chips. El dato sale de la reserva y, si ahí no
-// está, de los campos del hospedaje. Sin dato no se inventa: la tarjeta dice una sola
-// vez que las horas todavía no están (típico de los Airbnb, que no las declaran).
-function hoursHtml(L) {
+// Ventana de check-in / check-out, como una línea de texto. El dato sale de la reserva y,
+// si ahí no está, de los campos del hospedaje. Sin dato no se inventa: la tarjeta dice una
+// sola vez que las horas todavía no están (típico de los Airbnb, que no las declaran).
+// Dejaron de ser chips el 26/8 (Martín, ronda 2): dos píldoras verdes por tarjeta pesaban
+// un renglón entero y decían lo mismo que dos palabras. Y "desde"/"hasta" se caen cuando
+// el rótulo ya los implica —"Check-in desde 15:00" es "Check-in 15:00"—, pero sólo el que
+// corresponde: un "Check-in hasta 20:00" sigue necesitando su preposición.
+function hoursParts(L) {
   const b = (L && L.booking) || {};
   const win = (from, to) => from && to ? from + '–' + to : from ? 'desde ' + from : 'hasta ' + to;
-  const chip = (label, txt, cls) => '<span class="lg-h ' + cls + '">' + label + ' ' + escHtml(txt) + '</span>';
+  const trim = (txt, word) => txt.replace(new RegExp('^' + word + ' ', 'i'), '');
   const cin = hourPart(b.checkIn) || ((L.checkInFrom || L.checkInTo) ? win(L.checkInFrom, L.checkInTo) : '');
   const cout = hourPart(b.checkOut) || ((L.checkOutFrom || L.checkOutBy) ? win(L.checkOutFrom, L.checkOutBy) : '');
-  const chips = [];
-  if (cin) chips.push(chip('Check-in', cin, ''));
-  if (cout) chips.push(chip('Check-out', cout, 'out'));
-  if (!chips.length) chips.push('<span class="lg-h tbd">Horarios a definir</span>');
-  return '<div class="lg-hours">' + chips.join('') + '</div>';
+  // El rótulo y su hora no se separan: sin el `nowrap` el renglón corta por el guión de
+  // "Check-out" y queda un "Check-" colgado al final de la línea. Lo que venga DESPUÉS de
+  // la hora —la aclaración de Osaka, que el check-in va hasta la madrugada— sí puede
+  // cortar: si no, un paréntesis largo se sale de la tarjeta.
+  const part = (label, txt) => {
+    const m = txt.match(/^(\d{1,2}:\d{2}(?:–\d{1,2}:\d{2})?)([\s\S]*)$/);
+    return m
+      ? '<span class="lg-hh">' + label + ' ' + m[1] + '</span>' + escHtml(m[2])
+      : '<span class="lg-hh">' + label + '</span> ' + escHtml(txt);
+  };
+  const parts = [];
+  if (cin) parts.push(part('Check-in', trim(cin, 'desde')));
+  if (cout) parts.push(part('Check-out', trim(cout, 'hasta')));
+  return parts.length ? parts : ['<span class="lg-hh">Horarios a definir</span>'];
 }
 
 // Los links de una tarjeta de hospedaje, en una sola línea: ficha pública, Google Maps y
@@ -1533,41 +1565,59 @@ function lodgingTbdHtml(txt) {
     '</div></div>';
 }
 
+// UNA sola zona de imagen por tarjeta (Martín, 26/8 ronda 2: «hay dos partes con
+// imágenes, algo awkward»): la foto grande ES el carrusel y la tira de thumbnails de
+// abajo ya no existe. El carrusel es un contenedor con scroll-snap horizontal, así que en
+// el celular se pasa con el dedo sin una línea de JS; las flechas y los puntos son para el
+// desktop. Tocar la foto sigue abriendo el lightbox, en la que se está mirando (`data-gi`).
+// `at-start`/`at-end` apagan la flecha que no lleva a ningún lado; las mantiene el listener
+// de scroll de más abajo, que es uno solo para todas las tarjetas del documento.
+function carouselHtml(shots, key, cls) {
+  if (!shots.length) return '';
+  const one = shots.length < 2;
+  const imgs = shots.map((u, i) =>
+    '<img src="' + u + '" loading="' + (i ? 'lazy' : 'eager') + '" data-gal="' + key + '" data-gi="' + i + '" alt="">').join('');
+  const nav = one ? '' :
+    '<button type="button" class="lgc-nav prev" data-lgc="-1" aria-label="Foto anterior">‹</button>' +
+    '<button type="button" class="lgc-nav next" data-lgc="1" aria-label="Foto siguiente">›</button>' +
+    '<div class="lgc-dots">' + shots.map((_, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>';
+  return '<div class="lgc' + (cls ? ' ' + cls : '') + (one ? ' single' : ' at-start') + '">' +
+    '<div class="lgc-track">' + imgs + '</div>' + nav + '</div>';
+}
+
 function lodgingHtml(L, city, galId) {
   if (!L) return '';
   const sub = [L.type, L.guests].filter(Boolean).join(' · ');
   const nightsStr = L.nights ? L.nights + (L.nights === 1 ? ' noche' : ' noches') : '';
   const dateStr = (L.checkIn && L.checkOut) ? L.checkIn + ' → ' + L.checkOut : '';
-  // Una sola línea para el cuándo y para los links —ficha, Maps y la reserva—: antes las
-  // fechas estaban acá Y otra vez en el bloque de la reserva, con su propio título.
-  const meta = [dateStr, nightsStr].filter(Boolean).join(' · ');
-  const metaHtml = [meta].concat(lodgingLinks(L, 'lodging-link')).filter(Boolean).join(' · ');
-  // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª va arriba de la ficha,
-  // a lo ancho; el resto en una tira debajo, igual que la galería del destino. Tocar
-  // cualquiera abre el lightbox en esa foto y se recorren las demás desde ahí.
+  // El "cuándo" completo en un renglón: fechas, noches y las horas de entrada y salida.
+  // Antes las fechas estaban acá, las horas en dos chips abajo y todo otra vez en el
+  // bloque de la reserva. Las horas van en el mismo renglón pero un tono más abajo: son
+  // el detalle de las fechas, no otro dato.
+  const when = [dateStr, nightsStr].filter(Boolean).join(' · ');
+  const meta = when +
+    '<span class="lodging-hours">' + (when ? ' · ' : '') + hoursParts(L).join(' · ') + '</span>';
+  const links = lodgingLinks(L, 'lodging-link');
   const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
   const key = 'lodging:' + galId;
   galleries[key] = shots;
-  const shot = (u, gi) =>
-    '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + key + '" data-gi="' + gi + '" alt="">';
-  const strip = shots.length > 1
-    ? '<div class="detail-gallery lodging-gallery dx">' + shots.slice(1).map((u, i) => shot(u, i + 1)).join('') + '</div>'
-    : '';
+  // Plegado: lo que no se mira de un vistazo. La descripción del lugar y el bloque de la
+  // reserva —número, cancelación, qué incluye, teléfono—, que es lo que se busca a
+  // propósito, parado en el mostrador, y no lo que se lee scrolleando el itinerario.
+  const resv = resvHtml(L);
+  const more = [L.note || '', resv].filter(Boolean).join('');
+  const summary = resv ? (L.note ? 'Reserva y detalle' : 'Reserva') : 'Detalle';
   const inner =
-    (shots.length
-      ? '<img class="lodging-img lodging-img-zoom" src="' + shots[0] + '" loading="lazy" data-gal="' + key + '" data-gi="0" alt="">'
-      : '') +
+    carouselHtml(shots, key) +
     '<div class="lodging-body">' +
       '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
       (sub ? '<div class="lodging-sub">' + sub + '</div>' : '') +
       (L.area ? '<div class="lodging-area">' + L.area + '</div>' : '') +
-      '<div class="lodging-meta">' + metaHtml + '</div>' +
-      hoursHtml(L) +
+      '<div class="lodging-meta">' + meta + '</div>' +
+      (links.length ? '<div class="lodging-links">' + links.join(' · ') + '</div>' : '') +
       // Lo que hay que HACERLE a la reserva: la fecha del nodo ya cambió y la reserva no.
       (L.pending ? '<div class="lodging-pending">⚠ ' + L.pending + '</div>' : '') +
-      // La descripción del lugar es lo único largo que quedaba en la tarjeta: se pliega,
-      // no se pierde. Cerrada ocupa un renglón.
-      (L.note ? '<details class="lodging-more"><summary>Detalle</summary>' + L.note + '</details>' : '') +
+      (more ? '<details class="lodging-more"><summary>' + summary + '</summary>' + more + '</details>' : '') +
     '</div>';
   const masked =
     '<div class="lodging-body">' +
@@ -1576,8 +1626,6 @@ function lodgingHtml(L, city, galId) {
     '</div>';
   return '<div class="card-section-title">🛏️ Hospedaje</div>' +
     '<div class="lodging-card dx">' + inner + '</div>' +
-    strip +
-    resvHtml(L) +
     '<div class="lodging-card dm">' + masked + '</div>';
 }
 
@@ -2960,6 +3008,10 @@ document.addEventListener('click', (e) => {
   else fallback();
 });
 
+// Cuándo se movió por última vez un carrusel: lo escribe el módulo de más abajo y lo lee
+// el lightbox, para no abrirse con el click con el que termina un swipe.
+let lastCarouselScroll = 0;
+
 // Lightbox para las galerías de fotos (click en una foto → se expande y se recorren las
 // demás de ese hospedaje/destino). El listener va en `document` porque las fotos aparecen
 // en el acordeón, en la ficha de parada y en las vistas laterales.
@@ -2998,6 +3050,14 @@ document.addEventListener('click', (e) => {
     open(galleries[t.dataset.gal], +t.dataset.gi);
   });
   window.addEventListener('popstate', () => close(false));
+  // Un swipe que termina sobre la foto no tiene que abrir el lightbox. En captura y con
+  // `stopImmediatePropagation` porque el listener de arriba también vive en `document`.
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.lgc-track') && performance.now() - lastCarouselScroll < 350) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
   lb.querySelector('.lb-close').addEventListener('click', () => close());
   lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
   lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
@@ -3008,6 +3068,33 @@ document.addEventListener('click', (e) => {
     else if (e.key === 'ArrowLeft') step(-1);
     else if (e.key === 'ArrowRight') step(1);
   });
+})();
+
+// ---- Carrusel de fotos del hospedaje ---------------------------------------
+// Un solo par de listeners para todos los carruseles del documento —el acordeón, la ficha
+// de parada y la vista Hospedajes dibujan el mismo alojamiento y se montan/desmontan solos—,
+// igual que el lightbox. El movimiento lo hace el scroll nativo: acá sólo se lo empuja con
+// las flechas y se sincronizan los puntos, venga del dedo o del click.
+(function carousels() {
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.lgc-nav');
+    if (!b) return;
+    e.stopPropagation();
+    const track = b.parentElement.querySelector('.lgc-track');
+    track.scrollBy({ left: (+b.dataset.lgc) * track.clientWidth, behavior: 'smooth' });
+  });
+  // `scroll` no burbujea: se escucha en captura o no llega nunca a `document`.
+  document.addEventListener('scroll', (e) => {
+    const track = e.target;
+    if (!track.classList || !track.classList.contains('lgc-track')) return;
+    lastCarouselScroll = performance.now();
+    const box = track.parentElement;
+    const dots = box.querySelectorAll('.lgc-dots i');
+    const i = track.clientWidth ? Math.round(track.scrollLeft / track.clientWidth) : 0;
+    dots.forEach((d, j) => d.classList.toggle('on', j === i));
+    box.classList.toggle('at-start', i <= 0);
+    box.classList.toggle('at-end', i >= dots.length - 1);
+  }, true);
 })();
 
 // CHART
@@ -3296,7 +3383,7 @@ const weatherChart = new Chart(ctx, {
 // —que es todo lo que había antes— tiene que seguir funcionando igual.
 try {
   mountViews(destinations, {
-    escHtml, resvHtml, resvUrl, RESV_PROVIDER, hoursHtml, lodgingLinks,
+    escHtml, resvHtml, resvUrl, RESV_PROVIDER, hoursParts, lodgingLinks, carouselHtml,
     // Mismo lightbox que el resumen: la vista registra su galería acá y marca las fotos
     // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
     galleries,
