@@ -1,27 +1,35 @@
 #!/usr/bin/env node
-/** Regression checks for the compact, source-aware “Cosas para hacer” list. */
+/** Regression checks for the city pool + barrio-first activity catalog. */
 const fs = require('fs');
 const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const checks = [
-  ['categorías usan details nativo cerrado por default',
-    /return '<details class="cat-group">'/.test(html) && !/return '<details class="cat-group" open/.test(html)],
-  ['encabezado conserva nombre y cantidad',
-    /<summary class="cat-head"><span class="cat-name">/.test(html) && /class="cat-count"/.test(html)],
-  ['cada cosa agrupa nombre y fuentes en una fila',
-    /<li class="thing-row" data-check="/.test(html) && /sourceLinksHtml\(a\)/.test(html)],
+  ['barrios usan grupos colapsables con cantidad',
+    /<details class="cat-group hood-group">/.test(html) && /class="cat-count"/.test(html)],
+  ['orden intra-barrio usa distancia al hospedaje',
+    /entries\.slice\(\)\.sort\(\(a, b\) => activityDistance\(a\.act, node\) - activityDistance\(b\.act, node\)\)/.test(html)],
+  ['chips combinables persisten en acat',
+    /data-activity-chip/.test(html) && /searchParams\.set\('acat'/.test(html)],
+  ['cada cosa muestra note y fuentes en la fila',
+    /class="activity-note"/.test(html) && /sourceLinksHtml\(a\)/.test(html)],
+  ['ids estables salen del slug y no del índice',
+    /const activityId =/.test(html) && /data-check="' \+ key/.test(html)],
+  ['las estadías de una ciudad comparten el mismo pool',
+    /function cityActivities\(d\)/.test(html) && /cityPools\.get\(key\)/.test(html)],
+  ['el hospedaje del plan diario abre su ficha',
+    /data-hosp-day/.test(fs.readFileSync(path.join(__dirname, '..', 'views.js'), 'utf8'))],
   ['las acciones quedan inline y flexibles',
     /\.thing-row \{ display: flex;/.test(html) && /\.act-row \{[^}]*width: auto;/.test(html)],
   ['targets de fuentes siguen siendo táctiles en mobile',
     /@media \(max-width: 900px\)[\s\S]*\.source-link \{ min-height: 32px; line-height: 32px;/.test(html)],
-  ['la ficha completa reutiliza las mismas categorías',
-    /categoryGroupsHtml\(cityActs, false\)/.test(html)],
+  ['la ficha completa reutiliza el agrupado por barrio',
+    /categoryGroupsHtml\(cityActs, d, false\)/.test(html)],
   // task 552: la lista es de la ciudad, no de la visita. Si alguien vuelve a pasarle
   // `d.activities` a la lista, Tokio se fragmenta otra vez entre sus tres paradas.
   ['la lista sale del pool de la ciudad, no de la parada',
     /function cityActivities\(d\)/.test(html) &&
-    /categoryGroupsHtml\(cityActs, true\)/.test(html) &&
+    /categoryGroupsHtml\(cityActs, d, true\)/.test(html) &&
     !/categoryGroupsHtml\(d\.activities/.test(html)],
 ];
 

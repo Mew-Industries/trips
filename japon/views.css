@@ -140,6 +140,8 @@
 .dy-role.paso { color: #8A5A0E; }
 .dy-sleep { font-size: 11px; color: #8d8878; margin-top: 2px; }
 .dy-sleep b { color: #0F6E56; font-weight: 600; }
+.dy-hosp { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.dy-hosp:hover, .dy-hosp:focus-visible { color: #0F6E56; text-decoration: underline; outline: none; }
 .dy-ev { margin-top: 8px; display: grid; gap: 3px; }
 .dy-e { display: grid; grid-template-columns: 46px 1fr; gap: 8px; font-size: 11.5px; line-height: 1.45; align-items: baseline; }
 .dy-time { font-variant-numeric: tabular-nums; font-weight: 700; color: #0F6E56; font-size: 12px; }

@@ -236,7 +236,11 @@ function catGroups(items, ctx) {
 // Los `items` salen del pool de la CIUDAD (`[{ act, key }]`, ver `cityActivities` en
 // index.html): la clave es la de la parada dueña de la actividad, no la del nodo que
 // está mostrando la lista.
-function catListHtml(items, ctx) {
+function catListHtml(items, ctx, nodeId) {
+  if (ctx.activityGroupsHtml) {
+    const node = ctx.nodeById && ctx.nodeById[nodeId];
+    return ctx.activityGroupsHtml(items, node);
+  }
   const esc = ctx.escHtml;
 
   // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
@@ -420,7 +424,8 @@ export function dayRoute(day, ctx, keepOrder) {
     return byNode.get(node.id);
   };
   const entry = (node, i, act, extra) => Object.assign({
-    key: node.id + ':' + i, act, ll: act.coords, cat: ctx.catOfAct(act), group: act.group || null,
+    key: ctx.activityId ? ctx.activityId(act, node) : node.id + ':' + i,
+    act, ll: act.coords, cat: ctx.catOfAct(act), group: act.group || null,
   }, extra);
 
   // Lo que tiene hora comprada entra como ancla, en el orden en que el día lo lista
@@ -580,14 +585,16 @@ RENDER.dias = (it, ctx) => {
       : (day.inFlight ? '✈️ En vuelo' : 'Fin del viaje');
 
     const sleep = day.sleep && day.sleep.lodging
-      ? '<div class="dy-sleep dx">Dormís en <b>' + esc(day.sleep.lodging.name) + '</b></div><div class="dy-sleep dm">Dormís en <b>' + esc(day.sleep.short) + '</b></div>'
+      ? '<button type="button" class="dy-sleep dy-hosp dx" data-hosp-day="' + day.sleep.id + '">Dormís en <b>' + esc(day.sleep.lodging.name) + '</b></button><div class="dy-sleep dm">Dormís en <b>' + esc(day.sleep.short) + '</b></div>'
       : day.sleep ? '<div class="dy-sleep">Dormís en <b>' + esc(day.sleep.short) + '</b> · sin reservar</div>'
       : day.inFlight ? '<div class="dy-sleep">Noche a bordo</div>' : '';
 
     const events = day.events.map(e => {
       const note = e.act ? [e.act.booked, e.act.bestTime, e.act.openHours].filter(Boolean).join(' · ') : '';
       // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
-      const what = e.lodging ? ctx.DX(esc(e.lodging.name), esc(e.node.short)) : esc(e.text);
+      const what = e.lodging
+        ? '<button type="button" class="dy-hosp" data-hosp-day="' + e.node.id + '">' + ctx.DX(esc(e.lodging.name), esc(e.node.short)) + '</button>'
+        : esc(e.text);
       return '<div class="dy-e ' + (e.kind === 'reserva' ? 'resv' : '') + '">' +
         '<span class="dy-time' + (e.time ? '' : ' none') + '">' + (e.time || '—') + '</span>' +
         '<span class="dy-etext"><span class="ek">' + EV_LABEL[e.kind] + '</span>' + what +
@@ -942,6 +949,8 @@ export function mountViews(destinations, ctx) {
 
   if (panes.dias) {
     panes.dias.addEventListener('click', (e) => {
+      const hosp = e.target.closest('[data-hosp-day]');
+      if (hosp) { e.stopPropagation(); goHosp(hosp.dataset.hospDay); return; }
       const b = e.target.closest('.dy-map');
       if (b) { e.stopPropagation(); goDay(b.dataset.day); }
     });

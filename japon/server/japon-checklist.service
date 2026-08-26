@@ -1,0 +1,19 @@
+[Unit]
+Description=Shared checklist API for the Japan trip
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/openclaw/.openclaw/workspace/repos/trips/japon/server/checklist.py --host 127.0.0.1 --port 9102
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/home/openclaw/.openclaw/workspace/data
+StandardOutput=append:/home/openclaw/.openclaw/workspace/logs/japon-checklist.log
+StandardError=append:/home/openclaw/.openclaw/workspace/logs/japon-checklist.log
+
+[Install]
+WantedBy=default.target

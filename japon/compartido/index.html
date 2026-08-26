@@ -346,6 +346,15 @@
   .cat-name { font-size: 11px; font-weight: 600; }
   .cat-count { margin-left: auto; min-width: 22px; padding: 1px 6px; border-radius: 9px; background: rgba(15,110,86,0.08); color: #698078; font-size: 10px; text-align: center; }
   .cat-group .card-list { margin-left: 16px; }
+  .activity-filters { display: flex; gap: 5px; overflow-x: auto; padding: 4px 0 7px; scrollbar-width: none; }
+  .activity-filters::-webkit-scrollbar { display: none; }
+  .activity-chip { flex: none; border: 1px solid rgba(15,110,86,.18); border-radius: 14px; background: #fff; color: #6e6a5f; padding: 4px 8px; font: inherit; font-size: 10px; cursor: pointer; }
+  .activity-chip.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
+  .hood-group[hidden], .activity-featured[hidden], .thing-row[hidden] { display: none; }
+  .hood-head { color: #0F6E56; }
+  .activity-note { display: block; margin-top: 1px; color: #8d8878; font-size: 10.5px; line-height: 1.35; text-decoration: none; }
+  .activity-featured { margin: 4px 0 8px; padding: 7px 9px; border-radius: 8px; background: rgba(240,184,74,.11); }
+  .featured-label { margin-bottom: 3px; color: #8A5A0E; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
   .thing-row { display: flex; align-items: baseline; gap: 3px; min-width: 0; }
   .act-row { display: inline-block; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 2px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
   .act-row:hover { color: #1D9E75; }
@@ -420,7 +429,7 @@
   .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
   [data-check].is-done .activity-check { color: #0F6E56; }
   [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
-  [data-check].is-done .act-row, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
+  [data-check].is-done .activity-title, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
   .thing-row[data-check], .sg-list li[data-check], .rt-item[data-check] { display: flex; align-items: center; }
   .rt-item[data-check] > .sg-item { flex: 1; }
 
@@ -1556,6 +1565,17 @@ const catOfAct = a => catOf(a.text, a.cat);
 const thingKey = name => catKey(String(name || '').split('(')[0]);
 const sourceThings = window.SOURCE_THINGS || [];
 const sourceThingByIndex = [];
+const CITY_ALIASES = [
+  ['tokio', /^(tokio|tokyo)\b/], ['kioto', /^(kioto|kyoto)\b/],
+  ['osaka', /^osaka\b/]
+];
+function cityKeyOf(value) {
+  const key = catKey(value);
+  const hit = CITY_ALIASES.find(([, re]) => re.test(key));
+  return hit ? hit[0] : key.split(' ')[0];
+}
+const cityOfNode = d => cityKeyOf(d.name || d.short || d.id);
+const activityId = (a, d) => a.activityId || ('act-' + cityOfNode(d) + '-' + (thingKey(a.text).replace(/\s+/g, '-') || 'sin-nombre'));
 function mapsSource(name, url) {
   return { type: 'google_maps', url: url || gmapsFromName(name), label: 'Google Maps' };
 }
@@ -1588,6 +1608,9 @@ sourceThings.forEach((p, sourceIndex) => {
     if (dest) dest.activities.push(thing);
     else { thing.lat = p.lat; thing.lon = p.lon; orphanPlaces.push(thing); }
   }
+  if (!thing.note && p.note) thing.note = p.note;
+  if (!thing.area && p.area) thing.area = p.area;
+  if (!thing.cat && p.cat) thing.cat = p.cat;
   thing.sources = thing.sources || [];
   (p.sources || []).forEach(s => {
     if (!thing.sources.some(existing => existing.type === s.type && existing.url === s.url)) thing.sources.push(s);
@@ -1601,21 +1624,14 @@ sourceThings.forEach((p, sourceIndex) => {
 // las actividades entre las tres fichas es un corte arbitrario que esconde cosas.
 // El grupo se DERIVA acá: los `activities` de cada nodo quedan intactos porque de ese
 // orden sale el reparto por día (ver itinerary.js). Cada ítem del pool viaja con la
-// clave de su parada dueña (`<nodo>:<i>`), así el pin del mapa, el tachado y la
-// búsqueda siguen apuntando al mismo objeto de siempre.
-const CITY_RULES = [['tokio', /tok(io|yo)/], ['kioto', /k(io|yo)to/], ['osaka', /osaka/]];
-const cityKeyOf = d => {
-  const k = catKey(d.short || d.name || d.id);
-  const rule = CITY_RULES.find(([, re]) => re.test(k));
-  return rule ? rule[0] : k;
-};
+// id estable por ciudad+nombre, así reordenar la fuente no rompe el checklist.
 const cityNodes = new Map();
 destinations.forEach(d => {
-  const key = cityKeyOf(d);
+  const key = cityOfNode(d);
   if (!cityNodes.has(key)) cityNodes.set(key, []);
   cityNodes.get(key).push(d);
 });
-const cityGroupOf = d => cityNodes.get(cityKeyOf(d)) || [d];
+const cityGroupOf = d => cityNodes.get(cityOfNode(d)) || [d];
 // El nombre de la CIUDAD, no el de la parada: "Tokio", no "Tokio fin".
 const cityLabel = d => cityGroupOf(d)[0].short;
 
@@ -1624,14 +1640,15 @@ const cityLabel = d => cityGroupOf(d)[0].short;
 // normalizado = misma cosa, igual criterio que `thingKey` usa para fundir fuentes).
 const cityPools = new Map();
 function cityActivities(d) {
-  const key = cityKeyOf(d);
+  const key = cityOfNode(d);
   if (!cityPools.has(key)) {
     const seen = new Set(), pool = [];
     cityGroupOf(d).forEach(node => (node.activities || []).forEach((act, i) => {
       const name = thingKey(act.text);
       if (seen.has(name)) return;
       seen.add(name);
-      pool.push({ act, key: node.id + ':' + i });
+      act.activityId = activityId(act, node);
+      pool.push({ act, key: act.activityId });
     }));
     cityPools.set(key, pool);
   }
@@ -1644,6 +1661,11 @@ function cityDaytrips(d) {
   return cityGroupOf(d).flatMap(node => node.daytrips || [])
     .filter(dt => (seen.has(dt.id) ? false : seen.add(dt.id)));
 }
+const legacyActivityIds = new Map();
+destinations.forEach(d => (d.activities || []).forEach((a, i) => {
+  a.activityId = activityId(a, d);
+  legacyActivityIds.set(d.id + ':' + i, a.activityId);
+}));
 
 function sourceLinksHtml(thing) {
   return '<span class="source-links">' + (thing.sources || []).map((s, i) =>
@@ -1653,25 +1675,105 @@ function sourceLinksHtml(thing) {
   ).join('') + '</span>';
 }
 
-// `entries` son los ítems del pool de la ciudad (`[{ act, key }]`, ver cityActivities):
-// la clave con la que se tacha y se vuela al pin es la de la parada DUEÑA, no la de la
-// ficha que está mostrando la lista.
-function categoryGroupsHtml(entries, interactive) {
-  return CAT_ORDER.filter(c => entries.some(e => catOfAct(e.act) === c)).map(c => {
-    const rows = entries.filter(e => catOfAct(e.act) === c);
-    return '<details class="cat-group">' +
-      '<summary class="cat-head"><span class="cat-name">' + (CAT_LABELS[c] || c) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
-      '<ul class="card-list">' + rows.map(({ act: a, key }) =>
-        interactive && a.coords
-          ? '<li class="thing-row" data-check="' + key + '"><button type="button" class="act-row" data-act="' + key + '">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '<span class="act-pin">📍</span></button>' + sourceLinksHtml(a) + '</li>'
-          : '<li class="thing-row" data-check="' + key + '"><span class="act-row-plain">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>' + sourceLinksHtml(a) + '</li>'
-      ).join('') + '</ul></details>';
-  }).join('');
+const activityCatsFromUrl = () => new Set((new URLSearchParams(location.search).get('acat') || '')
+  .split(',').filter(c => CAT_META[c]));
+let selectedActivityCats = activityCatsFromUrl();
+function neighborhoodOf(a, node) {
+  const area = String(a.area || '').trim();
+  const paren = area.match(/\(([^)]+)\)/);
+  if (paren) return paren[1];
+  const parts = area.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length > 1 && cityKeyOf(parts[parts.length - 1]) === cityOfNode(node || {})) return parts[0];
+  return 'Otros';
+}
+function activityDistance(a, node) {
+  const bed = node && node.lodging && node.lodging.coords;
+  if (!bed || !a.coords) return Number.POSITIVE_INFINITY;
+  const x = (a.coords[1] - bed[1]) * Math.cos((a.coords[0] + bed[0]) * Math.PI / 360);
+  const y = a.coords[0] - bed[0];
+  return x * x + y * y;
+}
+function activityRowHtml(entry, node, interactive) {
+  const a = entry.act, key = entry.key;
+  const title = '<span class="activity-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>';
+  const note = a.note ? '<span class="activity-note">' + escHtml(a.note) + '</span>' : '';
+  const body = interactive && a.coords
+    ? '<button type="button" class="act-row" data-act="' + key + '">' + title + note + '<span class="act-pin">📍</span></button>'
+    : '<span class="act-row-plain">' + title + note + '</span>';
+  return '<li class="thing-row" data-check="' + key + '" data-activity-cat="' + catOfAct(a) + '" data-search-text="' +
+    escHtml(catKey([a.text, a.note, a.area].filter(Boolean).join(' '))) + '">' + body + sourceLinksHtml(a) + '</li>';
+}
+function categoryGroupsHtml(entries, node, interactive = true) {
+  const ordered = entries.slice().sort((a, b) => activityDistance(a.act, node) - activityDistance(b.act, node));
+  const cats = CAT_ORDER.filter(c => ordered.some(e => catOfAct(e.act) === c));
+  const chips = '<div class="activity-filters" aria-label="Filtrar por categoría">' + cats.map(c =>
+    '<button type="button" class="activity-chip' + (selectedActivityCats.has(c) ? ' on' : '') + '" data-activity-chip="' + c + '" aria-pressed="' + selectedActivityCats.has(c) + '">' +
+    CAT_META[c].icon + ' ' + escHtml(CAT_META[c].label) + '</button>').join('') + '</div>';
+  const featured = ordered.filter(e => e.act.destacado);
+  const byHood = new Map();
+  ordered.filter(e => !e.act.destacado).forEach(e => {
+    const hood = neighborhoodOf(e.act, node);
+    if (!byHood.has(hood)) byHood.set(hood, []);
+    byHood.get(hood).push(e);
+  });
+  const featuredHtml = featured.length
+    ? '<div class="activity-featured"><div class="featured-label">★ Destacados</div><ul class="card-list">' + featured.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></div>' : '';
+  const groups = [...byHood].map(([hood, rows]) => '<details class="cat-group hood-group">' +
+    '<summary class="cat-head hood-head"><span class="cat-name">' + escHtml(hood) + '</span><span class="cat-count">' + rows.length + '</span></summary>' +
+    '<ul class="card-list">' + rows.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></details>').join('');
+  return '<div class="activity-catalog">' + chips + featuredHtml + groups + '</div>';
 }
 
-const CHECKLIST_KEY = 'japon-activity-checklist-v1';
+const CHECKLIST_KEY = 'japon-activity-checklist-v2';
+const LEGACY_CHECKLIST_KEY = 'japon-activity-checklist-v1';
+const CHECKLIST_PENDING_KEY = 'japon-activity-checklist-pending-v2';
+const CHECKLIST_MIGRATED_KEY = 'japon-activity-checklist-migrated-v2';
+const CHECKLIST_ENDPOINT = 'https://japon-checklist.mewis.online/88c0c7054253ecf08eac9055cd1afc13ae1836ae';
 let checkedActivities = new Set();
 try { checkedActivities = new Set(JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '[]')); } catch (e) {}
+try {
+  const legacy = JSON.parse(localStorage.getItem(LEGACY_CHECKLIST_KEY) || '[]');
+  legacy.forEach(key => { if (legacyActivityIds.has(key)) checkedActivities.add(legacyActivityIds.get(key)); });
+  if (legacy.length) localStorage.setItem(CHECKLIST_KEY, JSON.stringify([...checkedActivities]));
+} catch (e) {}
+let pendingChecklistChanges = new Map();
+try { pendingChecklistChanges = new Map(JSON.parse(localStorage.getItem(CHECKLIST_PENDING_KEY) || '[]')); } catch (e) {}
+if (!localStorage.getItem(CHECKLIST_MIGRATED_KEY)) {
+  checkedActivities.forEach(id => pendingChecklistChanges.set(id, true));
+  localStorage.setItem(CHECKLIST_MIGRATED_KEY, '1');
+}
+let checklistRetry = null;
+
+function persistChecklistLocal() { localStorage.setItem(CHECKLIST_KEY, JSON.stringify([...checkedActivities])); }
+function persistChecklistPending() { localStorage.setItem(CHECKLIST_PENDING_KEY, JSON.stringify([...pendingChecklistChanges])); }
+async function pushChecklist() {
+  clearTimeout(checklistRetry);
+  for (const [id, done] of [...pendingChecklistChanges]) {
+    try {
+      const res = await fetch(CHECKLIST_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id, done }) });
+      if (!res.ok) throw new Error('sync ' + res.status);
+      if (pendingChecklistChanges.get(id) === done) { pendingChecklistChanges.delete(id); persistChecklistPending(); }
+    } catch (e) { checklistRetry = setTimeout(pushChecklist, 12000); return; }
+  }
+}
+function queueChecklistChange(id, done) {
+  pendingChecklistChanges.set(id, done);
+  persistChecklistPending();
+  pushChecklist();
+}
+async function hydrateChecklist() {
+  try {
+    const res = await fetch(CHECKLIST_ENDPOINT, { cache: 'no-store' });
+    if (!res.ok) throw new Error('sync ' + res.status);
+    const remote = await res.json();
+    checkedActivities = new Set(remote.done || []);
+    pendingChecklistChanges.forEach((done, id) => done ? checkedActivities.add(id) : checkedActivities.delete(id));
+    persistChecklistLocal();
+    wireChecklist(document); refreshSearch(); applyActivityFilters();
+    await pushChecklist();
+  } catch (e) { checklistRetry = setTimeout(hydrateChecklist, 12000); }
+}
 
 function syncCheckItem(el) {
   if (!el || !el.dataset.check) return;
@@ -1697,9 +1799,10 @@ document.addEventListener('click', (e) => {
   const item = button.closest('[data-check]');
   const key = item.dataset.check;
   if (checkedActivities.has(key)) checkedActivities.delete(key); else checkedActivities.add(key);
-  localStorage.setItem(CHECKLIST_KEY, JSON.stringify([...checkedActivities]));
+  persistChecklistLocal();
   document.querySelectorAll('[data-check="' + CSS.escape(key) + '"]').forEach(syncCheckItem);
   refreshSearch();
+  queueChecklistChange(key, checkedActivities.has(key));
 });
 
 // Pins de lugares: el color dice la categoría y todos comparten la misma forma.
@@ -1814,8 +1917,10 @@ const actMarkers = {};
 const thingMarkers = new Map();
 const savedPlaceLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
-  (d.activities || []).forEach((a, i) => {
+  (d.activities || []).forEach(a => {
     if (!a.coords) return;
+    const key = activityId(a, d);
+    if (actMarkers[key]) return;
     const cat = catOfAct(a);
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
@@ -1824,7 +1929,7 @@ destinations.forEach(d => {
     m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
       '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] + '</div>' +
       (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
-    actMarkers[d.id + ':' + i] = m;
+    actMarkers[key] = m;
     thingMarkers.set(a, m);
     nearAdd(m, a.text, catColor(cat), maskLodging(a.text));
   });
@@ -2053,7 +2158,7 @@ destinations.forEach((d, idx) => {
       (cityActs.length > 0
         ? '<button type="button" class="qh-toggle open"><span class="card-section-title">Cosas para hacer · ' + cityActs.length + '</span>' + sharedNote + '<span class="qh-caret">▸</span></button>' +
           '<div class="qh-body open">' +
-            categoryGroupsHtml(cityActs, true) +
+            categoryGroupsHtml(cityActs, d, true) +
           '</div>'
         : '') +
       dtHtml +
@@ -2113,9 +2218,18 @@ const searchInput = document.getElementById('activity-search');
 const searchClear = document.getElementById('search-clear');
 const searchResults = document.getElementById('search-results');
 const foldSearch = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-const searchIndex = destinations.flatMap(d => (d.activities || []).map((a, i) => ({
-  key: d.id + ':' + i, node: d, name: a.text, marker: actMarkers[d.id + ':' + i]
-})).concat((d.daytrips || []).map(dt => ({ key: null, node: d, name: dt.name, marker: dtMarkers[dt.id] }))));
+const searchIndexByKey = new Map();
+destinations.forEach(d => {
+  (d.activities || []).forEach(a => {
+    const key = activityId(a, d);
+    if (!searchIndexByKey.has(key)) searchIndexByKey.set(key, {
+      key, node: d, name: a.text, note: a.note || '', area: a.area || '', cat: catOfAct(a), marker: actMarkers[key]
+    });
+  });
+  (d.daytrips || []).forEach(dt => searchIndexByKey.set('daytrip-' + dt.id,
+    { key: null, node: d, name: dt.name, note: dt.desc || '', area: '', cat: catOf(dt.name, dt.cat), marker: dtMarkers[dt.id] }));
+});
+const searchIndex = [...searchIndexByKey.values()];
 
 function writeSearchUrl(value, replace) {
   const u = new URL(location.href);
@@ -2129,7 +2243,8 @@ function refreshSearch() {
   const q = foldSearch(raw);
   searchClear.hidden = !raw;
   if (!q) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
-  const matches = searchIndex.filter(x => foldSearch(x.name + ' ' + x.node.name + ' ' + x.node.short).includes(q)).slice(0, 40);
+  const matches = searchIndex.filter(x => (!selectedActivityCats.size || selectedActivityCats.has(x.cat)) &&
+    foldSearch(x.name + ' ' + x.note + ' ' + x.area + ' ' + x.node.name + ' ' + x.node.short).includes(q)).slice(0, 40);
   searchResults.innerHTML = matches.length ? matches.map(x =>
     '<button type="button" class="search-result' + (x.key && checkedActivities.has(x.key) ? ' done' : '') + '" role="option" data-search-key="' + escHtml(x.key || '') + '" data-node="' + x.node.id + '">' +
       '<span class="sr-name">' + escHtml(x.name) + '</span><span class="sr-city">' + escHtml(x.node.short) + '</span></button>'
@@ -2137,15 +2252,48 @@ function refreshSearch() {
   searchResults.hidden = false;
 }
 
+function applyActivityFilters() {
+  const q = foldSearch(searchInput && searchInput.value);
+  document.querySelectorAll('.activity-chip').forEach(chip => {
+    const on = selectedActivityCats.has(chip.dataset.activityChip);
+    chip.classList.toggle('on', on); chip.setAttribute('aria-pressed', String(on));
+  });
+  document.querySelectorAll('.activity-catalog').forEach(catalog => {
+    catalog.querySelectorAll('.thing-row[data-activity-cat]').forEach(row => {
+      row.hidden = !!((selectedActivityCats.size && !selectedActivityCats.has(row.dataset.activityCat)) ||
+        (q && !row.dataset.searchText.includes(q)));
+    });
+    catalog.querySelectorAll('.hood-group').forEach(group => {
+      const visible = [...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
+      group.hidden = !visible;
+      if (q && visible) group.open = true;
+    });
+    catalog.querySelectorAll('.activity-featured').forEach(group => {
+      group.hidden = ![...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
+    });
+  });
+}
+
+document.addEventListener('click', e => {
+  const chip = e.target.closest('[data-activity-chip]');
+  if (!chip) return;
+  const cat = chip.dataset.activityChip;
+  if (selectedActivityCats.has(cat)) selectedActivityCats.delete(cat); else selectedActivityCats.add(cat);
+  const u = new URL(location.href);
+  if (selectedActivityCats.size) u.searchParams.set('acat', [...selectedActivityCats].join(',')); else u.searchParams.delete('acat');
+  history.pushState({}, '', u);
+  applyActivityFilters(); refreshSearch();
+});
+
 function applySearchFromUrl() {
   if (!searchInput) return;
   searchInput.value = new URLSearchParams(location.search).get('q') || '';
   refreshSearch();
 }
 
-searchInput.addEventListener('input', () => { writeSearchUrl(searchInput.value.trim(), true); refreshSearch(); });
+searchInput.addEventListener('input', () => { writeSearchUrl(searchInput.value.trim(), true); refreshSearch(); applyActivityFilters(); });
 searchInput.addEventListener('focus', refreshSearch);
-searchClear.addEventListener('click', () => { searchInput.value = ''; writeSearchUrl('', false); refreshSearch(); searchInput.focus(); });
+searchClear.addEventListener('click', () => { searchInput.value = ''; writeSearchUrl('', false); refreshSearch(); applyActivityFilters(); searchInput.focus(); });
 searchResults.addEventListener('click', (e) => {
   const row = e.target.closest('.search-result');
   if (!row) return;
@@ -2164,8 +2312,13 @@ searchResults.addEventListener('click', (e) => {
   searchResults.hidden = true;
 });
 document.addEventListener('click', e => { if (!e.target.closest('.activity-search')) searchResults.hidden = true; });
-window.addEventListener('popstate', applySearchFromUrl);
+window.addEventListener('popstate', () => {
+  selectedActivityCats = activityCatsFromUrl();
+  applySearchFromUrl(); applyActivityFilters();
+});
 applySearchFromUrl();
+applyActivityFilters();
+hydrateChecklist();
 
 // Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
 const _lastDep = destinations[destinations.length - 1].departureLeg;
@@ -2283,7 +2436,7 @@ function smBodyHtml(d) {
     ? '<span class="qh-shared">' + escHtml(cityLabel(d)) + ' · las ' + visits + ' visitas</span>' : '';
   const acts = cityActs.length
     ? '<div class="sm-sec"><div class="card-section-title">Qué hacer · ' + cityActs.length + sharedNote + '</div>' +
-        categoryGroupsHtml(cityActs, false) +
+        categoryGroupsHtml(cityActs, d, false) +
       '</div>'
     : '';
   const dts = cityDts.length
@@ -3071,6 +3224,8 @@ try {
     // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
     cityActivities, cityLabel,
+    activityId, activityGroupsHtml: categoryGroupsHtml,
+    nodeById: Object.fromEntries(destinations.map(d => [d.id, d])),
     focusTrip, openStopModal, flash,
     // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la
     // misma cosa. La vista manda el estado por la URL (`?tramo=`) y el mapa marca; el
