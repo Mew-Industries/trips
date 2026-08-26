@@ -554,7 +554,7 @@ const destinations = [
     activities: [
       // Entrada comprada con slot fijo: por eso lleva `at` y aparece como evento del 9/10.
       { text: 'teamLab Planets', cat: 'museos', coords: [35.648786, 139.790114], at: '2026-10-09T09:00', until: '2026-10-09T09:30',
-        booked: '2 Entrance Pass · ¥11.200 · QR en My Tickets desde las 0:00 del día · cambiable hasta 2 h antes',
+        booked: '2 Entrance Pass · QR en My Tickets desde las 0:00 del día · cambiable hasta 2 h antes',
         bestTime: 'Slot de las 9:00: es el primero del día, sin multitud, y el jet lag de los primeros días juega a favor.' },
       { text: 'Tsukiji Outer Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.664848, 139.7702] },
       { text: 'Toyosu Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.644091, 139.784281] },
@@ -641,7 +641,7 @@ const destinations = [
       url: 'https://www.airbnb.com/rooms/1534431699681046944',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=2-1%20Nihongi%2C%20Ichinoseki%2C%20Iwate%20021-0835',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '13 oct', checkOut: '14 oct', total: 'US$172,92' },
+      booking: { provider: 'airbnb', ref: null, checkIn: '13 oct', checkOut: '14 oct' },
       note: 'Pegado a la estación, ideal para el Geibikei a la mañana y el shinkansen a Sendai.'
     },
     leg: { mode: '🚄', time: '~3 h', detail: 'JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki.', via: [[36.5551, 139.898], [38.2602, 140.8821], [38.9344, 141.1267]],
@@ -688,7 +688,7 @@ const destinations = [
         pin: '',
         checkIn: '14 oct · desde 15:00', checkOut: '15 oct · hasta 11:00',
         cancel: 'Gratis hasta el 11/10', includes: 'Desayuno buffet 7:00–9:30 (Coffee House, 1º piso)',
-        total: '¥17.100', phone: '+81 22-268-1111'
+        phone: '+81 22-268-1111'
       },
       note: 'Cuartos de 17-21 m² (doble o twin) con baño privado; todo el hotel es no fumador. El buffet del desayuno mezcla japonés, occidental y chino.'
     },
@@ -728,10 +728,10 @@ const destinations = [
       url: 'https://www.airbnb.com/rooms/667203897845859107',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Minami%204%20Jonishi%20Glass%20%E8%B3%87%E7%94%9F%E9%A4%A8%2C%20Chuo%20Ward%2C%20Sapporo%20064-0804',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '15 oct', checkOut: '17 oct', total: 'US$135,94' },
+      booking: { provider: 'airbnb', ref: null, checkIn: '15 oct', checkOut: '17 oct' },
       note: 'Base céntrica en Susukino para los 2 días de Sapporo.'
     },
-    leg: { mode: '🚆✈️', time: '1 h 20 (vuelo)', detail: 'Sendai → aeropuerto por la línea Access (~25 min) + Peach MM419, jue 15/10 16:50 → 18:10 (New Chitose, terminal doméstica). Reserva 7Y2NTQ, 2 pax, ¥15.180 pagados (tarifa Minimum, con 1 valija despachada de Cata).',
+    leg: { mode: '🚆✈️', time: '1 h 20 (vuelo)', detail: 'Sendai → aeropuerto por la línea Access (~25 min) + Peach MM419, jue 15/10 16:50 → 18:10 (New Chitose, terminal doméstica). Reserva 7Y2NTQ, 2 pax, tarifa Minimum, con 1 valija despachada de Cata.',
       departure: '2026-10-15T16:50', arrival: '2026-10-15T18:10',
       dirUrl: 'https://www.google.com/maps/dir/?api=1&origin=Sendai%20Station&destination=Sendai%20Airport&travelmode=transit', dirLabel: 'cómo llegar al aeropuerto ↗',
       via: [[38.1397, 140.9171], [42.7752, 141.6923]], path: [{ m: 'train', to: [38.1397, 140.9171] }, { m: 'air', to: [42.7752, 141.6923] }, { m: 'train', to: [43.0618, 141.3545] }],
@@ -778,10 +778,10 @@ const destinations = [
       url: 'https://www.airbnb.com/rooms/27441365',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Korinbo%2C%20Kanazawa%2C%20Ishikawa',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '17 oct', checkOut: '19 oct', total: 'US$165,43' },
+      booking: { provider: 'airbnb', ref: null, checkIn: '17 oct', checkOut: '19 oct' },
       note: 'Base céntrica en Kōrinbō para los 2 días de Kanazawa. Dirección exacta a confirmar (llega unos días antes).'
     },
-    leg: { mode: '✈️🚌', time: '1 h 35 (vuelo)', detail: 'Sapporo → New Chitose en el Rapid Airport (~37 min) + ANA NH1174, sáb 17/10 11:55 → 13:30 (New Chitose terminal D → Komatsu) + bus del aeropuerto a Kanazawa. Reserva EPVZXU, 2 pax, ¥27.580 pagados (tarifa Simple, 20 kg despachados por pax).',
+    leg: { mode: '✈️🚌', time: '1 h 35 (vuelo)', detail: 'Sapporo → New Chitose en el Rapid Airport (~37 min) + ANA NH1174, sáb 17/10 11:55 → 13:30 (New Chitose terminal D → Komatsu) + bus del aeropuerto a Kanazawa. Reserva EPVZXU, 2 pax, tarifa Simple, 20 kg despachados por pax.',
       departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30',
       dirUrl: 'https://www.google.com/maps/dir/?api=1&origin=Sapporo%20Station&destination=New%20Chitose%20Airport&travelmode=transit', dirLabel: 'cómo llegar al aeropuerto ↗',
       via: [[42.7752, 141.6923], [36.3946, 136.4076]], path: [{ m: 'train', to: [42.7752, 141.6923] }, { m: 'air', to: [36.3946, 136.4076] }, { m: 'bus', to: [36.5613, 136.6562] }],
@@ -921,7 +921,7 @@ const destinations = [
         provider: 'airbnb', ref: 'HMC28MCWF3',
         checkIn: '26 oct · desde 16:00', checkOut: '31 oct · hasta 10:00',
         cancel: 'Gratis hasta el 26/9 16:00 · reembolso parcial hasta el 19/10',
-        total: 'US$498,89 (pago programado 18/9)', phone: '+81 70-8924-2407'
+        phone: '+81 70-8924-2407'
       },
       note: 'Depto entero de 40 m² con tatami y cama doble, entre Dotonbori y Nihonbashi. Host 川house道頓堀. Alojamiento compartido con Zava y Ari.'
     },
@@ -1008,7 +1008,7 @@ const destinations = [
         checkIn: '31 oct · 15:00–23:00', checkOut: '3 nov · hasta 11:00',
         cancel: 'Gratis hasta el 23/10 23:59 JST (después 40% / 80% / 100%)',
         includes: 'Room only, sin comidas', payThere: 'Accommodation tax ¥500/noche',
-        total: 'US$709,47 (¥112.473, FX fijado al reservar)', phone: '+81 92-291-1188'
+        phone: '+81 92-291-1188'
       },
       note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023.'
     },
@@ -1062,11 +1062,11 @@ const destinations = [
         provider: 'airbnb', ref: 'HMS8XPDH8N',
         checkIn: '3 nov · desde 16:00', checkOut: '6 nov · hasta 11:00',
         cancel: 'Reembolso parcial hasta el 27/10 16:00',
-        total: 'US$440,72 (US$220,34 pagados · resto el 19/10)', phone: '+82 10-4321-9722'
+        phone: '+82 10-4321-9722'
       },
       note: 'Casa entera privada a 5 min de la estación Jeonpo · dirección 19 Dongseong-ro 25beon-gil, Busanjin-gu · host 지연 (Jiyeon). La reserva figura a nombre de 1 adulto: falta sumar a Cata como huésped.'
     },
-    leg: { mode: '✈️', time: '1 h 05 (vuelo)', detail: 'Air Busan BX 506, mar 3/11 11:55 → 13:00. Reserva KKNVSP, 2 pax, ¥46.760 pagados (e-tickets 2324628511/12).',
+    leg: { mode: '✈️', time: '1 h 05 (vuelo)', detail: 'Air Busan BX 506, mar 3/11 11:55 → 13:00. Reserva KKNVSP, 2 pax, e-tickets 2324628511/12.',
       departure: '2026-11-03T11:55', arrival: '2026-11-03T13:00',
       fromTerminal: { name: 'Aeropuerto de Fukuoka (FUK)', coords: [33.5859, 130.4507], mode: 'air' }, toTerminal: { name: 'Aeropuerto de Gimhae (PUS)', coords: [35.1795, 128.9382], mode: 'air' },
       why: [
@@ -1114,7 +1114,7 @@ const destinations = [
       url: 'https://www.airbnb.com/rooms/22724133?check_in=2026-11-06&check_out=2026-11-10&adults=2',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '6 nov', checkOut: '10 nov', total: 'US$844' }
+      booking: { provider: 'airbnb', ref: null, checkIn: '6 nov', checkOut: '10 nov' }
     },
     leg: { mode: '🚄', time: '~2 h 40', detail: 'KTX Busan → Seúl.',
       fromTerminal: { name: 'Estación de Busan', coords: [35.11486, 129.04079], mode: 'train' }, toTerminal: { name: 'Estación de Seúl', coords: [37.55396, 126.97169], mode: 'train' },
@@ -1186,7 +1186,7 @@ const destinations = [
         provider: 'booking', ref: null,
         checkIn: '25 oct · 15:00–17:00', checkOut: '26 oct · 8:00–9:00',
         includes: 'Cena shojin ryori 17–19 h + desayuno 6:30–7:30',
-        total: '¥99.000', phone: '+81 736-56-2431',
+        phone: '+81 736-56-2431',
         warn: 'Check-in estricto: llegar después de las 17 h cuenta como cancelación con 100% de cargo.'
       },
       note: 'Servicio matutino 6:30 · baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha) · shojin ryori vegetariano, no contemplan alergias · tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
@@ -1228,7 +1228,7 @@ const destinations = [
         provider: 'rakuten-jp', ref: 'RYa0n6tgtr', refLabel: '予約受付番号',
         checkIn: '10 nov · declarado 16:00', checkOut: '12 nov',
         cancel: 'Gratis hasta el 2/11 23:59 (después escalonada: 7 días 10% → el día 100%)',
-        includes: 'Sin plan de comidas', total: '¥108.680 impuestos incl. (cupón 5% aplicado)',
+        includes: 'Sin plan de comidas',
         phone: '+81 460-85-5711',
         warn: 'Avisar por teléfono si llegan más tarde de las 16:00 declaradas.'
       },
@@ -1606,7 +1606,10 @@ function resvUrl(b) {
 // link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
 // Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
 // El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
-// campo `pin` de Booking en los datos).
+// campo `pin` de Booking en los datos) — ni lo que costó: **el site no muestra plata**
+// (Martín, 25/8), los importes y quién pagó qué viven sólo en el sheet de costos.
+// Lo que se paga ALLÁ (la accommodation tax del hotel) sí queda: no es lo que gastamos,
+// es lo que hay que tener a mano en el mostrador.
 function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
@@ -1619,7 +1622,6 @@ function resvHtml(L) {
   if (b.cancel) row('Cancelación', escHtml(b.cancel));
   if (b.includes) row('Incluye', escHtml(b.includes));
   if (b.payThere) row('Se paga allá', escHtml(b.payThere));
-  if (b.total) row('Total', escHtml(b.total));
   if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
   // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
   // Booking ID en el global) y el segundo número cuando la reserva tiene dos.

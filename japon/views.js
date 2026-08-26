@@ -82,7 +82,6 @@ RENDER.hospedajes = (it, ctx) => {
     const links = [];
     if (L.url) links.push('<a href="' + L.url + '" target="_blank" rel="noopener">' + ctx.HOTEL_LINK_LABEL + ' ↗</a>');
     if (L.mapsUrl) links.push('<a href="' + L.mapsUrl + '" target="_blank" rel="noopener">Google Maps ↗</a>');
-    const total = L.booking && L.booking.total;
 
     // `data-hosp` es el id del nodo, el mismo con el que el mapa indexa su pin de cama:
     // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
@@ -98,8 +97,6 @@ RENDER.hospedajes = (it, ctx) => {
           (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
           hoursHtml(L) +
           (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
-          // El costo vive en el bloque de reserva; sin reserva cargada va acá.
-          (total && !L.booking ? '<div class="lg-cost dx">' + esc(total) + '</div>' : '') +
           ctx.resvHtml(L) +
         '</div>' +
       '</div>' +

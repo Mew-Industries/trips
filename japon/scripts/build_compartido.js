@@ -56,7 +56,8 @@ function buildData(all) {
     node.n = index + 1;
     if (node.lodging && node.lodging.booking) {
       // La ficha conserva estado y fechas para coordinar el rebooking, pero el link
-      // público no necesita credenciales de reserva, teléfono ni importes privados.
+      // público no necesita credenciales de reserva ni el teléfono del host. `total` ya
+      // no existe en el modelo (el site no muestra plata) y se borra igual por las dudas.
       for (const field of ['ref', 'ref2', 'refLabel', 'ref2Label', 'phone', 'total']) {
         delete node.lodging.booking[field];
       }

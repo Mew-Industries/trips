@@ -1397,7 +1397,10 @@ function resvUrl(b) {
 // link a la reserva, horarios reales, deadline de cancelación, teléfono y qué incluye.
 // Es `.dx` entero: en modo discreto la tarjeta vuelve a decir solo "Reservado".
 // El sitio es público, así que acá NO va nada que abra la reserva sin login (ver el
-// campo `pin` de Booking en los datos).
+// campo `pin` de Booking en los datos) — ni lo que costó: **el site no muestra plata**
+// (Martín, 25/8), los importes y quién pagó qué viven sólo en el sheet de costos.
+// Lo que se paga ALLÁ (la accommodation tax del hotel) sí queda: no es lo que gastamos,
+// es lo que hay que tener a mano en el mostrador.
 function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
@@ -1410,7 +1413,6 @@ function resvHtml(L) {
   if (b.cancel) row('Cancelación', escHtml(b.cancel));
   if (b.includes) row('Incluye', escHtml(b.includes));
   if (b.payThere) row('Se paga allá', escHtml(b.payThere));
-  if (b.total) row('Total', escHtml(b.total));
   if (b.phone) row('Teléfono', '<a class="resv-tel" href="tel:' + b.phone.replace(/[^+\d]/g, '') + '">' + escHtml(b.phone) + '</a>');
   // Debajo del número: cómo lo llama esa plataforma (予約受付番号 en Rakuten Japón,
   // Booking ID en el global) y el segundo número cuando la reserva tiene dos.
