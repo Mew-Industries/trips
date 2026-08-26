@@ -244,12 +244,16 @@
   .leg-dir { margin-left: 6px; font-size: 10px; color: #0F6E56; text-decoration: none; white-space: nowrap; border-bottom: 1px dotted rgba(15,110,86,0.4); flex-shrink: 0; }
   .leg-dir:hover { color: #1D9E75; border-bottom-color: #1D9E75; }
   .itin-thumb { width: 34px; height: 34px; border-radius: 7px; object-fit: cover; flex-shrink: 0; background: #ece9e2; }
-  .lodging-card { display: flex; gap: 10px; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; padding: 8px; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
+  /* La foto va ARRIBA, a lo ancho, y el texto abajo (Martín, 26/8): con la foto al
+     costado la ficha —y el bloque de reserva que la sigue— quedaban en una columna
+     angosta con media tarjeta vacía al lado. Así la tarjeta con foto y la que no tiene
+     se leen igual. */
+  .lodging-card { display: block; text-decoration: none; color: inherit; background: rgba(15,110,86,0.03); border: 1px solid rgba(0,0,0,0.07); border-radius: 8px; overflow: hidden; margin-bottom: 10px; transition: border-color 0.12s, background 0.12s; }
   .lodging-card:hover { border-color: #1D9E75; background: rgba(15,110,86,0.06); }
-  .lodging-img { width: 84px; height: 84px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #ece9e2; }
-  .lodging-img-zoom { cursor: pointer; transition: opacity 0.12s; }
-  .lodging-img-zoom:hover { opacity: 0.82; }
-  .lodging-body { flex: 1; min-width: 0; }
+  .lodging-img { display: block; width: 100%; height: 168px; object-fit: cover; background: #ece9e2; }
+  .lodging-img-zoom { cursor: zoom-in; transition: opacity 0.12s; }
+  .lodging-img-zoom:hover { opacity: 0.9; }
+  .lodging-body { min-width: 0; padding: 8px 10px 9px; }
   .lodging-name { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
   .lodging-sub { font-size: 11px; color: #666; }
   .lodging-area { font-size: 11px; color: #777; margin: 2px 0; line-height: 1.35; }
@@ -283,11 +287,13 @@
   .detail-gallery { display: flex; gap: 4px; margin-bottom: 10px; }
   .gallery-thumb { flex: 1; width: 0; height: 84px; object-fit: cover; border-radius: 6px; cursor: pointer; background: #ece9e2; transition: opacity 0.12s; }
   .gallery-thumb:hover { opacity: 0.82; }
-  .gallery-thumb-static { cursor: default; }
   .lodging-gallery { margin-top: -6px; }
   .lodging-gallery .gallery-thumb { height: 64px; }
-  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+  /* Por encima de la ficha de parada (z-index 4000): la foto del hospedaje también se
+     abre desde adentro del modal. */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 5000; align-items: center; justify-content: center; }
   .lightbox.open { display: flex; }
+  .lightbox.single .lb-prev, .lightbox.single .lb-next { display: none; }
   .lb-img { max-width: 92vw; max-height: 86vh; border-radius: 8px; box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
   .lb-btn { position: absolute; color: #fff; cursor: pointer; user-select: none; opacity: 0.75; transition: opacity 0.12s; }
   .lb-btn:hover { opacity: 1; }
@@ -318,7 +324,8 @@
   .sm-title { font-size: 20px; font-weight: 700; margin: 0; line-height: 1.15; }
   .sm-meta { font-size: 12px; color: #8a8478; margin-top: 2px; }
   .sm-hero { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
-  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; cursor: zoom-in; transition: opacity 0.12s; }
+  .sm-hero img:hover { opacity: 0.9; }
   .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
   .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
   .sm-sec { margin-bottom: 12px; }
@@ -455,6 +462,8 @@
     .map-toggles .mt-ic { font-size: 13px; }
     .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
     .cat-head { min-height: 36px; }
+    .lodging-img { height: 140px; }
+    .lb-prev, .lb-next { font-size: 40px; padding: 0 10px; }
   }
 </style>
 </head>
@@ -539,11 +548,17 @@ const destinations = [
       area: '5-chōme-11-2 Shinjuku, Shinjuku City, Tokio 160-0022 · a 3 min a pie de la estación Shinjuku-sanchome (centro, zona comercial)',
       coords: [35.69116, 139.70681],
       checkIn: '8 oct', checkOut: '13 oct', nights: 5, booked: true,
+      // Fotos del listing, copiadas al repo: el CDN de Airbnb rota las URLs y quedarían
+      // huecos en la tarjeta (por eso NO se hotlinkea — Martín, 26/8).
+      img: 'img/lodging/tokio-shinoka-1.jpg',
+      imgs: ['img/lodging/tokio-shinoka-1.jpg', 'img/lodging/tokio-shinoka-2.jpg', 'img/lodging/tokio-shinoka-3.jpg', 'img/lodging/tokio-shinoka-4.jpg'],
       url: 'https://www.airbnb.com/rooms/1105430570374679874',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=5-chome-11-2%20Shinjuku%2C%20Shinjuku%20City%2C%20Tokyo%20160-0022',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
       booking: { provider: 'airbnb', ref: null, checkIn: '8 oct', checkOut: '13 oct' },
-      note: 'La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar). Falta cargar el costo total al sheet de gastos.'
+      // El pendiente de cargar el total al sheet ya está hecho, y de todos modos la plata
+      // no se habla en el site (Martín, 25/8).
+      note: 'La dirección exacta solo aparece en la reserva (Airbnb la oculta hasta confirmar).'
     },
     leg: { mode: '✈️', time: '~30 h · 1 escala', detail: 'Ida EZE → Tokio Haneda · United Polaris business',
       fromTerminal: { name: 'Buenos Aires · Ezeiza (EZE)', coords: [-34.8222, 301.4642], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
@@ -647,6 +662,8 @@ const destinations = [
       area: '2-1 Nihongi 2F, Ichinoseki, Iwate 021-0835 · a 3 min a pie de la estación de Ichinoseki (de ahí salen el Geibikei y el shinkansen a Sendai; ~17 min en auto a Chūson-ji)',
       coords: [38.9274, 141.1417],
       checkIn: '13 oct', checkOut: '14 oct', nights: 1, booked: true,
+      img: 'img/lodging/ichinoseki-nihongi-1.jpg',
+      imgs: ['img/lodging/ichinoseki-nihongi-1.jpg', 'img/lodging/ichinoseki-nihongi-2.jpg', 'img/lodging/ichinoseki-nihongi-3.jpg'],
       url: 'https://www.airbnb.com/rooms/1534431699681046944',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=2-1%20Nihongi%2C%20Ichinoseki%2C%20Iwate%20021-0835',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
@@ -734,6 +751,8 @@ const destinations = [
       area: 'Glass Shiseikan (資生館) 301, Minami 4 Jōnishi, Chūō-ku, Sapporo 064-0804 · en pleno Susukino: comida (ramen miso, sopa de curry, jingisukan, mercado Nijō) y movida nocturna a pasos; sobre la línea de subte Namboku, a 1-2 paradas de la estación de Sapporo para el tren al aeropuerto New Chitose',
       coords: [43.0554, 141.3525],
       checkIn: '15 oct', checkOut: '17 oct', nights: 2, booked: true,
+      img: 'img/lodging/sapporo-susukino-1.jpg',
+      imgs: ['img/lodging/sapporo-susukino-1.jpg', 'img/lodging/sapporo-susukino-2.jpg', 'img/lodging/sapporo-susukino-3.jpg'],
       url: 'https://www.airbnb.com/rooms/667203897845859107',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Minami%204%20Jonishi%20Glass%20%E8%B3%87%E7%94%9F%E9%A4%A8%2C%20Chuo%20Ward%2C%20Sapporo%20064-0804',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
@@ -784,6 +803,8 @@ const destinations = [
       area: 'Kōrinbō, Kanazawa (Ishikawa) · zona céntrica caminable: a pasos del Kenroku-en, el castillo, Nagamachi (barrio samurái) y el Museo del Siglo XXI, con la mejor concentración de restaurantes/bares (Katamachi al lado). Dirección exacta pendiente — el host la manda unos días antes del check-in',
       coords: [36.5612, 136.6553],
       checkIn: '17 oct', checkOut: '19 oct', nights: 2, booked: true,
+      img: 'img/lodging/kanazawa-korinbo-1.jpg',
+      imgs: ['img/lodging/kanazawa-korinbo-1.jpg', 'img/lodging/kanazawa-korinbo-2.jpg', 'img/lodging/kanazawa-korinbo-3.jpg', 'img/lodging/kanazawa-korinbo-4.jpg'],
       url: 'https://www.airbnb.com/rooms/27441365',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Korinbo%2C%20Kanazawa%2C%20Ishikawa',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
@@ -858,18 +879,20 @@ const destinations = [
       coords: [34.9940, 135.7671],
       checkIn: '19 oct', checkOut: '24 oct', nights: 5, booked: true,
       checkInFrom: '16:00', checkOutBy: '10:00',
-      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/2a8a376d-0b41-4a42-b98a-71dd6b3faa63.jpeg?im_w=720',
-      imgs: [
-        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/2a8a376d-0b41-4a42-b98a-71dd6b3faa63.jpeg?im_w=720',
-        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/6fe239a4-b11d-40cb-a2b0-3952fe526703.jpeg?im_w=720',
-        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/62ac0dfa-e645-4eb8-865a-f206c36c2703.jpeg?im_w=720',
-        'https://a0.muscache.com/im/pictures/hosting/Hosting-1065587248882014284/original/6d1edc51-305d-44b0-9167-a5ac9232ad80.jpeg?im_w=720'
-      ],
+      // Primero la casa vista desde el río, que es lo que la hace: la foto de portada del
+      // listing lleva el logo del host encima y se lee como un aviso.
+      img: 'img/lodging/kioto-machiya-4.jpg',
+      imgs: ['img/lodging/kioto-machiya-4.jpg', 'img/lodging/kioto-machiya-2.jpg', 'img/lodging/kioto-machiya-3.jpg', 'img/lodging/kioto-machiya-1.jpg'],
       url: 'https://www.airbnb.com/rooms/1065587248882014284',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=348-2%20Yatsuyanagich%C5%8D%20Shimogy%C5%8D-ku%20Kyoto%20600-8112',
-      // Sin bloque `booking`: la reserva no está en la cuenta de Martín (la tomó otro de los
-      // cuatro), así que no hay número ni link que él pueda abrir. Las horas van arriba,
-      // en `checkInFrom`/`checkOutBy`.
+      booking: {
+        provider: 'airbnb', ref: 'HMYZ4QJ8AP',
+        // La reserva está en la cuenta de Ari, así que el itinerario de Airbnb no abre con
+        // la sesión de Martín: "Abrir" va a la ficha de la casa, que es lo que sí puede ver.
+        // Tampoco va la política de cancelación: la maneja Ari y no la tenemos.
+        url: 'https://www.airbnb.com/rooms/1065587248882014284',
+        checkIn: '19 oct · desde 16:00', checkOut: '24 oct · hasta 10:00'
+      },
       note: 'Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con Zava y Ari.'
     },
     leg: { mode: '🚌🚄', time: '~3 h 40', detail: 'Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.', path: [{ m: 'bus', to: [36.1408, 137.2519] }, { m: 'train', to: [35.0116, 135.7681] }],
@@ -1068,7 +1091,8 @@ const destinations = [
       area: 'Seomyeon/Jeonpo (서면•전포), Busanjin-gu — a 5 min de la estación Jeonpo, el barrio de cafés y movida de Busan.',
       coords: [35.1531, 129.0642],
       checkIn: '3 nov', checkOut: '6 nov', nights: 3, booked: true, checkInFrom: '16:00', checkOutBy: '11:00',
-      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-862619519052635111/original/5aee295c-b84e-4fef-bbbc-0dff9ef45fc3.jpeg?im_w=720',
+      img: 'img/lodging/busan-stayonthing-1.jpg',
+      imgs: ['img/lodging/busan-stayonthing-1.jpg', 'img/lodging/busan-stayonthing-2.jpg', 'img/lodging/busan-stayonthing-3.jpg', 'img/lodging/busan-stayonthing-4.jpg'],
       url: 'https://www.airbnb.com/rooms/862619519052635111',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=19%20Dongseong-ro%2025beon-gil%20Busanjin-gu%20Busan',
       booking: {
@@ -1123,7 +1147,8 @@ const destinations = [
       area: 'Bukchon-ro 12-gil 35-9, Gahoe-dong, Jongno-gu, Seúl 03056 · corazón de la aldea hanok de Bukchon',
       coords: [37.5823, 126.9858],
       checkIn: '6 nov', checkOut: '10 nov', nights: 4, booked: true,
-      img: 'https://a0.muscache.com/im/pictures/hosting/Hosting-U3RheVN1cHBseUxpc3Rpbmc6MjI3MjQxMzM%3D/original/5498d161-c2fb-462c-8f3b-d7eae180fd8e.jpeg?im_w=720',
+      img: 'img/lodging/seul-hanok-1.jpg',
+      imgs: ['img/lodging/seul-hanok-1.jpg', 'img/lodging/seul-hanok-2.jpg', 'img/lodging/seul-hanok-3.jpg'],
       url: 'https://www.airbnb.com/rooms/22724133?check_in=2026-11-06&check_out=2026-11-10&adults=2',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056',
       // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
@@ -1654,7 +1679,8 @@ function resvHtml(L) {
 }
 
 // Tarjeta de hospedaje (Airbnb/hotel/ryokan) para el detalle de un destino.
-// Con `galId` (acordeón del itinerario) las fotos abren el lightbox; sin él (modal) van fijas.
+// `galId` identifica la galería de ESA tarjeta: el acordeón y el modal muestran el mismo
+// hospedaje, así que cada uno registra la suya y las fotos abren el lightbox en los dos.
 // En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fotos/fechas).
 // Un nodo sin `lodging` pero con `lodgingTbd` muestra la tarjeta igual, vacía y
 // marcada: el hueco es información (Tokio del medio se busca para 4 y no está tomado).
@@ -1680,22 +1706,20 @@ function lodgingHtml(L, city, galId) {
   // solo van las noches y los links, para no decir dos veces lo mismo en la misma tarjeta.
   const meta = (L.booking ? [nightsStr] : [dateStr].concat(L.booked ? ['✓ Reservado'] : []))
     .concat(links).filter(Boolean).join(' · ');
-  // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª es la miniatura de la
-  // tarjeta; el resto va en una tira debajo, igual que la galería del destino.
+  // Fotos: `imgs` (galería del alojamiento) o `img` suelta. La 1ª va arriba de la ficha,
+  // a lo ancho; el resto en una tira debajo, igual que la galería del destino. Tocar
+  // cualquiera abre el lightbox en esa foto y se recorren las demás desde ahí.
   const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
   const key = 'lodging:' + galId;
-  if (galId) galleries[key] = shots;
-  const shot = (u, gi) => galId
-    ? '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + key + '" data-gi="' + gi + '" alt="">'
-    : '<img class="gallery-thumb gallery-thumb-static" src="' + u + '" loading="lazy" alt="">';
+  galleries[key] = shots;
+  const shot = (u, gi) =>
+    '<img class="gallery-thumb" src="' + u + '" loading="lazy" data-gal="' + key + '" data-gi="' + gi + '" alt="">';
   const strip = shots.length > 1
     ? '<div class="detail-gallery lodging-gallery dx">' + shots.slice(1).map((u, i) => shot(u, i + 1)).join('') + '</div>'
     : '';
   const inner =
     (shots.length
-      ? (galId
-          ? '<img class="lodging-img lodging-img-zoom" src="' + shots[0] + '" loading="lazy" data-gal="' + key + '" data-gi="0" alt="">'
-          : '<img class="lodging-img" src="' + shots[0] + '" loading="lazy" alt="">')
+      ? '<img class="lodging-img lodging-img-zoom" src="' + shots[0] + '" loading="lazy" data-gal="' + key + '" data-gi="0" alt="">'
       : '') +
     '<div class="lodging-body">' +
       '<div class="lodging-name">' + L.name + (L.rating ? ' · ' + L.rating : '') + '</div>' +
@@ -2623,7 +2647,11 @@ function closeStopModal() {
   document.body.classList.remove('sm-open');
   if (hasViewParam()) setView(null);
 }
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeStopModal(); });
+// Con el lightbox abierto encima, Escape cierra la foto y deja la ficha donde estaba.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || document.querySelector('.lightbox.open')) return;
+  closeStopModal();
+});
 
 function smBodyHtml(d) {
   const cc = { '🇯🇵': 'jp', '🇰🇷': 'kr' };
@@ -2632,7 +2660,12 @@ function smBodyHtml(d) {
   const meta = isPendingStop(d) ? DX(d.pendingNote || d.dates)
     : d.type === 'fullday' ? (DX(d.dates + ' · ') + 'pasar el día')
     : (DX(d.dates + ' · ') + d.nights + ' noches');
-  const hero = gal.length ? '<div class="sm-hero">' + gal.slice(0, 3).map(u => '<img src="' + u + '" loading="lazy" alt="">').join('') + '</div>' : '';
+  // La ficha muestra las 3 primeras, pero el lightbox recorre la galería entera del destino.
+  galleries['sm:' + d.id] = gal;
+  const hero = gal.length
+    ? '<div class="sm-hero">' + gal.slice(0, 3).map((u, gi) =>
+        '<img src="' + u + '" loading="lazy" data-gal="sm:' + d.id + '" data-gi="' + gi + '" alt="">').join('') + '</div>'
+    : '';
   const leg = d.leg ? '<div class="sm-sec"><div class="card-section-title">Cómo se llega</div><div class="sm-leg"><span class="sm-leg-mode">' + (d.leg.mode || '') + '</span> ' + (d.leg.time ? '<b>' + d.leg.time + '</b> · ' : '') + (d.leg.detail || '') + '</div>' + legSegsHtml(d.leg) + '</div>' : '';
   const cityActs = cityActivities(d);
   const cityDts = cityDaytrips(d);
@@ -2654,7 +2687,7 @@ function smBodyHtml(d) {
     hero +
     '<div id="sm-map" class="sm-map"></div>' +
     (d.intro ? '<p class="sm-intro">' + DX(d.intro, maskFree(d.intro)) + '</p>' : '') +
-    (lodgingHtml(d.lodging, d.short) || (d.lodgingTbd ? lodgingTbdHtml(d.lodgingTbd) : '')) + leg + acts + dts
+    (lodgingHtml(d.lodging, d.short, 'sm-' + d.id) || (d.lodgingTbd ? lodgingTbdHtml(d.lodgingTbd) : '')) + leg + acts + dts
   );
 }
 function buildStopMiniMap(d, idx) {
@@ -3107,7 +3140,11 @@ document.addEventListener('click', (e) => {
   else fallback();
 });
 
-// Lightbox para las galerías de fotos (click en una miniatura → se expande).
+// Lightbox para las galerías de fotos (click en una foto → se expande y se recorren las
+// demás de ese hospedaje/destino). El listener va en `document` porque las fotos aparecen
+// en el acordeón, en la ficha de parada y en las vistas laterales.
+// El lightbox NO tiene URL propia (es transitorio), pero sí empuja una entrada de historia
+// para que el "atrás" del celular lo cierre en vez de sacarte del sitio.
 (function () {
   const lb = document.createElement('div');
   lb.className = 'lightbox';
@@ -3115,18 +3152,33 @@ document.addEventListener('click', (e) => {
     '<img class="lb-img" alt=""><span class="lb-btn lb-next">›</span>';
   document.body.appendChild(lb);
   const img = lb.querySelector('.lb-img');
-  let cur = [], idx = 0;
+  let cur = [], idx = 0, pushed = false;
   const show = () => { img.src = cur[idx]; };
-  const close = () => { lb.classList.remove('open'); img.src = ''; };
   const step = (n) => { if (cur.length) { idx = (idx + n + cur.length) % cur.length; show(); } };
-  detailsList.addEventListener('click', (e) => {
+  const open = (list, i) => {
+    if (!list || !list.length) return;
+    cur = list; idx = i;
+    show();
+    lb.classList.toggle('single', cur.length < 2);   // con una sola foto no hay flechas
+    lb.classList.add('open');
+    if (!pushed) { history.pushState({ lb: 1 }, '', location.href); pushed = true; }
+  };
+  // `back: false` = ya volvimos (el popstate nos trajo acá), no hay que pedir otro atrás.
+  const close = (back = true) => {
+    if (!lb.classList.contains('open')) return;
+    lb.classList.remove('open'); img.src = '';
+    const undo = pushed && back;
+    pushed = false;
+    if (undo) history.back();
+  };
+  document.addEventListener('click', (e) => {
     const t = e.target.closest('[data-gal]');
     if (!t) return;
     e.stopPropagation();
-    cur = galleries[t.dataset.gal] || []; idx = +t.dataset.gi;
-    show(); lb.classList.add('open');
+    open(galleries[t.dataset.gal], +t.dataset.gi);
   });
-  lb.querySelector('.lb-close').addEventListener('click', close);
+  window.addEventListener('popstate', () => close(false));
+  lb.querySelector('.lb-close').addEventListener('click', () => close());
   lb.querySelector('.lb-prev').addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
   lb.querySelector('.lb-next').addEventListener('click', (e) => { e.stopPropagation(); step(1); });
   lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
@@ -3425,6 +3477,9 @@ const weatherChart = new Chart(ctx, {
 try {
   mountViews(destinations, {
     escHtml, resvHtml, resvUrl, RESV_PROVIDER, HOTEL_LINK_LABEL,
+    // Mismo lightbox que el resumen: la vista registra su galería acá y marca las fotos
+    // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
+    galleries,
     catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
     // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.

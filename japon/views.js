@@ -78,7 +78,12 @@ RENDER.hospedajes = (it, ctx) => {
         '</div></div></div></div>';
     }
 
+    // La foto va ARRIBA y a lo ancho (Martín, 26/8): al costado dejaba la ficha —y el
+    // bloque de reserva que la sigue— en una columna angosta con media tarjeta vacía.
+    // Tocarla abre el mismo lightbox del resumen, con el resto de las fotos.
     const shots = (L.imgs && L.imgs.length) ? L.imgs : (L.img ? [L.img] : []);
+    const galKey = 'hosp:' + node.id;
+    if (ctx.galleries) ctx.galleries[galKey] = shots;
     const links = [];
     if (L.url) links.push('<a href="' + L.url + '" target="_blank" rel="noopener">' + ctx.HOTEL_LINK_LABEL + ' ↗</a>');
     if (L.mapsUrl) links.push('<a href="' + L.mapsUrl + '" target="_blank" rel="noopener">Google Maps ↗</a>');
@@ -87,7 +92,7 @@ RENDER.hospedajes = (it, ctx) => {
     // es lo que hace que tocar uno lleve al otro, en los dos sentidos.
     return '<div class="v-card' + sharedCls(node) + '" data-hosp="' + node.id + '"><div class="lg-row">' + when +
       '<div class="lg-main">' +
-        (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" alt="">' : '') +
+        (shots.length ? '<img class="lg-img" src="' + shots[0] + '" loading="lazy" data-gal="' + galKey + '" data-gi="0" alt="">' : '') +
         '<div class="lg-body">' +
           '<div class="lg-name"><span class="dx">' + esc(L.name) + '</span><span class="dm">Reservado</span>' + sharedTag(node) + '</div>' +
           (L.type || L.guests ? '<div class="lg-sub">' + esc([L.type, L.guests].filter(Boolean).join(' · ')) + '</div>' : '') +
@@ -97,8 +102,8 @@ RENDER.hospedajes = (it, ctx) => {
           (L.pending ? '<div class="lg-warn">⚠ ' + esc(L.pending) + '</div>' : '') +
           hoursHtml(L) +
           (links.length ? '<div class="lg-links">' + links.join('') + '</div>' : '') +
-          ctx.resvHtml(L) +
         '</div>' +
+        ctx.resvHtml(L) +
       '</div>' +
     '</div></div>';
   });

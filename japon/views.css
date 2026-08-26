@@ -55,9 +55,11 @@
 .lg-dates { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.25; }
 .lg-nights { font-size: 11px; color: #8d8878; margin-top: 2px; }
 .lg-city { font-size: 10px; color: #0F6E56; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
-.lg-main { min-width: 0; display: flex; gap: 12px; }
-.lg-img { width: 78px; height: 78px; object-fit: cover; border-radius: 7px; flex: none; background: #ece9e2; }
-.lg-body { min-width: 0; flex: 1; }
+/* Foto arriba a lo ancho, ficha y reserva debajo ocupando toda la columna. */
+.lg-main { min-width: 0; }
+.lg-img { display: block; width: 100%; height: 150px; object-fit: cover; border-radius: 7px; background: #ece9e2; margin-bottom: 9px; cursor: zoom-in; transition: opacity 0.12s; }
+.lg-img:hover { opacity: 0.9; }
+.lg-body { min-width: 0; }
 .lg-name { font-size: 14px; font-weight: 600; line-height: 1.25; }
 .lg-sub { font-size: 11px; color: #777; margin-top: 1px; }
 .lg-area { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 3px; }
@@ -223,7 +225,6 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
   .lg-row, .tr-row, .dy-row { grid-template-columns: 1fr; gap: 8px; }
   .lg-when, .tr-when, .dy-when { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.07); padding: 0 0 7px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .lg-city, .tr-mode, .dy-num { margin-top: 0; }
-  .lg-main { gap: 10px; }
-  .lg-img { width: 62px; height: 62px; }
+  .lg-img { height: 128px; }
   .dy-e { grid-template-columns: 42px 1fr; }
 }
