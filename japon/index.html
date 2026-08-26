@@ -367,15 +367,22 @@
   .activity-chip { flex: none; border: 1px solid rgba(15,110,86,.18); border-radius: 14px; background: #fff; color: #6e6a5f; padding: 4px 8px; font: inherit; font-size: 10px; cursor: pointer; }
   .activity-chip.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
   .activity-featured[hidden], .thing-row[hidden] { display: none; }
-  .activity-note { display: block; margin-top: 1px; color: #8d8878; font-size: 10.5px; line-height: 1.35; text-decoration: none; }
+  .activity-note { display: -webkit-box; overflow: hidden; color: #8d8878; font-size: 10px; line-height: 1.15; text-decoration: none; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
   .activity-featured { margin: 4px 0 8px; padding: 7px 9px; border-radius: 8px; background: rgba(240,184,74,.11); }
   .featured-label { margin-bottom: 3px; color: #8A5A0E; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .thing-row { display: flex; align-items: baseline; gap: 3px; min-width: 0; }
-  .act-row { display: inline-block; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.45; color: #1a6b54; background: none; border: none; padding: 2px 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
+  .thing-row { display: flex; align-items: center; gap: 2px; min-width: 0; }
+  .activity-list > .thing-row { min-height: 29px; margin: 0; padding: 1px 0; border-bottom: 1px solid rgba(35,31,24,.055); }
+  .activity-list > .thing-row:last-child { border-bottom: 0; }
+  .activity-copy { flex: 1; min-width: 0; }
+  .activity-top { display: flex; align-items: center; min-width: 0; height: 15px; }
+  .act-row { display: inline-flex; align-items: center; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.2; color: #333; background: none; border: none; padding: 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
   .act-row:hover { color: #1D9E75; }
-  .act-row-plain { font-size: 12px; line-height: 1.45; color: #444; padding: 2px 0; }
-  .act-pin { font-size: 9px; margin-left: 4px; opacity: 0.55; }
+  .act-row-plain { display: inline-flex; align-items: center; min-width: 0; font-size: 12px; line-height: 1.2; color: #333; padding: 0; }
+  .activity-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .act-pin { flex: none; font-size: 9px; margin-left: 3px; opacity: 0.55; }
   .act-row:hover .act-pin { opacity: 0.9; }
+  .activity-top .source-links { margin-left: 2px; }
+  .activity-top .source-link { min-height: 18px; padding: 0 2px; font-size: 10px; line-height: 18px; }
   .dt-row { padding: 8px 10px; background: rgba(0,0,0,0.025); border-radius: 6px; margin-top: 6px; }
   .dt-row-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
   .dt-row-name { font-size: 12px; font-weight: 500; }
@@ -439,8 +446,8 @@
   .sr-city { font-size: 10px; font-weight: 700; color: #0F6E56; text-transform: uppercase; letter-spacing: .05em; padding-top: 2px; }
   .search-empty { padding: 14px 10px; font-size: 12px; color: #8d8878; text-align: center; }
   [data-check] { position: relative; }
-  .activity-check { flex: none; width: 44px; min-height: 44px; margin: -10px 1px -10px -10px; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #aaa497; vertical-align: middle; }
-  .activity-check::before { content: ''; width: 15px; height: 15px; border: 1.5px solid currentColor; border-radius: 50%; background: #fff; }
+  .activity-check { flex: none; width: 28px; min-height: 30px; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; color: #aaa497; vertical-align: middle; }
+  .activity-check::before { content: ''; width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 50%; background: #fff; }
   .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
   [data-check].is-done .activity-check { color: #0F6E56; }
   [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
@@ -469,6 +476,7 @@
     .map-toggles .mt { font-size: 0; padding: 8px; }
     .map-toggles .mt-ic { font-size: 13px; }
     .source-link { min-height: 32px; line-height: 32px; padding: 0 5px; }
+    .activity-top .source-link { min-height: 18px; padding: 0 2px; line-height: 18px; }
     .cat-head { min-height: 36px; }
     .lodging-img { height: 120px; }
     .lb-prev, .lb-next { font-size: 40px; padding: 0 10px; }
@@ -1962,12 +1970,13 @@ function activityDistance(a, node) {
 function activityRowHtml(entry, node, interactive) {
   const a = entry.act, key = entry.key;
   const title = '<span class="activity-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>';
-  const note = a.note ? '<span class="activity-note">' + escHtml(a.note) + '</span>' : '';
+  const note = a.note ? '<div class="activity-note" title="' + escHtml(a.note) + '">' + escHtml(a.note) + '</div>' : '';
   const body = interactive && a.coords
-    ? '<button type="button" class="act-row" data-act="' + key + '">' + title + note + '<span class="act-pin">📍</span></button>'
-    : '<span class="act-row-plain">' + title + note + '</span>';
+    ? '<button type="button" class="act-row" data-act="' + key + '" title="Abrir en el mapa">' + title + '<span class="act-pin">📍</span></button>'
+    : '<span class="act-row-plain">' + title + '</span>';
   return '<li class="thing-row" data-check="' + key + '" data-activity-cat="' + catOfAct(a) + '" data-search-text="' +
-    escHtml(catKey([a.text, a.note, a.area].filter(Boolean).join(' '))) + '">' + body + sourceLinksHtml(a) + '</li>';
+    escHtml(catKey([a.text, a.note, a.area].filter(Boolean).join(' '))) + '"><div class="activity-copy"><div class="activity-top">' +
+    body + sourceLinksHtml(a) + '</div>' + note + '</div></li>';
 }
 function activityCatalogHtml(entries, node, interactive = true) {
   const ordered = entries.slice().sort((a, b) => activityDistance(a.act, node) - activityDistance(b.act, node));
