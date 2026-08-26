@@ -870,7 +870,7 @@ const destinations = [
         'Se llega a Kioto la misma noche del día de paso por Shirakawa-go.'
       ] },
     tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-08-25', weatherMode: 'climatología',
-    intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y el 24 se sigue a Osaka. Acá arranca el tramo con Zava y Ari (llegan el 19 a KIX): Kioto, Osaka y Tokio los cuatro juntos, con el alojamiento compartido. Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 5 noches dan tiempo a cada zona sin atropello.',
+    intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y el 24 se sigue a Osaka. Acá arranca el tramo con Zava y Ari (llegan el 19 a KIX): Kioto, Osaka y Tokio los cuatro juntos, y acá además compartiendo la casa (en Osaka cada pareja para por su cuenta). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 5 noches dan tiempo a cada zona sin atropello.',
     activities: [
       { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
       { text: 'Bosque de Bambú de Arashiyama', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" },
@@ -907,23 +907,28 @@ const destinations = [
     dates: '24-27 oct', nights: 3, start: '2026-10-24', end: '2026-10-27',
     arrival: '24 oct (llega de Kioto, los cuatro)', departure: '27 oct (Shinkansen a Tokio)',
     lodging: {
-      name: '川HOUSE Dotonbori (Airbnb)', type: 'Airbnb · departamento entero · 40 m²',
-      guests: '2 adultos · hace falta lugar para 4 (con Zava y Ari)',
-      area: 'Shimanouchi, Chūō-ku (〒542-0082) · entre Dotonbori y Nihonbashi, caminable a Namba — pleno centro de la movida de Osaka.',
-      coords: [34.6718, 135.5065],
-      checkIn: '24 oct', checkOut: '27 oct', nights: 3, booked: true, checkInFrom: '16:00', checkOutBy: '10:00',
-      url: 'https://www.airbnb.com/rooms/832299366583259197',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Shimanouchi%20Ch%C5%AB%C5%8D-ku%20Osaka%20542-0082',
-      // La reserva vigente (26-31 para 2) ya no coincide con el nodo: hay que rebookear.
-      // Se deja publicada como está hasta que se cambie — es lo que hoy está pago.
-      pending: 'Rebookear a 24-27 oct para 4 · la reserva vigente es 26-31 para 2 · pendiente',
+      name: 'Mercure Tokyu Stay Osaka Namba', type: 'Hotel · Superior Queen 25 m², no fumador',
+      guests: '2 adultos · Zava y Ari paran por su cuenta',
+      area: 'Nishi-Shinsaibashi (2-2-4, Chūō-ku 〒542-0086) — a 5 min a pie de Namba y de Shinsaibashi (línea Midōsuji), entre Midōsuji-dōri y Dotonbori.',
+      coords: [34.67062, 135.49964],
+      checkIn: '24 oct', checkOut: '27 oct', nights: 3, booked: true,
+      checkInFrom: '14:00', checkInTo: '01:00', checkOutBy: '11:00',
+      img: 'img/osaka-mercure-cuarto.jpg',
+      imgs: ['img/osaka-mercure-cuarto.jpg', 'img/osaka-mercure-exterior.jpg', 'img/osaka-mercure-cocina.jpg', 'img/osaka-mercure-bano.jpg'],
+      // Reservado en Rakuten Travel GLOBAL (travel.rakuten.com), pero la ficha que se
+      // publica es la del propio hotel: cuenta mejor dónde se duerme que la de la OTA,
+      // y el número de reserva ya dice en qué plataforma está.
+      url: 'https://www.mercure-tokyustay-osaka.com/',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Mercure%20Tokyu%20Stay%20Osaka%20Namba',
       booking: {
-        provider: 'airbnb', ref: 'HMC28MCWF3',
-        checkIn: '26 oct · desde 16:00', checkOut: '31 oct · hasta 10:00',
-        cancel: 'Gratis hasta el 26/9 16:00 · reembolso parcial hasta el 19/10',
-        phone: '+81 70-8924-2407'
+        provider: 'rakuten', ref: '21315090031899', refLabel: 'Booking ID',
+        ref2: '22315092113227', ref2Label: 'Reserva',
+        checkIn: '24 oct · 14:00–01:00 (hasta la madrugada del 25)', checkOut: '27 oct · hasta 11:00',
+        cancel: 'Gratis hasta el 21/10 23:59 JST (22/10 50% · 23/10 80% · 24/10 100%)',
+        includes: 'Room only, sin comidas', payThere: 'Accommodation tax ¥500/noche',
+        phone: '+81 6-6214-0109'
       },
-      note: 'Depto entero de 40 m² con tatami y cama doble, entre Dotonbori y Nihonbashi. Host 川house道頓堀. Alojamiento compartido con Zava y Ari.'
+      note: 'Cuarto de 25 m² en los pisos 14 a 18, cama queen de 170 cm y ventanal a la ciudad. Tiene kitchenette con microondas y lavarropas-secarropas en la habitación: a mitad del viaje eso resuelve la ropa. Es un Tokyu Stay operado bajo la marca Mercure, abierto en 2023.'
     },
     leg: { mode: '🚄', time: '~1 h', detail: 'JR Kioto → Osaka + metro Midōsuji a Namba.',
       fromTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' }, toTerminal: { name: 'Namba (Osaka)', coords: [34.66293, 135.5023], mode: 'train' },

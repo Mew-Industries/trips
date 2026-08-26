@@ -31,7 +31,7 @@ const MONEY = /(?:US\$|USD\s?|€|¥|\$)\s?\d[\d.,]*/gi;
 // paga en destino y no una reserva nuestra.
 const ALLOW = [
   { text: '~¥700-1.000', why: 'lockers de la estación de Nikko: se paga allá, en el día' },
-  { text: '¥500/noche', why: 'accommodation tax de Fukuoka: la cobra el hotel al llegar' },
+  { text: '¥500/noche', why: 'accommodation tax de Osaka y Fukuoka: la cobra el hotel al llegar' },
 ];
 
 let bad = 0;

@@ -47,12 +47,26 @@ function loadDestinations(src) {
   return new Function(`return ${src.slice(start, end)}`)();
 }
 
+// La compartida se sirve un nivel más abajo (`japon/compartido/`), igual que su CSS y su
+// favicon. Las fotos que están en el repo (`img/...`, las de los hoteles que no son
+// hotlinkables) viven en los DATOS, no en el HTML, así que no las alcanza el rewrite de
+// arriba: hay que correrles el path acá, o donde van las fotos del hotel salen cuatro 404.
+// Las remotas (muscache, Wikimedia) son absolutas y no se tocan.
+function rebaseLocalImages(value) {
+  if (typeof value === 'string') return value.startsWith('img/') ? '../' + value : value;
+  if (Array.isArray(value)) return value.map(rebaseLocalImages);
+  if (value && typeof value === 'object') {
+    for (const k of Object.keys(value)) value[k] = rebaseLocalImages(value[k]);
+  }
+  return value;
+}
+
 function buildData(all) {
   return SHARED_IDS.map((id, index) => {
     const source = all.find(node => node.id === id);
     if (!source) throw new Error(`el nodo "${id}" ya no está en destinations`);
     if (!source.sharedWith) throw new Error(`el nodo "${id}" perdió sharedWith`);
-    const node = structuredClone(source);
+    const node = rebaseLocalImages(structuredClone(source));
     node.n = index + 1;
     if (node.lodging && node.lodging.booking) {
       // La ficha conserva estado y fechas para coordinar el rebooking, pero el link
