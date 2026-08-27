@@ -1389,40 +1389,11 @@ const orphanPlaces = [
 
 const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([36, 134], 5);
 
-/* Fondo del mapa — Esri Light Gray Canvas, no CARTO (2026-08-26 · task 562).
-   CARTO le empezó a estampar "API KEY REQUIRED" atravesado a los tiles de las
-   cuentas sin key (agosto 2026, se veía en producción). Esri Light Gray es el
-   mismo gris claro, no pide key y es la misma lib: sólo cambia la URL.
-
-   Van DOS capas porque en Esri el fondo y los nombres están separados —
-   `light_all` de CARTO traía las dos cosas en un tile. Sin la de referencia el
-   mapa queda mudo: ni ciudades, ni calles, ni el nombre del barrio. El orden
-   importa: la de labels se agrega segunda, así queda encima del fondo (las dos
-   viven en el `tilePane`, debajo de pines y polylines).
-
-   `maxNativeZoom: 16` no es decorativo: el caché de Esri llega hasta el 16 y
-   del 17 para arriba devuelve un tile gris que dice "Map data not yet
-   available" — verificado tile por tile sobre Tokio. Con esto Leaflet estira el
-   del 16 en vez de pedir uno que no existe, y el mapa conserva sus 19 niveles
-   de zoom de siempre.
-
-   ⚠️ Esto va DEBAJO de `const map`, no arriba: `build_compartido.js` recorta
-   todo lo que haya entre `const orphanPlaces = [` y `const map = L.map` para no
-   entregarle el catálogo completo a la vista compartida. Definido más arriba, el
-   helper desaparecía del build y `/compartido/` quedaba sin mapa
-   ("addBasemap is not defined"). Lo cubre `check_map_tiles.mjs`, que corre
-   contra las dos apps. */
-const ESRI_CANVAS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
-const ESRI_ATTR = '© <a href="https://www.esri.com/">Esri</a>, HERE, Garmin, © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-function addBasemap(m, attribution) {
-  const opts = { maxZoom: 19, maxNativeZoom: 16 };
-  L.tileLayer(ESRI_CANVAS + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    attribution ? Object.assign({ attribution: ESRI_ATTR }, opts) : opts).addTo(m);
-  L.tileLayer(ESRI_CANVAS + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', opts).addTo(m);
-  return m;
-}
-
-addBasemap(map, true);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
 
 const routeCoords = destinations.map(d => d.coords);
 
@@ -2713,7 +2684,7 @@ function buildStopMiniMap(d, idx) {
   if (!c) return;
   if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
   _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
-  addBasemap(_smMap);  // sin atribución: el mini-mapa la trae apagada (`attributionControl: false`)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
   _smLayer = L.layerGroup().addTo(_smMap);
   const pts = [];
   const a0 = prevInChain(d);
@@ -2778,7 +2749,7 @@ function buildLegMiniMap(d, idx) {
   const c = document.getElementById('sm-map'); if (!c) return;
   if (_smMap) { _smMap.remove(); _smMap = null; }
   _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
-  addBasemap(_smMap);  // sin atribución: el mini-mapa la trae apagada (`attributionControl: false`)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
   _smLayer = L.layerGroup().addTo(_smMap);
   const prev = prevInChain(d), pts = [];
   if (prev) {
