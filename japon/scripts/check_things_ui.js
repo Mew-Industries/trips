@@ -6,7 +6,7 @@ const path = require('path');
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 const checks = [
   ['la lista abre plana sin navegación por barrios',
-    /class="card-list activity-list"/.test(html) &&
+    /class="card-list activity-list activity-category-list"/.test(html) &&
     !/<details class="cat-group hood-group">/.test(html) &&
     !/class="cat-count"/.test(html)],
   ['la lista plana mantiene orden por distancia al hospedaje',
