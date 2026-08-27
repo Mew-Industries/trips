@@ -10,7 +10,7 @@ let failed = 0;
 for (const width of [1280, 390]) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   page.on('pageerror', error => { console.error(`FAIL ${width}px pageerror: ${error}`); failed++; });
-  await page.goto(base + '?q=ramen', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await page.goto(base, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForSelector('.dest-card .qh-toggle', { state: 'attached' });
   const card = page.locator('.dest-card:has(.qh-toggle)').first();
   await card.locator('.itin-head').click();
@@ -21,18 +21,25 @@ for (const width of [1280, 390]) {
       neighborhoodNav: el.querySelectorAll('.hood-group, .hood-head').length,
       total: rows.length,
       visible: rows.filter(row => !row.hidden).length,
-      query: new URLSearchParams(location.search).get('q'),
+      searchGone: !document.querySelector('.activity-search'),
     };
   });
   const chip = card.locator('.activity-chip').first();
   await chip.click();
   const filtered = await card.evaluate(el => {
-    const visible = [...el.querySelectorAll('.activity-list .thing-row')].filter(row => !row.hidden);
+    const visible = [...el.querySelectorAll('.activity-list .thing-row')].filter(row => getComputedStyle(row).display !== 'none');
     const active = el.querySelector('.activity-chip.on');
-    return { active: active?.dataset.activityChip || '', allMatch: visible.every(row => row.dataset.activityCat === active?.dataset.activityChip) };
+    return {
+      active: active?.dataset.activityChip || '',
+      visible: visible.length,
+      allMatch: visible.length > 0 && visible.every(row => row.dataset.activityCat === active?.dataset.activityChip),
+      searchGone: !document.querySelector('.activity-search'),
+      categoriesInline: [...el.querySelectorAll('.activity-list .thing-row')].every(row => !!row.querySelector('.activity-category')),
+    };
   });
-  const ok = result.flatList && result.neighborhoodNav === 0 && result.total > 0 && result.query === 'ramen' && filtered.active && filtered.allMatch;
-  console.log(`${ok ? 'ok' : 'FAIL'} ${width}px · ${result.total} actividades planas · q=${result.query} · chip=${filtered.active}`);
+  const ok = result.flatList && result.neighborhoodNav === 0 && result.total > 0 && result.searchGone &&
+    filtered.active && filtered.allMatch && filtered.searchGone && filtered.categoriesInline;
+  console.log(`${ok ? 'ok' : 'FAIL'} ${width}px · ${result.total} actividades planas · buscador=${!filtered.searchGone} · chip=${filtered.active} · visibles=${filtered.visible}`);
   if (!ok) failed++;
   await card.screenshot({ path: `${out}/activities-${width}.png` });
   await page.close();

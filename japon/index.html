@@ -385,7 +385,7 @@
   .activity-filters::-webkit-scrollbar { display: none; }
   .activity-chip { flex: none; border: 1px solid rgba(15,110,86,.18); border-radius: 14px; background: #fff; color: #6e6a5f; padding: 4px 8px; font: inherit; font-size: 10px; cursor: pointer; }
   .activity-chip.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
-  .activity-featured[hidden], .thing-row[hidden] { display: none; }
+  .activity-featured[hidden], .thing-row[hidden] { display: none !important; }
   .activity-note { display: -webkit-box; overflow: hidden; color: #8d8878; font-size: 10px; line-height: 1.15; text-decoration: none; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
   .activity-featured { margin: 4px 0 8px; padding: 7px 9px; border-radius: 8px; background: rgba(240,184,74,.11); }
   .featured-label { margin-bottom: 3px; color: #8A5A0E; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
@@ -394,6 +394,7 @@
   .activity-list > .thing-row:last-child { border-bottom: 0; }
   .activity-copy { flex: 1; min-width: 0; }
   .activity-top { display: flex; align-items: center; min-width: 0; height: 15px; }
+  .activity-category { flex: none; width: 17px; font-size: 11px; line-height: 1; text-align: center; }
   .act-row { display: inline-flex; align-items: center; flex: 0 1 auto; width: auto; min-width: 0; text-align: left; font: inherit; font-size: 12px; line-height: 1.2; color: #333; background: none; border: none; padding: 0; cursor: pointer; border-radius: 4px; transition: color 0.12s; }
   .act-row:hover { color: #1D9E75; }
   .act-row-plain { display: inline-flex; align-items: center; min-width: 0; font-size: 12px; line-height: 1.2; color: #333; padding: 0; }
@@ -449,21 +450,6 @@
   .discrete-btn:hover { opacity: 0.85; }
   body.discrete .discrete-btn { opacity: 1; background: rgba(15,110,86,0.12); }
   .header-right { display: flex; align-items: center; gap: 14px; }
-  .activity-search { flex: none; position: relative; padding: 9px 10px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08); z-index: 25; }
-  .search-box { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 10px; border: 1px solid #d8d3c8; border-radius: 10px; background: #f8f7f3; }
-  .search-box:focus-within { border-color: #0F6E56; box-shadow: 0 0 0 2px rgba(15,110,86,0.1); }
-  .search-icon { color: #8d8878; font-size: 14px; }
-  .search-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 13px; color: #1a1a1a; }
-  .search-input::placeholder { color: #aaa497; }
-  .search-clear { border: 0; background: none; color: #8d8878; cursor: pointer; font-size: 18px; padding: 6px; line-height: 1; }
-  .search-results { position: absolute; left: 10px; right: 10px; top: calc(100% - 3px); max-height: min(54vh, 430px); overflow-y: auto; background: #fff; border: 1px solid #d8d3c8; border-radius: 10px; box-shadow: 0 10px 30px rgba(35,31,24,0.16); padding: 5px; }
-  .search-results[hidden] { display: none; }
-  .search-result { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 10px; text-align: left; border: 0; background: none; border-radius: 7px; padding: 8px 9px; cursor: pointer; font: inherit; }
-  .search-result:hover, .search-result:focus-visible { background: rgba(15,110,86,0.07); outline: none; }
-  .search-result.done .sr-name { text-decoration: line-through; color: #aaa497; }
-  .sr-name { font-size: 12.5px; line-height: 1.35; color: #333; }
-  .sr-city { font-size: 10px; font-weight: 700; color: #0F6E56; text-transform: uppercase; letter-spacing: .05em; padding-top: 2px; }
-  .search-empty { padding: 14px 10px; font-size: 12px; color: #8d8878; text-align: center; }
   [data-check] { position: relative; }
   .activity-check { flex: none; width: 28px; min-height: 30px; margin: 0; padding: 0; border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: flex-start; color: #aaa497; vertical-align: middle; }
   .activity-check::before { content: ''; width: 14px; height: 14px; border: 1.5px solid currentColor; border-radius: 50%; background: #fff; }
@@ -530,14 +516,6 @@
 </div>
 
 <div class="side-pane">
-<div class="activity-search" role="search">
-  <div class="search-box">
-    <span class="search-icon" aria-hidden="true">⌕</span>
-    <input class="search-input" id="activity-search" type="search" placeholder="Buscar lugar o actividad" autocomplete="off" aria-label="Buscar lugar o actividad" aria-controls="search-results">
-    <button class="search-clear" id="search-clear" type="button" aria-label="Limpiar búsqueda" hidden>×</button>
-  </div>
-  <div class="search-results" id="search-results" role="listbox" hidden></div>
-</div>
 <nav class="tab-rail" id="tab-rail" aria-label="Vistas del itinerario"></nav>
 <div class="views" id="views">
 
@@ -2017,13 +1995,14 @@ function activityDistance(a, node) {
 }
 function activityRowHtml(entry, node, interactive) {
   const a = entry.act, key = entry.key;
+  const category = CAT_META[catOfAct(a)] || CAT_META.otro;
   const title = '<span class="activity-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) + '</span>';
   const note = a.note ? '<div class="activity-note" title="' + escHtml(a.note) + '">' + escHtml(a.note) + '</div>' : '';
   const body = interactive && a.coords
     ? '<button type="button" class="act-row" data-act="' + key + '" title="Abrir en el mapa">' + title + '<span class="act-pin">📍</span></button>'
     : '<span class="act-row-plain">' + title + '</span>';
-  return '<li class="thing-row" data-check="' + key + '" data-activity-cat="' + catOfAct(a) + '" data-search-text="' +
-    escHtml(catKey([a.text, a.note, a.area].filter(Boolean).join(' '))) + '"><div class="activity-copy"><div class="activity-top">' +
+  return '<li class="thing-row" data-check="' + key + '" data-activity-cat="' + catOfAct(a) + '"><div class="activity-copy"><div class="activity-top">' +
+    '<span class="activity-category" title="' + escHtml(category.label) + '" aria-label="' + escHtml(category.label) + '">' + category.icon + '</span>' +
     body + sourceLinksHtml(a) + '</div>' + note + '</div></li>';
 }
 function activityCatalogHtml(entries, node, interactive = true) {
@@ -2086,7 +2065,7 @@ async function hydrateChecklist() {
     checkedActivities = new Set(remote.done || []);
     pendingChecklistChanges.forEach((done, id) => done ? checkedActivities.add(id) : checkedActivities.delete(id));
     persistChecklistLocal();
-    wireChecklist(document); refreshSearch(); applyActivityFilters();
+    wireChecklist(document); applyActivityFilters();
     await pushChecklist();
   } catch (e) { checklistRetry = setTimeout(hydrateChecklist, 12000); }
 }
@@ -2117,7 +2096,6 @@ document.addEventListener('click', (e) => {
   if (checkedActivities.has(key)) checkedActivities.delete(key); else checkedActivities.add(key);
   persistChecklistLocal();
   document.querySelectorAll('[data-check="' + CSS.escape(key) + '"]').forEach(syncCheckItem);
-  refreshSearch();
   queueChecklistChange(key, checkedActivities.has(key));
 });
 
@@ -2528,56 +2506,14 @@ destinations.forEach((d, idx) => {
 
 wireChecklist(detailsList);
 
-// Búsqueda URL-driven. Se busca sin acentos para que "Nikko" encuentre "Nikkō";
-// cada resultado es también un acceso rápido al nodo/ciudad que lo contiene.
-const searchInput = document.getElementById('activity-search');
-const searchClear = document.getElementById('search-clear');
-const searchResults = document.getElementById('search-results');
-const foldSearch = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
-const searchIndexByKey = new Map();
-destinations.forEach(d => {
-  (d.activities || []).forEach(a => {
-    const key = activityId(a, d);
-    if (!searchIndexByKey.has(key)) searchIndexByKey.set(key, {
-      key, node: d, name: a.text, note: a.note || '', area: a.area || '', cat: catOfAct(a), marker: actMarkers[key]
-    });
-  });
-  (d.daytrips || []).forEach(dt => searchIndexByKey.set('daytrip-' + dt.id,
-    { key: null, node: d, name: dt.name, note: dt.desc || '', area: '', cat: catOf(dt.name, dt.cat), marker: dtMarkers[dt.id] }));
-});
-const searchIndex = [...searchIndexByKey.values()];
-
-function writeSearchUrl(value, replace) {
-  const u = new URL(location.href);
-  if (value) u.searchParams.set('q', value); else u.searchParams.delete('q');
-  history[replace ? 'replaceState' : 'pushState']({}, '', u);
-}
-
-function refreshSearch() {
-  if (!searchInput) return;
-  const raw = searchInput.value.trim();
-  const q = foldSearch(raw);
-  searchClear.hidden = !raw;
-  if (!q) { searchResults.hidden = true; searchResults.innerHTML = ''; return; }
-  const matches = searchIndex.filter(x => (!selectedActivityCats.size || selectedActivityCats.has(x.cat)) &&
-    foldSearch(x.name + ' ' + x.note + ' ' + x.area + ' ' + x.node.name + ' ' + x.node.short).includes(q)).slice(0, 40);
-  searchResults.innerHTML = matches.length ? matches.map(x =>
-    '<button type="button" class="search-result' + (x.key && checkedActivities.has(x.key) ? ' done' : '') + '" role="option" data-search-key="' + escHtml(x.key || '') + '" data-node="' + x.node.id + '">' +
-      '<span class="sr-name">' + escHtml(x.name) + '</span><span class="sr-city">' + escHtml(x.node.short) + '</span></button>'
-  ).join('') : '<div class="search-empty">No hay coincidencias</div>';
-  searchResults.hidden = false;
-}
-
 function applyActivityFilters() {
-  const q = foldSearch(searchInput && searchInput.value);
   document.querySelectorAll('.activity-chip').forEach(chip => {
     const on = selectedActivityCats.has(chip.dataset.activityChip);
     chip.classList.toggle('on', on); chip.setAttribute('aria-pressed', String(on));
   });
   document.querySelectorAll('.activity-catalog').forEach(catalog => {
     catalog.querySelectorAll('.thing-row[data-activity-cat]').forEach(row => {
-      row.hidden = !!((selectedActivityCats.size && !selectedActivityCats.has(row.dataset.activityCat)) ||
-        (q && !row.dataset.searchText.includes(q)));
+      row.hidden = !!(selectedActivityCats.size && !selectedActivityCats.has(row.dataset.activityCat));
     });
     catalog.querySelectorAll('.activity-featured').forEach(group => {
       group.hidden = ![...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
@@ -2593,41 +2529,12 @@ document.addEventListener('click', e => {
   const u = new URL(location.href);
   if (selectedActivityCats.size) u.searchParams.set('acat', [...selectedActivityCats].join(',')); else u.searchParams.delete('acat');
   history.pushState({}, '', u);
-  applyActivityFilters(); refreshSearch();
+  applyActivityFilters();
 });
-
-function applySearchFromUrl() {
-  if (!searchInput) return;
-  searchInput.value = new URLSearchParams(location.search).get('q') || '';
-  refreshSearch();
-}
-
-searchInput.addEventListener('input', () => { writeSearchUrl(searchInput.value.trim(), true); refreshSearch(); applyActivityFilters(); });
-searchInput.addEventListener('focus', refreshSearch);
-searchClear.addEventListener('click', () => { searchInput.value = ''; writeSearchUrl('', false); refreshSearch(); applyActivityFilters(); searchInput.focus(); });
-searchResults.addEventListener('click', (e) => {
-  const row = e.target.closest('.search-result');
-  if (!row) return;
-  const nodeId = row.dataset.node;
-  const resultKey = row.dataset.searchKey;
-  const resultName = row.querySelector('.sr-name').textContent;
-  // El resultado siempre aterriza en el Resumen, que es donde vive la tarjeta del
-  // nodo. No simulamos un click en su header: abrir es estado, no otro gesto.
-  const u = new URL(location.href);
-  u.searchParams.set('tab', 'resumen');
-  history.pushState({}, '', u);
-  window.dispatchEvent(new PopStateEvent('popstate'));
-  const result = searchIndex.find(x => x.node.id === nodeId && (x.key || '') === resultKey && x.name === resultName);
-  if (result && result.marker) focusMarker(result.marker);
-  focusTrip(nodeId);
-  searchResults.hidden = true;
-});
-document.addEventListener('click', e => { if (!e.target.closest('.activity-search')) searchResults.hidden = true; });
 window.addEventListener('popstate', () => {
   selectedActivityCats = activityCatsFromUrl();
-  applySearchFromUrl(); applyActivityFilters();
+  applyActivityFilters();
 });
-applySearchFromUrl();
 applyActivityFilters();
 hydrateChecklist();
 
