@@ -222,6 +222,41 @@ verdes.
 Verificación (browser de verdad, las tres marcas + la vista filtrada + su HTML servido):
 `node evidence/545/tooling/check-r2.mjs <base> <shots>` en el workspace de Mew.
 
+## El fondo del mapa: Esri, no CARTO (2026-08-26 · task 562)
+
+Los tres `L.map` de la app —el mapa grande, el mini-mapa de la ficha de parada
+(`buildStopMiniMap`) y el del tramo (`buildLegMiniMap`)— sacan sus tiles de **Esri Light
+Gray Canvas**, no de CARTO. CARTO les empezó a estampar **"API KEY REQUIRED"** atravesado
+a las cuentas sin key (agosto 2026), y se veía en producción. Esri es el mismo gris claro,
+no pide key y es la misma lib: sólo cambia la URL. La 559 ya había hecho el mismo swap en
+el mini-mapa del votar (`votar/app.js` §TILES).
+
+Todo pasa por **`addBasemap(m, attribution)`** en `index.html`. Tres cosas que no son
+opcionales:
+
+- **Van DOS capas.** En Esri el fondo (`World_Light_Gray_Base`) y los nombres
+  (`World_Light_Gray_Reference`) son servicios separados; el `light_all` de CARTO traía
+  las dos cosas en el mismo tile. Sin la de referencia el mapa queda **mudo**: ni
+  ciudades, ni calles, ni barrios. La de labels se agrega **segunda**, para que quede
+  encima del fondo (las dos viven en el `tilePane`, debajo de pines y polylines).
+- **`maxNativeZoom: 16`.** El caché de Esri termina en el 16: del 17 para arriba devuelve
+  un tile gris que dice *"Map data not yet available"*. Con esto Leaflet estira el del 16
+  en vez de pedir uno que no existe, y el mapa conserva sus 19 niveles de zoom. Sacarlo
+  llena la pantalla de ese cartel — está probado, es lo que pasa.
+- **El helper va DEBAJO de `const map = L.map(...)`.** `build_compartido.js` recorta todo
+  lo que haya entre `const orphanPlaces = [` y `const map = L.map`; definido más arriba,
+  el helper desaparecía del build y `/japon/compartido/` se quedaba sin mapa
+  (`addBasemap is not defined`). La app principal andaba igual, así que el bug era
+  invisible sin abrir la compartida.
+
+Verificación (browser de verdad, las dos apps × los tres mapas, con el sitio servido en
+`python3 -m http.server 8562 --bind 127.0.0.1` desde la raíz del repo):
+`node japon/scripts/check_map_tiles.mjs <shots> <base>`. Chequea que no quede ningún
+pedido a CARTO, que la capa de nombres esté, que la atribución diga Esri y que el zoom
+profundo no traiga tiles de "Map data not yet available" — este último **por hash** del
+tile placeholder, no por tamaño: un tile de nombres sobre una manzana sin rótulos pesa
+900 bytes y es correcto.
+
 ## Foco de día y capas del mapa (2026-08-11 · task 508)
 
 **Foco de día.** Cada jornada de la vista Días tiene un botón **"ver en mapa"** que le da el mapa a ese día solo: se apagan todas las familias de capas y quedan los puntos de esa jornada —las actividades del día, la cama de anoche y la de esta noche, y las terminales del traslado si hay—, unidos por una polyline punteada, con `flyToBounds` + padding. **No es ruteo por calles** (pedía dependencia externa + API key en un site sin build step): es la guía visual de qué sigue a qué.
