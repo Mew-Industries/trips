@@ -61,7 +61,7 @@ for (const [label, width] of [['desktop', 1280], ['mobile', 390]]) {
     if (pane) pane.scrollTop = pane.scrollHeight;
     window.dispatchEvent(new Event('scroll'));
   });
-  if (width < 900) await page.mouse.wheel(0, 2200);
+  if (width < 900) await page.mouse.wheel(0, -10);
   await page.waitForTimeout(100);
   await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
   const topState = await page.locator('.activity-to-top').evaluate(el => ({
