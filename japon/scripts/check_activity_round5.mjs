@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 
 const { chromium } = pw;
 const base = process.argv[2] || 'http://127.0.0.1:8611/japon/';
-const out = process.argv[3] || '/tmp/japon-activity-round5';
+const out = process.argv[3] || '/tmp/japon-activity-round6';
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 let failed = 0;
@@ -24,15 +24,14 @@ for (const [label, width] of [['desktop', 1280], ['mobile', 390]]) {
   const catalog = card.locator('.activity-catalog');
 
   const before = await catalog.evaluate(el => ({
-    groups: el.querySelectorAll('.activity-category-group').length,
-    stickyFilters: ['sticky', '-webkit-sticky'].includes(getComputedStyle(el.querySelector('.activity-filters')).position),
+    groups: el.querySelectorAll('.activity-category-group, .activity-category-head').length,
     rows: el.querySelectorAll('.activity-live .thing-row').length,
     done: el.querySelectorAll('.activity-done-list .thing-row').length,
+    viewportHeight: el.querySelector('.activity-scroll').getBoundingClientRect().height,
+    rowHeight: el.querySelector('.activity-live .thing-row').getBoundingClientRect().height,
+    scrollable: el.querySelector('.activity-scroll').scrollHeight > el.querySelector('.activity-scroll').clientHeight,
+    filtersOutsideScroll: el.querySelector('.activity-filters').parentElement === el,
   }));
-  const firstGroup = catalog.locator('.activity-category-group').first();
-  await firstGroup.locator('summary').click();
-  const collapsed = !(await firstGroup.getAttribute('open'));
-  await firstGroup.locator('summary').click();
 
   const firstRow = catalog.locator('.activity-live .thing-row').first();
   const key = await firstRow.getAttribute('data-check');
@@ -49,33 +48,19 @@ for (const [label, width] of [['desktop', 1280], ['mobile', 390]]) {
   const chip = catalog.locator('.activity-chip').first();
   await chip.click();
   const filtered = await catalog.evaluate(el => ({
-    headers: [...el.querySelectorAll('.activity-category-head')].filter(x => getComputedStyle(x).display !== 'none').length,
+    headers: el.querySelectorAll('.activity-category-head').length,
     matches: [...el.querySelectorAll('.activity-live .thing-row')].filter(x => getComputedStyle(x).display !== 'none')
       .every(x => x.dataset.activityCat === el.querySelector('.activity-chip.on')?.dataset.activityChip),
   }));
 
-  await chip.click();
-  await page.evaluate(() => {
-    window.scrollTo(0, document.body.scrollHeight);
-    const pane = document.querySelector('.details-section');
-    if (pane) pane.scrollTop = pane.scrollHeight;
-    window.dispatchEvent(new Event('scroll'));
-  });
-  if (width < 900) await page.mouse.wheel(0, -10);
-  await page.waitForTimeout(100);
-  await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
-  const topState = await page.locator('.activity-to-top').evaluate(el => ({
-    visible: getComputedStyle(el).opacity === '1', y: window.scrollY,
-    body: document.body.scrollHeight, root: document.documentElement.scrollHeight,
-    pane: document.querySelector('.details-section')?.scrollTop || 0,
-  }));
-  const topVisible = topState.visible;
-  const ok = before.groups > 1 && before.stickyFilters && before.rows > 0 && before.done === 0 && collapsed &&
+  const scrollMoved = await catalog.locator('.activity-scroll').evaluate(el => { el.scrollTop = 300; return el.scrollTop > 0; });
+  const ok = before.groups === 0 && before.rows > 0 && before.done === 0 && before.scrollable && before.filtersOutsideScroll &&
+    before.viewportHeight >= before.rowHeight * 9 && before.viewportHeight <= before.rowHeight * 11.5 &&
     afterCheck.live === 0 && afterCheck.done === 1 && /1 hecha/.test(afterCheck.count) && returned === 1 &&
-    filtered.headers === 0 && filtered.matches && topVisible && errors.length === 0;
-  console.log(`${ok ? 'ok' : 'FAIL'} ${label} · grupos=${before.groups} · sticky=${before.stickyFilters} · done=${afterCheck.count} · volvió=${returned} · headers filtrando=${filtered.headers} · subir=${topVisible} y=${topState.y} body=${topState.body} root=${topState.root} pane=${topState.pane}`);
+    filtered.headers === 0 && filtered.matches && scrollMoved && errors.length === 0;
+  console.log(`${ok ? 'ok' : 'FAIL'} ${label} · grupos=${before.groups} · viewport=${before.viewportHeight.toFixed(1)}px/${before.rowHeight.toFixed(1)}px · scroll=${before.scrollable && scrollMoved} · pills afuera=${before.filtersOutsideScroll} · done=${afterCheck.count} · volvió=${returned} · filtro=${filtered.matches}`);
   if (!ok) failed++;
-  await card.screenshot({ path: `${out}/round5-${label}.png` });
+  await card.screenshot({ path: `${out}/round6-${label}.png` });
   await page.close();
 }
 

@@ -381,7 +381,7 @@
   .cat-name { font-size: 11px; font-weight: 600; }
   .cat-count { margin-left: auto; min-width: 22px; padding: 1px 6px; border-radius: 9px; background: rgba(15,110,86,0.08); color: #698078; font-size: 10px; text-align: center; }
   .cat-group .card-list { margin-left: 16px; }
-  .activity-filters { position: sticky; top: 0; z-index: 8; display: flex; gap: 5px; overflow-x: auto; margin: 0 -2px; padding: 5px 2px 7px; background: linear-gradient(#fff 82%, rgba(255,255,255,.9)); scrollbar-width: none; }
+  .activity-filters { display: flex; gap: 5px; overflow-x: auto; margin: 0 -2px; padding: 5px 2px 7px; background: #fff; scrollbar-width: none; }
   .activity-filters::-webkit-scrollbar { display: none; }
   .activity-chip { flex: none; border: 1px solid rgba(15,110,86,.18); border-radius: 14px; background: #fff; color: #6e6a5f; padding: 4px 8px; font: inherit; font-size: 10px; cursor: pointer; }
   .activity-chip.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
@@ -392,19 +392,14 @@
   .thing-row { display: flex; align-items: center; gap: 2px; min-width: 0; }
   .activity-list > .thing-row { min-height: 29px; margin: 0; padding: 1px 0; border-bottom: 1px solid rgba(35,31,24,.055); }
   .activity-list > .thing-row:last-child { border-bottom: 0; }
-  .activity-category-group { margin: 0; }
-  .activity-category-head, .activity-done-summary { position: sticky; top: 31px; z-index: 6; display: flex; align-items: center; min-height: 27px; padding: 4px 2px; list-style: none; cursor: pointer; background: rgba(255,255,255,.96); color: #4d4a42; font-size: 10px; font-weight: 700; backdrop-filter: blur(4px); }
-  .activity-category-head::-webkit-details-marker, .activity-done-summary::-webkit-details-marker { display: none; }
-  .activity-category-head::after, .activity-done-summary::after { content: '▾'; margin-left: auto; color: #aaa497; transition: transform .15s; }
-  .activity-category-group:not([open]) > .activity-category-head::after, .activity-done:not([open]) > .activity-done-summary::after { transform: rotate(-90deg); }
-  .activity-category-count { margin-left: 5px; color: #9b968a; font-weight: 500; }
-  .activity-catalog.is-filtered .activity-category-head { display: none; }
+  .activity-scroll { height: 300px; max-height: calc(100dvh - 190px); min-height: 270px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-gutter: stable; padding-right: 2px; }
   .activity-done { margin-top: 6px; border-top: 1px solid rgba(35,31,24,.08); }
-  .activity-done-summary { top: 31px; color: #6f786f; }
+  .activity-done-summary { display: flex; align-items: center; min-height: 27px; padding: 4px 2px; list-style: none; cursor: pointer; background: #fff; color: #6f786f; font-size: 10px; font-weight: 700; }
+  .activity-done-summary::-webkit-details-marker { display: none; }
+  .activity-done-summary::after { content: '▾'; margin-left: auto; color: #aaa497; transition: transform .15s; }
+  .activity-done:not([open]) > .activity-done-summary::after { transform: rotate(-90deg); }
   .activity-done-list:empty { display: none; }
   .activity-done[hidden] { display: none !important; }
-  .activity-to-top { position: fixed; right: 16px; bottom: 18px; z-index: 1200; width: 34px; height: 34px; padding: 0; border: 1px solid rgba(15,110,86,.2); border-radius: 50%; background: rgba(255,255,255,.94); color: #0F6E56; font: inherit; font-size: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.14); cursor: pointer; opacity: 0; pointer-events: none; transform: translateY(5px); transition: opacity .15s, transform .15s; }
-  .activity-to-top.show { opacity: 1; pointer-events: auto; transform: none; }
   .activity-copy { flex: 1; min-width: 0; }
   .activity-top { display: flex; align-items: center; min-width: 0; height: 15px; }
   .activity-category { flex: none; width: 17px; font-size: 11px; line-height: 1; text-align: center; }
@@ -2028,25 +2023,11 @@ function activityCatalogHtml(entries, node, interactive = true) {
   const regular = ordered.filter(e => !e.act.destacado);
   const featuredHtml = featured.length
     ? '<div class="activity-featured" data-activity-home="featured"><div class="featured-label">★ Destacados</div><ul class="card-list">' + featured.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></div>' : '';
-  const grouped = cats.map(c => {
-    const rows = regular.filter(e => catOfAct(e.act) === c);
-    if (!rows.length) return '';
-    const open = activitySectionOpen(c);
-    return '<details class="activity-category-group" data-activity-group="' + c + '"' + (open ? ' open' : '') + '>' +
-      '<summary class="activity-category-head">' + CAT_META[c].icon + ' ' + escHtml(CAT_META[c].label) +
-      '<span class="activity-category-count">' + rows.length + '</span></summary>' +
-      '<ul class="card-list activity-list activity-category-list" data-activity-home="' + c + '">' +
-      rows.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></details>';
-  }).join('');
-  return '<div class="activity-catalog">' + chips + '<div class="activity-live">' + featuredHtml + grouped + '</div>' +
-    '<details class="activity-done"><summary class="activity-done-summary">✓ 0 hechas</summary><ul class="card-list activity-list activity-done-list"></ul></details></div>';
+  const rows = regular.map(e => activityRowHtml(e, node, interactive)).join('');
+  return '<div class="activity-catalog">' + chips + '<div class="activity-scroll"><div class="activity-live">' + featuredHtml +
+    '<ul class="card-list activity-list" data-activity-home="live">' + rows + '</ul></div>' +
+    '<details class="activity-done"><summary class="activity-done-summary">✓ 0 hechas</summary><ul class="card-list activity-list activity-done-list"></ul></details></div></div>';
 }
-
-const ACTIVITY_SECTIONS_KEY = 'japon-activity-sections-v1';
-let activitySectionState = {};
-try { activitySectionState = JSON.parse(localStorage.getItem(ACTIVITY_SECTIONS_KEY) || '{}'); } catch (e) {}
-function activitySectionOpen(cat) { return activitySectionState[cat] !== false; }
-function persistActivitySections() { localStorage.setItem(ACTIVITY_SECTIONS_KEY, JSON.stringify(activitySectionState)); }
 
 const CHECKLIST_KEY = 'japon-activity-checklist-v2';
 const LEGACY_CHECKLIST_KEY = 'japon-activity-checklist-v1';
@@ -2121,7 +2102,7 @@ function arrangeChecklistCatalogs() {
     const doneList = catalog.querySelector('.activity-done-list');
     if (!doneList) return;
     catalog.querySelectorAll('.thing-row[data-check]').forEach(row => {
-      const home = row.dataset.activityHome || row.dataset.activityCat;
+      const home = row.dataset.activityHome || (row.closest('.activity-featured') ? 'featured' : 'live');
       row.dataset.activityHome = home;
       const done = checkedActivities.has(row.dataset.check);
       const target = done ? doneList : catalog.querySelector('[data-activity-home="' + CSS.escape(home) + '"]' + (home === 'featured' ? ' .card-list' : ''));
@@ -2561,17 +2542,8 @@ function applyActivityFilters() {
     chip.classList.toggle('on', on); chip.setAttribute('aria-pressed', String(on));
   });
   document.querySelectorAll('.activity-catalog').forEach(catalog => {
-    const filtered = selectedActivityCats.size > 0;
-    catalog.classList.toggle('is-filtered', filtered);
-    catalog.querySelectorAll('.activity-category-group').forEach(group => {
-      if (filtered) group.open = true;
-      else group.open = activitySectionOpen(group.dataset.activityGroup);
-    });
     catalog.querySelectorAll('.thing-row[data-activity-cat]').forEach(row => {
       row.hidden = !!(selectedActivityCats.size && !selectedActivityCats.has(row.dataset.activityCat));
-    });
-    catalog.querySelectorAll('.activity-category-group').forEach(group => {
-      group.hidden = ![...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
     });
     catalog.querySelectorAll('.activity-featured').forEach(group => {
       group.hidden = ![...group.querySelectorAll('.thing-row')].some(row => !row.hidden);
@@ -2580,14 +2552,6 @@ function applyActivityFilters() {
     if (done) done.hidden = ![...done.querySelectorAll('.thing-row')].some(row => !row.hidden);
   });
 }
-
-document.addEventListener('toggle', e => {
-  const group = e.target.closest && e.target.closest('.activity-category-group');
-  if (group && !selectedActivityCats.size) {
-    activitySectionState[group.dataset.activityGroup] = group.open;
-    persistActivitySections();
-  }
-}, true);
 
 document.addEventListener('click', e => {
   const chip = e.target.closest('[data-activity-chip]');
@@ -2605,25 +2569,6 @@ window.addEventListener('popstate', () => {
 });
 applyActivityFilters();
 hydrateChecklist();
-
-const activityToTop = document.createElement('button');
-activityToTop.type = 'button';
-activityToTop.className = 'activity-to-top';
-activityToTop.setAttribute('aria-label', 'Volver arriba');
-activityToTop.textContent = '↑';
-document.body.appendChild(activityToTop);
-function activityScrollState() {
-  const pane = document.querySelector('.details-section');
-  const y = Math.max(window.scrollY, pane ? pane.scrollTop : 0);
-  activityToTop.classList.toggle('show', y > window.innerHeight * 1.8);
-}
-window.addEventListener('scroll', activityScrollState, { passive: true });
-document.addEventListener('scroll', activityScrollState, { passive: true, capture: true });
-activityToTop.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const pane = document.querySelector('.details-section');
-  if (pane) pane.scrollTo({ top: 0, behavior: 'smooth' });
-});
 
 // Módulo de transporte de SALIDA (vuelta a casa) tras el último destino.
 const _lastDep = destinations[destinations.length - 1].departureLeg;
