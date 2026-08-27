@@ -371,15 +371,11 @@
   // Mini-mapa: sin un solo control ni gesto propio (`pointer-events: none`) —
   // el mazo no puede pelearse con un mapa por el mismo dedo.
   //
-  // Los tiles NO son los de CARTO que usa el mapa del site principal: CARTO les
-  // empezó a estampar "API KEY REQUIRED" encima a las cuentas sin key (agosto
-  // 2026, se ve igual en producción). Con el arreglo de la task 559 el mini-mapa
-  // pasó a ser el fondo de 39 cards, así que una marca de agua atravesada dejó
-  // de ser un detalle. Esri Light Gray Canvas es gris claro parecido, no pide
-  // key y sus labels vienen en una capa aparte (acá no van: la card ya dice el
-  // nombre y el barrio, y el mapa es para ubicar de un vistazo).
-  var TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/' +
-    'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+  // Mismos tiles CARTO Positron que el resto del site, autenticados: sin `?key=`
+  // CARTO estampa un "API KEY REQUIRED" atravesado sobre cada tile (agosto 2026),
+  // y con el arreglo de la task 559 el mini-mapa es el fondo de 39 cards. Es una
+  // key de basemaps client-side: va embebida en el JS público a propósito.
+  var TILES = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=cb1_29yq_1_b68d2d2f60050b76fe5ebe4b';
   function mapFallback(card, p) {
     var media = card.querySelector('.card-media');
     if (!media || p.lat == null || p.lon == null) return;
@@ -398,7 +394,9 @@
         attributionControl: true
       });
       m.attributionControl.setPrefix(false);
-      L.tileLayer(TILES, { attribution: '© Esri', maxZoom: 16 }).addTo(m);
+      L.tileLayer(TILES, {
+        attribution: '© CARTO © OpenStreetMap', subdomains: 'abcd', maxZoom: 19
+      }).addTo(m);
       m.setView([p.lat, p.lon], 15);
       L.circleMarker([p.lat, p.lon], {
         radius: 9, weight: 3, color: '#fff', fillColor: '#B4483A', fillOpacity: 1

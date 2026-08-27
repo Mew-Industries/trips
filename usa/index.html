@@ -795,7 +795,12 @@ const orphanPlaces = [
 ];
 const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([39.5, -98.5], 4);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+// Tiles CARTO Positron autenticados: sin `?key=` CARTO estampa un
+// "API KEY REQUIRED" atravesado sobre cada tile (empezó en agosto 2026).
+// Es una key de basemaps client-side: va embebida en el HTML público a propósito.
+const CARTO_TILES = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=cb1_29yq_1_b68d2d2f60050b76fe5ebe4b';
+
+L.tileLayer(CARTO_TILES, {
   attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, © <a href="https://carto.com/attributions">CARTO</a>',
   subdomains: 'abcd',
   maxZoom: 19,
@@ -1354,7 +1359,7 @@ function buildStopMiniMap(d, idx) {
   if (!c) return;
   if (_smMap) { _smMap.remove(); _smMap = null; }  // el contenedor se recrea en cada apertura
   _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
   _smLayer = L.layerGroup().addTo(_smMap);
   const pts = [];
   if (idx > 0 && d.leg) {  // tramo de llegada, por modo real
@@ -1418,7 +1423,7 @@ function buildLegMiniMap(d, idx) {
   const c = document.getElementById('sm-map'); if (!c) return;
   if (_smMap) { _smMap.remove(); _smMap = null; }
   _smMap = L.map(c, { zoomControl: false, attributionControl: false, scrollWheelZoom: false });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
+  L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_smMap);
   _smLayer = L.layerGroup().addTo(_smMap);
   const prev = idx > 0 ? destinations[idx - 1] : null, pts = [];
   if (prev) {
