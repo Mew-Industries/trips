@@ -8,6 +8,10 @@ elige UN frame representativo por reel —el del medio del video, que suele ser
 el plano del lugar y no el título ni el cierre—, lo comprime a webp y escribe
 el índice `place_id -> img/<code>.webp` que consume la app de swipe.
 
+El frame sale del MISMO post que la app va a embeber de fondo (`media_reel()`,
+la regla de `SOURCE_REELS` — task 559): un lugar cuyo único reel es un roundup
+de veinte lugares no lleva frame, porque esa foto no es de él.
+
 Los lugares sin frame no rompen nada: la app les dibuja una card tipográfica
 con el color de su categoría.
 
@@ -80,12 +84,36 @@ def place_id(name):
     return "p-x" + hash32(name)
 
 
-def load_things():
-    src = open(os.path.join(JAPON, "data", "reels.js"), encoding="utf-8").read()
-    m = re.search(r"window\.SOURCE_THINGS\s*=\s*(\[.*?\n\];)", src, re.S)
+def _array(src, name):
+    m = re.search(r"window\.%s\s*=\s*(\[.*?\n\];)" % name, src, re.S)
     if not m:
-        sys.exit("no encontré window.SOURCE_THINGS en data/reels.js")
+        sys.exit("no encontré window.%s en data/reels.js" % name)
     return json.loads(m.group(1)[:-1])
+
+
+def load_data():
+    """Los lugares y el registro por reel (`covers` / `showsEach`, task 559)."""
+    src = open(os.path.join(JAPON, "data", "reels.js"), encoding="utf-8").read()
+    reels = {r["code"]: r for r in _array(src, "SOURCE_REELS")}
+    return _array(src, "SOURCE_THINGS"), reels
+
+
+def media_reel(pid, sources, reels):
+    """El reel que puede ser el FONDO de la card de este lugar — la MISMA regla
+    que `mediaReel()` en app.js (task 559): tiene que hablar de ese lugar
+    (`covers`) y su media tiene que mostrarlo (`showsEach`); entre varios gana el
+    más específico. Si acá se eligiera otro, la card mostraría el frame de un
+    post y el embed de otro — que es el mismatch que reportó Zava, sólo que
+    entre la foto de arranque y el video."""
+    best = None
+    for s in sources or []:
+        m = REEL_CODE.search(s.get("url") or "")
+        r = reels.get(m.group(1)) if m else None
+        if not r or pid not in r.get("covers", []) or not r.get("showsEach"):
+            continue
+        if best is None or len(r["covers"]) < len(best["covers"]):
+            best = r
+    return best
 
 
 def pick_frame(code):
@@ -116,7 +144,7 @@ def main():
     ap.add_argument("--max-kb", type=int, default=60)
     args = ap.parse_args()
 
-    things = load_things()
+    things, reels = load_data()
     os.makedirs(OUT_IMG, exist_ok=True)
 
     index, encoded, total = {}, {}, 0
@@ -124,16 +152,15 @@ def main():
         pid = place_id(t.get("name"))
         if pid in index:
             continue
-        for s in t.get("sources") or []:
-            m = REEL_CODE.search(s.get("url") or "")
-            if not m:
-                continue
-            code = m.group(1)
-            if code not in encoded:
-                frame = pick_frame(code)
-                if not frame:
-                    encoded[code] = None
-                    continue
+        reel = media_reel(pid, t.get("sources"), reels)
+        if not reel:
+            continue          # sin reel propio no hay frame: card tipográfica
+        code = reel["code"]
+        if code not in encoded:
+            frame = pick_frame(code)
+            if not frame:
+                encoded[code] = None
+            else:
                 dst = os.path.join(OUT_IMG, code + ".webp")
                 q, size = encode(frame, dst, args.max_kb)
                 # La ruta va relativa a japon/votar/index.html, que es quien la
@@ -142,9 +169,8 @@ def main():
                 encoded[code] = "img/" + code + ".webp"
                 total += size
                 print("  %-14s q=%d %5.1f KB  <- %s" % (code, q, size / 1024, os.path.basename(frame)))
-            if encoded[code]:
-                index[pid] = encoded[code]
-                break
+        if encoded[code]:
+            index[pid] = encoded[code]
 
     # Sacar los webp de reels que ya no mapean a ningún lugar vivo.
     keep = set(os.path.basename(v) for v in index.values())

@@ -48,8 +48,28 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
 
 ## El fondo de la card
 
-La card de arriba embebe el reel de Instagram de ese lugar. Tres cosas hacen
-que eso no sea un problema:
+La card de arriba embebe el reel de Instagram de ese lugar — **cuando hay uno
+que lo muestre**. Hoy son 82 de las 121; las otras 39 van con el mini-mapa.
+
+**Por qué no todas** (ronda 5, task 559). Zava reportó que la card del Cat Cafe
+MOCHA y la de Yanaka Ginza tenían de fondo la misma infografía ("Must-Visit
+Places in TOKYO"), que no es ninguna de las dos. El post nombra a los dos —es un
+roundup de treinta lugares de Tokio— así que como **fuente** está bien; lo que
+estaba mal era usarlo de **media**. Son dos preguntas distintas y `data/reels.js`
+las responde por separado en `SOURCE_REELS`: `covers` (de qué lugares habla el
+post) y `showsEach` (si su media muestra a cada uno — sí en un video, no en una
+foto fija o un carrusel de varios, porque el embed abre siempre en la primera
+imagen y no hay forma de saber a cuál corresponde). Un reel compartido entre
+varias cards sigue siendo válido —diez lo están— mientras las muestre a todas; lo
+que ya no pasa es que una card muestre media de otro lugar.
+
+La regla vive en `media-reel.js` y de ahí la leen la app y
+`japon/scripts/check_reels_mapping.js`, para que no haya dos versiones que se
+desincronizan. El frame estático de `frames.js` sale del mismo post que el embed
+(la misma regla, en Python, dentro de `build_frames.py`); si no coinciden, la app
+descarta el frame antes que mostrar la foto de otro lugar.
+
+Tres cosas hacen que embeber el reel no sea un problema:
 
 - **Recorte**. El embed (`/p/<code>/embed/`) mide siempre lo mismo por dentro:
   54 px de encabezado y abajo el media en 4:5 sobre el ancho del iframe —
@@ -69,13 +89,19 @@ que eso no sea un problema:
   suite prueba las dos cosas con touch de verdad (CDP), que es el criterio duro
   de la ronda 2.
 
-**Cuándo aparece el mini-mapa**: cuando el lugar no tiene reel (hoy ninguno: los
-272 vienen de un reel, así que es el camino del dato futuro) y cuando el embed
-no llegó a tiempo. Es un Leaflet con los mismos tiles del mapa principal, sin
-un solo control y con `pointer-events: none` — el dedo que lo toca es el que
-está swipeando. Debajo de todo siempre queda dibujado algo (el frame estático
-si lo hay, el lavado de la categoría si no), así que la card nunca está en
-blanco mientras carga.
+**Cuándo aparece el mini-mapa**: cuando el lugar no tiene ningún reel que lo
+muestre (39 de 121 desde la ronda 5) y cuando el embed no llegó a tiempo. Es un
+Leaflet sin un solo control y con `pointer-events: none` — el dedo que lo toca es
+el que está swipeando. Debajo de todo siempre queda dibujado algo (el frame
+estático si lo hay, el lavado de la categoría si no), así que la card nunca está
+en blanco mientras carga.
+
+Los tiles **no** son los de CARTO que usa el mapa de `index.html`: CARTO les
+empezó a estampar "API KEY REQUIRED" atravesado a las cuentas sin key (agosto
+2026, se ve igual en producción). Mientras el mini-mapa era el camino raro daba
+lo mismo; con 39 cards apoyadas ahí, no. Van con Esri Light Gray Canvas, que no
+pide key y es gris claro parecido. El mapa del site principal sigue con CARTO y
+sigue marcado — es el mismo problema, sin arreglar.
 
 **Por qué el `load` del iframe no alcanza para saber si el reel está**: cuando
 el iframe no puede cargar, Chromium le mete adentro su propia página de error y
@@ -186,10 +212,20 @@ decide del lado de la app principal — acá no se decide nada, sólo se cuenta.
 
 ```
 python3 votar/scripts/build_frames.py          # img/*.webp + frames.js
+node ../japon/scripts/check_reels_mapping.js            # el mapeo actividad → reel
+node ../japon/scripts/check_reels_mapping.js --selftest # y que el chequeo pueda fallar
 set -a; . ~/.openclaw/workspace/data/japon-votos/test-tokens.env; set +a
 BASE=http://127.0.0.1:8770 node votar/scripts/check_votar.js
 python3 votar/scripts/check_keepalive.py votos.mewis.online 443 $TOKEN
 ```
+
+`check_reels_mapping.js` es la guarda del mapeo (ronda 5): que cada reel que la
+card embebe hable de ese lugar, que el frame estático sea de ese mismo post y
+exista, y que un lugar sin reel propio no arrastre el frame de otro. **No** es un
+chequeo de unicidad — un reel compartido por varias cards que sí muestra es
+válido y tiene su fixture. `--selftest` corre los tres fixtures de
+`japon/scripts/fixtures/reels-mapping/` y verifica que falle donde tiene que
+fallar: un chequeo que nunca puede fallar no chequea nada.
 
 `TOKEN`/`TOKEN2` son **los de prueba**, nunca los de un viajero: la suite borra
 votos. Si igual se le pasa el de una persona, no arranca.
@@ -205,7 +241,11 @@ aparezca el mini-mapa y se pueda seguir swipeando igual. Desde la ronda 3
 también chequea que los lugares del mazo tengan descripción curada, que la card
 muestre ésa y no la `note`, que el "más" aparezca exactamente cuando el texto
 se recorta, que abrirlo no vote, que con el texto abierto la card no se
-desborde ni empuje la botonera, y que el swipe táctil siga votando igual. `check_keepalive.py` manda a mano los requests
+desborde ni empuje la botonera, y que el swipe táctil siga votando igual. Desde
+la ronda 5 chequea además que **ninguna card del mazo embeba un reel que no la
+nombra** —el reporte de Zava, medido sobre la app viva— y avanza hasta una card
+con reel propio antes de probar el embed, porque ya no todas tienen.
+`check_keepalive.py` manda a mano los requests
 rotos que ningún cliente HTTP normal deja mandar y comprueba que no se lleven
 puesto al request siguiente de la misma conexión; corre igual contra el puerto
 local (`127.0.0.1 9202`) que contra el dominio, y contra el dominio es más
@@ -213,14 +253,16 @@ representativo porque incluye el pool de cloudflared.
 
 `build_frames.py` toma un frame representativo por reel de
 `projects/japan-trip/data/ig/frames/`. Esa carpeta es residual —el pipeline de
-IG borra los frames después de transcribir—, así que hoy sólo **26 de 272**
-lugares tienen foto (13 webp, 356 KB). El resto va con card tipográfica del
-color de su categoría, que es un estado normal y no un faltante: si mañana el
-pipeline deja más frames, se vuelve a correr el script y aparecen solos.
+IG borra los frames después de transcribir—, así que hoy sólo **14 de 272**
+lugares tienen foto (11 webp, 291 KB). Eran 26 hasta la ronda 5: los doce que se
+cayeron eran frames de carruseles de varios lugares, o sea la foto de otro. El
+resto va con card tipográfica del color de su categoría, que es un estado normal
+y no un faltante: si mañana el pipeline deja más frames, se vuelve a correr el
+script y aparecen solos.
 
 Limitación conocida: algunos reels traen el nombre del lugar quemado en el
 video (un zócalo), y como la card dibuja su propio título encima, ahí se ve el
-nombre dos veces —`21st Century Museum of Contemporary Art` es el caso más
-visible—. Elegir el frame del medio evita las placas de título y de cierre pero
-no los zócalos que duran todo el video; separarlos de verdad necesitaría OCR
-sobre cada frame, que es bastante más máquina de la que justifica el detalle.
+nombre dos veces. Elegir el frame del medio evita las placas de título y de
+cierre pero no los zócalos que duran todo el video; separarlos de verdad
+necesitaría OCR sobre cada frame, que es bastante más máquina de la que justifica
+el detalle.

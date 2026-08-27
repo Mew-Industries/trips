@@ -146,6 +146,35 @@ const settle = (page) => page.waitForFunction(
     ok('y no deja afuera ninguna otra categoría de la taxonomía',
       missing.length === 0, missing.length ? `faltan ${missing.join(', ')}` : cats.join(', '));
 
+    // El chequeo que nace del reporte de Zava (task 559): un reel puede ser la
+    // fuente de varias actividades, pero lo que la card EMBEBE tiene que hablar
+    // de ella. Se mira sobre el mazo entero y sobre el registro publicado, que
+    // es el mismo par de datos que ve el que vota.
+    const ajenas = await page.evaluate(() => {
+      const byCode = {};
+      (window.SOURCE_REELS || []).forEach((r) => { byCode[r.code] = r; });
+      return window.VOTAR_PLACES
+        .filter((p) => p.ig && !((byCode[p.ig] || { covers: [] }).covers.indexOf(p.id) >= 0))
+        .map((p) => `${p.name} → ${p.ig}`);
+    });
+    const conReel = await page.evaluate(() => window.VOTAR_PLACES.filter((p) => p.ig).length);
+    ok('ninguna card del mazo embebe un reel que no la nombra', ajenas.length === 0,
+      ajenas.length ? ajenas.slice(0, 5).join(' · ') : `${conReel}/${n} cards con reel de fondo`);
+
+    // Desde la 559 no todas las cards embeben: la que sólo tiene de fuente un
+    // roundup de veinte lugares va con mini-mapa a propósito, porque esa imagen
+    // no es suya. Para probar el embed hay que llegar a una que sí tenga reel
+    // propio, y cuántas hay antes depende del barajado del token.
+    const topHasReel = () => page.evaluate(() => {
+      const el = document.querySelector('.card.top');
+      const p = el && window.VOTAR_PLACES.find((q) => q.id === el.dataset.place);
+      return !!(p && p.ig);
+    });
+    let saltadas = 0;
+    while (!(await topHasReel()) && saltadas < 40) { await touchSwipe(page, cdp, 200, 0); saltadas++; }
+    ok('se llega a una card con reel propio', await topHasReel(),
+      `${saltadas} card(s) sin reel antes`);
+
     await page.waitForSelector('.card.top.ig-on', { timeout: 30000 })
       .then(() => ok('la card de arriba embebe el reel de verdad', true))
       .catch(() => ok('la card de arriba embebe el reel de verdad', false, 'no cargó el iframe'));
@@ -153,6 +182,14 @@ const settle = (page) => page.waitForFunction(
     const code = await page.evaluate(() => window.VOTAR_PLACES.length && document.querySelector('.card.top').dataset.place);
     ok('el iframe apunta al embed del reel de ese lugar',
       /^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_-]+\/embed\/$/.test(src || ''), `${code} → ${src}`);
+    const shown = await page.evaluate(() => {
+      const id = document.querySelector('.card.top').dataset.place;
+      const p = window.VOTAR_PLACES.find((q) => q.id === id);
+      const r = (window.SOURCE_REELS || []).find((x) => x.code === p.ig) || { covers: [] };
+      return { id: id, ig: p.ig, cubre: r.covers.indexOf(id) >= 0, muestra: !!r.showsEach };
+    });
+    ok('y ese reel habla de ese lugar y lo muestra', shown.cubre && shown.muestra,
+      `${shown.id} → ${shown.ig} (cubre=${shown.cubre} muestra=${shown.muestra})`);
     ok('sólo se embebe la card de arriba (las de atrás no cargan Instagram)',
       (await page.locator('.card .media-ig').count()) === 1);
     ok('el encabezado del embed queda fuera del recorte',
@@ -169,8 +206,9 @@ const settle = (page) => page.waitForFunction(
       `${n1} → ${await topName(page)}`);
     await page.waitForTimeout(900);
     const afterSwipe = await api(`/votes?u=${TOKEN2}`);
-    ok('y ese swipe llegó al servidor', Object.keys(afterSwipe.votes).length === 1,
-      JSON.stringify(afterSwipe.votes));
+    ok('y ese swipe llegó al servidor',
+      Object.keys(afterSwipe.votes).length === saltadas + 1,
+      `${Object.keys(afterSwipe.votes).length} voto(s) · ${saltadas} de llegar a la card con reel`);
 
     // Toque quieto: el reel pasa a ser del dedo, y el botón lo devuelve.
     await page.waitForSelector('.card.top.ig-on', { timeout: 30000 }).catch(() => {});

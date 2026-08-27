@@ -89,33 +89,47 @@
   // tocar este archivo.
   var SKIP_CATS = { 'comida': 1, 'bar-noche': 1, 'compras': 1, 'otro': 1 };
 
-  // El shortcode del reel es lo único que necesita el embed de Instagram. Los
-  // datos traen la URL como /p/<code>/, pero /reel/ y /tv/ son lo mismo.
-  function shortcode(url) {
-    var m = /instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/.exec(url || '');
-    return m ? m[1] : null;
+  var FRAMES = window.VOTAR_FRAMES || {};
+
+  /* Qué reel puede ser el fondo de una card: la regla vive en media-reel.js,
+     que también usa el chequeo del mapeo (task 559). Un post que recomienda
+     veinte lugares es la fuente legítima de los veinte (`covers`), pero eso no
+     lo vuelve la media de ninguno de ellos (`showsEach`) — el porqué está
+     explicado ahí, y ahí se toca. */
+  var MEDIA = window.VOTAR_MEDIA;
+  var REELS = MEDIA.indexReels(window.SOURCE_REELS);
+
+  // El frame estático tiene que ser del MISMO post que el embed. frames.js lo
+  // escribe otro script (build_frames.py), así que si quedó viejo la card cae a
+  // la tipográfica en vez de mostrar la foto de otro lugar.
+  function frameOf(id, media) {
+    var f = FRAMES[id];
+    return (f && media && f.indexOf('/' + media.code + '.') > 0) ? f : null;
   }
 
-  var FRAMES = window.VOTAR_FRAMES || {};
   // `descriptions.js` es curado a mano y va aguas abajo de los generadores: la
   // card muestra eso. La `note` de reels.js queda de red por si entra un lugar
   // nuevo antes de que alguien le escriba la descripción.
   var DESCS = window.VOTAR_DESCS || {};
   var PLACES = (window.SOURCE_THINGS || []).map(function (t) {
-    var reel = (t.sources || []).filter(function (s) { return s.type === 'instagram_reel'; })[0];
+    var id = placeId(t.name);
+    var sources = (t.sources || []).filter(function (s) { return s.type === 'instagram_reel'; });
+    var media = MEDIA.mediaReel(id, sources, REELS);
     return {
-      id: placeId(t.name),
+      id: id,
       name: t.name,
-      note: DESCS[placeId(t.name)] || t.note || '',
+      note: DESCS[id] || t.note || '',
       area: t.area || '',
       city: cityOf(t.area),
       hood: hoodOf(t.area) || placeOf(t.area),
       cat: catOf(t.name, t.cat),
       lat: typeof t.lat === 'number' ? t.lat : null,
       lon: typeof t.lon === 'number' ? t.lon : null,
-      img: FRAMES[placeId(t.name)] || null,
-      reel: reel ? reel.url : null,
-      ig: reel ? shortcode(reel.url) : null,
+      img: frameOf(id, media),
+      // El link "Ver el reel" apunta a lo que se está viendo cuando hay embed;
+      // sin embed sigue siendo la procedencia, que es dato real igual.
+      reel: media ? media.url : (sources[0] ? sources[0].url : null),
+      ig: media ? media.code : null,
       maps: 'https://www.google.com/maps/search/?api=1&query=' +
         encodeURIComponent(t.name + (t.area ? ' ' + t.area : ''))
     };
@@ -354,9 +368,18 @@
     return leafletP;
   }
 
-  // Mini-mapa: mismos tiles que el mapa del site principal, sin un solo
-  // control ni gesto propio (`pointer-events: none`) — el mazo no puede
-  // pelearse con un mapa por el mismo dedo.
+  // Mini-mapa: sin un solo control ni gesto propio (`pointer-events: none`) —
+  // el mazo no puede pelearse con un mapa por el mismo dedo.
+  //
+  // Los tiles NO son los de CARTO que usa el mapa del site principal: CARTO les
+  // empezó a estampar "API KEY REQUIRED" encima a las cuentas sin key (agosto
+  // 2026, se ve igual en producción). Con el arreglo de la task 559 el mini-mapa
+  // pasó a ser el fondo de 39 cards, así que una marca de agua atravesada dejó
+  // de ser un detalle. Esri Light Gray Canvas es gris claro parecido, no pide
+  // key y sus labels vienen en una capa aparte (acá no van: la card ya dice el
+  // nombre y el barrio, y el mapa es para ubicar de un vistazo).
+  var TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/' +
+    'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   function mapFallback(card, p) {
     var media = card.querySelector('.card-media');
     if (!media || p.lat == null || p.lon == null) return;
@@ -375,9 +398,7 @@
         attributionControl: true
       });
       m.attributionControl.setPrefix(false);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap, © CARTO', subdomains: 'abcd', maxZoom: 19
-      }).addTo(m);
+      L.tileLayer(TILES, { attribution: '© Esri', maxZoom: 16 }).addTo(m);
       m.setView([p.lat, p.lon], 15);
       L.circleMarker([p.lat, p.lon], {
         radius: 9, weight: 3, color: '#fff', fillColor: '#B4483A', fillOpacity: 1

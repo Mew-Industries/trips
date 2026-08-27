@@ -300,6 +300,46 @@ Hoy **nada del site los renderiza todavía** — la lista global de tips es de l
 task 546. `node japon/scripts/check_categories.js` sí los verifica: cuenta cuántos
 hay y falla si alguno viene con coordenada, sin `cat: 'tips'` o sin consejo.
 
+## Un reel puede ser fuente de varios lugares y media de ninguno (2026-08-26 · task 559)
+
+Zava reportó que la card del **Cat Cafe MOCHA** y la de **Yanaka Ginza** mostraban
+la misma infografía de fondo ("Must-Visit Places in TOKYO"), que no es ninguna de
+las dos. El post **sí** nombra a los dos —es un roundup de treinta lugares de
+Tokio— así que como *fuente* estaba bien. Lo que estaba mal era usarlo de *media*:
+es una imagen fija de un listado, no muestra a ninguno en particular.
+
+Por eso `data/reels.js` trae un **tercer array**, `window.SOURCE_REELS`, con un
+registro por reel publicado que responde las dos preguntas por separado:
+
+- `covers` — los `place_id` de los lugares de los que habla el post. Que un
+  roundup sea la fuente de los veinte que nombra es correcto y **no** se toca:
+  el chequeo NO es de unicidad.
+- `showsEach` — si su media muestra a cada uno de ellos. `true` para los videos
+  (`kind: "clips"`, que recorren lo que nombran) y para los posts de foto de un
+  solo lugar; `false` para la foto fija (`feed`) o el carrusel
+  (`carousel_container`) de varios, porque el embed abre siempre en la primera
+  imagen y no hay manera de saber a cuál de los lugares corresponde.
+
+La regla de qué reel puede ser el fondo de una card vive en **un solo archivo**,
+`votar/media-reel.js` (`mediaReel()`: cubre + muestra, y entre varios gana el más
+específico). La usan la app y el chequeo; `votar/scripts/build_frames.py` tiene la
+misma regla en Python para elegir de qué post sale el frame estático, que tiene
+que ser el **mismo** que el del embed.
+
+Hoy quedan 82 de las 121 cards con reel de fondo y 39 con mini-mapa. Diez reels
+siguen compartidos entre varias cards, que es lo esperado.
+
+```
+node japon/scripts/check_reels_mapping.js            # el mapeo publicado
+node japon/scripts/check_reels_mapping.js --selftest # los fixtures: falla donde tiene que
+```
+
+⚠️ El mini-mapa de las cards **no** usa los tiles de CARTO del mapa principal:
+CARTO les estampa "API KEY REQUIRED" encima a las cuentas sin key (agosto 2026).
+`votar/app.js` tira de Esri Light Gray Canvas, que no pide key. **El mapa de
+`index.html` sigue con CARTO y sigue con la marca de agua** — es el mismo problema
+y está sin arreglar.
+
 ## ⚠️ INVARIANTE de fechas (regla dura — verificar SIEMPRE al editar el itinerario)
 
 Toda noche del viaje DEBE tener un lugar de pernocte asignado, y las fechas tienen que encadenar sin huecos ni solapes:
