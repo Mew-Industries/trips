@@ -1025,17 +1025,33 @@ const destinations = [
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg'],
     dates: '27-31 oct', nights: 4, start: '2026-10-27', end: '2026-10-31',
     arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka; los amigos se quedan una noche más y vuelan el 1/11)',
-    lodging: null,
-    lodgingTbd: 'A definir · para 4 (compartido con amigos)',
+    lodging: {
+      name: 'Park Hyatt Tokyo', type: 'Hotel · Shinjuku Park Tower, pisos 39-52',
+      guests: '4 personas · con amigos',
+      area: 'Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku',
+      coords: [35.6857, 139.6907],
+      checkIn: '27 oct', checkOut: '31 oct', nights: 4, booked: true,
+      img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg',
+      imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shinjuku_Park_Tower_6.jpg/500px-Shinjuku_Park_Tower_6.jpg'],
+      url: 'https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Park%20Hyatt%20Tokyo',
+      booking: {
+        provider: 'hotel', ref: null,
+        // Reservó Ari desde su cuenta: no hay número de confirmación ni política de
+        // cancelación a la vista de Martín. Su parte del split (US$1.500) ya está paga.
+        url: 'https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo',
+        checkIn: '27 oct', checkOut: '31 oct'
+      },
+      note: 'El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Reservó Ari para los cuatro; Martín y Cata pagaron US$1.500 de su parte (Ari cubre el resto). Martín y Cata salen el 31; los amigos se quedan una noche más.'
+    },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Tokio (Nozomi).',
       toName: 'Tokio',
       fromTerminal: { name: 'Shin-Ōsaka', coords: [34.73347, 135.50025], mode: 'train' }, toTerminal: { name: 'Estación de Tokio', coords: [35.68124, 139.76712], mode: 'train' },
       why: [
-        'Todavía no hay hospedaje reservado en Tokio: no hay hora de check-in que ate el horario del tren.',
         'El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés.'
       ] },
     tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-09-01', weatherMode: 'climatología',
-    intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka. El alojamiento se busca para los cuatro y todavía no está reservado. El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
+    intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka, en el Park Hyatt de Shinjuku (reservó Ari). El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
     activities: [],
     daytrips: []
   },
