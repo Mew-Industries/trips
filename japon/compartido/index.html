@@ -2682,7 +2682,13 @@ const TOGGLES = [
 // "escondé los saltos" y ahora eso es `transporte`. Se traduce en vez de ignorarse,
 // para que el link compartido siga aterrizando con el mapa como quien lo mandó lo vio.
 const LEGACY_LAYER_KEYS = { vuelos: 'transporte' };
-const inactiveLayers = new Set((new URLSearchParams(location.search).get('layersOff') || '').split(',')
+// Sin estado en la URL el mapa aterriza con Actividades + Hospedajes solamente:
+// las cuatro familias juntas lo saturaban (Martín, 2026-09-03). Un `layersOff`
+// presente —aunque venga vacío, que significa "todo prendido"— es intención
+// explícita de quien armó el link y manda sobre este default.
+const DEFAULT_LAYERS_OFF = 'destinos,transporte';
+const savedLayersOff = new URLSearchParams(location.search).get('layersOff');
+const inactiveLayers = new Set((savedLayersOff === null ? DEFAULT_LAYERS_OFF : savedLayersOff).split(',')
   .map(k => LEGACY_LAYER_KEYS[k] || k)
   .filter(k => TOGGLES.some(t => t.key === k)));
 const layerBtns = {};
@@ -2693,8 +2699,12 @@ const allLayersOn = () => inactiveLayers.size === 0;
 
 function writeLayersUrl() {
   const u = new URL(location.href);
-  if (inactiveLayers.size) u.searchParams.set('layersOff', TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(','));
-  else u.searchParams.delete('layersOff');
+  const off = TOGGLES.filter(x => inactiveLayers.has(x.key)).map(x => x.key).join(',');
+  // Estado == default → URL limpia. Cualquier otro estado se escribe SIEMPRE,
+  // incluso "todo prendido" (`layersOff=` vacío): sin eso, recargar o compartir
+  // con todo a la vista volvería calladamente al default.
+  if (off === DEFAULT_LAYERS_OFF) u.searchParams.delete('layersOff');
+  else u.searchParams.set('layersOff', off);
   history.replaceState(null, '', u);
 }
 
