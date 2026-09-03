@@ -121,9 +121,15 @@ window.PLACE_CAT_OVERRIDES = {
   'Garden of Fine Arts Kyoto (Tadao Ando)': 'arte',
   'MIHO MUSEUM': 'arte',
   'Murou Art Forest': 'arte',                   // land art de Dani Karavan
-  'Naoshima': 'arte',                           // Chichu + Benesse + la calabaza de Kusama
+  'Naoshima': 'arte',                           // el day trip sugerido desde Osaka
+  // --- Naoshima como parada (3/9): las actividades del nodo son todas arte ---
   'Chichu Art Museum': 'arte',
-  'Benesse House Oval': 'arte',
+  'Benesse House Museum': 'arte',
+  'Lee Ufan Museum': 'arte',
+  'Valley Gallery': 'arte',
+  'Red Pumpkin de Kusama (puerto de Miyanoura)': 'arte',
+  'Yellow Pumpkin de Kusama (muelle de Benesse)': 'arte',
+  'Art House Project (Honmura)': 'arte',
   '国境を越えて・祈り': 'arte',                    // escultura de Kan Yasuda en Awaji Yumebutai
   'Aomori Museum of Art': 'arte',
   'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)': 'arte',

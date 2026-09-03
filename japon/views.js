@@ -35,7 +35,7 @@ const sharedTag = node => (node && node.sharedWith)
 const sharedCls = node => (node && node.sharedWith) ? ' shared' : '';
 
 // ------------------------------------------------------------- 2 · hospedajes
-// Las 13 paradas donde se duerme, en orden. La que todavía no tiene reserva
+// Las 15 paradas donde se duerme, en orden. La que todavía no tiene reserva
 // aparece igual: el hueco es parte de la información.
 
 RENDER.hospedajes = (it, ctx) => {

@@ -626,7 +626,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-08-26",
+    "weatherUpdated": "2026-09-03",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -929,7 +929,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-08-26",
+    "weatherUpdated": "2026-09-03",
     "weatherMode": "climatología",
     "intro": "Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1146,8 +1146,34 @@ const destinations = [
     "end": "2026-10-31",
     "arrival": "27 oct · se llega de Osaka en Shinkansen (~2 h 30)",
     "departure": "31 oct · los amigos se quedan una noche más y vuelan el 1/11",
-    "lodging": null,
-    "lodgingTbd": "A definir · para 4 (compartido con amigos)",
+    "lodging": {
+      "name": "Park Hyatt Tokyo",
+      "type": "Hotel · Shinjuku Park Tower, pisos 39-52",
+      "guests": "4 personas · con amigos",
+      "area": "Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku",
+      "coords": [
+        35.6857,
+        139.6907
+      ],
+      "checkIn": "27 oct",
+      "checkOut": "31 oct",
+      "nights": 4,
+      "booked": true,
+      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
+      "imgs": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shinjuku_Park_Tower_6.jpg/500px-Shinjuku_Park_Tower_6.jpg"
+      ],
+      "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Park%20Hyatt%20Tokyo",
+      "booking": {
+        "provider": "hotel",
+        "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
+        "checkIn": "27 oct",
+        "checkOut": "31 oct"
+      },
+      "note": "El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más."
+    },
     "leg": {
       "mode": "🚄",
       "time": "~2 h 30",
@@ -1170,13 +1196,12 @@ const destinations = [
         "mode": "train"
       },
       "why": [
-        "Todavía no hay hospedaje reservado en Tokio: no hay hora de check-in que ate el horario del tren.",
         "El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés."
       ]
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-08-26",
+    "weatherUpdated": "2026-09-03",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [],
@@ -1185,10 +1210,11 @@ const destinations = [
 ];
 
 // LA CADENA del viaje: los nodos que efectivamente se encadenan uno atrás del otro.
-// Un nodo `pendiente` (hoy otra parada) sigue estando en `destinations` —tiene ficha, foto,
-// hospedaje reservado y pin en el mapa— pero NO tiene fechas, así que no puede estar en
-// la secuencia: nada de líneas de ruta hacia él, ni etiqueta de fecha, ni un lugar en la
-// curva de temperatura. Todo lo que lee "el anterior" / "el siguiente" usa `chain`.
+// Un nodo `pendiente` (hoy ninguno; otra parada lo fue del 25/8 al 3/9) sigue estando en
+// `destinations` —tiene ficha, foto y pin en el mapa— pero NO tiene fechas, así que no
+// puede estar en la secuencia: nada de líneas de ruta hacia él, ni etiqueta de fecha, ni
+// un lugar en la curva de temperatura. Todo lo que lee "el anterior" / "el siguiente"
+// usa `chain`.
 const isPendingStop = d => d.type === 'pendiente';
 const chain = destinations.filter(d => !isPendingStop(d));
 // Tramo compartido: el nodo lo declara con `sharedWith` (con quién). Es un atributo del

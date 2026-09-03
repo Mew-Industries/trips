@@ -507,7 +507,7 @@
     <div class="header-stats">
       <span class="dx"><strong>6/10</strong> salida BA</span>
       <span><strong>40</strong> noches</span>
-      <span><strong>12</strong> nodos</span>
+      <span><strong>17</strong> nodos</span>
       <span class="dx"><strong>18/11</strong> regreso</span>
     </div>
     <button type="button" class="discrete-btn" id="discrete-toggle" title="Modo discreto (d)">🙈</button>
@@ -593,8 +593,8 @@ const destinations = [
       { layover: 'escala Houston · 6 h 20' },
       { route: 'IAH → HND', no: 'UA7937', when: '7 oct 11:35 → 8 oct 15:25', departure: '2026-10-07T11:35', arrival: '2026-10-08T15:25', aircraft: 'B787-9 · op. ANA · 13h50', tracker: 'https://flightaware.com/live/flight/UAL7937' }
     ] },
-    tempMax: '16-28', tempMin: '12-20', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Aterrizaje en Tokio (Haneda) el 8/10. 5 noches de aclimatación y jet lag para arrancar. Los clásicos de Tokio al empezar el viaje. Tokio se revisita al final (parada 13) como buffer pre-vuelo, así que los museos y el shopping pueden quedar para esa segunda tanda.',
+    tempMax: '16-28', tempMin: '12-20', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Aterrizaje en Tokio (Haneda) el 8/10. 5 noches de aclimatación y jet lag para arrancar. Los clásicos de Tokio al empezar el viaje. Tokio se revisita al final (parada 17) como buffer pre-vuelo, así que los museos y el shopping pueden quedar para esa segunda tanda.',
     activities: [
       // Entrada comprada con slot fijo: por eso lleva `at` y aparece como evento del 9/10.
       { text: 'teamLab Planets', cat: 'museos', coords: [35.648786, 139.790114], at: '2026-10-09T09:00', until: '2026-10-09T09:30',
@@ -654,7 +654,7 @@ const destinations = [
         'Nikko es un ramal sin salida: se entra y se sale por el mismo pueblo.',
         'Valijas en lockers de la estación de llegada (~¥700-1.000) o en Utsunomiya si van full JR; Chuzenji/Kegon quedan a ~50 min de bus.'
       ] },
-    tempMax: '15-22', tempMin: '7-14', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '15-22', tempMin: '7-14', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Día de paso, sin pernocte: saliendo de Tokio hacia el norte se baja en Nikko para los santuarios UNESCO de Toshogu y (si da el tiempo) el lago Chuzenji + cataratas Kegon, con los primeros colores de otoño en altura. A la tarde/noche se sigue viaje a Ichinoseki (se duerme allí). Nikko es el pivote del salto al norte: Tokio → Nikko → Ichinoseki → Sendai → Sapporo, sin backtrack.',
     activities: [
       { text: 'Centro de Nikkō (estación / casco)', cat: 'barrios', coords: [36.719758, 139.698139], url: "https://www.google.com/maps/search/?api=1&query=Nikk%C5%8D" },
@@ -696,7 +696,7 @@ const destinations = [
         'Nikko es de paso: la noche del 13 ya se duerme en Ichinoseki.',
         'Hay que retirar las valijas del locker antes de salir de Nikko.'
       ] },
-    tempMax: '18-23', tempMin: '8-14', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '18-23', tempMin: '8-14', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Base cómoda del tramo norte (Iwate): Ichinoseki es el hub del shinkansen, con hoteles y servicios, y queda a 8 min en tren de Hiraizumi. Se llega de Nikko la noche del 13 (día largo Tokio → Nikko de paso → norte) y al otro día se sigue a Sendai sin horario límite (shinkansen corto, ~40 min). El foco es la garganta de Geibikei: paseo en bote chato de fondo plano con el botero que canta. Cerca está Genbikei (rápidos turquesa + el "dango volador" que llega por un cable). Comida fuerte de la zona: capital de la cocina de mochi (餅本膳) y la carne de Maesawa (前沢牛), un wagyu premium. Hiraizumi (Chūson-ji + el Pabellón Dorado/Konjikidō, Tesoro Nacional UNESCO) queda a 8 min y es un opcional lindo si el día da.',
     activities: [
       { text: 'Chūson-ji + Konjikidō (Pabellón Dorado, Tesoro Nacional UNESCO) — opcional, 8 min en Hiraizumi', cat: 'templos', coords: [38.9939, 141.0989], url: "https://www.google.com/maps/search/?api=1&query=Chusonji" },
@@ -744,7 +744,7 @@ const destinations = [
         'Geibikei se hace a la mañana del 14 (paseo en bote) y recién después sale el shinkansen.',
         'El salto a Sendai son ~40 min y hay servicios todo el día: no hay hora límite dura.'
       ] },
-    tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '14-24', tempMin: '7-14', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Base del tramo norte (reemplaza a Ginzan, decidido 2026-06-14: no conseguían buen hospedaje en Ginzan y era mucho trajín por una noche). Ciudad cómoda y bien conectada: la estación concentra todo — los day-trips (Matsushima al este ~30 min, Yamadera al oeste ~55 min) y la línea directa al aeropuerto. Se hace UN day-trip, gyutan a la noche, y al otro día el vuelo a Sapporo recién sale 16:50, así que la mañana del 15 también queda usable. El hotel está en Aoba-ku Chūō, en pleno centro.',
     activities: [
       { text: 'Jōzenji-dōri', group: 'Jōzenji-dōri + arcades Ichibanchō', cat: 'barrios', coords: [38.266223, 140.87141] },
@@ -793,7 +793,7 @@ const destinations = [
       segments: [
         { route: 'SDJ → CTS', no: 'MM419', when: '15 oct 16:50 → 18:10', departure: '2026-10-15T16:50', arrival: '2026-10-15T18:10', aircraft: 'A320neo · 1h20', tracker: 'https://flightaware.com/live/flight/APJ419' }
       ] },
-    tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '9-21', tempMin: '2-15', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Salto al norte al arranque del viaje, cuando Hokkaido todavía está templado (~17°/7° a mediados de octubre — chaqueta de otoño, no frío). Se llega de Sendai en avión (aeropuerto de Sendai → New Chitose) y se sigue volando a Komatsu para retomar Kanazawa. Es la parte más fresca del recorrido, pero a esta altura del calendario es disfrutable. Sapporo: comida (sopa de curry, ramen miso, mariscos del mercado), parques de Isamu Noguchi y el monte Moiwa al atardecer. El koyo en la montaña recién empieza.',
     activities: [
       { text: 'Parque Odori', group: 'Parque Odori + torre de TV', cat: 'parques', coords: [43.060479, 141.354526] },
@@ -845,7 +845,7 @@ const destinations = [
       segments: [
         { route: 'CTS → KMQ', no: 'NH1174', when: '17 oct 11:55 → 13:30', departure: '2026-10-17T11:55', arrival: '2026-10-17T13:30', aircraft: 'A321 · 1h35', tracker: 'https://flightaware.com/live/flight/ANA1174' }
       ] },
-    tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '15-27', tempMin: '8-17', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Sobre el Mar de Japón. Evitó los bombardeos de la WW2 — conserva barrios geisha y samurái. Se llega desde Sapporo el 17/10 (ANA NH1174 a Komatsu + limusina del aeropuerto), y se sigue a Kioto haciendo escala de paso por Shirakawa-go (bus directo, ~1h15).',
     activities: [
       { text: 'Distrito samurái Nagamachi', cat: 'barrios', coords: [36.563627, 136.651333] },
@@ -874,7 +874,7 @@ const destinations = [
         'El bus Kanazawa → Shirakawa-go es directo pero va con reserva previa (japanbusonline).',
         'Shirakawa-go es de paso: la noche del 19 ya se duerme en Kioto.'
       ] },
-    tempMax: '14-24', tempMin: '6-15', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '14-24', tempMin: '6-15', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Día completo de paso entre Kanazawa y Kioto. Pueblo UNESCO con casas gassho-zukuri (techos de paja a dos aguas). Bus directo desde Kanazawa (~1h15), unas horas en el pueblo + mirador de Ogimachi, y se sigue a Kioto (bus + tren/Shinkansen). No se pernocta acá — la noche se duerme en Kioto.',
     activities: [
       { text: 'Mirador de Ogimachi (vista panorámica del valle de casas)', cat: 'parques', coords: [36.263003, 136.908558] },
@@ -920,7 +920,7 @@ const destinations = [
       why: [
         'Se llega a Kioto la misma noche del día de paso por Shirakawa-go.'
       ] },
-    tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '14-25', tempMin: '5-20', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Capital cultural. Se llega de Shirakawa-go (de paso) vía Kanazawa/Takayama en bus + tren, y el 24 se sigue a Osaka. Acá arranca el tramo con amigos (llegan el 19 a KIX): Kioto, Osaka y Tokio los cuatro juntos, y acá además compartiendo la casa (en Osaka cada pareja para por su cuenta). Mediados/fines de octubre: clima templado y los primeros tonos de otoño. 5 noches dan tiempo a cada zona sin atropello.',
     activities: [
       { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
@@ -987,7 +987,7 @@ const destinations = [
         'Salto corto dentro de Kansai: la mañana del 24 queda entera en Kioto.',
         'En Dōtonbori no hay check-in antes de las 16:00.'
       ] },
-    tempMax: '16-25', tempMin: '7-18', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '16-25', tempMin: '7-18', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.',
     activities: [
       { text: 'Kuromon Ichiba (mercado)', group: 'Kuromon + Sennichimae Doguyasuji', cat: 'comida', coords: [34.665536, 135.507085] },
@@ -1042,7 +1042,7 @@ const destinations = [
         url: 'https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo',
         checkIn: '27 oct', checkOut: '31 oct'
       },
-      note: 'El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Reservó Ari para los cuatro; Martín y Cata pagaron US$1.500 de su parte (Ari cubre el resto). Martín y Cata salen el 31; los amigos se quedan una noche más.'
+      note: 'El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más.'
     },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Tokio (Nozomi).',
       toName: 'Tokio',
@@ -1050,8 +1050,8 @@ const destinations = [
       why: [
         'El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés.'
       ] },
-    tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka, en el Park Hyatt de Shinjuku (reservó Ari). El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
+    tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka, en el Park Hyatt de Shinjuku (la reserva la tomaron ellos). El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
     activities: [],
     daytrips: []
   },
@@ -1096,7 +1096,7 @@ const destinations = [
         'Los amigos NO viajan en este salto: se quedan en Tokio y vuelan el 1/11.',
         'El check-in del Royal Park Canvas va hasta las 23:00: entra cualquier vuelo de la tarde.'
       ] },
-    tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Cuna del ramen tonkotsu. Se llega de Tokio el 31/10 en avión (vuelo todavía sin comprar) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00).',
     activities: [
       { text: 'Ichiran original', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.593241, 130.404597] },
@@ -1153,7 +1153,7 @@ const destinations = [
       segments: [
         { route: 'FUK → PUS', no: 'BX506', when: '3 nov 11:55 → 13:00', departure: '2026-11-03T11:55', arrival: '2026-11-03T13:00', aircraft: 'A321 · 1h05' }
       ] },
-    tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
+    tempMax: '10-24', tempMin: '0-16', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
     intro: 'Se llega volando desde Fukuoka (Air Busan, ~1h). Costa coreana, mariscos. Gyeongju como day trip (~30 min en KTX). Después se sube a Seúl en KTX (~2h40).',
     activities: [
       { text: 'Gamcheon Culture Village (favela artística colorida)', cat: 'barrios', coords: [35.09739, 129.010592] },
@@ -1176,7 +1176,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg/500px-Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Namsan_Tower_sunset%2C_Seoul.jpg/500px-Namsan_Tower_sunset%2C_Seoul.jpg'],
     dates: '6-10 nov', nights: 4, start: '2026-11-06', end: '2026-11-10',
-    arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (vuelo de vuelta a Japón)',
+    arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (vuelo a Osaka/KIX)',
     lodging: {
       name: 'Hanok premium en Bukchon (Gahoe-dong)', type: 'Airbnb', rating: '★4.95',
       guests: '2 dormitorios · 2 camas · 1 baño compartido',
@@ -1196,8 +1196,8 @@ const destinations = [
         'Check-out en Busan hasta las 11:00.',
         'El KTX todavía no está comprado: es lo que va a fijar la hora de salida.'
       ] },
-    tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón (Seúl → Tokio Haneda/Narita + Romancecar): una última escala en Hakone (parada 14, onsen + Fuji) antes de cerrar en Tokio para el vuelo del 17/11.',
+    tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, ahora a Osaka (KIX), para el cierre: Koyasan (parada 14, shukubo), Naoshima (15, isla de arte) y Hakone (16, onsen + Fuji) antes de terminar en Tokio para el vuelo del 17/11.',
     activities: [
       { text: 'Bukchon Hanok Village', group: 'Bukchon + Insadong', cat: 'barrios', coords: [37.58147, 126.984952] },
       { text: 'Insadong', group: 'Bukchon + Insadong', cat: 'compras', coords: [37.571655, 126.986233] },
@@ -1228,48 +1228,30 @@ const destinations = [
     ]
   },
   {
-    // Koyasan salió de la cadena el 25/8: era 25-26 oct entre Kioto y Osaka, y ese tramo
-    // ahora es de los cuatro (con amigos). `type: 'pendiente'` = la parada existe y la
-    // reserva del shukubo sigue viva, pero no ocupa ninguna noche del viaje: sin
-    // `start`/`end` no entra ni en los días, ni en los tramos, ni en la cadena del mapa.
-    // Candidato: 10-11 nov, post-Seúl — arrastra el vuelo de salida de Seúl (KIX en vez
-    // de HND), correr Yoshiike a 11-13 y Tokio final a 13-17. Sin decidir.
-    id: 'koyasan', n: null, type: 'pendiente', name: 'Koyasan (shukubo)', short: 'Koyasan', flag: '🇯🇵',
+    // Koyasan volvió a la cadena el 3/9 (decisión de Martín): reubicado post-Seúl,
+    // 10-11 nov, ya sin Zava y Ari. Arrastra el vuelo de salida de Seúl a KIX (P-52).
+    // El shukubo es nuevo y está sin reservar: el Hōjō-in del 25-26 oct se cancela
+    // (esa fecha quedó dentro del tramo con amigos), no se reprograma.
+    id: 'koyasan', n: 14, type: 'destino', name: 'Koyasan (shukubo)', short: 'Koyasan', flag: '🇯🇵',
     coords: [34.2129, 135.5836],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg/500px-Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg/500px-Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg'],
-    dates: 'candidato 10-11 nov', nights: 1, start: null, end: null,
-    pendingNote: 'En reubicación · candidato 10-11 nov (post-Seúl) · decisión final pendiente',
-    arrival: 'a definir (candidato: 10 nov, volando de Seúl a KIX + Nankai y funicular)', departure: 'a definir (candidato: 11 nov, sigue a Hakone)',
-    lodging: {
-      name: 'Hōjō-in (宝城院), Koyasan', type: 'Shukubo · alojamiento en templo ★★★',
-      guests: 'Habitación Familiar Deluxe · 2 personas',
-      area: '156 Koyasan, Koya, Wakayama 648-0211 · tatami, baño compartido y vista al jardín',
-      coords: [34.2150716, 135.5794376],
-      checkIn: '25 oct', checkOut: '26 oct', nights: 1, booked: true, checkInFrom: '15:00', checkInTo: '17:00', checkOutFrom: '08:00', checkOutBy: '09:00',
-      // La reserva del shukubo NO se tocó: sigue siendo 25-26 oct. Si Koyasan se
-      // reubica al 10-11 nov hay que reprogramarla o cancelarla (política estricta).
-      pending: 'Reserva viva del 25-26 oct: hay que reprogramarla al 10-11 nov o cancelarla · pendiente',
-      img: 'img/koyasan-hojoin-exterior.jpg',
-      imgs: ['img/koyasan-hojoin-exterior.jpg', 'img/koyasan-hojoin-cuarto.jpg', 'img/koyasan-hojoin-shojin.jpg', 'img/koyasan-hojoin-hondo.jpg'],
-      // Reservado por Booking (junio 2026) → la ficha también es la de Booking.
-      url: 'https://www.booking.com/hotel/jp/gao-ye-shan-su-fang-bao-cheng-yuan.html',
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Koyasan%20Shukubo%20Hojoin',
-      booking: {
-        // ref pendiente: falta rescatar el número del mail de confirmación de Booking.
-        provider: 'booking', ref: null,
-        checkIn: '25 oct · 15:00–17:00', checkOut: '26 oct · 8:00–9:00',
-        includes: 'Cena shojin ryori 17–19 h + desayuno 6:30–7:30',
-        phone: '+81 736-56-2431',
-        warn: 'Check-in estricto: llegar después de las 17 h cuenta como cancelación con 100% de cargo.'
-      },
-      note: 'Servicio matutino 6:30 · baño público 16–21 h (a la mañana no se puede usar el baño grande + la ducha) · shojin ryori vegetariano, no contemplan alergias · tatuajes OK en baños comunes. Hace más frío que el resto de Japón: llevar abrigo. Es un templo, no un hotel — esperar algunas incomodidades.'
-    },
-    // Sin fecha no hay tramo: el `leg` Kioto → Koyasan (25/10) se cae con la reubicación
-    // y el nuevo (Seúl → KIX → Koyasan) recién existe cuando se decida.
-    leg: null,
-    tempMax: '8-19', tempMin: '2-12', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Salió del 25-26 oct (ese tramo ahora es Kioto-Osaka-Tokio con amigos) y está en reubicación: el candidato es 10-11 nov, volando de Seúl a KIX, con Hakone corriéndose a 11-13 y Tokio final a 13-17. La reserva del Hōjō-in sigue viva con las fechas viejas.',
+    dates: '10-11 nov', nights: 1, start: '2026-11-10', end: '2026-11-11',
+    arrival: '10 nov (vuelo Seúl → KIX + Nankai rapi:t a Namba + línea Koya, funicular y bus local)', departure: '11 nov (baja a Namba, sigue a Naoshima)',
+    // Shukubo sin reservar (ambigüedad a propósito: no hay templo elegido todavía).
+    // La reserva vieja del Hōjō-in era del 25-26 oct y se CANCELA, no se reprograma.
+    lodgingTbd: 'Shukubo por reservar — templo a elegir. La reserva vieja del Hōjō-in (25-26 oct) quedó de la fecha anterior y se cancela.',
+    leg: { mode: '✈️🚆', time: '~6 h (vuelo+tren)', detail: 'Vuelo Seúl → Osaka (KIX, por comprar) + Nankai rapi:t KIX → Namba (~40 min) + Nankai línea Koya y funicular a Koyasan (~1 h 50) + bus local.',
+      dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Osaka%20Kansai', dirLabel: 'ver vuelos ↗',
+      via: [[37.5583, 126.7906], [34.4342, 135.2440]],
+      path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [34.4342, 135.2440] }, { m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.22771, 135.57749] }, { m: 'bus', to: [34.2129, 135.5836] }],
+      fromTerminal: { name: 'Seúl · Gimpo (GMP)', coords: [37.5583, 126.7906], mode: 'air' }, toTerminal: { name: 'Osaka · Kansai (KIX)', coords: [34.4342, 135.2440], mode: 'air' },
+      why: [
+        'El vuelo Seúl → KIX todavía no está comprado: define el aeropuerto de salida (Gimpo o Incheon) y a qué hora se llega al monte.',
+        'Los shukubo cierran el check-in temprano (típico 15:00–17:00) y la cena shojin ryori se sirve ~17:30 — conviene vuelo de la mañana.'
+      ] },
+    tempMax: '8-19', tempMin: '2-12', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Reubicado post-Seúl (decisión del 3/9): se vuela de Seúl a KIX el 10/11, se sube por Nankai + funicular, y al otro día se baja a Namba para seguir a Naoshima. El templo todavía no está elegido; la reserva vieja del Hōjō-in (25-26 oct) se cancela.',
     activities: [
       { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
       { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
@@ -1281,18 +1263,56 @@ const destinations = [
     daytrips: []
   },
   {
-    id: 'hakone', n: 14, type: 'destino', name: 'Hakone (onsen + Fuji)', short: 'Hakone', flag: '🇯🇵',
+    // Nodo nuevo del re-armado post-Seúl (3/9): Naoshima deja de ser day trip de Osaka
+    // para Martín y Cata y pasa a parada propia de 1 noche entre Koyasan y Hakone.
+    // (El day trip sugerido en la ficha de Osaka queda: sigue valiendo para Zava y Ari.)
+    id: 'naoshima', n: 15, type: 'destino', name: 'Naoshima (isla de arte)', short: 'Naoshima', flag: '🇯🇵',
+    coords: [34.4600, 133.9950],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/500px-Beachside_Torii%2C_Naoshima.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/500px-Beachside_Torii%2C_Naoshima.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Benesse_house01s3200.jpg/500px-Benesse_house01s3200.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Miyanoura_port09s3200.jpg/500px-Miyanoura_port09s3200.jpg'],
+    dates: '11-12 nov', nights: 1, start: '2026-11-11', end: '2026-11-12',
+    arrival: '11 nov (de Koyasan: Nankai a Namba + Shinkansen a Okayama + JR a Uno + ferry, ~4 h)', departure: '12 nov (ferry a Uno + JR + Shinkansen a Odawara, sigue a Hakone)',
+    // Sin reserva todavía; la decisión previa es DÓNDE: en la isla (poca oferta,
+    // Benesse House agotado) o enfrente en Uno, cruzando en el primer ferry.
+    lodgingTbd: 'Por reservar — antes hay que decidir dónde: en la isla o en Uno (puerto de enfrente, 20 min de ferry). Benesse House agotado.',
+    leg: { mode: '🚆⛴️', time: '~4 h', detail: 'Nankai Koyasan → Namba + Shinkansen Shin-Osaka → Okayama + JR a Uno (cambio en Chayamachi) + ferry a Miyanoura (~20 min).',
+      via: [[34.66293, 135.5023], [34.7335, 135.5002], [34.6660, 133.9180], [34.4938, 133.9524]],
+      path: [{ m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.4938, 133.9524] }, { m: 'ferry', to: [34.4560, 133.9737] }, { m: 'bus', to: [34.4600, 133.9950] }],
+      fromTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' }, toTerminal: { name: 'Puerto de Miyanoura', coords: [34.4560, 133.9737], mode: 'ferry' },
+      why: [
+        'Son cuatro tramos encadenados: salir de Koyasan a la mañana para llegar a la isla con la tarde entera de museos.',
+        'El ferry Uno → Miyanoura sale más o menos cada hora (20 min de cruce): el tren desde Okayama se elige contra ese horario.',
+        'El Chichu vende entrada anticipada online con franja horaria — sacarla fija la tarde del 11. Cierra los lunes (el 11-12 nov cae mié-jue).'
+      ] },
+    tempMax: '14-22', tempMin: '5-12', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'La isla de arte del Seto Interior: los museos de Tadao Ando semienterrados en la colina (Chichu, Lee Ufan, Benesse House), los pumpkins de Kusama y el Art House Project en las callecitas de Honmura. Se llega de Koyasan bajando a Namba y cruzando por Okayama + ferry (~4 h), se duerme una noche y el 12 se sigue a Hakone por el mismo ferry. Chichu pide entrada anticipada online y cierra los lunes.',
+    activities: [
+      { text: 'Red Pumpkin de Kusama (puerto de Miyanoura)', cat: 'museos', coords: [34.455976, 133.973823], url: "https://www.google.com/maps/search/?api=1&query=Red%20Pumpkin%20Naoshima" },
+      { text: 'Chichu Art Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.447748, 133.984717], url: "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum" },
+      { text: 'Lee Ufan Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.449089, 133.988698], url: "https://www.google.com/maps/search/?api=1&query=Lee%20Ufan%20Museum" },
+      { text: 'Valley Gallery', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.447899, 133.989434], url: "https://www.google.com/maps/search/?api=1&query=Valley%20Gallery%20Naoshima" },
+      { text: 'Benesse House Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.445228, 133.990658], url: "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum" },
+      { text: 'Yellow Pumpkin de Kusama (muelle de Benesse)', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.446385, 133.995645], url: "https://www.google.com/maps/search/?api=1&query=Yellow%20Pumpkin%20Naoshima" },
+      { text: 'Art House Project (Honmura)', cat: 'museos', coords: [34.458887, 133.996968], url: "https://www.google.com/maps/search/?api=1&query=Art%20House%20Project%20Naoshima" }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'hakone', n: 16, type: 'destino', name: 'Hakone (onsen + Fuji)', short: 'Hakone', flag: '🇯🇵',
     coords: [35.2324, 139.1069],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg/500px-Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Owakudani_%40_Hakone_%2810621374853%29.jpg/500px-Owakudani_%40_Hakone_%2810621374853%29.jpg'],
-    dates: '10-12 nov', nights: 2, start: '2026-11-10', end: '2026-11-12',
-    arrival: '10 nov (vuelo Seúl→Tokio + Romancecar a Hakone)', departure: '12 nov (Romancecar/Shinkansen a Tokio)',
+    dates: '12-14 nov', nights: 2, start: '2026-11-12', end: '2026-11-14',
+    arrival: '12 nov (de Naoshima: ferry + Shinkansen vía Okayama)', departure: '14 nov (Romancecar/Shinkansen a Tokio)',
     lodging: {
       name: 'Yoshiike Ryokan', type: '★★★★ · onsen',
       guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa',
       area: '~7 min a pie de Hakone-Yumoto, terminal del Romancecar · 597 Yumoto, Kanagawa',
       coords: [35.2286, 139.1058],
       checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: true, checkInFrom: '16:00',
+      // La reserva de Rakuten sigue con las fechas viejas (10-12): el rebooking al
+      // 12-14 está pendiente. No pisar `booking` con la fecha deseada (regla CLAUDE.md).
+      pending: 'Reserva viva del 10-12 nov: hay que correrla al 12-14 (cancelación gratis hasta el 2/11) · pendiente',
       img: 'img/yoshiike-exterior.jpg',
       imgs: ['img/yoshiike-exterior.jpg', 'img/yoshiike-cuarto.jpg', 'img/yoshiike-rotenburo.jpg', 'img/yoshiike-onsen.jpg'],
       // Reservado en Rakuten Travel JAPÓN (travel.rakuten.co.jp) → ficha del sitio japonés.
@@ -1308,14 +1328,16 @@ const destinations = [
       },
       note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido: la habitación es «Chisen-no-ma», del ala del estanque, frente al Sangetsuen. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Sin comidas incluidas → cenar en Yumoto o sumar la cena del ryokan aparte.'
     },
-    leg: { mode: '✈️🚆', time: '~4 h (vuelo+tren)', detail: 'Vuelo Seúl → Tokio (Haneda/Narita) + Odakyu Romancecar a Hakone.', dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗', via: [[37.5583, 126.7906], [35.5494, 139.7798]], path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.2324, 139.1069] }],
-      fromTerminal: { name: 'Seúl · Gimpo (GMP)', coords: [37.5583, 126.7906], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
+    leg: { mode: '⛴️🚄', time: '~5 h', detail: 'Ferry Miyanoura → Uno + JR a Okayama + Shinkansen Hikari a Odawara + Odakyu a Hakone-Yumoto.',
+      via: [[34.4938, 133.9524], [34.6660, 133.9180], [35.2564, 139.1553]],
+      path: [{ m: 'ferry', to: [34.4938, 133.9524] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [35.2324, 139.1069] }],
+      fromTerminal: { name: 'Puerto de Miyanoura', coords: [34.4560, 133.9737], mode: 'ferry' }, toTerminal: { name: 'Hakone-Yumoto', coords: [35.23328, 139.10359], mode: 'train' },
       why: [
-        'El vuelo Seúl → Tokio todavía no está comprado: define la hora del Romancecar a Hakone.',
+        'El Hikari que para en Odawara sale de Okayama pocas veces por día: el ferry de la mañana se elige contra ese tren.',
         'El ryokan espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
       ] },
-    tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Última escala antes de Tokio: onsen + Fuji + otoño. Se llega de Seúl (vuelo a Tokio + Odakyu Romancecar a Hakone) y se cierra subiendo a Tokio en Romancecar/Shinkansen (~1h45). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
+    tempMax: '13-21', tempMin: '8-15', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Última escala antes de Tokio: onsen + Fuji + otoño. Se llega de Naoshima (ferry a Uno + Okayama + Shinkansen a Odawara, ~5 h) y se cierra subiendo a Tokio en Romancecar/Shinkansen (~1h45). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
     activities: [
       { text: 'Castillo Odawara (puerta de entrada a Hakone)', cat: 'miradores', coords: [35.25055, 139.15355], url: "https://www.google.com/maps/search/?api=1&query=Castillo%20Odawara" },
       { text: 'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)', cat: 'museos', coords: [35.24516, 139.050727], url: "https://www.google.com/maps/search/?api=1&query=Museo%20al%20Aire%20Libre%20de%20Hakone" },
@@ -1330,12 +1352,12 @@ const destinations = [
     ]
   },
   {
-    id: 'tokio-final', n: 15, type: 'destino', name: 'Tokio (final, pre-vuelo)', short: 'Tokio fin', flag: '🇯🇵',
+    id: 'tokio-final', n: 17, type: 'destino', name: 'Tokio (final, pre-vuelo)', short: 'Tokio fin', flag: '🇯🇵',
     coords: [35.6895, 139.7000],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Meiji_Jingu_Stadium_aerial_view.jpg/500px-Meiji_Jingu_Stadium_aerial_view.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg'],
-    dates: '12-17 nov', nights: 5, start: '2026-11-12', end: '2026-11-17',
-    arrival: '12 nov (desde Hakone)', departure: '17 nov 17:45 (vuelo UA6 desde Narita/NRT)', lodging: null,
+    dates: '14-17 nov', nights: 3, start: '2026-11-14', end: '2026-11-17',
+    arrival: '14 nov (desde Hakone)', departure: '17 nov 17:45 (vuelo UA6 desde Narita/NRT)', lodging: null,
     leg: { mode: '🚆', time: '~1 h 45', detail: 'Romancecar/Shinkansen Hakone → Tokio.',
       fromTerminal: { name: 'Hakone-Yumoto', coords: [35.23328, 139.10359], mode: 'train' }, toTerminal: { name: 'Shinjuku', coords: [35.68961, 139.70057], mode: 'train' },
       why: [
@@ -1355,8 +1377,8 @@ const destinations = [
       { layover: 'escala Houston · 3 h 50' },
       { route: 'IAH → EZE', no: 'UA831', when: '17 nov 18:30 → 18 nov 7:20', departure: '2026-11-17T18:30', arrival: '2026-11-18T07:20', aircraft: 'B777-200 · 9h50', tracker: 'https://flightaware.com/live/flight/UAL831' }
     ] },
-    tempMax: '11-24', tempMin: '4-14', weatherUpdated: '2026-09-02', weatherMode: 'climatología',
-    intro: 'Cierre del viaje: 5 noches de vuelta en Tokio (llega de Hakone en Romancecar/Shinkansen, ~1h45; última noche 16/11; el 17 es el día previo al vuelo de la tarde), como buffer pre-vuelo antes del UA6 que sale de Narita el 17/11 17:45. A mediados de noviembre Tokio entra en pico de ginkgo amarillo y koyo (Meiji Jingu Gaien, Rikugien, Koishikawa). Acá van los que quedaron del arranque: teamLab Borderless, museos, Yanaka y compras sin apuro.',
+    tempMax: '13-22', tempMin: '4-14', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
+    intro: 'Cierre del viaje: 3 noches de vuelta en Tokio (llega de Hakone en Romancecar/Shinkansen, ~1h45; última noche 16/11; el 17 es el día previo al vuelo de la tarde), como buffer pre-vuelo antes del UA6 que sale de Narita el 17/11 17:45. A mediados de noviembre Tokio entra en pico de ginkgo amarillo y koyo (Meiji Jingu Gaien, Rikugien, Koishikawa). Acá van los que quedaron del arranque: teamLab Borderless, museos, Yanaka y compras sin apuro.',
     activities: [
       { text: 'Yanaka Ginza', group: 'Yanaka + Nezu + Sendagi', cat: 'barrios', coords: [35.727692, 139.765537] },
       { text: 'Nezu Shrine', group: 'Yanaka + Nezu + Sendagi', cat: 'templos', coords: [35.720134, 139.76077] },
@@ -1378,10 +1400,11 @@ const destinations = [
 ];
 
 // LA CADENA del viaje: los nodos que efectivamente se encadenan uno atrás del otro.
-// Un nodo `pendiente` (hoy Koyasan) sigue estando en `destinations` —tiene ficha, foto,
-// hospedaje reservado y pin en el mapa— pero NO tiene fechas, así que no puede estar en
-// la secuencia: nada de líneas de ruta hacia él, ni etiqueta de fecha, ni un lugar en la
-// curva de temperatura. Todo lo que lee "el anterior" / "el siguiente" usa `chain`.
+// Un nodo `pendiente` (hoy ninguno; Koyasan lo fue del 25/8 al 3/9) sigue estando en
+// `destinations` —tiene ficha, foto y pin en el mapa— pero NO tiene fechas, así que no
+// puede estar en la secuencia: nada de líneas de ruta hacia él, ni etiqueta de fecha, ni
+// un lugar en la curva de temperatura. Todo lo que lee "el anterior" / "el siguiente"
+// usa `chain`.
 const isPendingStop = d => d.type === 'pendiente';
 const chain = destinations.filter(d => !isPendingStop(d));
 // Tramo compartido: el nodo lo declara con `sharedWith` (con quién). Es un atributo del
@@ -1406,8 +1429,8 @@ const orphanPlaces = [
   { name: "Aomori Museum of Art", lat: 40.807416, lon: 140.70086, url: "https://www.google.com/maps/search/?api=1&query=Aomori%20Museum%20of%20Art" },
   { name: "Aomori", lat: 40.82222, lon: 140.747352, url: "https://www.google.com/maps/search/?api=1&query=Aomori" },
   { name: "Ginzan Onsen", lat: 38.570618, lon: 140.530546, url: "https://www.google.com/maps/search/?api=1&query=Ginzan%20Onsen" },
-  { name: "Chichu Art Museum", lat: 34.447748, lon: 133.984717, url: "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum" },
-  { name: "Benesse House Oval", lat: 34.446669, lon: 133.991399, url: "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Oval" },
+  // Chichu Art Museum y Benesse House Oval salieron de acá el 3/9: Naoshima pasó a ser
+  // un destino de la cadena y esos guardados ya viven como actividades del nodo.
   { name: "Shirakawa", lat: 35.681455, lon: 139.803403, url: "https://www.google.com/maps/search/?api=1&query=Shirakawa" },
 ];
 
@@ -1596,6 +1619,7 @@ const airports = [
   { code: 'CTS', name: 'New Chitose · Sapporo', coords: [42.7752, 141.6923] },
   { code: 'KMQ', name: 'Komatsu · Kanazawa', coords: [36.3946, 136.4076] },
   { code: 'GMP', name: 'Seúl Gimpo', coords: [37.5583, 126.7906] },
+  { code: 'KIX', name: 'Osaka Kansai', coords: [34.4342, 135.2440] },
   // Américas plotadas con lng+360 para que el vuelo cruce el Pacífico por la DERECHA
   // (en un mapa centrado en Asia, las Américas quedan al este). Si no, la línea daba
   // la vuelta al mundo por el lado equivocado (Europa/África).
