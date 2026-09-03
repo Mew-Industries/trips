@@ -89,8 +89,10 @@ Tres cosas hacen que embeber el reel no sea un problema:
   suite prueba las dos cosas con touch de verdad (CDP), que es el criterio duro
   de la ronda 2.
 
-**Cuándo aparece el mini-mapa**: cuando el lugar no tiene ningún reel que lo
-muestre (39 de 121 desde la ronda 5) y cuando el embed no llegó a tiempo. Es un
+**Cuándo aparece el mini-mapa**: cuando el lugar no tiene ni reel que lo muestre
+ni galería curada, y cuando el embed no llegó a tiempo en una card sin galería.
+Desde la task 590 es el camino raro de nuevo: las 39 cards que la ronda 5 dejó
+apoyadas en el mapa ahora tienen fotos propias (abajo, "La galería"). Es un
 Leaflet sin un solo control y con `pointer-events: none` — el dedo que lo toca es
 el que está swipeando. Debajo de todo siempre queda dibujado algo (el frame
 estático si lo hay, el lavado de la categoría si no), así que la card nunca está
@@ -112,6 +114,20 @@ Instagram** apenas arranca, y eso una página de error no lo puede fingir. Llega
 en ~1 s (medido sobre 8 posteos distintos). El timeout de 6,5 s destapa el mapa,
 pero el oído queda abierto 30 s más: con mala señal el reel puede llegar tarde,
 y cuando llega se pone encima.
+
+## La galería
+
+`images.js` (`window.VOTAR_IMAGES`, keyed por `place_id`) es el tercer archivo
+**curado a mano** (task 590): 2-4 fotos que muestran al lugar, para los 39
+cuyo reel es un roundup que no los muestra. Casi todas son thumbs de Wikimedia
+Commons hotlinkeadas (el `File:` y la licencia van comentados al lado de cada
+URL); Cat Cafe MOCHA no está en Commons y sus fotos se bajaron del sitio
+oficial a `img/`. La galería de la card junta el frame del reel (si lo hay) con
+estas — la primera del total es el thumbnail — y se pasa con flechas y dots,
+sólo en la card de arriba. Flechas y no swipe, porque el swipe horizontal ya es
+el voto; en los extremos la flecha desaparece, no hay vuelta. Si la card además
+embebe un reel, pasar de la primera foto lo esconde (`gal-off`) y volver a la
+primera lo devuelve.
 
 ## El texto de la card
 

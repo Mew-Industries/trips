@@ -111,10 +111,17 @@
   // card muestra eso. La `note` de reels.js queda de red por si entra un lugar
   // nuevo antes de que alguien le escriba la descripción.
   var DESCS = window.VOTAR_DESCS || {};
+  // `images.js` también es curado a mano (task 590): imágenes que muestran al
+  // lugar cuando su reel es un roundup que no lo muestra. La galería de la
+  // card junta el frame del reel (si lo hay) con estas; la primera del total
+  // es el thumbnail.
+  var IMAGES = window.VOTAR_IMAGES || {};
   var PLACES = (window.SOURCE_THINGS || []).map(function (t) {
     var id = placeId(t.name);
     var sources = (t.sources || []).filter(function (s) { return s.type === 'instagram_reel'; });
     var media = MEDIA.mediaReel(id, sources, REELS);
+    var frame = frameOf(id, media);
+    var gallery = (frame ? [frame] : []).concat(IMAGES[id] || []);
     return {
       id: id,
       name: t.name,
@@ -125,7 +132,8 @@
       cat: catOf(t.name, t.cat),
       lat: typeof t.lat === 'number' ? t.lat : null,
       lon: typeof t.lon === 'number' ? t.lon : null,
-      img: frameOf(id, media),
+      img: gallery[0] || null,
+      gallery: gallery,
       // El link "Ver el reel" apunta a lo que se está viendo cuando hay embed;
       // sin embed sigue siendo la procedencia, que es dato real igual.
       reel: media ? media.url : (sources[0] ? sources[0].url : null),
@@ -233,6 +241,10 @@
     var links = [];
     if (p.reel) links.push('<a href="' + esc(p.reel) + '" target="_blank" rel="noopener">Ver el reel →</a>');
     links.push('<a href="' + esc(p.maps) + '" target="_blank" rel="noopener">Maps →</a>');
+    // La galería sólo se opera en la card de arriba (como el "más" y el
+    // escudo): las de atrás se ven por el borde y no se tocan. Flechas y no
+    // swipe, porque el swipe horizontal ya es el voto.
+    var gal = top && p.gallery.length > 1;
     return '' +
       '<div class="card-media">' +
         (p.img ? '<img class="card-img" src="' + esc(p.img) + '" alt="" draggable="false">'
@@ -241,6 +253,11 @@
         // Instagram. Sólo la card de arriba lo necesita: es la única que
         // embebe y la única que se arrastra.
         (top && p.ig ? '<div class="media-shield"></div>' : '') +
+        (gal ? '<button type="button" class="gal-nav gal-prev" aria-label="Foto anterior" disabled>‹</button>' +
+               '<button type="button" class="gal-nav gal-next" aria-label="Foto siguiente">›</button>' +
+               '<div class="gal-dots">' + p.gallery.map(function (_, i) {
+                 return '<span class="gal-dot' + (i ? '' : ' on') + '"></span>';
+               }).join('') + '</div>' : '') +
       '</div>' +
       (top && p.ig ? '<button type="button" class="media-back">↔ deslizar</button>' : '') +
       '<span class="stamp stamp-si">Sí</span>' +
@@ -295,10 +312,13 @@
   function mountMedia(card, p) {
     var media = card.querySelector('.card-media');
     if (!media) return;
+    // Con galería curada la card ya muestra al lugar: el mini-mapa no tiene
+    // que taparla, ni de fallback.
+    var galed = p.gallery.length > 1;
     // Sin reel no hay nada que embeber: si el lugar tiene coordenada, la card
     // muestra dónde queda. Hoy todos los lugares vienen de un reel, así que este
     // camino es el del dato que todavía no existe (y el del embed que falla).
-    if (!p.ig) return mapFallback(card, p);
+    if (!p.ig) { if (!galed) mapFallback(card, p); return; }
 
     var f = document.createElement('iframe');
     f.className = 'media-ig';
@@ -330,11 +350,11 @@
     // Si a los pocos segundos no dio señales, abajo aparece el mapa — pero el
     // oído queda abierto un rato más: con mala señal el reel puede llegar
     // tarde, y cuando llega se pone encima. El mapa era el mientras tanto.
-    timer = setTimeout(function () { mapFallback(card, p); }, IG_TIMEOUT);
+    timer = setTimeout(function () { if (!galed) mapFallback(card, p); }, IG_TIMEOUT);
     giveUp = setTimeout(function () { window.removeEventListener('message', alive); }, IG_GIVEUP);
     f.addEventListener('error', function () {
       clearTimeout(timer);
-      mapFallback(card, p);
+      if (!galed) mapFallback(card, p);
     });
   }
 
@@ -420,6 +440,37 @@
     });
   }
 
+  /* La galería de la card de arriba. Flechas sin vuelta en los extremos (la
+     anterior se apaga en la primera, la siguiente en la última) y precarga de
+     la vecina para que el paso no parpadee. Si la card además embebe un reel,
+     pasar de la primera foto lo esconde (`gal-off`) y volver lo devuelve: el
+     reel sigue donde está, la galería no lo pisa. */
+  function galleryInit(card, p) {
+    if (p.gallery.length < 2) return;
+    var img = card.querySelector('.card-img');
+    var prev = card.querySelector('.gal-prev'), next = card.querySelector('.gal-next');
+    var dots = card.querySelectorAll('.gal-dot');
+    if (!img || !prev || !next) return;
+    var i = 0, warmed = {};
+    function warm(n) {
+      if (n < 1 || n >= p.gallery.length || warmed[n]) return;
+      warmed[n] = 1;
+      var pre = new Image(); pre.src = p.gallery[n];
+    }
+    function show(n) {
+      i = Math.max(0, Math.min(p.gallery.length - 1, n));
+      img.src = p.gallery[i];
+      prev.disabled = i === 0;
+      next.disabled = i === p.gallery.length - 1;
+      dots.forEach(function (d, k) { d.classList.toggle('on', k === i); });
+      card.classList.toggle('gal-off', i > 0);
+      warm(i + 1);
+    }
+    prev.addEventListener('click', function () { show(i - 1); });
+    next.addEventListener('click', function () { show(i + 1); });
+    warm(1);
+  }
+
   function render() {
     var left = queueLeft();
     var total = pool().length;
@@ -440,6 +491,7 @@
     if (top) {
       drag(top);
       noteToggle(top);
+      galleryInit(top, visible[0]);
       var back = top.querySelector('.media-back');
       if (back) back.addEventListener('click', function () { top.classList.remove('playing'); });
       // El embed pesa medio mega: se monta un tick después de que la card ya
@@ -539,8 +591,9 @@
     }
 
     card.addEventListener('pointerdown', function (e) {
-      // Los links, el "más" y el botón de volver al mazo se tocan, no se arrastran.
-      if (e.target.closest('a, .media-back, .note-more')) return;
+      // Los links, el "más", el botón de volver al mazo y las flechas de la
+      // galería se tocan, no se arrastran.
+      if (e.target.closest('a, .media-back, .note-more, .gal-nav')) return;
       fromShield = !!e.target.closest('.media-shield');
       scroller = scrollableNote(e.target);
       on = true; sx = e.clientX; sy = ly = e.clientY; dx = dy = 0;

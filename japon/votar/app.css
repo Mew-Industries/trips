@@ -132,6 +132,32 @@ button { font: inherit; }
 }
 .card.playing .media-back { display: block; }
 
+/* Galería (task 590): varias fotos del lugar en la misma card. Flechas y no
+   swipe —el swipe horizontal ya es el voto— y dots arriba, donde el scrim no
+   los apaga. En los extremos la flecha desaparece: no hay vuelta. */
+.gal-nav {
+  position: absolute; z-index: 4; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; padding: 0 0 2px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20,18,14,0.42); color: #fff; font-size: 21px; line-height: 1;
+  backdrop-filter: blur(2px);
+}
+.gal-prev { left: 10px; }
+.gal-next { right: 10px; }
+.gal-nav:disabled { opacity: 0; pointer-events: none; }
+.gal-dots {
+  position: absolute; z-index: 4; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 5px; pointer-events: none;
+}
+.gal-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.45); box-shadow: 0 0 3px rgba(0,0,0,0.35);
+}
+.gal-dot.on { background: #fff; }
+/* Pasada la primera foto, la que manda es la galería: el reel embebido, el
+   mini-mapa y el escudo se corren hasta que se vuelve al principio. */
+.card.gal-off .media-ig, .card.gal-off .media-map, .card.gal-off .media-shield { display: none; }
+
 /* Scrim: el fondo es un reel cualquiera, el texto tiene que leerse igual. */
 .card.on-dark::after {
   content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;

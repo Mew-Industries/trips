@@ -244,6 +244,18 @@ const settle = (page) => page.waitForFunction(
     await page.route('**instagram.com**', (r) => r.abort());
     await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.card.top');
+    // Desde la task 590 las cards con galería curada no caen al mapa: la foto
+    // ya muestra el lugar. El mapa es el camino de las que quedan sin nada, así
+    // que se avanza hasta una de esas (sin galería y con coordenada).
+    const needsHop = () => page.evaluate(() => {
+      const p = window.VOTAR_PLACES.find(
+        (x) => x.id === document.querySelector('.card.top').dataset.place);
+      return p.gallery.length > 1 || p.lat == null;
+    });
+    for (let hops = 0; hops < 130 && await needsHop(); hops++) {
+      await page.locator('#b-no').click();
+      await page.waitForTimeout(350);
+    }
     await page.waitForSelector('.card.top.map-on', { timeout: 30000 })
       .then(() => ok('si el embed no llega, la card muestra el mini-mapa del lugar', true))
       .catch(() => ok('si el embed no llega, la card muestra el mini-mapa del lugar', false, 'no apareció .map-on'));
@@ -262,6 +274,62 @@ const settle = (page) => page.waitForFunction(
     await touchSwipe(page, cdp, 200, 0);
     ok('y con el mapa de fondo el swipe táctil vota igual', (await topName(page)) !== nm,
       `${nm} → ${await topName(page)}`);
+    await ctx.close();
+  }
+
+  // --------------------------------------------- galería curada (task 590)
+  {
+    const ctx = await browser.newContext({
+      viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2,
+    });
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page);
+    await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.card.top');
+
+    const cov = await page.evaluate(() => {
+      const g = window.VOTAR_PLACES.filter((p) => p.gallery.length > 1);
+      return {
+        conGaleria: g.length,
+        sinNada: window.VOTAR_PLACES.filter((p) => !p.ig && !p.gallery.length).length,
+        fueraDeRango: g.filter((p) => p.gallery.length > 4).length,
+      };
+    });
+    ok('ninguna card quedó sin reel propio ni galería', cov.sinNada === 0,
+      `${cov.conGaleria} cards con galería`);
+    ok('ninguna galería se pasa de 4 imágenes', cov.fueraDeRango === 0);
+
+    for (let hops = 0; hops < 130 &&
+      (await page.locator('.card.top .gal-nav').count()) === 0; hops++) {
+      await page.locator('#b-no').click();
+      await page.waitForTimeout(300);
+    }
+    const gname = await topName(page);
+    await settle(page);
+    ok('la card con galería muestra su foto curada y no el mini-mapa',
+      (await page.locator('.card.top .card-img').count()) === 1 &&
+      (await page.locator('.card.top .media-map').count()) === 0, gname);
+
+    const src0 = await page.locator('.card.top .card-img').getAttribute('src');
+    ok('en la primera foto la flecha de atrás está apagada',
+      await page.locator('.card.top .gal-prev').isDisabled());
+    await page.locator('.card.top .gal-next').click();
+    await page.waitForTimeout(400);
+    ok('la flecha pasa a la segunda foto y el dot la sigue',
+      (await page.locator('.card.top .card-img').getAttribute('src')) !== src0 &&
+      await page.locator('.card.top .gal-dot').nth(1).evaluate((e) => e.classList.contains('on')));
+    await settle(page);
+    await page.screenshot({ path: path.join(SHOTS, 'votar-galeria.png') });
+    for (let i = 0; i < 4 && !(await page.locator('.card.top .gal-next').isDisabled()); i++) {
+      await page.locator('.card.top .gal-next').click();
+      await page.waitForTimeout(250);
+    }
+    ok('en la última no hay vuelta: la flecha de adelante se apaga',
+      await page.locator('.card.top .gal-next').isDisabled());
+    const gn = await topName(page);
+    await touchSwipe(page, cdp, 200, 0);
+    ok('con la galería abierta el swipe táctil vota igual', (await topName(page)) !== gn,
+      `${gn} → ${await topName(page)}`);
     await ctx.close();
   }
   await clearVotes(TOKEN2);
