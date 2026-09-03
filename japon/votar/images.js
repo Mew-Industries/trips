@@ -1,8 +1,10 @@
-/* images.js — galería de imágenes curadas por lugar (task 590).
+/* images.js — galería de imágenes curadas por lugar (task 590, ampliado 591).
  *
  * Archivo CURADO A MANO, como descriptions.js: los generadores no lo tocan.
  * Cubre los lugares cuyo reel es multi-lugar y no los muestra (los que la 559
- * dejó con mini-mapa de fondo): acá cada uno tiene 2-4 imágenes que SÍ son el
+ * dejó con mini-mapa de fondo) y, desde la 591, los que sí embeben un video
+ * multi-lugar pero cuyo poster estático muestra otro de los lugares del
+ * roundup: acá cada uno tiene 2-4 imágenes que SÍ son el
  * lugar. La primera es el thumbnail de la card; el resto se pasa con la
  * galería (app.js).
  *
@@ -204,5 +206,67 @@ window.VOTAR_IMAGES = {
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Fallinyoyogipark-nov30-2014.jpg/960px-Fallinyoyogipark-nov30-2014.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Fallinyoyogipark-nov30-2014.jpg · CC BY-SA 4.0
   "https://upload.wikimedia.org/wikipedia/commons/4/47/Bridge_Yoyogipark.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",  // File:Bridge Yoyogipark.JPG · CC BY 3.0
   "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Cherry_blossom_at_Yoyogi_Park_during_covid-19_2.jpg/960px-Cherry_blossom_at_Yoyogi_Park_during_covid-19_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Cherry blossom at Yoyogi Park during covid-19 2.jpg · CC0
+ ],
+
+ /* ---- Ronda 2 del scope (task 591): cards cuyo reel multi-lugar SÍ las
+    muestra en video (showsEach) pero cuyo poster de embed —lo único estático
+    que se ve antes del play— es de otro de los lugares del roundup (el caso
+    Yanagawa, que el filtro geográfico dejó afuera). Con galería curada el
+    thumbnail es una foto real del lugar y el poster ajeno nunca es lo primero
+    que se ve. Clubs y talleres sin Commons: fotos de su sitio oficial en
+    img/ (mismo criterio que Cat Cafe MOCHA). */
+ "p-atom-tokyo": [
+  "img/atom-shibuya-1.jpg",  // atom-tokyo.com (sitio oficial, main floor) · official-site
+  "img/atom-shibuya-2.jpg",  // atomshibuya.com (sitio oficial, VIP) · official-site
+ ],
+ "p-baia": [
+  "img/baia-shibuya-1.jpg",  // baiatokyo.com (sitio oficial, corredor de entrada) · official-site
+  "img/baia-shibuya-2.jpg",  // baiatokyo.com (sitio oficial, lounge) · official-site
+ ],
+ "p-club-harlem": [
+  "img/harlem-shibuya-1.jpg",  // harlem.co.jp (sitio oficial, show en el escenario) · official-site
+  "img/harlem-shibuya-2.jpg",  // harlem.co.jp (sitio oficial, banda en vivo) · official-site
+ ],
+ "p-karaki-mokkou": [
+  "img/karaki-kawagoe-1.jpg",  // karakimokkou.com (sitio oficial, muestrario de ohashi) · official-site
+  "img/karaki-kawagoe-2.jpg",  // karakimokkou.com (sitio oficial, banco de trabajo) · official-site
+ ],
+ "p-kichijoji": [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/%E5%90%89%E7%A5%A5%E5%AF%BA%E3%82%B5%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E5%95%86%E5%BA%97%E8%A1%97_%E5%90%89%E7%A5%A5%E5%AF%BA%E9%A7%85%E5%81%B4_%282025%E5%B9%B4%29.jpg/960px-%E5%90%89%E7%A5%A5%E5%AF%BA%E3%82%B5%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E5%95%86%E5%BA%97%E8%A1%97_%E5%90%89%E7%A5%A5%E5%AF%BA%E9%A7%85%E5%81%B4_%282025%E5%B9%B4%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:吉祥寺サンロード商店街 吉祥寺駅側 (2025年).jpg · CC0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Gate_of_the_Kichijoji_Sunroad_at_Night.jpg/960px-Gate_of_the_Kichijoji_Sunroad_at_Night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Gate of the Kichijoji Sunroad at Night.jpg · CC BY-SA 4.0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8d/Kichijoji_%E5%90%89%E7%A5%A5%E5%AF%BA_%2850683311408%29.jpg/960px-Kichijoji_%E5%90%89%E7%A5%A5%E5%AF%BA_%2850683311408%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Kichijoji 吉祥寺 (50683311408).jpg · CC BY-SA 2.0
+ ],
+ "p-mitsuki": [
+  "img/mitsuki-shibuya-1.jpg",  // mitsuki-tokyo.com (sitio oficial, la luna de la entrada) · official-site
+  "img/mitsuki-shibuya-2.jpg",  // mitsuki-tokyo.com (sitio oficial, cabina y barra) · official-site
+ ],
+ "p-nakameguro": [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Nakameguro_at_hanami_season_10.jpg/960px-Nakameguro_at_hanami_season_10.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Nakameguro at hanami season 10.jpg · CC0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/River_in_Nakameguro_4.jpg/960px-River_in_Nakameguro_4.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:River in Nakameguro 4.jpg · CC0
+ ],
+ "p-oh-jo-building": [
+  "https://upload.wikimedia.org/wikipedia/commons/6/67/Kabukicho_royal_castle_building_2008_may.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",  // File:Kabukicho royal castle building 2008 may.jpg · CC BY 3.0 — única foto libre del 王城ビル
+ ],
+ "p-rainbow-bridge": [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Rainbow_Bridge%2C_Tokyo%2C_West_view_20190419_1.jpg/960px-Rainbow_Bridge%2C_Tokyo%2C_West_view_20190419_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Rainbow Bridge, Tokyo, West view 20190419 1.jpg · CC BY-SA 4.0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Rainbow_Bridge%2C_Tokyo_20201112.jpg/960px-Rainbow_Bridge%2C_Tokyo_20201112.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Rainbow Bridge, Tokyo 20201112.jpg · CC BY-SA 4.0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Rainbow_Bridge%2C_Tokyo%2C_South_view_from_Odaiba_20190419_1.jpg/960px-Rainbow_Bridge%2C_Tokyo%2C_South_view_from_Odaiba_20190419_1.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Rainbow Bridge, Tokyo, South view from Odaiba 20190419 1.jpg · CC BY-SA 4.0
+ ],
+ "p-todoroki-valley": [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Todoroki_Valley_%E7%AD%89%E3%80%85%E5%8A%9B%E6%B8%93%E8%B0%B7_-_panoramio.jpg/960px-Todoroki_Valley_%E7%AD%89%E3%80%85%E5%8A%9B%E6%B8%93%E8%B0%B7_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Todoroki Valley 等々力渓谷 - panoramio.jpg · CC BY 3.0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Fudo_no_Taki_-_Todoroki_Valley_-_Tokyo%2C_Japan_-_DSC09502.jpg/960px-Fudo_no_Taki_-_Todoroki_Valley_-_Tokyo%2C_Japan_-_DSC09502.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Fudo no Taki - Todoroki Valley - Tokyo, Japan - DSC09502.jpg · CC0
+ ],
+ "p-togoshi-ginza": [
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Togoshi_Ginza_at_Night.jpg/960px-Togoshi_Ginza_at_Night.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Togoshi Ginza at Night.jpg · CC BY 2.0
+  "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Togoshi_ginza_2005_aug.jpg/960px-Togoshi_ginza_2005_aug.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",  // File:Togoshi ginza 2005 aug.jpg · CC BY-SA 3.0
+ ],
+ "p-vent": [
+  "img/vent-omotesando-1.jpg",  // vent-tokyo.net (sitio oficial, el sound system) · official-site
+  "img/vent-omotesando-2.jpg",  // vent-tokyo.net (sitio oficial, subwoofers) · official-site
+ ],
+ "p-warp-shinjuku": [
+  "img/warp-shinjuku-1.jpg",  // warp-shinjuku.jp (sitio oficial, main floor) · official-site
+  "img/warp-shinjuku-2.jpg",  // warp-shinjuku.jp (sitio oficial, segunda sala) · official-site
+  "img/warp-shinjuku-3.jpg",  // warp-shinjuku.jp (sitio oficial, barra) · official-site
  ],
 };

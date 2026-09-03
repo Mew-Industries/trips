@@ -334,6 +334,53 @@ const settle = (page) => page.waitForFunction(
   }
   await clearVotes(TOKEN2);
 
+  // --------------------------- recorte geográfico (ronda 2 · task 591)
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const page = await ctx.newPage();
+    // Un voto de un lugar fuera de scope, sembrado por API como si hubiera
+    // quedado de antes del recorte: tiene que seguir en la db sin mover el
+    // contador ni dejar un "deshacer" que no hace nada visible.
+    await api('/votes', {
+      method: 'PUT', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token: TOKEN2, place_id: 'p-tottori-sand-dunes', vote: 'si' }),
+    });
+    await page.goto(`${BASE}/japon/votar/?u=${TOKEN2}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.card.top');
+
+    // Las dos listas están escritas a mano a propósito (como EXCLUIDAS): son
+    // la decisión de producto —el mazo es del tramo con amigos: Kioto, Osaka,
+    // Tokio y sus day trips— y no un espejo de SCOPE_KM. Si alguien afloja el
+    // radio sin que nadie lo pida, este chequeo se cae.
+    const FUERA = ['p-tottori-sand-dunes', 'p-itsukushima-shrine', 'p-ghibli-park',
+      'p-21st-century-museum-of-contemporary-art', 'p-yanagawa', 'p-benesse-house-museum',
+      'p-hill-of-the-buddha', 'p-aomori-museum-of-art'];
+    const DENTRO = ['p-underground-discharge-channel', 'p-la-collina-omihachiman', 'p-kait-workshop-plaza'];
+    const ids = await page.evaluate(() => window.VOTAR_PLACES.map((p) => p.id));
+    const colados = FUERA.filter((id) => ids.includes(id));
+    ok('ningún lugar de otro tramo del viaje aparece en el mazo', colados.length === 0,
+      colados.length ? `colados: ${colados.join(', ')}` : `${ids.length} lugares, todos a un day trip de una base`);
+    const faltan = DENTRO.filter((id) => !ids.includes(id));
+    ok('y los day trips reales siguen adentro', faltan.length === 0,
+      faltan.length ? `faltan: ${faltan.join(', ')}` : DENTRO.join(', '));
+    const sinCoord = await page.evaluate(() =>
+      window.VOTAR_PLACES.filter((p) => p.lat == null || p.lon == null).length);
+    ok('todo el mazo tiene coordenada (el filtro es por distancia)', sinCoord === 0,
+      `${ids.length} lugares`);
+
+    // El denominador del progreso es el mazo filtrado, no la db.
+    const total = await page.evaluate(() => window.VOTAR_PLACES.length);
+    ok('el voto fuera de scope no mueve el contador',
+      (await page.locator('#pg-count').innerText()) === `0/${total}`,
+      `${await page.locator('#pg-count').innerText()} con p-tottori-sand-dunes=si en la db`);
+    ok('ni habilita un "deshacer" fantasma', await page.locator('#b-undo').isDisabled());
+    const server = await api(`/votes?u=${TOKEN2}`);
+    ok('pero el voto viejo sigue guardado en la db', server.votes['p-tottori-sand-dunes'] === 'si',
+      JSON.stringify(server.votes));
+    await ctx.close();
+  }
+  await clearVotes(TOKEN2);
+
   // ------------------------------------- descripciones largas (ronda 3)
   {
     const ctx = await browser.newContext({

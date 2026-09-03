@@ -89,6 +89,34 @@
   // tocar este archivo.
   var SKIP_CATS = { 'comida': 1, 'bar-noche': 1, 'compras': 1, 'otro': 1 };
 
+  // El mazo es para el tramo CON AMIGOS (Kioto 19-24 · Osaka 24-27 · Tokio
+  // 27-31, ronda 2 de review): sólo entra lo que queda a un day trip de esas
+  // tres bases — a lo sumo SCOPE_KM de alguno de los tres centros. Eso deja
+  // adentro Nara, Uji, Yokohama, Kamakura o Kawagoe, y afuera Fukuoka,
+  // Hiroshima, Kanazawa, Tottori y demás tramos de otra parte del viaje.
+  // Se filtra por distancia y no por `area` porque el área viene a veces vacía
+  // o mal escrita; lat/lon lo trae siempre el pipeline. `data/reels.js` no se
+  // toca: es la fuente compartida del site — el recorte es sólo de esta app.
+  var SCOPE_CENTERS = [
+    [35.68, 139.69],   // Tokio
+    [35.01, 135.77],   // Kioto
+    [34.69, 135.50]    // Osaka
+  ];
+  var SCOPE_KM = 60;
+  function kmFrom(c, lat, lon) {
+    var rad = Math.PI / 180;
+    var dLat = (lat - c[0]) * rad, dLon = (lon - c[1]) * rad;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(c[0] * rad) * Math.cos(lat * rad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * 6371 * Math.asin(Math.sqrt(a));
+  }
+  // Sin coordenada no se puede saber dónde queda, y este filtro existe porque
+  // ya se coló medio Japón: un lugar sin lat/lon queda afuera, no adentro.
+  function inScope(p) {
+    if (p.lat == null || p.lon == null) return false;
+    return SCOPE_CENTERS.some(function (c) { return kmFrom(c, p.lat, p.lon) <= SCOPE_KM; });
+  }
+
   var FRAMES = window.VOTAR_FRAMES || {};
 
   /* Qué reel puede ser el fondo de una card: la regla vive en media-reel.js,
@@ -141,7 +169,7 @@
       maps: 'https://www.google.com/maps/search/?api=1&query=' +
         encodeURIComponent(t.name + (t.area ? ' ' + t.area : ''))
     };
-  }).filter(function (p) { return !SKIP_CATS[p.cat]; });
+  }).filter(function (p) { return !SKIP_CATS[p.cat] && inScope(p); });
   // Un lugar puede aparecer en dos reels: se vota una sola vez.
   var seen = {};
   PLACES = PLACES.filter(function (p) { return seen[p.id] ? false : (seen[p.id] = true); });
@@ -655,8 +683,13 @@
     votes = serverVotes || {};
     // La pila de deshacer se reconstruye con el orden en que el servidor
     // registró cada voto: si no, cerrar la app y volver dejaría el último
-    // swipe sin manera de arrepentirse.
-    history = (serverHistory || []).slice();
+    // swipe sin manera de arrepentirse. Sólo con lo que está en el mazo: los
+    // votos de lugares que un recorte posterior dejó afuera siguen en la DB,
+    // pero un "deshacer" sobre una card que no se ve borraría un voto sin que
+    // pase nada en pantalla.
+    var inDeck = {};
+    PLACES.forEach(function (p) { inDeck[p.id] = 1; });
+    history = (serverHistory || []).filter(function (id) { return inDeck[id]; });
     // Lo que quedó en la cola manda sobre lo que devolvió el servidor: son
     // votos posteriores que todavía no llegaron.
     queue.forEach(function (e) {

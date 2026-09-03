@@ -12,8 +12,9 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
 - **Datos**: no tiene copia propia. Lee `../data/reels.js` (`SOURCE_THINGS`, 272
   lugares) y `../data/categories.js` (taxonomía, colores, íconos), o sea
   exactamente lo mismo que la app principal.
-- **Qué entra al mazo**: todo menos `comida`, `bar-noche`, `compras` y `otro`
-  — 121 de los 272. Comer y tomar no se vota: se decide en el momento y con
+- **Qué entra al mazo**: todo menos `comida`, `bar-noche`, `compras` y `otro`,
+  y sólo lo que queda a un day trip del tramo con amigos — 93 de los 272.
+  Comer y tomar no se vota: se decide en el momento y con
   hambre. Las sesenta de `compras` son casi todas thrift shops sueltas y los
   cuatro de `otro` son el cajón de sastre de la taxonomía; ninguna de las dos
   cosas es un plan que valga la pena ordenar entre cuatro personas. Los dos
@@ -23,6 +24,19 @@ Producción: <https://mew-industries.github.io/trips/japon/votar/?u=TOKEN>
   taxonomía crece (`taller` salió el mismo día) y una categoría nueva tiene
   que entrar sola. Los votos ya emitidos sobre un lugar excluido **no se
   borran** de la db: dejan de aparecer y listo.
+- **El recorte geográfico** (ronda 2 del review, task 591): la app es para
+  elegir qué hacer en el tramo CON AMIGOS (Kioto 19-24 · Osaka 24-27 · Tokio
+  27-31), pero `data/reels.js` tiene el Japón entero — Fukuoka, Hiroshima,
+  Kanazawa, Tottori, Okinawa. El mazo filtra por distancia: entra lo que queda
+  a ≤60 km de Tokio, Kioto u Osaka (`SCOPE_CENTERS`/`SCOPE_KM` en app.js).
+  Eso mete los day trips reales (Nara, Kamakura, Yokohama, Kawagoe, G-Cans) y
+  deja afuera los otros tramos del viaje. Es por lat/lon y no por `area`
+  porque el área a veces viene vacía o mal geocodificada; la coordenada la
+  trae siempre el pipeline. Un lugar sin coordenada queda afuera (el filtro
+  existe porque ya se coló medio Japón). Los votos sobre lugares que el
+  recorte dejó afuera siguen en la db y no rompen nada: no aparecen, no
+  cuentan en el denominador del progreso y tampoco entran a la pila de
+  deshacer que se rearma de `/votes`.
 - **Identidad**: un link por persona, `?u=<token>`. El token no es adivinable,
   identifica y autoriza; sin token conocido la app muestra el gate y no monta
   el mazo. No hay login. En el journal el token sale enmascarado (`?u=<token>`):
@@ -118,11 +132,22 @@ y cuando llega se pone encima.
 ## La galería
 
 `images.js` (`window.VOTAR_IMAGES`, keyed por `place_id`) es el tercer archivo
-**curado a mano** (task 590): 2-4 fotos que muestran al lugar, para los 39
-cuyo reel es un roundup que no los muestra. Casi todas son thumbs de Wikimedia
+**curado a mano** (task 590, ampliado en la 591): 2-4 fotos que muestran al
+lugar, para dos clases de cards. Las de la 590 son las que no tienen reel que
+las muestre (iban con mini-mapa). Las de la 591 son las que embeben un video
+multi-lugar que sí las muestra al reproducirse, pero cuyo **poster** —lo único
+que se ve del embed antes del play— es de otro de los lugares del roundup: el
+caso Yanagawa/piscina de Erlich del review. Para esas, la foto curada es el
+thumbnail y el estado sin-Instagram; el embed sigue siendo el frente cuando
+carga, como decidió la ronda 2. Casi todas son thumbs de Wikimedia
 Commons hotlinkeadas (el `File:` y la licencia van comentados al lado de cada
-URL); Cat Cafe MOCHA no está en Commons y sus fotos se bajaron del sitio
-oficial a `img/`. La galería de la card junta el frame del reel (si lo hay) con
+URL); los clubs y talleres que no están en Commons (ATOM, Harlem, WARP, Baia,
+Mitsuki, Vent, Karaki Mokkou — antes Cat Cafe MOCHA) van con fotos de su sitio
+oficial bajadas a `img/`. Tres cards del mazo quedaron sin galería a
+propósito: Junintoiro (sin sitio propio ni Commons del local), T2 Tokyo
+(dominio muerto/parked) y Neverland Tokyo (no se pudo identificar el venue con
+certeza) — antes una foto dudosa, mejor el mini-mapa, que es la regla de la
+559. La galería de la card junta el frame del reel (si lo hay) con
 estas — la primera del total es el thumbnail — y se pasa con flechas y dots,
 sólo en la card de arriba. Flechas y no swipe, porque el swipe horizontal ya es
 el voto; en los extremos la flecha desaparece, no hay vuelta. Si la card además
