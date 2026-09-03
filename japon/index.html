@@ -1322,32 +1322,52 @@ const destinations = [
   {
     // Koyasan volvió a la cadena el 3/9 (decisión de Martín) y con el plan B
     // (3/9 01:38) quedó como ÚLTIMA escala antes de Tokio: 13-14 nov, viniendo
-    // de Naoshima. El shukubo está sin reservar; el Hōjō-in del 25-26 oct se
-    // cancela (esa fecha quedó dentro del tramo con amigos), no se reprograma.
+    // de Naoshima. Shukubo RESERVADO 3/9 02:19: Eko-in, vía koyasan-shukubo.net
+    // (el importe vive en el sheet de costos, no acá). El Hōjō-in del 25-26 oct
+    // se cancela (esa fecha quedó dentro del tramo con amigos), no se reprograma.
     id: 'koyasan', n: 16, type: 'destino', name: 'Koyasan (shukubo)', short: 'Koyasan', flag: '🇯🇵',
     coords: [34.2129, 135.5836],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg/500px-Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg/500px-Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg'],
     dates: '13-14 nov', nights: 1, start: '2026-11-13', end: '2026-11-14',
     arrival: '13 nov (de Naoshima: ferry + JR a Okayama + Shinkansen a Shin-Osaka + Midosuji a Namba + Nankai Koya, funicular y bus, ~4 h)', departure: '14 nov (baja a Namba y Shinkansen a Tokio)',
-    // Shukubo sin reservar (ambigüedad a propósito: no hay templo elegido todavía).
-    // La reserva vieja del Hōjō-in era del 25-26 oct y se CANCELA, no se reprograma.
-    lodgingTbd: 'Shukubo por reservar — templo a elegir (Eko-in tiene lugar el 13). La reserva vieja del Hōjō-in (25-26 oct) quedó de la fecha anterior y se cancela.',
+    lodging: {
+      name: 'Eko-in (恵光院)', type: 'Shukubo · hab. japonesa compacta 6 tatami · media pensión (shōjin ryōri)',
+      guests: '2 personas',
+      area: 'Desde Koyasan Station: bus a Okunoin hasta «Karukayado-mae» (parada 9) y 50 m a pie · 497 Koyasan, Koya-cho, Ito-gun, Wakayama',
+      coords: [34.21232, 135.59162],
+      checkIn: '13 nov', checkOut: '14 nov', nights: 1, booked: true,
+      checkInFrom: '14:00', checkInTo: '17:30', checkOutBy: '10:00',
+      url: 'https://www.ekoin.jp/en/',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Ekoin%20Koyasan',
+      booking: {
+        providerLabel: 'koyasan-shukubo.net', url: 'https://koyasan-shukubo.net/',
+        ref: 'bea556c681f1edbe7cdc', refLabel: 'Booking nº',
+        checkIn: '13 nov · 14:00–17:30 (declarado 17:00)', checkOut: '14 nov · hasta 10:00',
+        cancel: 'Gratis hasta el 5/11 (después 30% · 3 días antes 50% · víspera 80% · el día 100%)',
+        includes: 'Media pensión: cena y desayuno shōjin ryōri · ajikan y copia de sutras · pagado por adelantado',
+        phone: '+81 736-56-2514',
+        warn: 'Llegada declarada 17:00, última 17:30: llegar después = sin cena y la reserva se cae.'
+      },
+      note: 'Templo junto a la entrada de Okunoin: el cementerio queda a un paseo de la puerta. Habitación japonesa compacta de 6 tatamis y media pensión shōjin ryōri (vegetariana budista). La goma de las 7:30 y el ajikan de las 16:30 son libres para huéspedes. El tour nocturno de Okunoin NO lo organiza el templo: lo opera una empresa aparte y se reserva en night.koyasan-okunoin.com.'
+    },
     leg: { mode: '⛴️🚆', time: '~4 h', detail: 'Ferry Miyanoura → Uno + JR a Okayama + Shinkansen a Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local.',
       via: [[34.4938, 133.9524], [34.6660, 133.9180], [34.7335, 135.5002]],
       path: [{ m: 'ferry', to: [34.4938, 133.9524] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.22771, 135.57749] }, { m: 'bus', to: [34.2129, 135.5836] }],
       fromTerminal: { name: 'Puerto de Miyanoura', coords: [34.4560, 133.9737], mode: 'ferry' }, toTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' },
       why: [
-        'Salir de la isla con el ferry de ~12:30: el shukubo espera el check-in a las 17:00 y la cena shojin ryori se sirve temprano (~17:30).',
+        'Salir de la isla con el ferry de ~12:30: el shukubo espera el check-in a las 17:00 declaradas (último 17:30) y la cena shojin ryori se sirve 17:30 — llegar después = sin cena.',
         'La mañana del 13 es del Chichu: la isla se deja recién pasado el mediodía.'
       ] },
     tempMax: '8-19', tempMin: '2-12', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
-    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Con el plan B (3/9) quedó como última escala antes de Tokio: se llega de Naoshima vía Okayama, Shin-Osaka y Namba, se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. El templo todavía no está elegido; la reserva vieja del Hōjō-in (25-26 oct) se cancela.',
+    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Con el plan B (3/9) quedó como última escala antes de Tokio: se llega de Naoshima vía Okayama, Shin-Osaka y Namba, se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. Se duerme en Eko-in (恵光院), shukubo pegado a la entrada de Okunoin, con cena y desayuno shōjin ryōri; la reserva vieja del Hōjō-in (25-26 oct) se cancela.',
     activities: [
       { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
       { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
-      { text: 'Cena shojin ryori (vegetariana budista)', cat: 'comida', coords: [34.215072, 135.579438] },
-      { text: 'Ceremonia matutina del templo (5:30 AM)', cat: 'templos', coords: [34.215072, 135.579438] },
+      { text: 'Cena shojin ryori (vegetariana budista, en el templo)', cat: 'comida', coords: [34.21232, 135.59162] },
+      { text: 'Goma de la mañana (7:30, libre para huéspedes)', cat: 'templos', coords: [34.21232, 135.59162] },
+      { text: 'Ajikan — meditación guiada (16:30, libre para huéspedes)', cat: 'templos', coords: [34.21232, 135.59162] },
+      { text: 'Tour nocturno de Okunoin (operador externo, no el templo — reservar en night.koyasan-okunoin.com)', cat: 'templos', coords: [34.217693, 135.605053], url: 'https://night.koyasan-okunoin.com/' },
       { text: 'Garan (complejo central con pagoda)', cat: 'templos', coords: [34.213465, 135.579969] },
       { text: 'Okunoin antes del amanecer (vacío total)', cat: 'templos', coords: [34.217693, 135.605053] }
     ],
@@ -1776,7 +1796,10 @@ function lodgingLinks(L, cls) {
 function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
-  const p = RESV_PROVIDER[b.provider];
+  // Plataformas de una sola reserva (el shukubo) llevan el rótulo en el dato, no acá:
+  // RESV_PROVIDER es código y viaja entero a la app compartida — un label con el nombre
+  // del lugar filtraría el itinerario privado (el guard de build_compartido lo caza).
+  const p = RESV_PROVIDER[b.provider] || (b.providerLabel ? { label: b.providerLabel } : null);
   const rows = [];
   const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
   if (b.cancel) row('Cancelación', escHtml(b.cancel));

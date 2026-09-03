@@ -1544,7 +1544,10 @@ function lodgingLinks(L, cls) {
 function resvHtml(L) {
   const b = L && L.booking;
   if (!b) return '';
-  const p = RESV_PROVIDER[b.provider];
+  // Plataformas de una sola reserva (el shukubo) llevan el rótulo en el dato, no acá:
+  // RESV_PROVIDER es código y viaja entero a la app compartida — un label con el nombre
+  // del lugar filtraría el itinerario privado (el guard de build_compartido lo caza).
+  const p = RESV_PROVIDER[b.provider] || (b.providerLabel ? { label: b.providerLabel } : null);
   const rows = [];
   const row = (k, v) => rows.push('<div class="resv-row"><span class="resv-k">' + k + '</span><span class="resv-v">' + v + '</span></div>');
   if (b.cancel) row('Cancelación', escHtml(b.cancel));
