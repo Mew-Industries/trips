@@ -1325,6 +1325,9 @@ const destinations = [
     // de Naoshima. Shukubo RESERVADO 3/9 02:19: Eko-in, vía koyasan-shukubo.net
     // (el importe vive en el sheet de costos, no acá). El Hōjō-in del 25-26 oct
     // se cancela (esa fecha quedó dentro del tramo con amigos), no se reprograma.
+    // Okunoin Night Tour COMPRADO 3/9 (Awesome Tours, orden RZ260904SX6971):
+    // vive como par de actividades con `at` (check-in en TAIRA + tour), igual
+    // que teamLab — el importe, como siempre, en el sheet de costos.
     id: 'koyasan', n: 16, type: 'destino', name: 'Koyasan (shukubo)', short: 'Koyasan', flag: '🇯🇵',
     coords: [34.2129, 135.5836],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg',
@@ -1349,7 +1352,7 @@ const destinations = [
         phone: '+81 736-56-2514',
         warn: 'Llegada declarada 17:00, última 17:30: llegar después = sin cena y la reserva se cae.'
       },
-      note: 'Templo junto a la entrada de Okunoin: el cementerio queda a un paseo de la puerta. Habitación japonesa compacta de 6 tatamis y media pensión shōjin ryōri (vegetariana budista). La goma de las 7:30 y el ajikan de las 16:30 son libres para huéspedes. El tour nocturno de Okunoin NO lo organiza el templo: lo opera una empresa aparte y se reserva en night.koyasan-okunoin.com.'
+      note: 'Templo junto a la entrada de Okunoin: el cementerio queda a un paseo de la puerta. Habitación japonesa compacta de 6 tatamis y media pensión shōjin ryōri (vegetariana budista). La goma de las 7:30 y el ajikan de las 16:30 son libres para huéspedes. El tour nocturno de Okunoin no lo organiza el templo: lo opera Awesome Tours y ya está comprado para el 13/11 — la cena de las 17:30 da justo para el check-in en el café TAIRA (18:30) y la salida 19:00.'
     },
     leg: { mode: '⛴️🚆', time: '~4 h', detail: 'Ferry Miyanoura → Uno + JR a Okayama + Shinkansen a Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local.',
       via: [[34.4938, 133.9524], [34.6660, 133.9180], [34.7335, 135.5002]],
@@ -1360,14 +1363,23 @@ const destinations = [
         'La mañana del 13 es del Chichu: la isla se deja recién pasado el mediodía.'
       ] },
     tempMax: '5-18', tempMin: '2-10', weatherUpdated: '2026-09-03', weatherMode: 'climatología',
-    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Con el plan B (3/9) quedó como última escala antes de Tokio: se llega de Naoshima vía Okayama, Shin-Osaka y Namba, se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. Se duerme en Eko-in (恵光院), shukubo pegado a la entrada de Okunoin, con cena y desayuno shōjin ryōri; la reserva vieja del Hōjō-in (25-26 oct) se cancela.',
+    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Con el plan B (3/9) quedó como última escala antes de Tokio: se llega de Naoshima vía Okayama, Shin-Osaka y Namba, se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. Se duerme en Eko-in (恵光院), shukubo pegado a la entrada de Okunoin, con cena y desayuno shōjin ryōri; la reserva vieja del Hōjō-in (25-26 oct) se cancela. La noche ya tiene programa comprado: Okunoin Night Tour con Awesome Tours (cena 17:30 → check-in en el café TAIRA 18:30 → salida 19:00, termina ~20:20 en el Gobyō).',
     activities: [
       { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
       { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
-      { text: 'Cena shojin ryori (vegetariana budista, en el templo)', cat: 'comida', coords: [34.21232, 135.59162] },
+      // La cena de la media pensión lleva `at`: fija el arranque de la secuencia
+      // de la noche (cena 17:30 → check-in TAIRA 18:30 → tour 19:00).
+      { text: 'Cena shojin ryori (vegetariana budista, en el templo)', cat: 'comida', coords: [34.21232, 135.59162], at: '2026-11-13T17:30',
+        bestTime: 'Se sirve 17:30: da justo para el check-in del night tour en TAIRA (18:30) y la salida 19:00.' },
       { text: 'Goma de la mañana (7:30, libre para huéspedes)', cat: 'templos', coords: [34.21232, 135.59162] },
       { text: 'Ajikan — meditación guiada (16:30, libre para huéspedes)', cat: 'templos', coords: [34.21232, 135.59162] },
-      { text: 'Tour nocturno de Okunoin (operador externo, no el templo — reservar en night.koyasan-okunoin.com)', cat: 'templos', coords: [34.217693, 135.605053], url: 'https://night.koyasan-okunoin.com/' },
+      { text: 'Check-in del night tour — café TAIRA (Awesome Tours)', cat: 'otro', coords: [34.2128215, 135.5938887], at: '2026-11-13T18:30', until: '2026-11-13T18:55',
+        booked: 'Retirar el Tour Pass en el mostrador de Awesome Tours dentro del café (también se puede 13:00-17:00) · 大字高野山734, Koya-cho',
+        url: 'https://www.google.com/maps/search/?api=1&query=TAIRA%20Koyasan%20734' },
+      { text: 'Okunoin Night Tour (comprado — caminata guiada nocturna, ~3 km)', cat: 'templos', coords: [34.2233377, 135.605733], at: '2026-11-13T19:00', until: '2026-11-13T20:20',
+        booked: 'Orden RZ260904SX6971 · 2 pax · salida 19:00-19:15 desde TAIRA · termina ~20:20 en el Gobyō, el guía acompaña al bus de vuelta (gratis) · cancelación gratis hasta el 5/11',
+        url: 'https://night.koyasan-okunoin.com/' },
+      { text: 'Gobyō de Kōbō Daishi (mausoleo, fin del night tour)', cat: 'templos', coords: [34.2233377, 135.605733] },
       { text: 'Garan (complejo central con pagoda)', cat: 'templos', coords: [34.213465, 135.579969] },
       { text: 'Okunoin antes del amanecer (vacío total)', cat: 'templos', coords: [34.217693, 135.605053] }
     ],
