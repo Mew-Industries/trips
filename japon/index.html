@@ -1391,7 +1391,28 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Tokyo_Tower%2C_Minato_City.jpg/500px-Tokyo_Tower%2C_Minato_City.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Meiji_Jingu_Stadium_aerial_view.jpg/500px-Meiji_Jingu_Stadium_aerial_view.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg'],
     dates: '14-17 nov', nights: 3, start: '2026-11-14', end: '2026-11-17',
-    arrival: '14 nov (desde Koyasan)', departure: '17 nov 17:45 (vuelo UA6 desde Narita/NRT)', lodging: null,
+    arrival: '14 nov (desde Koyasan)', departure: '17 nov (checkout 10:00 → vuelo UA6 17:45 desde Narita/NRT)',
+    // Hospedaje RESERVADO 4/9 (era el último lodging pendiente del viaje). El
+    // importe vive en el sheet de costos, no acá.
+    lodging: {
+      name: 'Garden-Takeda', type: 'Airbnb · depto entero 35 m²',
+      guests: '2 huéspedes · 2 camas dobles (hasta 4)',
+      area: 'A 5 min a pie de Shinjuku-sanchome · 5-chōme-8-10 Shinjuku, Tokio 160-0022',
+      coords: [35.69286, 139.70897],
+      checkIn: '14 nov', checkOut: '17 nov', nights: 3, booked: true,
+      checkInFrom: '16:00', checkOutBy: '10:00',
+      img: 'img/lodging/tokio-final-garden-1.jpg',
+      imgs: ['img/lodging/tokio-final-garden-1.jpg', 'img/lodging/tokio-final-garden-2.jpg', 'img/lodging/tokio-final-garden-3.jpg', 'img/lodging/tokio-final-garden-4.jpg'],
+      url: 'https://www.airbnb.com/rooms/1503467855101588246',
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=5-chome-8-10%20Shinjuku%2C%20Shinjuku%20City%2C%20Tokyo%20160-0022',
+      booking: {
+        provider: 'airbnb', ref: 'HMZE9HHXZ8',
+        checkIn: '14 nov · desde 16:00', checkOut: '17 nov · hasta 10:00',
+        cancel: 'Gratis hasta el 9/11 16:00 JST · parcial hasta el check-in',
+        phone: '+81 80-6752-6699'
+      },
+      note: 'Depto del host 株式会社ガーデン (Garden), a una cuadra del Shinoka del arranque: se cierra el viaje en el mismo rincón de Shinjuku. Horario de silencio 22:00-07:00 y cámaras en el exterior. El 17 el checkout es 10:00 y el día queda entero en Tokio hasta salir hacia Narita (~14:00).'
+    },
     leg: { mode: '🚆', time: '~4 h 30', detail: 'Nankai + funicular Koyasan → Namba + Midosuji a Shin-Osaka + Shinkansen Nozomi a Tokio.',
       via: [[34.66293, 135.5023], [34.7335, 135.5002]],
       path: [{ m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [35.6895, 139.7000] }],
