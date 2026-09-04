@@ -1026,23 +1026,25 @@ const destinations = [
     dates: '27-31 oct', nights: 4, start: '2026-10-27', end: '2026-10-31',
     arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka; los amigos se quedan una noche más y vuelan el 1/11)',
     lodging: {
-      name: 'Park Hyatt Tokyo', type: 'Hotel · Shinjuku Park Tower, pisos 39-52',
+      name: 'Park Hyatt Tokyo', type: 'Hotel · 2 Double Deluxe 55 m², pisos 42-51',
       guests: '4 personas · con amigos',
       area: 'Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku',
       coords: [35.6857, 139.6907],
       checkIn: '27 oct', checkOut: '31 oct', nights: 4, booked: true,
+      checkInFrom: '15:00', checkOutBy: '12:00',
       img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg',
       imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shinjuku_Park_Tower_6.jpg/500px-Shinjuku_Park_Tower_6.jpg'],
       url: 'https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Park%20Hyatt%20Tokyo',
       booking: {
-        provider: 'hotel', ref: null,
-        // Reservó Ari desde su cuenta: no hay número de confirmación ni política de
-        // cancelación a la vista de Martín. Su parte del split (US$1.500) ya está paga.
+        provider: 'hotel', ref: '40023B26660103',
+        // La conf llegó el 4/9 por fwd de Ari: la reserva está a su nombre, desde su
+        // cuenta World of Hyatt — Martín no la puede modificar (no es su cuenta).
         url: 'https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo',
-        checkIn: '27 oct', checkOut: '31 oct'
+        checkIn: '27 oct · desde 15:00', checkOut: '31 oct · hasta 12:00',
+        cancel: 'Gratis hasta el 24/10 23:59 JST (después se pierde 1 noche de depósito)'
       },
-      note: 'El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más.'
+      note: 'El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Cuarto con dos camas dobles más sofá cama y vista a la ciudad o al Fuji. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más.'
     },
     leg: { mode: '🚄', time: '~2 h 30', detail: 'Shinkansen Shin-Osaka → Tokio (Nozomi).',
       toName: 'Tokio',
