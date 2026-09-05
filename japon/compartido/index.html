@@ -546,6 +546,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="data/categories.js"></script>
 <script>window.SOURCE_THINGS = [];</script>
+<script>window.PLACE_ADDED_BY = {};</script>
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 import { mountViews } from '../views.js';
@@ -626,7 +627,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-03",
+    "weatherUpdated": "2026-09-05",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -929,7 +930,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-03",
+    "weatherUpdated": "2026-09-05",
     "weatherMode": "climatología",
     "intro": "Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1148,7 +1149,7 @@ const destinations = [
     "departure": "31 oct · los amigos se quedan una noche más y vuelan el 1/11",
     "lodging": {
       "name": "Park Hyatt Tokyo",
-      "type": "Hotel · Shinjuku Park Tower, pisos 39-52",
+      "type": "Hotel · 2 Double Deluxe 55 m², pisos 42-51",
       "guests": "4 personas · con amigos",
       "area": "Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku",
       "coords": [
@@ -1159,6 +1160,8 @@ const destinations = [
       "checkOut": "31 oct",
       "nights": 4,
       "booked": true,
+      "checkInFrom": "15:00",
+      "checkOutBy": "12:00",
       "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
       "imgs": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
@@ -1169,10 +1172,11 @@ const destinations = [
       "booking": {
         "provider": "hotel",
         "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
-        "checkIn": "27 oct",
-        "checkOut": "31 oct"
+        "checkIn": "27 oct · desde 15:00",
+        "checkOut": "31 oct · hasta 12:00",
+        "cancel": "Gratis hasta el 24/10 23:59 JST (después se pierde 1 noche de depósito)"
       },
-      "note": "El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más."
+      "note": "El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Cuarto con dos camas dobles más sofá cama y vista a la ciudad o al Fuji. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más."
     },
     "leg": {
       "mode": "🚄",
@@ -1201,7 +1205,7 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-03",
+    "weatherUpdated": "2026-09-05",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [],
@@ -1699,6 +1703,9 @@ const catOfAct = a => catOf(a.text, a.cat);
 // Modelo canónico: una cosa puede tener muchas fuentes y una fuente puede
 // respaldar muchas cosas. Maps e Instagram son provenance, nunca colecciones UI.
 const thingKey = name => catKey(String(name || '').split('(')[0]);
+// Quién agregó cada lugar a la lista de Maps (data/added_by.js, lo escribe el
+// sync del workspace keyed por este mismo thingKey).
+const ADDED_BY = window.PLACE_ADDED_BY || {};
 const sourceThings = window.SOURCE_THINGS || [];
 const sourceThingByIndex = [];
 const CITY_ALIASES = [
@@ -2068,9 +2075,12 @@ destinations.forEach(d => {
     const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
-      (s.owner ? ' · @' + escHtml(s.owner) : '') + ' →</a>').join(' ');
+      (s.owner ? ' · @' + escHtml(s.owner) : '') +
+      (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+    const addedBy = ADDED_BY[thingKey(a.text)];
     m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
-      '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] + '</div>' +
+      '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] +
+      (addedBy ? ' · + ' + escHtml(addedBy) : '') + '</div>' +
       (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
     actMarkers[key] = m;
     thingMarkers.set(a, m);
@@ -2152,9 +2162,13 @@ orphanPlaces.forEach(p => {
   const cat = catOf(p.name, p.cat);
   const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer);
   const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
-    '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') + ' →</a>').join(' ');
+    '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
+    (s.owner ? ' · @' + escHtml(s.owner) : '') +
+    (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+  const orphanAddedBy = ADDED_BY[thingKey(p.name)];
   m.bindPopup('<div class="mini-pop"><div class="popup-title">' + escHtml(p.name) + '</div><div class="popup-dates">' +
-    CAT_LABELS[cat] + ' · sin destino asignado</div>' + (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
+    CAT_LABELS[cat] + ' · sin destino asignado' + (orphanAddedBy ? ' · + ' + escHtml(orphanAddedBy) : '') + '</div>' +
+    (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
   thingMarkers.set(p, m);
   nearAdd(m, p.name, catColor(cat));
 });

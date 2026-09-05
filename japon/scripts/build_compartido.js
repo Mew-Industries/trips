@@ -148,6 +148,7 @@ function render() {
     .replace(/<div class="header-stats">[\s\S]*?<\/div>\s*<button type="button" class="discrete-btn"/, '<div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> vuelven los amigos</span></div>\n    <button type="button" class="discrete-btn"')
     .replace('src="data/categories.js"', 'src="data/categories.js"')
     .replace('<script src="data/reels.js"></script>', '<script>window.SOURCE_THINGS = [];</script>')
+    .replace('<script src="data/added_by.js"></script>', '<script>window.PLACE_ADDED_BY = {};</script>')
     .replace('href="views.css"', 'href="../views.css"')
     .replace("from './views.js'", "from '../views.js'")
     .replace(/href="favicon(-\d+)?\.(png|ico)"/g, 'href="../favicon$1.$2"')
