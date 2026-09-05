@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 272 lugares + 14 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-05T15:01:26+00:00
+// 272 lugares + 14 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-05T20:39:01+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -1681,7 +1681,7 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DZLfbS1TSX2/",
     "owner": "psiminkyoto",
     "caption": "Centro de diseño de Karimoku; muestra gratis 'Form Follows Feelings' con instalación de sonido (OJAS/Devon Turnbull) en tres pisos, abierto días de semana.",
-    "sharedBy": "Cata"
+    "sharedBy": "Cata, Zava"
    }
   ]
  },
@@ -4511,7 +4511,7 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DZlaTvzTGhT/",
     "owner": "yummieswithyen",
-    "sharedBy": "Cata"
+    "sharedBy": "Cata, Zava"
    }
   ]
  },
@@ -6163,7 +6163,7 @@ window.SOURCE_REELS = [
   "code": "DZLfbS1TSX2",
   "url": "https://www.instagram.com/p/DZLfbS1TSX2/",
   "owner": "psiminkyoto",
-  "sharedBy": "Cata",
+  "sharedBy": "Cata, Zava",
   "kind": "clips",
   "covers": [
    "p-karimoku-research-center"
