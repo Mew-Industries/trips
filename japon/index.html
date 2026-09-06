@@ -893,7 +893,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg'],
     dates: '19-24 oct', nights: 5, start: '2026-10-19', end: '2026-10-24',
-    arrival: '19 oct (llega de Shirakawa-go, primera noche acá; se suman los amigos, que aterrizan en KIX)', departure: '24 oct (sigue a Osaka)',
+    arrival: '19 oct (llega de Shirakawa-go, primera noche acá; se suman los amigos, que aterrizan en KIX)', departure: '24 oct (day trip a Naoshima vía Okayama; se sigue a Osaka a la noche)',
     lodging: {
       name: 'Kyotofish · Kamogawa', type: 'Airbnb · machiya entera de 180 m²', rating: '★4,86',
       guests: '4 personas · con amigos',
@@ -944,6 +944,9 @@ const destinations = [
       { text: 'Garden of Fine Arts Kyoto (Tadao Ando)', cat: 'museos', coords: [35.050655, 135.765443], url: "https://www.google.com/maps/search/?api=1&query=Garden%20of%20Fine%20Arts%20Kyoto" }
     ],
     daytrips: [
+      // Naoshima se hace EN el traslado a Osaka (decisión 6/9): dejó de ser parada
+      // con noche en el cierre post-Seúl y dejó de ser day trip de Osaka.
+      { id: 'naoshima', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg', name: 'Naoshima', coords: [34.4554, 133.9933], time: 'sáb 24/10, en el traslado a Osaka: ~2h30 ida (Nozomi a Okayama + JR a Uno + ferry), ~2h vuelta a Namba', desc: 'Isla de arte: Chichu (entrada online anticipada), Benesse, pumpkins de Kusama. Valijas por takkyubin a Osaka.' },
       { id: 'nara', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/T%C5%8Ddai-ji_Kon-d%C5%8D.jpg/360px-T%C5%8Ddai-ji_Kon-d%C5%8D.jpg', name: 'Nara', coords: [34.6851, 135.8048], time: '45 min en JR', desc: 'Todai-ji (Buda gigante), ciervos sueltos, jardín Yoshiki-en.' },
       { id: 'murou', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Murouji%2C_hondou-3.jpg/360px-Murouji%2C_hondou-3.jpg', name: 'Murou-ji + Hasedera', coords: [34.5378, 136.0376], time: '1 h 30 min', desc: 'Templo + 400 escalones a Hasedera. Murou Art Forest (Dani Karavan).' },
       { id: 'miho', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Miho_museum02n3872.jpg/360px-Miho_museum02n3872.jpg', name: 'MIHO MUSEUM', coords: [34.914917, 136.016215], time: '1 h 30 a Shigaraki', url: "https://www.google.com/maps/search/?api=1&query=MIHO%20MUSEUM", desc: 'Museo de I.M. Pei enterrado en la montaña de Shiga.' },
@@ -958,7 +961,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg'],
     dates: '24-27 oct', nights: 3, start: '2026-10-24', end: '2026-10-27',
-    arrival: '24 oct (llega de Kioto, los cuatro)', departure: '27 oct (Shinkansen a Tokio)',
+    arrival: '24 oct (llega de Kioto haciendo Naoshima en el camino; ~18:45 en Namba)', departure: '27 oct (Shinkansen a Tokio)',
     lodging: {
       name: 'Mercure Tokyu Stay Osaka Namba', type: 'Hotel · Superior Queen 25 m², no fumador',
       guests: '2 adultos · los amigos paran por su cuenta',
@@ -983,14 +986,17 @@ const destinations = [
       },
       note: 'Cuarto de 25 m² en los pisos 14 a 18, cama queen de 170 cm y ventanal a la ciudad. Tiene kitchenette con microondas y lavarropas-secarropas en la habitación: a mitad del viaje eso resuelve la ropa. Es un Tokyu Stay operado bajo la marca Mercure, abierto en 2023.'
     },
-    leg: { mode: '🚄', time: '~1 h', detail: 'JR Kioto → Osaka + metro Midōsuji a Namba.',
+    leg: { mode: '🚆⛴️', time: '~5 h con Naoshima', detail: 'Kioto → Okayama (Nozomi) → Uno → ferry a Naoshima (día en la isla) → ferry → Okayama → Shin-Osaka → Namba.',
+      via: [[34.6660, 133.9180], [34.4938, 133.9524], [34.4560, 133.9737]],
+      path: [{ m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.4938, 133.9524] }, { m: 'ferry', to: [34.4560, 133.9737] }, { m: 'ferry', to: [34.4938, 133.9524] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [34.6937, 135.5023] }],
       fromTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75877], mode: 'train' }, toTerminal: { name: 'Namba (Osaka)', coords: [34.66293, 135.5023], mode: 'train' },
       why: [
-        'Salto corto dentro de Kansai: la mañana del 24 queda entera en Kioto.',
-        'En Dōtonbori no hay check-in antes de las 16:00.'
+        'El 24 cae sábado: el Chichu se visita con entrada anticipada online (la reserva fija la hora en la isla).',
+        'El ferry Uno ↔ Miyanoura sale más o menos cada hora (20 min de cruce): los trenes se eligen contra ese horario.',
+        'El Mercure de Namba toma check-in hasta las 25:00: llegar ~18:45 deja la noche entera en Dōtonbori.'
       ] },
     tempMax: '16-25', tempMin: '7-18', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.',
+    intro: 'Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto haciendo Naoshima en el camino (~5 h de viaje con el día en la isla en el medio; ~18:45 en Namba) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.',
     activities: [
       { text: 'Kuromon Ichiba (mercado)', group: 'Kuromon + Sennichimae Doguyasuji', cat: 'comida', coords: [34.665536, 135.507085] },
       { text: 'Sennichimae Doguyasuji (cuchillos)', group: 'Kuromon + Sennichimae Doguyasuji', cat: 'compras', coords: [34.664014, 135.503506] },
@@ -1010,7 +1016,6 @@ const destinations = [
       { text: 'Okonomiyaki y kushikatsu de barrio', cat: 'comida', coords: [34.668731, 135.501291] }
     ],
     daytrips: [
-      { id: 'naoshima', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg', name: 'Naoshima', coords: [34.4554, 133.9933], time: '3 h vía Okayama + ferry', desc: 'Isla de arte: Chichu, Benesse, pumpkin de Kusama.' },
       { id: 'kobe', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg/360px-Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg', name: 'Kobe', coords: [34.6901, 135.1955], time: '30 min en tren', desc: 'Carne de Kobe, barrio Kitano (casas extranjeras), puerto y teleférico de Nunobiki. Aprovecha una de las noches extra.' },
       { id: 'murou-art', name: 'Murou Art Forest', coords: [34.537082, 136.031622], time: '1 h 30 (Nara)', url: "https://www.google.com/maps/search/?api=1&query=Murou%20Art%20Forest", desc: 'Esculturas-land art de Dani Karavan en Murou.' },
       { id: 'pl-tower', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Torre_da_Paz.jpg/360px-Torre_da_Paz.jpg', name: 'PL Tower (Great Peace Prayer Tower)', coords: [34.502226, 135.585919], time: '40 min a Tondabayashi', url: "https://www.google.com/maps/search/?api=1&query=PL%20Tower%20%28Great%20Peace%20Prayer%20Tower%29", desc: 'Torre de 180 m de la religión PL Kyodan, al sur de Osaka.' }
@@ -1205,7 +1210,7 @@ const destinations = [
         'El KTX todavía no está comprado: es lo que va a fijar la hora de salida.'
       ] },
     tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, a Tokio (HND), para el cierre: Hakone (parada 14, onsen + Fuji), Naoshima (15, isla de arte) y Koyasan (16, shukubo) antes de terminar en Tokio para el vuelo del 17/11.',
+    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, a Tokio (HND), para el cierre: Hakone (parada 14, onsen + Fuji), una noche de momiji en Kioto (15) y Koyasan (16, shukubo) antes de terminar en Tokio para el vuelo del 17/11.',
     activities: [
       { text: 'Bukchon Hanok Village', group: 'Bukchon + Insadong', cat: 'barrios', coords: [37.58147, 126.984952] },
       { text: 'Insadong', group: 'Bukchon + Insadong', cat: 'compras', coords: [37.571655, 126.986233] },
@@ -1239,13 +1244,14 @@ const destinations = [
     // Plan B del cierre (3/9 01:38, decisión de Martín): Yoshiike no tenía lugar
     // 12-14 y la reserva 10-12 se mantiene TAL CUAL — así que el orden del plan A
     // se invirtió y Hakone pasó a ser la primera escala post-Seúl (se vuela a HND,
-    // no a KIX). Después siguen Naoshima (15) y Koyasan (16).
+    // no a KIX). Después siguen la noche de momiji en Kioto (15, decisión 6/9:
+    // reemplazó a la noche en Naoshima) y Koyasan (16).
     id: 'hakone', n: 14, type: 'destino', name: 'Hakone (onsen + Fuji)', short: 'Hakone', flag: '🇯🇵',
     coords: [35.2324, 139.1069],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg/500px-Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Owakudani_%40_Hakone_%2810621374853%29.jpg/500px-Owakudani_%40_Hakone_%2810621374853%29.jpg'],
     dates: '10-12 nov', nights: 2, start: '2026-11-10', end: '2026-11-12',
-    arrival: '10 nov (vuelo Seúl → Tokio HND + Keikyu a Shinagawa + Kodama a Odawara + Tozan a Hakone-Yumoto)', departure: '12 nov (a Naoshima: Tozan a Odawara + Hikari a Okayama + ferry)',
+    arrival: '10 nov (vuelo Seúl → Tokio HND + Keikyu a Shinagawa + Kodama a Odawara + Tozan a Hakone-Yumoto)', departure: '12 nov (a Kioto: Tozan a Odawara + Shinkansen, ~2h20)',
     lodging: {
       name: 'Yoshiike Ryokan', type: '★★★★ · onsen',
       guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa',
@@ -1277,7 +1283,7 @@ const destinations = [
         'El ryokan espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
       ] },
     tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Primera escala del cierre: onsen + Fuji + otoño. Se llega directo de Seúl (vuelo a Haneda + Keikyu a Shinagawa + Kodama a Odawara + Tozan, ~1 h 45 en tierra desde el aeropuerto) y el 12 se sigue a Naoshima vía Okayama. Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
+    intro: 'Primera escala del cierre: onsen + Fuji + otoño. Se llega directo de Seúl (vuelo a Haneda + Keikyu a Shinagawa + Kodama a Odawara + Tozan, ~1 h 45 en tierra desde el aeropuerto) y el 12 se sigue a Kioto (~2h20, una noche de momiji). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
     activities: [
       { text: 'Castillo Odawara (puerta de entrada a Hakone)', cat: 'miradores', coords: [35.25055, 139.15355], url: "https://www.google.com/maps/search/?api=1&query=Castillo%20Odawara" },
       { text: 'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)', cat: 'museos', coords: [35.24516, 139.050727], url: "https://www.google.com/maps/search/?api=1&query=Museo%20al%20Aire%20Libre%20de%20Hakone" },
@@ -1292,45 +1298,40 @@ const destinations = [
     ]
   },
   {
-    // Nodo nuevo del re-armado post-Seúl (3/9): Naoshima deja de ser day trip de Osaka
-    // para Martín y Cata y pasa a parada propia de 1 noche — con el plan B (3/9 01:38,
-    // el orden del cierre se invirtió para no mover Yoshiike) queda entre Hakone y Koyasan.
-    // (El day trip sugerido en la ficha de Osaka queda: sigue valiendo para Zava y Ari.)
-    id: 'naoshima', n: 15, type: 'destino', name: 'Naoshima (isla de arte)', short: 'Naoshima', flag: '🇯🇵',
-    coords: [34.4600, 133.9950],
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/500px-Beachside_Torii%2C_Naoshima.jpg',
-    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/500px-Beachside_Torii%2C_Naoshima.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Benesse_house01s3200.jpg/500px-Benesse_house01s3200.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Miyanoura_port09s3200.jpg/500px-Miyanoura_port09s3200.jpg'],
+    // Nodo nuevo (6/9, decisión de Martín): la noche del 12/11 pasó de Naoshima a
+    // Kioto — Naoshima se hace como day trip el 24/10 en el traslado Kioto → Osaka
+    // (vive en `daytrips` de la parada 8). Esta es una noche de transición entre
+    // Hakone y Koyasan, apuntada al pico de momiji y las iluminaciones nocturnas.
+    id: 'kioto-momiji', n: 15, type: 'destino', name: 'Kioto (momiji, 1 noche)', short: 'Kioto', flag: '🇯🇵',
+    coords: [35.0116, 135.7681],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg'],
     dates: '12-13 nov', nights: 1, start: '2026-11-12', end: '2026-11-13',
-    arrival: '12 nov (de Hakone: Tozan a Odawara + Hikari a Okayama + JR a Uno + ferry, ~5 h; se llega de tarde)', departure: '13 nov (Chichu a la mañana; ferry ~12:30 hacia Koyasan)',
-    // Sin reserva todavía; la decisión previa es DÓNDE: en la isla (poca oferta,
-    // Benesse House agotado) o enfrente en Uno, cruzando en el primer ferry.
-    lodgingTbd: 'Por reservar — antes hay que decidir dónde: en la isla o en Uno (puerto de enfrente, 20 min de ferry). Benesse House agotado.',
-    leg: { mode: '🚆⛴️', time: '~5 h', detail: 'Hakone Tozan a Odawara + Shinkansen Hikari Odawara → Okayama + JR a Uno (cambio en Chayamachi) + ferry a Miyanoura (~20 min).',
-      via: [[35.2564, 139.1553], [34.6660, 133.9180], [34.4938, 133.9524]],
-      path: [{ m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.4938, 133.9524] }, { m: 'ferry', to: [34.4560, 133.9737] }, { m: 'bus', to: [34.4600, 133.9950] }],
-      fromTerminal: { name: 'Hakone-Yumoto', coords: [35.23328, 139.10359], mode: 'train' }, toTerminal: { name: 'Puerto de Miyanoura', coords: [34.4560, 133.9737], mode: 'ferry' },
+    arrival: '12 nov (de Hakone: Tozan a Odawara + Shinkansen Hikari/Nozomi a Kioto, ~2h20)', departure: '13 nov (a Koyasan: Kioto → Shin-Osaka/Namba + Nankai línea Koya + funicular, ~2h20; check-in Eko-in 14:00-17:30)',
+    lodgingTbd: 'Por reservar — 1 noche, cerca de Gion/Higashiyama para las iluminaciones nocturnas.',
+    leg: { mode: '🚆', time: '~2 h 20', detail: 'Hakone Tozan a Odawara + Shinkansen a Kioto.',
+      via: [[35.2564, 139.1553]],
+      path: [{ m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [35.0116, 135.7681] }],
+      fromTerminal: { name: 'Hakone-Yumoto', coords: [35.23328, 139.10359], mode: 'train' }, toTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75873], mode: 'train' },
       why: [
-        'El Hikari que para en Odawara sale de ahí pocas veces por día: ese tren fija a qué hora se llega a la isla (de tarde).',
-        'El ferry Uno → Miyanoura sale más o menos cada hora (20 min de cruce): el tren desde Okayama se elige contra ese horario.',
-        'Se llega con la tarde empezada: el Chichu queda para la mañana del 13, con entrada anticipada online (cierra los lunes; el 13 nov cae viernes).'
+        'El Hikari que para en Odawara sale pocas veces por día: ese tren fija la salida.',
+        'Check-out de Yoshiike a las 10:00: se llega a Kioto con la tarde por delante.'
       ] },
-    tempMax: '13-21', tempMin: '4-14', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'La isla de arte del Seto Interior: los museos de Tadao Ando semienterrados en la colina (Chichu, Lee Ufan, Benesse House), los pumpkins de Kusama y el Art House Project en las callecitas de Honmura. Se llega de Hakone cruzando por Okayama + ferry (~5 h, se llega de tarde), se duerme una noche, y el 13 la mañana es del Chichu (entrada anticipada online) antes del ferry del mediodía hacia Koyasan.',
+    tempMax: '13-18', tempMin: '5-10', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
+    intro: 'Una noche de vuelta en Kioto, justo en el pico del momiji: los templos del este abren de noche con los jardines iluminados (Eikan-dō, Kiyomizu-dera). Es la noche de transición del cierre — se llega de Hakone a media tarde, se duerme una, y el 13 a la mañana se sigue tranquilo hacia Koyasan.',
     activities: [
-      { text: 'Red Pumpkin de Kusama (puerto de Miyanoura)', cat: 'museos', coords: [34.455976, 133.973823], url: "https://www.google.com/maps/search/?api=1&query=Red%20Pumpkin%20Naoshima" },
-      { text: 'Chichu Art Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.447748, 133.984717], url: "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum" },
-      { text: 'Lee Ufan Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.449089, 133.988698], url: "https://www.google.com/maps/search/?api=1&query=Lee%20Ufan%20Museum" },
-      { text: 'Valley Gallery', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.447899, 133.989434], url: "https://www.google.com/maps/search/?api=1&query=Valley%20Gallery%20Naoshima" },
-      { text: 'Benesse House Museum', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.445228, 133.990658], url: "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum" },
-      { text: 'Yellow Pumpkin de Kusama (muelle de Benesse)', group: 'Benesse Art Site (costa sur)', cat: 'museos', coords: [34.446385, 133.995645], url: "https://www.google.com/maps/search/?api=1&query=Yellow%20Pumpkin%20Naoshima" },
-      { text: 'Art House Project (Honmura)', cat: 'museos', coords: [34.458887, 133.996968], url: "https://www.google.com/maps/search/?api=1&query=Art%20House%20Project%20Naoshima" }
+      { text: 'Eikan-dō (iluminación nocturna del momiji)', cat: 'templos', coords: [35.01446, 135.79364], url: "https://www.google.com/maps/search/?api=1&query=Eikando%20Zenrinji%20Kyoto" },
+      { text: 'Kiyomizu-dera (iluminación nocturna)', cat: 'templos', coords: [34.994358, 135.785238], url: "https://www.google.com/maps/search/?api=1&query=Kiyomizu-dera" },
+      { text: 'Tōfuku-ji (momiji, mejor temprano)', cat: 'templos', coords: [34.97641, 135.77393], url: "https://www.google.com/maps/search/?api=1&query=Tofuku-ji%20Kyoto" },
+      { text: 'Arashiyama (opcional, si el día da)', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" }
     ],
     daytrips: []
   },
   {
     // Koyasan volvió a la cadena el 3/9 (decisión de Martín) y con el plan B
     // (3/9 01:38) quedó como ÚLTIMA escala antes de Tokio: 13-14 nov, viniendo
-    // de Naoshima. Shukubo RESERVADO 3/9 02:19: Eko-in, vía koyasan-shukubo.net
+    // de la noche de momiji en Kioto (desde el 6/9; antes decía Naoshima).
+    // Shukubo RESERVADO 3/9 02:19: Eko-in, vía koyasan-shukubo.net
     // (el importe vive en el sheet de costos, no acá). El Hōjō-in del 25-26 oct
     // se cancela (esa fecha quedó dentro del tramo con amigos), no se reprograma.
     // Okunoin Night Tour COMPRADO 3/9 (Awesome Tours, orden RZ260904SX6971):
@@ -1341,7 +1342,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg/500px-Choishi_Path_-_Okunoin_Cemetery_-_Koyasan_-_Japan_-_18_%2847949824357%29.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg/500px-Danj%C3%B4-garan_%28Wakayama_K%C5%8Dyasan%29_Temple_hdsr_S5_st01.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg/500px-Nyoirinji_%28Wakayama_Koyasan%29_Temple_hdsr_S5_04.jpg'],
     dates: '13-14 nov', nights: 1, start: '2026-11-13', end: '2026-11-14',
-    arrival: '13 nov (de Naoshima: ferry + JR a Okayama + Shinkansen a Shin-Osaka + Midosuji a Namba + Nankai Koya, funicular y bus, ~4 h)', departure: '14 nov (baja a Namba y Shinkansen a Tokio)',
+    arrival: '13 nov (de Kioto vía Namba y Nankai, ~2h20)', departure: '14 nov (baja a Namba y Shinkansen a Tokio)',
     lodging: {
       name: 'Eko-in (恵光院)', type: 'Shukubo · hab. japonesa compacta 6 tatami · media pensión (shōjin ryōri)',
       guests: '2 personas',
@@ -1362,16 +1363,16 @@ const destinations = [
       },
       note: 'Templo junto a la entrada de Okunoin: el cementerio queda a un paseo de la puerta. Habitación japonesa compacta de 6 tatamis y media pensión shōjin ryōri (vegetariana budista). La goma de las 7:30 y el ajikan de las 16:30 son libres para huéspedes. El tour nocturno de Okunoin no lo organiza el templo: lo opera Awesome Tours y ya está comprado para el 13/11 — la cena de las 17:30 da justo para el check-in en el café TAIRA (18:30) y la salida 19:00.'
     },
-    leg: { mode: '⛴️🚆', time: '~4 h', detail: 'Ferry Miyanoura → Uno + JR a Okayama + Shinkansen a Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local.',
-      via: [[34.4938, 133.9524], [34.6660, 133.9180], [34.7335, 135.5002]],
-      path: [{ m: 'ferry', to: [34.4938, 133.9524] }, { m: 'train', to: [34.6660, 133.9180] }, { m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.22771, 135.57749] }, { m: 'bus', to: [34.2129, 135.5836] }],
-      fromTerminal: { name: 'Puerto de Miyanoura', coords: [34.4560, 133.9737], mode: 'ferry' }, toTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' },
+    leg: { mode: '🚆', time: '~2 h 20', detail: 'JR/Shinkansen Kioto → Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local.',
+      via: [[34.7335, 135.5002], [34.66293, 135.5023]],
+      path: [{ m: 'train', to: [34.7335, 135.5002] }, { m: 'train', to: [34.66293, 135.5023] }, { m: 'train', to: [34.22771, 135.57749] }, { m: 'bus', to: [34.2129, 135.5836] }],
+      fromTerminal: { name: 'Estación de Kioto', coords: [34.98585, 135.75873], mode: 'train' }, toTerminal: { name: 'Kōyasan (funicular)', coords: [34.22771, 135.57749], mode: 'train', icon: '🚠' },
       why: [
-        'Salir de la isla con el ferry de ~12:30: el shukubo espera el check-in a las 17:00 declaradas (último 17:30) y la cena shojin ryori se sirve 17:30 — llegar después = sin cena.',
-        'La mañana del 13 es del Chichu: la isla se deja recién pasado el mediodía.'
+        'El shukubo espera el check-in a las 17:00 declaradas (último 17:30) y la cena shojin ryori se sirve 17:30 — llegar después = sin cena → salir de Kioto antes del mediodía.',
+        'La mañana del 13 queda libre en Kioto: da para un templo temprano (Tōfuku-ji) antes de arrancar.'
       ] },
     tempMax: '5-18', tempMin: '2-10', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Con el plan B (3/9) quedó como última escala antes de Tokio: se llega de Naoshima vía Okayama, Shin-Osaka y Namba, se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. Se duerme en Eko-in (恵光院), shukubo pegado a la entrada de Okunoin, con cena y desayuno shōjin ryōri; la reserva vieja del Hōjō-in (25-26 oct) se cancela. La noche ya tiene programa comprado: Okunoin Night Tour con Awesome Tours (cena 17:30 → check-in en el café TAIRA 18:30 → salida 19:00, termina ~20:20 en el Gobyō).',
+    intro: 'Monte sagrado del budismo Shingon, 800 m de altura. Shukubo: se duerme una noche en un templo, con cena vegetariana y ceremonia matutina. Quedó como última escala antes de Tokio: se llega de Kioto vía Shin-Osaka y Namba (~2h20), se duerme en el monte y el 14 se baja a Namba para el Shinkansen a Tokio. Se duerme en Eko-in (恵光院), shukubo pegado a la entrada de Okunoin, con cena y desayuno shōjin ryōri; la reserva vieja del Hōjō-in (25-26 oct) se cancela. La noche ya tiene programa comprado: Okunoin Night Tour con Awesome Tours (cena 17:30 → check-in en el café TAIRA 18:30 → salida 19:00, termina ~20:20 en el Gobyō).',
     activities: [
       { text: 'Okunoin al atardecer (cementerio con 200.000 lápidas)', cat: 'templos', coords: [34.217693, 135.605053] },
       { text: 'Kongobu-ji (templo principal)', cat: 'templos', coords: [34.21411, 135.584941] },
@@ -1495,8 +1496,9 @@ const orphanPlaces = [
   { name: "Aomori Museum of Art", lat: 40.807416, lon: 140.70086, url: "https://www.google.com/maps/search/?api=1&query=Aomori%20Museum%20of%20Art" },
   { name: "Aomori", lat: 40.82222, lon: 140.747352, url: "https://www.google.com/maps/search/?api=1&query=Aomori" },
   { name: "Ginzan Onsen", lat: 38.570618, lon: 140.530546, url: "https://www.google.com/maps/search/?api=1&query=Ginzan%20Onsen" },
-  // Chichu Art Museum y Benesse House Oval salieron de acá el 3/9: Naoshima pasó a ser
-  // un destino de la cadena y esos guardados ya viven como actividades del nodo.
+  // Chichu Art Museum y Benesse House Oval salieron de acá el 3/9, cuando Naoshima fue
+  // parada con noche. Desde el 6/9 Naoshima es day trip del 24/10 (ficha de Kioto, parada
+  // 8): quedan cubiertos por la descripción del day trip, no vuelven como huérfanos.
   { name: "Shirakawa", lat: 35.681455, lon: 139.803403, url: "https://www.google.com/maps/search/?api=1&query=Shirakawa" },
 ];
 
