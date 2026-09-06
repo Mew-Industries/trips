@@ -1026,7 +1026,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg'],
     dates: '27-31 oct', nights: 4, start: '2026-10-27', end: '2026-10-31',
-    arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka; los amigos se quedan una noche más y vuelan el 1/11)',
+    arrival: '27 oct (Shinkansen desde Osaka, los cuatro)', departure: '31 oct (Martín y Cata vuelan a Fukuoka, ANA NH273 19:35 desde Haneda; los amigos se quedan una noche más y vuelan el 1/11)',
     lodging: {
       name: 'Park Hyatt Tokyo', type: 'Hotel · 2 Double Deluxe 55 m², pisos 42-51',
       guests: '4 personas · con amigos',
@@ -1065,7 +1065,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg/500px-Fukuoka_City_Subway_Hakata_Station_the_information_board_Hakata-eki-ch%C5%AB%C5%8Dgai_Hakata-ku_Fukuoka_20240806.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/20100719_Dazaifu_Tenmangu_Shrine_3328.jpg/500px-20100719_Dazaifu_Tenmangu_Shrine_3328.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg/500px-Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg'],
     dates: '31 oct–3 nov', nights: 3, start: '2026-10-31', end: '2026-11-03',
-    arrival: '31 oct (desde Tokio, vuelo sin comprar)', departure: '3 nov (vuelo BX 506 a Busan, 11:55)',
+    arrival: '31 oct (ANA NH273 desde Haneda, aterriza 21:40)', departure: '3 nov (vuelo BX 506 a Busan, 11:55)',
     lodging: {
       name: 'The Royal Park Canvas Fukuoka Nakasu', type: 'Hotel · king room river view, esquina 29 m², no fumador',
       guests: '2 adultos',
@@ -1089,19 +1089,23 @@ const destinations = [
       note: 'El cuarto (Corner Twin/King Riverside) es de esquina, 29,8 m², cama king de 200 cm y ventanal al río; el baño es cabina de ducha, sin bañera — pero el hotel tiene baño público grande con sauna, rooftop garden y lounge con terraza. Abrió en 2023.'
     },
     // El re-armado del 25/8 metió Tokio entre Osaka y Fukuoka: este salto ya no es el
-    // Shinkansen Shin-Osaka → Hakata, es Tokio → Fukuoka y todavía no está comprado.
-    // Sin vuelo no hay tracker ni horario: queda "a definir" con el link a Google Flights.
-    leg: { mode: '✈️', time: 'a definir', detail: 'Vuelo Tokio → Fukuoka (sin comprar).',
+    // Shinkansen Shin-Osaka → Hakata, es Tokio → Fukuoka. Comprado el 5/9: ANA NH273.
+    leg: { mode: '✈️', time: '2 h 05 (vuelo)', detail: 'ANA NH273, sáb 31/10 19:35 → 21:40 (Haneda terminal 2 → Fukuoka). Reserva ESXSPB, 2 pax, Economy L, tarifa Standard, asientos 20A/20B.',
       fromName: 'Tokio',
-      dirUrl: 'https://www.google.com/travel/flights?q=Flights%20from%20Tokyo%20to%20Fukuoka%20on%202026-10-31', dirLabel: 'ver vuelos ↗',
-      fromTerminal: { name: 'Aeropuerto de Tokio (HND o NRT, a definir)', coords: [35.5494, 139.7798], mode: 'air' }, toTerminal: { name: 'Fukuoka (FUK)', coords: [33.5859, 130.4510], mode: 'air' },
+      departure: '2026-10-31T19:35', arrival: '2026-10-31T21:40',
+      fromTerminal: { name: 'Haneda T2 · Tokio (HND)', coords: [35.5494, 139.7798], mode: 'air' }, toTerminal: { name: 'Fukuoka (FUK)', coords: [33.5859, 130.4510], mode: 'air' },
+      deadline: { by: '2026-10-31T19:15', what: 'cierra el despacho de equipaje de ANA en Haneda (20 min antes de la salida) y la puerta de embarque a las 19:25; conviene salir de Shinjuku ~17:45', departBy: '2026-10-31T17:45' },
       why: [
-        'El vuelo todavía no está comprado: el aeropuerto de salida y el horario se fijan al reservar.',
+        'Es el último ANA del día a Fukuoka: permite estirar el 31 con los amigos en Tokio (checkout del Park Hyatt a las 12:00, valijas en consigna hasta la tarde).',
         'Los amigos NO viajan en este salto: se quedan en Tokio y vuelan el 1/11.',
-        'El check-in del Royal Park Canvas va hasta las 23:00: entra cualquier vuelo de la tarde.'
+        'El check-in del Royal Park Canvas va hasta las 23:00 y la llegada estimada al hotel es ~22:20 — si el vuelo se atrasa, avisar al hotel.',
+        'Del aeropuerto de Fukuoka a Nakasu-Kawabata son ~15 min de subte (línea Kūkō).'
+      ],
+      segments: [
+        { route: 'HND → FUK', no: 'NH273', when: '31 oct 19:35 → 21:40', departure: '2026-10-31T19:35', arrival: '2026-10-31T21:40', aircraft: 'B787/A321 · 2h05', tracker: 'https://flightaware.com/live/flight/ANA273' }
       ] },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Cuna del ramen tonkotsu. Se llega de Tokio el 31/10 en avión (vuelo todavía sin comprar) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00).',
+    intro: 'Cuna del ramen tonkotsu. Se llega de Tokio el 31/10 en avión (ANA NH273 desde Haneda, 19:35 → 21:40) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00).',
     activities: [
       { text: 'Ichiran original', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.593241, 130.404597] },
       { text: 'Hakata Issou', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.589782, 130.419012] },
