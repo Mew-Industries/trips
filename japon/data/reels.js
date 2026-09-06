@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 272 lugares + 14 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-05T20:39:01+00:00
+// 277 lugares + 17 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-06T16:45:52+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -852,6 +852,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DTRTRRPgRcS/",
     "owner": "greenonionbun",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Five G",
+  "lat": 35.671432,
+  "lon": 139.703183,
+  "cat": "compras",
+  "area": "Tokyo",
+  "note": "Legendaria tienda de sintetizadores y equipos electrónicos vintage/modulares en Tokio; imperdible para músicos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcBTT_3ouXy/",
+    "owner": "francesca_sandroni",
+    "caption": "Legendaria tienda de sintetizadores y equipos electrónicos vintage/modulares en Tokio; imperdible para músicos.",
     "sharedBy": "Martín"
    }
   ]
@@ -2433,6 +2450,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ninja Tokyo",
+  "lat": 35.684576,
+  "lon": 139.767561,
+  "cat": "comida",
+  "area": "Tokio (Akasaka)",
+  "note": "Restaurante temático con ambientación de aldea ninja: mozos vestidos de ninja, decorado de cueva de piedra y platos servidos con trucos/teatralidad.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DYq1crKSe5f/",
+    "owner": "luc.wally5",
+    "caption": "Restaurante temático con ambientación de aldea ninja: mozos vestidos de ninja, decorado de cueva de piedra y platos servidos con trucos/teatralidad.",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
   "name": "Nintendo Museum",
   "lat": 34.892799,
   "lon": 135.784166,
@@ -3150,6 +3184,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "SMALL WORLDS TOKYO",
+  "lat": 35.637923,
+  "lon": 139.788356,
+  "cat": "museos",
+  "area": "Tokyo (Ariake)",
+  "note": "Museo de miniaturas donde te escaneás en 3D y te hacés una figura personalizada para poner en una escena en miniatura de una calle de Tokio; buen souvenir distinto.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DW9P9fziNTU/",
+    "owner": "jungblut.travel",
+    "caption": "Museo de miniaturas donde te escaneás en 3D y te hacés una figura personalizada para poner en una escena en miniatura de una calle de Tokio; buen souvenir distinto.",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
   "name": "Sofmap Akihabara",
   "lat": 35.700323,
   "lon": 139.771186,
@@ -3376,6 +3427,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/Da-bH3DDDvF/",
     "owner": "nakajapatonic"
+   }
+  ]
+ },
+ {
+  "name": "Super Nintendo World",
+  "lat": 34.667966,
+  "lon": 135.430323,
+  "cat": "ocio",
+  "area": "Osaka",
+  "note": "Área temática de Nintendo dentro de Universal Studios Japan; muestran la atracción Mario Kart con la Rainbow Road iluminada.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dblr-U3RJw-/",
+    "owner": "seyladuarte",
+    "caption": "Área temática de Nintendo dentro de Universal Studios Japan; muestran la atracción Mario Kart con la Rainbow Road iluminada.",
+    "sharedBy": "Zava"
    }
   ]
  },
@@ -4138,6 +4206,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Universal Studios Japan",
+  "lat": 34.665677,
+  "lon": 135.432319,
+  "cat": "ocio",
+  "area": "Osaka",
+  "note": "Parque de atracciones donde está Super Nintendo World y el ride de Mario Kart real.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dblr-U3RJw-/",
+    "owner": "seyladuarte",
+    "caption": "Parque de atracciones donde está Super Nintendo World y el ride de Mario Kart real.",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
   "name": "Used Camera Box",
   "lat": 35.68948,
   "lon": 139.696652,
@@ -4571,6 +4656,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Llevá efectivo para emergencias médicas",
+  "cat": "tips",
+  "area": "",
+  "note": "Algunos centros médicos en Japón sólo cobran en efectivo; conviene tener a mano ¥30.000–¥40.000 ($200–$300) por las dudas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dcdevz7vSt4/",
+    "owner": "momoncha_jp",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "Llevá efectivo: la mayoría de los locales solo cobran en cash",
   "cat": "tips",
   "area": "",
@@ -4594,6 +4693,20 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DL5Ouq7Mo4B/",
     "owner": "planesconteresa"
+   }
+  ]
+ },
+ {
+  "name": "Línea de asistencia médica para turistas 24/7",
+  "cat": "tips",
+  "area": "",
+  "note": "Japan Visitor Hotline: 050-3816-2787, disponible las 24 hs con atención en inglés, chino, coreano y japonés. Buscá atención médica si tenés fiebre >38°C, sangre en las heces, dolor abdominal fuerte o vómitos por más de un día.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dcdevz7vSt4/",
+    "owner": "momoncha_jp",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -4622,6 +4735,20 @@ window.SOURCE_TIPS = [
     "url": "https://www.instagram.com/p/DasBhYvxPlr/",
     "owner": "itsgracechin",
     "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Qué comprar en la farmacia si te intoxicás",
+  "cat": "tips",
+  "area": "",
+  "note": "Para intoxicación alimentaria en Japón: Seirogan (正露丸) para diarrea/náuseas y OS-1, una solución de rehidratación oral (\"suero bebible\") para reponer líquidos y electrolitos. Evitá antidiarreicos que corten la diarrea, porque frena la eliminación del agente que te cayó mal.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dcdevz7vSt4/",
+    "owner": "momoncha_jp",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -6031,6 +6158,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DW9P9fziNTU",
+  "url": "https://www.instagram.com/p/DW9P9fziNTU/",
+  "owner": "jungblut.travel",
+  "sharedBy": "Zava",
+  "kind": "clips",
+  "covers": [
+   "p-small-worlds-tokyo"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DWH4IvEjhgJ",
   "url": "https://www.instagram.com/p/DWH4IvEjhgJ/",
   "owner": "agusbaioni",
@@ -6134,6 +6272,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-live-haus"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DYq1crKSe5f",
+  "url": "https://www.instagram.com/p/DYq1crKSe5f/",
+  "owner": "luc.wally5",
+  "sharedBy": "Zava",
+  "kind": "clips",
+  "covers": [
+   "p-ninja-tokyo"
   ],
   "showsEach": true
  },
@@ -6410,6 +6559,18 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Dblr-U3RJw-",
+  "url": "https://www.instagram.com/p/Dblr-U3RJw-/",
+  "owner": "seyladuarte",
+  "sharedBy": "Zava",
+  "kind": "clips",
+  "covers": [
+   "p-super-nintendo-world",
+   "p-universal-studios-japan"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DbnQpsfJQPj",
   "url": "https://www.instagram.com/p/DbnQpsfJQPj/",
   "owner": "akebono_tokyo_drive",
@@ -6429,6 +6590,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-kibune"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DcBTT_3ouXy",
+  "url": "https://www.instagram.com/p/DcBTT_3ouXy/",
+  "owner": "francesca_sandroni",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-five-g"
   ],
   "showsEach": true
  },
