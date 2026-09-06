@@ -471,6 +471,7 @@
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-dates .via, .mini-pop-maps .via { opacity: .7; font-weight: 400; }
   .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
 
   @media (max-width: 900px) {
@@ -2360,11 +2361,11 @@ destinations.forEach(d => {
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
       (s.owner ? ' · @' + escHtml(s.owner) : '') +
-      (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+      (s.sharedBy ? ' · <span class="via">vía ' + escHtml(s.sharedBy) + '</span>' : '') + ' →</a>').join(' ');
     const addedBy = ADDED_BY[thingKey(a.text)];
     m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
       '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] +
-      (addedBy ? ' · + ' + escHtml(addedBy) : '') + '</div>' +
+      (addedBy ? ' · <span class="via">vía ' + escHtml(addedBy) + '</span>' : '') + '</div>' +
       (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
     actMarkers[key] = m;
     thingMarkers.set(a, m);
@@ -2448,10 +2449,10 @@ orphanPlaces.forEach(p => {
   const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
     '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
     (s.owner ? ' · @' + escHtml(s.owner) : '') +
-    (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+    (s.sharedBy ? ' · <span class="via">vía ' + escHtml(s.sharedBy) + '</span>' : '') + ' →</a>').join(' ');
   const orphanAddedBy = ADDED_BY[thingKey(p.name)];
   m.bindPopup('<div class="mini-pop"><div class="popup-title">' + escHtml(p.name) + '</div><div class="popup-dates">' +
-    CAT_LABELS[cat] + ' · sin destino asignado' + (orphanAddedBy ? ' · + ' + escHtml(orphanAddedBy) : '') + '</div>' +
+    CAT_LABELS[cat] + ' · sin destino asignado' + (orphanAddedBy ? ' · <span class="via">vía ' + escHtml(orphanAddedBy) + '</span>' : '') + '</div>' +
     (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
   thingMarkers.set(p, m);
   nearAdd(m, p.name, catColor(cat));
