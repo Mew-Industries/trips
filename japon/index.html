@@ -1189,7 +1189,7 @@ const destinations = [
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg/500px-Gyeonghoeru_%28Royal_Banquet_Hall%29_at_Gyeongbokgung_Palace%2C_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg/500px-Bukchon-ro_11-gil_street_with_hanok_houses_at_blue_hour_in_Bukchon_Hanok_Village_Seoul.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Namsan_Tower_sunset%2C_Seoul.jpg/500px-Namsan_Tower_sunset%2C_Seoul.jpg'],
     dates: '6-10 nov', nights: 4, start: '2026-11-06', end: '2026-11-10',
-    arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (vuelo a Tokio/HND)',
+    arrival: '6 nov (KTX desde Busan, ~2h30)', departure: '10 nov (Air Premia YP731 a Tokio/NRT, 08:45 desde Incheon; salir del hotel ~05:30)',
     lodging: {
       name: 'Hanok premium en Bukchon (Gahoe-dong)', type: 'Airbnb', rating: '★4.95',
       guests: '2 dormitorios · 2 camas · 1 baño compartido',
@@ -1210,7 +1210,7 @@ const destinations = [
         'El KTX todavía no está comprado: es lo que va a fijar la hora de salida.'
       ] },
     tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, a Tokio (HND), para el cierre: Hakone (parada 14, onsen + Fuji), una noche de momiji en Kioto (15) y Koyasan (16, shukubo) antes de terminar en Tokio para el vuelo del 17/11.',
+    intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, a Tokio (Air Premia YP731 a Narita), para el cierre: Hakone (parada 14, onsen + Fuji), una noche de momiji en Kioto (15) y Koyasan (16, shukubo) antes de terminar en Tokio para el vuelo del 17/11.',
     activities: [
       { text: 'Bukchon Hanok Village', group: 'Bukchon + Insadong', cat: 'barrios', coords: [37.58147, 126.984952] },
       { text: 'Insadong', group: 'Bukchon + Insadong', cat: 'compras', coords: [37.571655, 126.986233] },
@@ -1243,15 +1243,15 @@ const destinations = [
   {
     // Plan B del cierre (3/9 01:38, decisión de Martín): Yoshiike no tenía lugar
     // 12-14 y la reserva 10-12 se mantiene TAL CUAL — así que el orden del plan A
-    // se invirtió y Hakone pasó a ser la primera escala post-Seúl (se vuela a HND,
-    // no a KIX). Después siguen la noche de momiji en Kioto (15, decisión 6/9:
+    // se invirtió y Hakone pasó a ser la primera escala post-Seúl (se vuela a Tokio,
+    // no a KIX; el 6/9 se compró el YP731 a Narita). Después siguen la noche de momiji en Kioto (15, decisión 6/9:
     // reemplazó a la noche en Naoshima) y Koyasan (16).
     id: 'hakone', n: 14, type: 'destino', name: 'Hakone (onsen + Fuji)', short: 'Hakone', flag: '🇯🇵',
     coords: [35.2324, 139.1069],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG',
     imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/LakeAshi_and_MtFuji_Hakone.JPG/500px-LakeAshi_and_MtFuji_Hakone.JPG', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg/500px-Torii_of_Kuzuryu_Shrine_in_Hakone_Shrine.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Owakudani_%40_Hakone_%2810621374853%29.jpg/500px-Owakudani_%40_Hakone_%2810621374853%29.jpg'],
     dates: '10-12 nov', nights: 2, start: '2026-11-10', end: '2026-11-12',
-    arrival: '10 nov (vuelo Seúl → Tokio HND + Keikyu a Shinagawa + Kodama a Odawara + Tozan a Hakone-Yumoto)', departure: '12 nov (a Kioto: Tozan a Odawara + Shinkansen, ~2h20)',
+    arrival: '10 nov (Air Premia YP731 desde Incheon, aterriza 11:20 en Narita; N\'EX + Kodama + Tozan)', departure: '12 nov (a Kioto: Tozan a Odawara + Shinkansen, ~2h20)',
     lodging: {
       name: 'Yoshiike Ryokan', type: '★★★★ · onsen',
       guests: '2 personas · «Chisen-no-ma» 池の棟 lado jardín · 10 tatamis + engawa',
@@ -1273,17 +1273,24 @@ const destinations = [
       },
       note: 'Cuartos de tatami de 10 jō (~16 m²) con galería (hiroen) y baño propio, mirando al jardín japonés de recorrido: la habitación es «Chisen-no-ma», del ala del estanque, frente al Sangetsuen. El onsen sale de 6 fuentes propias, 100% de manantial sin recircular, con baños techados y rotenburo al aire libre entre las rocas (el koyo de noviembre cae justo). Sin comidas incluidas → cenar en Yumoto o sumar la cena del ryokan aparte.'
     },
-    leg: { mode: '✈️🚆', time: '~4 h 30 (vuelo+tren)', detail: 'Vuelo Seúl → Tokio Haneda (por comprar) + Keikyu HND → Shinagawa + Shinkansen Kodama a Odawara + Hakone Tozan a Hakone-Yumoto (~1 h 45 en tierra).',
-      dirUrl: 'https://www.google.com/travel/flights?q=flights%20from%20Seoul%20to%20Tokyo', dirLabel: 'ver vuelos ↗',
-      via: [[37.5583, 126.7906], [35.5494, 139.7798], [35.2564, 139.1553]],
-      path: [{ m: 'train', to: [37.5583, 126.7906] }, { m: 'air', to: [35.5494, 139.7798] }, { m: 'train', to: [35.62876, 139.73876] }, { m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [35.2324, 139.1069] }],
-      fromTerminal: { name: 'Seúl · Gimpo (GMP)', coords: [37.5583, 126.7906], mode: 'air' }, toTerminal: { name: 'Tokio · Haneda (HND)', coords: [35.5494, 139.7798], mode: 'air' },
+    // Comprado el 6/9: Air Premia YP731, y de HND pasó a NRT (por eso el tramo
+    // en tierra es N'EX y no Keikyu).
+    leg: { mode: '✈️🚆', time: '~5 h 30 (vuelo + tren)', detail: 'Air Premia YP731 Incheon → Narita, mar 10/11 08:45 → 11:20 + N\'EX a Shinagawa + Shinkansen Kodama a Odawara + Hakone Tozan a Hakone-Yumoto (~2h45 en tierra). Reserva K8UP4Q, 2 pax, Wide Premium Standard, 32 kg despachados por pax.',
+      departure: '2026-11-10T08:45', arrival: '2026-11-10T11:20',
+      via: [[37.4602, 126.4407], [35.7720, 140.3929], [35.2564, 139.1553]],
+      path: [{ m: 'train', to: [37.4602, 126.4407] }, { m: 'air', to: [35.7720, 140.3929] }, { m: 'train', to: [35.62876, 139.73876] }, { m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [35.2324, 139.1069] }],
+      fromTerminal: { name: 'Incheon T1 · Seúl (ICN)', coords: [37.4602, 126.4407], mode: 'air' }, toTerminal: { name: 'Narita T2 · Tokio (NRT)', coords: [35.7720, 140.3929], mode: 'air' },
+      deadline: { by: '2026-11-10T07:45', what: 'cierra el counter de Air Premia en Incheon T1 (abre 05:45, check-in mínimo 1 h antes de la salida); con el AREX a ICN (~1 h) conviene salir del hotel ~05:30', departBy: '2026-11-10T05:30' },
       why: [
-        'El vuelo Seúl → Tokio (HND) todavía no está comprado: fija a qué hora se baja a Hakone.',
-        'El ryokan espera la llegada a las 16:00 declaradas — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
+        'Wide Premium Standard con 32 kg despachados por pax: salía menos que la economy con 23 kg.',
+        'El counter en Incheon atiende 05:45-07:45 y el check-in cierra 1 h antes: con el AREX/tren a ICN (~1 h) hay que salir del hotel de Seúl ~05:30.',
+        'De Narita a Hakone-Yumoto son ~2h45 (N\'EX + Kodama + Tozan): llegada ~14:30, con margen para las 16:00 declaradas en Yoshiike — avisar por teléfono (+81 460-85-5711) si van a llegar más tarde.'
+      ],
+      segments: [
+        { route: 'ICN → NRT', no: 'YP731', when: '10 nov 08:45 → 11:20', departure: '2026-11-10T08:45', arrival: '2026-11-10T11:20', aircraft: 'B787-9 · 2h35', tracker: 'https://flightaware.com/live/flight/APZ731' }
       ] },
     tempMax: '13-20', tempMin: '8-15', weatherUpdated: '2026-09-05', weatherMode: 'climatología',
-    intro: 'Primera escala del cierre: onsen + Fuji + otoño. Se llega directo de Seúl (vuelo a Haneda + Keikyu a Shinagawa + Kodama a Odawara + Tozan, ~1 h 45 en tierra desde el aeropuerto) y el 12 se sigue a Kioto (~2h20, una noche de momiji). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
+    intro: 'Primera escala del cierre: onsen + Fuji + otoño. Se llega directo de Seúl (Air Premia YP731 a Narita + N\'EX a Shinagawa + Kodama a Odawara + Tozan, ~2h45 en tierra desde el aeropuerto) y el 12 se sigue a Kioto (~2h20, una noche de momiji). Hace frío (~10°/2°), pero el frío es justo lo que pide el onsen. Ryokan con baños termales, valle volcánico de Owakudani y vistas al monte Fuji desde el lago Ashi. El koyo de noviembre en su punto.',
     activities: [
       { text: 'Castillo Odawara (puerta de entrada a Hakone)', cat: 'miradores', coords: [35.25055, 139.15355], url: "https://www.google.com/maps/search/?api=1&query=Castillo%20Odawara" },
       { text: 'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)', cat: 'museos', coords: [35.24516, 139.050727], url: "https://www.google.com/maps/search/?api=1&query=Museo%20al%20Aire%20Libre%20de%20Hakone" },
@@ -1686,7 +1693,7 @@ const airports = [
   { code: 'SDJ', name: 'Sendai', coords: [38.1397, 140.9171] },
   { code: 'CTS', name: 'New Chitose · Sapporo', coords: [42.7752, 141.6923] },
   { code: 'KMQ', name: 'Komatsu · Kanazawa', coords: [36.3946, 136.4076] },
-  { code: 'GMP', name: 'Seúl Gimpo', coords: [37.5583, 126.7906] },
+  { code: 'ICN', name: 'Seúl Incheon', coords: [37.4602, 126.4407] },
   // Américas plotadas con lng+360 para que el vuelo cruce el Pacífico por la DERECHA
   // (en un mapa centrado en Asia, las Américas quedan al este). Si no, la línea daba
   // la vuelta al mundo por el lado equivocado (Europa/África).
