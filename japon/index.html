@@ -1061,7 +1061,13 @@ const destinations = [
       ] },
     tempMax: '16-24', tempMin: '6-18', weatherUpdated: '2026-09-08', weatherMode: 'climatología',
     intro: 'Cuatro noches en Tokio con amigos, entre Osaka y Fukuoka, en el Park Hyatt de Shinjuku (la reserva la tomaron ellos). El 31 Martín y Cata siguen a Fukuoka y ellos se quedan una noche más (vuelan el 1/11).',
-    activities: [],
+    // Única actividad confirmada del tramo: la reserva de TableCheck (fwd 8/9). Las coords
+    // salen de la ficha de Tabelog del local (13279899), no de geocodear el nombre.
+    activities: [
+      { text: 'Mirai Suisan — reservado mié 28/10 18:00 (4 pax, barra, 1 h)', cat: 'comida', coords: [35.680857, 139.646713],
+        note: 'Atún rojo fresco, nunca congelado, y vinos, en Eifukuchō (Suginami): 10 min de Shibuya por la Keio Inokashira y 7 a pie desde la estación. Los miércoles cierran 19:00, así que el turno es un "quick stay" de una hora y la cena larga va después.',
+        url: "https://www.google.com/maps/search/?api=1&query=%E3%81%BF%E3%82%89%E3%81%84%E6%B0%B4%E7%94%A3%20%E6%B0%B8%E7%A6%8F%E7%94%BA" }
+    ],
     daytrips: []
   },
   {
