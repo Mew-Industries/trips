@@ -30,6 +30,7 @@ window.PLACE_ADDED_BY = {
  "fukazawa tiny museum": "Cata",
  "garden of fine arts kyoto": "Martín",
  "geibikei gorge": "Cata",
+ "gen yamamoto": "Martín",
  "gentle monster": "Cata",
  "ginzan onsen": "Cata",
  "goshikinuma ponds": "Cata",
