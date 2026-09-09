@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 277 lugares + 17 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-06T16:45:52+00:00
+// 279 lugares + 17 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-09T16:38:29+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -1043,6 +1043,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "goyemon Osaka",
+  "lat": 34.67643,
+  "lon": 135.502268,
+  "cat": "compras",
+  "area": "Osaka (Minamisenba, Chuo-ku)",
+  "note": "Tienda de setta/sandalias japonesas tradicionales con patrones clásicos; local tipo concept store donde te las probás y elegís.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Db6P8CjzJop/",
+    "owner": "goyemon_global",
+    "caption": "Tienda de setta/sandalias japonesas tradicionales con patrones clásicos; local tipo concept store donde te las probás y elegís.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "Goyomatsu Limestone Cave",
   "lat": 34.266564,
   "lon": 135.894259,
@@ -1880,8 +1897,8 @@ window.SOURCE_THINGS = [
   "lat": 35.061491,
   "lon": 135.783294,
   "cat": "arquitectura",
-  "area": "Kioto (Takaragaike)",
-  "note": "'Escultura puesta en el paisaje' — geometría brutalista de Otani en armonía con Takaragaike",
+  "area": "Sakyo, Kioto",
+  "note": "Centro de convenciones de 1966 de Sachio Otani en hormigón visto, con formas trapezoidales que evocan las montañas y pagodas de Kioto, a orillas del lago Takaragaike.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1892,6 +1909,13 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DPBWADhkhPo/",
     "owner": "casarchiphoto",
+    "sharedBy": "Martín"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcaUJYyD8FI/",
+    "owner": "tatlerasia",
+    "caption": "Centro de convenciones de 1966 de Sachio Otani en hormigón visto, con formas trapezoidales que evocan las montañas y pagodas de Kioto, a orillas del lago Takaragaike.",
     "sharedBy": "Martín"
    }
   ]
@@ -3734,6 +3758,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DG0ZAPUJv55/",
     "owner": "raymond.hou"
+   }
+  ]
+ },
+ {
+  "name": "The Railway Museum",
+  "lat": 35.921425,
+  "lon": 139.61792,
+  "cat": "museos",
+  "area": "Saitama",
+  "note": "Museo ferroviario ideal para fans de trenes y familias: simuladores hands-on, exhibiciones y un mini tren que se puede manejar. Entrada ~¥1500 adultos, mini tren ~¥600; conviene reservar algunas actividades.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dcvq343kurY/",
+    "owner": "japan.explores",
+    "caption": "Museo ferroviario ideal para fans de trenes y familias: simuladores hands-on, exhibiciones y un mini tren que se puede manejar. Entrada ~¥1500 adultos, mini tren ~¥600; conviene reservar algunas actividades.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -6504,6 +6545,17 @@ window.SOURCE_REELS = [
   "showsEach": false
  },
  {
+  "code": "Db6P8CjzJop",
+  "url": "https://www.instagram.com/p/Db6P8CjzJop/",
+  "owner": "goyemon_global",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-goyemon-osaka"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DbN8Ul9iOtF",
   "url": "https://www.instagram.com/p/DbN8Ul9iOtF/",
   "owner": "agrainoftime",
@@ -6685,6 +6737,28 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-mod-tokyo"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DcaUJYyD8FI",
+  "url": "https://www.instagram.com/p/DcaUJYyD8FI/",
+  "owner": "tatlerasia",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-kyoto-international-conference-center"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "Dcvq343kurY",
+  "url": "https://www.instagram.com/p/Dcvq343kurY/",
+  "owner": "japan.explores",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-the-railway-museum"
   ],
   "showsEach": true
  }
