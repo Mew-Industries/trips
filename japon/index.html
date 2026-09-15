@@ -1328,11 +1328,11 @@ const destinations = [
     // Hakone y Koyasan, apuntada al pico de momiji y las iluminaciones nocturnas.
     id: 'kioto-momiji', n: 15, type: 'destino', name: 'Kioto (momiji, 1 noche)', short: 'Kioto', flag: '🇯🇵',
     coords: [35.0116, 135.7681],
-    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg',
-    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg'],
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zenrinji_Eikando_20161113-1.jpg/500px-Zenrinji_Eikando_20161113-1.jpg',
+    imgs: ['https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zenrinji_Eikando_20161113-1.jpg/500px-Zenrinji_Eikando_20161113-1.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg'],
     dates: '12-13 nov', nights: 1, start: '2026-11-12', end: '2026-11-13',
     arrival: '12 nov (de Hakone: Tozan a Odawara + Shinkansen Hikari/Nozomi a Kioto, ~2h20)', departure: '13 nov (a Koyasan: Kioto → Shin-Osaka/Namba + Nankai línea Koya + funicular, ~2h20; check-in Eko-in 14:00-17:30)',
-    lodgingTbd: 'Por reservar — 1 noche, cerca de Gion/Higashiyama para las iluminaciones nocturnas.',
+    lodgingTbd: 'Por reservar — 1 noche en Gion/Higashiyama sur (Kōdai-ji a pie, Keihan Gion-Shijō para Tōfuku-ji y la bajada a Osaka del 13).',
     leg: { mode: '🚆', time: '~2 h 20', detail: 'Hakone Tozan a Odawara + Shinkansen a Kioto.',
       via: [[35.2564, 139.1553]],
       path: [{ m: 'train', to: [35.2564, 139.1553] }, { m: 'train', to: [35.0116, 135.7681] }],
@@ -1342,10 +1342,11 @@ const destinations = [
         'Check-out de Yoshiike a las 10:00: se llega a Kioto con la tarde por delante.'
       ] },
     tempMax: '11-22', tempMin: '3-12', weatherUpdated: '2026-09-15', weatherMode: 'climatología',
-    intro: 'Una noche de vuelta en Kioto, justo en el pico del momiji: los templos del este abren de noche con los jardines iluminados (Eikan-dō, Kiyomizu-dera). Es la noche de transición del cierre — se llega de Hakone a media tarde, se duerme una, y el 13 a la mañana se sigue tranquilo hacia Koyasan.',
+    intro: 'Una noche de vuelta en Kioto, justo en el pico del momiji: los templos del este abren de noche con los jardines iluminados (Eikan-dō, Kōdai-ji; Kiyomizu-dera solo ilumina del 21 al 30/11, fuera de fecha). Es la noche de transición del cierre — se llega de Hakone a media tarde, se duerme una, y el 13 a la mañana se sigue tranquilo hacia Koyasan.',
     activities: [
-      { text: 'Eikan-dō (iluminación nocturna del momiji)', cat: 'templos', coords: [35.01446, 135.79364], url: "https://www.google.com/maps/search/?api=1&query=Eikando%20Zenrinji%20Kyoto" },
-      { text: 'Kiyomizu-dera (iluminación nocturna)', cat: 'templos', coords: [34.994358, 135.785238], url: "https://www.google.com/maps/search/?api=1&query=Kiyomizu-dera" },
+      { text: 'Eikan-dō (iluminación 17:30–21:00, del 7/11 al 6/12; llegar 17:15 o después de las 20)', cat: 'templos', coords: [35.01446, 135.79364], url: "https://www.google.com/maps/search/?api=1&query=Eikando%20Zenrinji%20Kyoto" },
+      { text: 'Kōdai-ji (iluminación nocturna, hasta 22:00)', cat: 'templos', coords: [34.99998, 135.78130], url: "https://www.google.com/maps/search/?api=1&query=Kodaiji%20Temple%20Kyoto" },
+      { text: 'Tō-ji (pagoda iluminada, 18:00–21:30; a 15 min de la estación)', cat: 'templos', coords: [34.98060, 135.74760], url: "https://www.google.com/maps/search/?api=1&query=Toji%20Temple%20Kyoto" },
       { text: 'Tōfuku-ji (momiji, mejor temprano)', cat: 'templos', coords: [34.97641, 135.77393], url: "https://www.google.com/maps/search/?api=1&query=Tofuku-ji%20Kyoto" },
       { text: 'Arashiyama (opcional, si el día da)', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" }
     ],
