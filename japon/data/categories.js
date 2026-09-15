@@ -121,10 +121,11 @@ window.PLACE_CAT_OVERRIDES = {
   'Garden of Fine Arts Kyoto (Tadao Ando)': 'arte',
   'MIHO MUSEUM': 'arte',
   'Murou Art Forest': 'arte',                   // land art de Dani Karavan
-  'Naoshima': 'arte',                           // el day trip sugerido desde Osaka
-  // --- Naoshima como parada (3/9): las actividades del nodo son todas arte ---
+  'Naoshima': 'arte',                           // day trip del vie 23/10 desde Kioto
+  // --- Naoshima (day trip con entradas desde el 15/9): las actividades son todas arte ---
   'Chichu Art Museum': 'arte',
   'Benesse House Museum': 'arte',
+  'Minamidera (Art House Project, James Turrell)': 'arte',
   'Lee Ufan Museum': 'arte',
   'Valley Gallery': 'arte',
   'Red Pumpkin de Kusama (puerto de Miyanoura)': 'arte',

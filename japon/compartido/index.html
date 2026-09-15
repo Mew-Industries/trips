@@ -471,6 +471,7 @@
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
   .popup-dates { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .popup-dates .via, .mini-pop-maps .via { opacity: .7; font-weight: 400; }
   .popup-why { font-size: 11px; color: #333; line-height: 1.5; }
 
   @media (max-width: 900px) {
@@ -627,10 +628,44 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-05",
+    "weatherUpdated": "2026-09-15",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
+      {
+        "text": "Chichu Art Museum",
+        "cat": "museos",
+        "coords": [
+          34.447748,
+          133.984717
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum",
+        "at": "2026-10-23T12:30",
+        "until": "2026-10-23T14:00",
+        "booked": "Entradas compradas ×4 · slot 12:30 (cancelable hasta 30 min antes, la hora no se cambia) · QR en eventos.tokyo → My Page → My Ticket"
+      },
+      {
+        "text": "Benesse House Museum",
+        "cat": "museos",
+        "coords": [
+          34.445228,
+          133.990658
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum",
+        "at": "2026-10-23T14:15",
+        "booked": "Entradas compradas ×4 (incluyen Valley Gallery) · sin hora fija, se entra al llegar · QR en eventos.tokyo"
+      },
+      {
+        "text": "Minamidera (Art House Project, James Turrell)",
+        "cat": "museos",
+        "coords": [
+          34.4588511,
+          133.9968422
+        ],
+        "url": "https://www.google.com/maps/search/?api=1&query=Minamidera%20Naoshima",
+        "at": "2026-10-23T15:20",
+        "booked": "Entradas compradas ×4 · turno 15:20 (cupo por turno) · QR en eventos.tokyo · después, Art House/Honmura hasta ~16:30"
+      },
       {
         "text": "Arashiyama Monkey Park Iwatayama",
         "cat": "parques",
@@ -785,6 +820,17 @@ const destinations = [
     ],
     "daytrips": [
       {
+        "id": "naoshima",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg",
+        "name": "Naoshima",
+        "coords": [
+          34.4554,
+          133.9933
+        ],
+        "time": "vie 23/10 · ida y vuelta desde Kioto",
+        "desc": "Isla de arte, entradas compradas ×4: Chichu 12:30 → Benesse House ~14:15 → Minamidera 15:20 → Art House/Honmura hasta ~16:30. Ida: Nozomi 08:12 → Okayama 09:16 · Marine Liner 09:33 → Chayamachi → local 10:12 → Uno 10:45 · ferry 11:00 → Miyanoura 11:20. Vuelta: ferry 17:35 (o 16:35) → Uno → local 18:05 (17:05) → Okayama → Nozomi → Kioto ~20:20 (~19:20). ⚠️ Último Nozomi seguro 08:30; sin ferry entre 09:22 y 11:00 — perder el de 11:00 es perder el slot del Chichu."
+      },
+      {
         "id": "nara",
         "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/T%C5%8Ddai-ji_Kon-d%C5%8D.jpg/360px-T%C5%8Ddai-ji_Kon-d%C5%8D.jpg",
         "name": "Nara",
@@ -904,9 +950,25 @@ const destinations = [
       "note": "Cuarto de 25 m² en los pisos 14 a 18, cama queen de 170 cm y ventanal a la ciudad. Tiene kitchenette con microondas y lavarropas-secarropas en la habitación: a mitad del viaje eso resuelve la ropa. Es un Tokyu Stay operado bajo la marca Mercure, abierto en 2023."
     },
     "leg": {
-      "mode": "🚄",
+      "mode": "🚆",
       "time": "~1 h",
-      "detail": "JR Kioto → Osaka + metro Midōsuji a Namba.",
+      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba.",
+      "path": [
+        {
+          "m": "train",
+          "to": [
+            34.7335,
+            135.5002
+          ]
+        },
+        {
+          "m": "train",
+          "to": [
+            34.6937,
+            135.5023
+          ]
+        }
+      ],
       "fromTerminal": {
         "name": "Estación de Kioto",
         "coords": [
@@ -924,15 +986,15 @@ const destinations = [
         "mode": "train"
       },
       "why": [
-        "Salto corto dentro de Kansai: la mañana del 24 queda entera en Kioto.",
-        "En Dōtonbori no hay check-in antes de las 16:00."
+        "Naoshima quedó hecho el viernes 23 como day trip desde Kioto (entradas compradas): el sábado 24 es un traslado corto, sin horarios que corran.",
+        "Checkout de la machiya a las 10:00; el Mercure de Namba toma check-in de 14:00 a 25:00 — la tarde y la noche quedan enteras para Dōtonbori."
       ]
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-05",
+    "weatherUpdated": "2026-09-15",
     "weatherMode": "climatología",
-    "intro": "Base para Naoshima + comida callejera. La energía contraria de Kioto. Se llega de Kioto en tren (~1 h) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
+    "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el viernes como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
       {
         "text": "Kuromon Ichiba (mercado)",
@@ -1077,17 +1139,6 @@ const destinations = [
     ],
     "daytrips": [
       {
-        "id": "naoshima",
-        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg",
-        "name": "Naoshima",
-        "coords": [
-          34.4554,
-          133.9933
-        ],
-        "time": "3 h vía Okayama + ferry",
-        "desc": "Isla de arte: Chichu, Benesse, pumpkin de Kusama."
-      },
-      {
         "id": "kobe",
         "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg/360px-Kobe_Port_Tower_and_Maritime_Museum%2C_November_2016.jpg",
         "name": "Kobe",
@@ -1205,10 +1256,21 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-05",
+    "weatherUpdated": "2026-09-15",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
-    "activities": [],
+    "activities": [
+      {
+        "text": "Mirai Suisan — reservado mié 28/10 18:00 (4 pax, barra, 1 h)",
+        "cat": "comida",
+        "coords": [
+          35.680857,
+          139.646713
+        ],
+        "note": "Atún rojo fresco, nunca congelado, y vinos, en Eifukuchō (Suginami): 10 min de Shibuya por la Keio Inokashira y 7 a pie desde la estación. Los miércoles cierran 19:00, así que el turno es un \"quick stay\" de una hora y la cena larga va después.",
+        "url": "https://www.google.com/maps/search/?api=1&query=%E3%81%BF%E3%82%89%E3%81%84%E6%B0%B4%E7%94%A3%20%E6%B0%B8%E7%A6%8F%E7%94%BA"
+      }
+    ],
     "daytrips": []
   }
 ];
@@ -2076,11 +2138,11 @@ destinations.forEach(d => {
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
       (s.owner ? ' · @' + escHtml(s.owner) : '') +
-      (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+      (s.sharedBy ? ' · <span class="via">vía ' + escHtml(s.sharedBy) + '</span>' : '') + ' →</a>').join(' ');
     const addedBy = ADDED_BY[thingKey(a.text)];
     m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
       '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] +
-      (addedBy ? ' · + ' + escHtml(addedBy) : '') + '</div>' +
+      (addedBy ? ' · <span class="via">vía ' + escHtml(addedBy) + '</span>' : '') + '</div>' +
       (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
     actMarkers[key] = m;
     thingMarkers.set(a, m);
@@ -2164,10 +2226,10 @@ orphanPlaces.forEach(p => {
   const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
     '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
     (s.owner ? ' · @' + escHtml(s.owner) : '') +
-    (s.sharedBy ? ' · + ' + escHtml(s.sharedBy) : '') + ' →</a>').join(' ');
+    (s.sharedBy ? ' · <span class="via">vía ' + escHtml(s.sharedBy) + '</span>' : '') + ' →</a>').join(' ');
   const orphanAddedBy = ADDED_BY[thingKey(p.name)];
   m.bindPopup('<div class="mini-pop"><div class="popup-title">' + escHtml(p.name) + '</div><div class="popup-dates">' +
-    CAT_LABELS[cat] + ' · sin destino asignado' + (orphanAddedBy ? ' · + ' + escHtml(orphanAddedBy) : '') + '</div>' +
+    CAT_LABELS[cat] + ' · sin destino asignado' + (orphanAddedBy ? ' · <span class="via">vía ' + escHtml(orphanAddedBy) + '</span>' : '') + '</div>' +
     (p.note ? '<div class="popup-dates">' + escHtml(p.note) + '</div>' : '') + evidence + '</div>');
   thingMarkers.set(p, m);
   nearAdd(m, p.name, catColor(cat));
