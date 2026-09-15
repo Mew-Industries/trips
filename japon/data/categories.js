@@ -121,7 +121,7 @@ window.PLACE_CAT_OVERRIDES = {
   'Garden of Fine Arts Kyoto (Tadao Ando)': 'arte',
   'MIHO MUSEUM': 'arte',
   'Murou Art Forest': 'arte',                   // land art de Dani Karavan
-  'Naoshima': 'arte',                           // day trip del vie 23/10 desde Kioto
+  'Naoshima': 'arte',                           // day trip del jue 22/10 desde Kioto
   // --- Naoshima (day trip con entradas desde el 15/9): las actividades son todas arte ---
   'Chichu Art Museum': 'arte',
   'Benesse House Museum': 'arte',
