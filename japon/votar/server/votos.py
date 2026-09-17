@@ -32,6 +32,7 @@ import re
 import sqlite3
 import secrets
 import threading
+import sys
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -41,6 +42,10 @@ DATA_DIR = os.environ.get(
     "VOTOS_DATA_DIR", "/home/openclaw/.openclaw/workspace/data/japon-votos"
 )
 DB_PATH = os.path.join(DATA_DIR, "votos.db")
+PLAN_SERVER = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "plan", "server"))
+if PLAN_SERVER not in sys.path:
+    sys.path.insert(0, PLAN_SERVER)
+from plan import init_plan_db, read_plan, write_plan  # noqa: E402
 
 # Los tres votos posibles y su peso en el score. `no` pesa 0 a propósito: el
 # score mide interés acumulado, no consenso — un "paso" no descuenta el
@@ -101,6 +106,11 @@ def init_db():
             " id TEXT PRIMARY KEY, name TEXT NOT NULL,"
             " token TEXT NOT NULL UNIQUE, created_at TEXT NOT NULL)"
         )
+        init_plan_db(con)
+        con.execute(
+            "INSERT OR IGNORE INTO users (id, name, token, created_at) VALUES (?,?,?,?)",
+            ("plan", "Plan", secrets.token_hex(16), now_iso()),
+        )
         con.execute(
             "CREATE TABLE IF NOT EXISTS votes ("
             " token TEXT NOT NULL, place_id TEXT NOT NULL, vote TEXT NOT NULL,"
@@ -125,7 +135,7 @@ def init_db():
     rows = con.execute("SELECT id, name, token FROM users").fetchall()
     order = {uid: i for i, (uid, _) in enumerate(TRAVELLERS)}
     rows = sorted(
-        [r for r in rows if not is_test(r["id"])], key=lambda r: order.get(r["id"], 99)
+        [r for r in rows if r["id"] in order], key=lambda r: order[r["id"]]
     )
     lines = ["# Links personales de votación (japon/votar) — task 548", ""]
     lines += [
@@ -134,6 +144,8 @@ def init_db():
         )
         for r in rows
     ]
+    plan = next(r for r in con.execute("SELECT token FROM users WHERE id='plan'").fetchall())
+    lines += ["", "- Plan: https://mew-industries.github.io/trips/japon/?tab=dias&plan={}".format(plan["token"])]
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines) + "\n")
@@ -269,6 +281,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._json({"ok": True, "service": "japon-votos", "now": now_iso()})
         if path == "/votes":
             return self._get_votes(params.get("u", ""))
+        if path == "/plan":
+            return self._get_plan(params.get("u", ""))
         if path == "/aggregate":
             # `?includeTest=1` mete a los votantes de prueba en el tally. Es
             # para que `check_votar.js` pueda probar que la suma cruza varios
@@ -284,14 +298,18 @@ class Handler(BaseHTTPRequestHandler):
         if data is None:
             return
         if self.path.partition("?")[0] != "/votes":
-            return self._json({"error": "not found"}, 404)
+            if self.path.partition("?")[0] != "/plan":
+                return self._json({"error": "not found"}, 404)
         if not data:
             return self._json({"error": "empty body"}, 400)
         try:
             body = json.loads(data.decode("utf-8"))
         except Exception:
             return self._json({"error": "invalid json"}, 400)
-        return self._put_vote(body if isinstance(body, dict) else {})
+        body = body if isinstance(body, dict) else {}
+        if self.path.partition("?")[0] == "/plan":
+            return self._put_plan(body)
+        return self._put_vote(body)
 
     # ------------------------------------------------------------ handlers
 
@@ -320,6 +338,31 @@ class Handler(BaseHTTPRequestHandler):
                 "updatedAt": max([r["updated_at"] for r in rows], default=None),
             }
         )
+
+    def _get_plan(self, token):
+        user = user_for(token)
+        if not user or user["id"] != "plan":
+            return self._json({"error": "unknown token"}, 403)
+        con = connect()
+        try:
+            days = read_plan(con, token)
+        finally:
+            con.close()
+        return self._json({"days": days})
+
+    def _put_plan(self, body):
+        user = user_for(body.get("token"))
+        if not user or user["id"] != "plan":
+            return self._json({"error": "unknown token"}, 403)
+        try:
+            with _lock:
+                con = connect()
+                with con:
+                    promoted = write_plan(con, user["token"], body.get("date"), body.get("promoted"), now_iso())
+                con.close()
+        except ValueError as err:
+            return self._json({"error": str(err)}, 400)
+        return self._json({"ok": True, "date": body.get("date"), "promoted": promoted})
 
     def _put_vote(self, body):
         user = user_for(body.get("token"))

@@ -129,6 +129,16 @@ const check = (name, ok, extra = '') => {
     d14line.every(p => p.anchor || p.terminal || p.bed) && d14line.length < d14.spec.line.length,
     d14line.length + ' confirmados / ' + d14.spec.line.length + ' totales');
 
+  // 5 · una key promovida se suma y una key vieja/desaparecida se ignora.
+  const firstSuggestion = d14.spec.route.find(p => !p.anchor);
+  const promotedCtx = Object.assign({}, ctx, { plan: { promoted: () => [firstSuggestion.key, 'ya-no-existe:99'] } });
+  const promotedSpec = dayRoute(d14.day, promotedCtx);
+  const promotedLine = confirmedDayLine(promotedSpec);
+  check('una sugerencia promovida entra al mapa y una key inexistente no rompe el día',
+    promotedLine.some(p => p.key === firstSuggestion.key && p.promoted) &&
+      !promotedLine.some(p => p.key === 'ya-no-existe:99'),
+    firstSuggestion.key + ' promovida; key inexistente ignorada');
+
   console.log(failed ? `\n✗ ${failed} check(s) fallaron` : '\n✓ todo ok');
   process.exit(failed ? 1 : 0);
 })();

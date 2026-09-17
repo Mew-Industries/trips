@@ -574,6 +574,7 @@
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 import { mountViews } from './views.js';
+import { createPlanClient } from './plan/client.js';
 
 const destinations = [
   {
@@ -3749,7 +3750,7 @@ function renderDayMap(container, spec) {
   };
   // El mapa embebido es el plan confirmado. Las camas reservadas y las terminales son
   // puntas reales del recorrido; entre las actividades entran sólo las anclas con hora.
-  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor);
+  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
   const pts = line.map(coordsOf).filter(Boolean);
   const stopPts = (spec.stops || []).map(id => {
     const n = destinations.find(d => d.id === id);
@@ -3854,6 +3855,7 @@ try {
     // Foco de día (task 508): la vista arma el recorrido (qué puntos y en qué orden)
     // y el mapa lo dibuja; salir vuelve por la URL, por eso el chip avisa para acá.
     focusDay: enterDayFocus, exitDayFocus, renderDayMap,
+    plan: createPlanClient(),
     onDayExit: (fn) => { dayExitHandler = fn; },
     wire: (pane) => {
       wireChecklist(pane);

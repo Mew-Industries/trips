@@ -87,7 +87,7 @@ function pageHtml(meta) {
 <link rel="canonical" href="${SITE}?tab=dias&amp;jornada=${meta.date}">
 <link rel="icon" href="../favicon.ico" sizes="any">
 <meta http-equiv="refresh" content="0; url=${esc(app)}">
-<script>location.replace(new URL(${JSON.stringify(app)}, location.href).href);</script>
+<script>{const u=new URL(${JSON.stringify(app)},location.href),p=new URL(location.href).searchParams.get('plan');if(p)u.searchParams.set('plan',p);location.replace(u.href);}</script>
 <style>body{margin:0;padding:40px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a1a}a{color:#0F6E56}</style>
 </head>
 <body>

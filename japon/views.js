@@ -444,6 +444,13 @@ export function dayRoute(day, ctx, keepOrder) {
     for (const it of s.clusters.flatMap(c => c.items))
       (it.act.coords ? bucket(s.node) : loose).push(entry(s.node, it.i, it.act));
 
+  // La capa editable sólo referencia keys que todavía existen. Si una actividad fue
+  // eliminada/renombrada en itinerary.js, queda ignorada sin ensuciar el render.
+  const wanted = ctx.plan ? ctx.plan.promoted(day.date) : [];
+  const promoted = new Set(wanted);
+  byNode.forEach(pts => pts.forEach(p => { if (!p.anchor && promoted.has(p.key)) p.promoted = true; }));
+  loose.forEach(p => { if (promoted.has(p.key)) p.promoted = true; });
+
   // Los tramos que se toman ESE día, por id: un vuelo con escalas emite un evento por
   // segmento, pero el salto —y sus terminales— es uno.
   const legsToday = new Map();
@@ -495,6 +502,15 @@ export function dayRoute(day, ctx, keepOrder) {
   });
   if (bed) line.push({ bed: bed.id });
 
+  // El array del diff también conserva el orden elegido. Sólo mueve promociones;
+  // las anclas mantienen entre sí la secuencia cronológica que trae day.events.
+  const rank = new Map(wanted.map((key, i) => [key, i]));
+  const slots = route.map((p, i) => p.promoted ? i : -1).filter(i => i >= 0);
+  const chosen = slots.map(i => route[i]).sort((a, b) => rank.get(a.key) - rank.get(b.key));
+  slots.forEach((slot, i) => { route[slot] = chosen[i]; });
+  const lineSlots = line.map((p, i) => p.promoted ? i : -1).filter(i => i >= 0);
+  lineSlots.forEach((slot, i) => { line[slot] = chosen[i]; });
+
   return {
     date: day.date,
     // El chip del mapa es HTML, no texto: la fecha concreta cae en modo discreto,
@@ -522,14 +538,17 @@ export function dayRoute(day, ctx, keepOrder) {
 // la lista): una vez por jornada alcanza.
 const _routes = new WeakMap();
 function routeOf(day, ctx) {
-  if (!_routes.has(day)) _routes.set(day, dayRoute(day, ctx));
-  return _routes.get(day);
+  const sig = ctx.plan ? ctx.plan.promoted(day.date).join('\u0000') : '';
+  const old = _routes.get(day);
+  if (!old || old.sig !== sig) _routes.set(day, { sig, spec: dayRoute(day, ctx) });
+  return _routes.get(day).spec;
 }
 
 // El mapa de la jornada muestra el plan confirmado: hospedajes, terminales y actividades
 // con hora/reserva (`anchor`). Las sugerencias siguen en la lista, pero no dibujan ni
 // marcadores ni línea. Mantener este filtro acá también evita renderizar un mapa vacío.
-export const confirmedDayLine = spec => (spec.line || []).filter(p => p.bed || p.terminal || p.anchor);
+export const confirmedDayLine = spec => (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
+const plannedSpec = spec => Object.assign({}, spec, { line: confirmedDayLine(spec) });
 const dayHasMap = spec => confirmedDayLine(spec).length > 0 || (spec.stops || []).length > 0;
 
 // El recorrido del día en la sidebar: los mismos puntos, en el mismo orden y con el
@@ -565,7 +584,8 @@ function routeListHtml(spec, ctx, day, cap) {
   // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
   let node = null, grp = null;
   const multi = new Set(spec.route.map(p => p.key.split(':')[0])).size > 1;
-  const items = spec.route.map((p, i) => {
+  const available = spec.route.filter(p => !p.anchor && !p.promoted);
+  const items = available.map((p, i) => {
     let head = '';
     const nid = p.key.split(':')[0];
     if (multi && nid !== node) head += '<li class="rt-node' + over() + '">' + esc(shortOf(nid)) + '</li>';
@@ -573,17 +593,19 @@ function routeListHtml(spec, ctx, day, cap) {
     node = nid; grp = p.group;
     // Los de una salida van indentados: si no, el primer ítem suelto que viene después
     // se lee como si todavía perteneciera al rótulo de arriba.
-    const row = head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + over() + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' +
+    const add = ctx.plan && ctx.plan.canEdit() ? '<button type="button" class="pl-toggle" data-plan-add="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Sumar al itinerario">＋</button>' : '';
+    const row = head + '<li class="rt-item plan-move' + (p.group ? ' in-grp' : '') + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" style="--c:' + color(p) + '">' +
       '<button type="button" class="sg-item" data-act="' + p.key + '" data-ord="' + (i + 1) + '">' +
         (p.time ? '<span class="rt-t dx">' + p.time + '</span>' : '') + icon(p) + label(p.act) +
-      '</button>' + maps(p.act) + '</li>';
+      '</button>' + maps(p.act) + add + '</li>';
     k++;
     return row;
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
-  const rest = spec.loose.map(p => {
-    const row = '<li class="rt-item plain' + over() + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + maps(p.act) + '</li>';
+  const rest = spec.loose.filter(p => !p.promoted).map(p => {
+    const add = ctx.plan && ctx.plan.canEdit() ? '<button type="button" class="pl-toggle" data-plan-add="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Sumar al itinerario">＋</button>' : '';
+    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + maps(p.act) + add + '</li>';
     k++;
     return row;
   }).join('');
@@ -705,6 +727,20 @@ function readOrder(day) {
 const fixedPlanHtml = (day, ctx) => day.events.length
   ? '<ol class="pl-list">' + readOrder(day).map(e => planItemHtml(e, ctx)).join('') + '</ol>' : '';
 
+function promotedPlanHtml(day, ctx, spec) {
+  const esc = ctx.escHtml;
+  const rank = new Map(ctx.plan.promoted(day.date).map((key, i) => [key, i]));
+  const all = spec.route.concat(spec.loose).filter(p => p.promoted)
+    .sort((a, b) => rank.get(a.key) - rank.get(b.key));
+  const rows = all.map((p, i) => '<li class="pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '">' +
+    '<span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-name">' + esc(p.act.text) + '</span>' +
+    '<span class="pl-order"><button type="button" data-plan-up="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Subir"' + (i ? '' : ' disabled') + '>↑</button>' +
+    '<button type="button" data-plan-down="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Bajar"' + (i + 1 < all.length ? '' : ' disabled') + '>↓</button></span>' +
+    '<button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></li>').join('');
+  return '<div class="pl-drop" data-plan-drop="' + day.date + '" tabindex="0" aria-label="Itinerario editable. Arrastrá sugerencias acá.">' +
+    (rows ? '<ol class="pl-promoted-list">' + rows + '</ol>' : '<div class="pl-empty">Arrastrá sugerencias acá</div>') + '</div>';
+}
+
 // Dónde estás ese día y dónde dormís: las dos líneas de cabecera, compartidas por
 // la tarjeta de la tab y la vista de día.
 function whereHtml(day, ctx) {
@@ -743,7 +779,7 @@ function cityCatalogHtml(day, ctx) {
 // sigue plegado abajo, que es otra cosa: no es lo que toca hoy.
 function sugSectionHtml(day, ctx, cap) {
   const spec = routeOf(day, ctx);
-  const total = spec.route.length + spec.loose.length;
+  const total = spec.route.filter(p => !p.anchor && !p.promoted).length + spec.loose.filter(p => !p.promoted).length;
   const list = routeListHtml(spec, ctx, day, cap);
   const all = cityCatalogHtml(day, ctx);
   if (!list && !all) return '';
@@ -801,6 +837,7 @@ function dayViewHtml(day, it, ctx) {
     ' aria-label="' + lbl + '">' + glyph + '</button>';
   const spec = routeOf(day, ctx);
   const plan = fixedPlanHtml(day, ctx);
+  const editable = ctx.plan && ctx.plan.canEdit() ? promotedPlanHtml(day, ctx, spec) : '';
   const hasMap = dayHasMap(spec);
 
   return '<div class="dv-bar">' +
@@ -823,9 +860,9 @@ function dayViewHtml(day, it, ctx) {
         '</div>' +
       '</div>' +
       (hasMap ? '<div class="sm-map dv-day-map" data-day-map aria-label="Mapa del recorrido del día"></div>' : '') +
-      (plan ? '<section class="dv-sec dv-fijo"><div class="sg-title"><span>' + day.events.length + '</span></div>' + plan + '</section>' : '') +
+      ((plan || editable) ? '<section class="dv-sec dv-fijo"><div class="sg-title">Itinerario</div>' + plan + editable + '</section>' : '') +
       '<section class="dv-sec dv-sug">' + (sugSectionHtml(day, ctx) || '<div class="dy-free">Sin sugerencias para este día.</div>') + '</section>' +
-      (plan ? '' : '<div class="dy-free">Nada confirmado todavía para este día.</div>') +
+      (plan || editable ? '' : '<div class="dy-free">Nada confirmado todavía para este día.</div>') +
     '</div>';
 }
 
@@ -838,6 +875,7 @@ RENDER.dias = (it, ctx) => {
   const rows = it.days.map(day => {
     const spec = routeOf(day, ctx);
     const plan = fixedPlanHtml(day, ctx);
+    const editable = ctx.plan && ctx.plan.canEdit() ? promotedPlanHtml(day, ctx, spec) : '';
     const sug = sugSectionHtml(day, ctx, CARD_SUG_CAP);
 
     // El botón lleva el mapa a esa jornada (foco de día, task 508). No abre nada en el
@@ -856,7 +894,7 @@ RENDER.dias = (it, ctx) => {
       '</div>' +
       '<div class="dy-main">' +
         '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) +
-        (plan ? '<div class="dy-ev"><div class="sg-title"><span>' + day.events.length + '</span></div>' + plan + '</div>' : '') +
+        ((plan || editable) ? '<div class="dy-ev"><div class="sg-title">Itinerario</div>' + plan + editable + '</div>' : '') +
         (sug || plan ? sug : '<div class="dy-free">Sin nada agendado.</div>') +
       '</div>' +
     '</div></div>';
@@ -990,7 +1028,7 @@ export function mountViews(destinations, ctx) {
 
   function showDay(date) {
     if (ctx.focusDay) {
-      if (date) ctx.focusDay(routeOf(dayByDate[date], ctx));
+      if (date) ctx.focusDay(plannedSpec(routeOf(dayByDate[date], ctx)));
       else if (shownDay) ctx.exitDayFocus();
     }
     const pane = panes.dias;
@@ -1342,6 +1380,70 @@ export function mountViews(destinations, ctx) {
     showJornada(currentJornada());
   }
 
+  // -------------------------------------------------- edición del plan diario
+  // El servidor guarda sólo keys de sugerencias. El cliente aplica el cambio primero
+  // para que lista y mapa respondan al soltar; si la red falla, `client.save` revierte.
+  async function changePlan(date, mutate) {
+    if (!ctx.plan || !ctx.plan.canEdit() || !dayByDate[date]) return;
+    const next = [...ctx.plan.promoted(date)];
+    mutate(next);
+    try { await ctx.plan.save(date, next); }
+    catch (err) { window.alert(err.message || 'No se pudo guardar el plan.'); }
+  }
+
+  function planClick(e) {
+    const b = e.target.closest('[data-plan-add],[data-plan-remove],[data-plan-up],[data-plan-down]');
+    if (!b) return false;
+    e.preventDefault(); e.stopPropagation();
+    const date = b.dataset.planDate;
+    if (b.dataset.planAdd) changePlan(date, a => { if (!a.includes(b.dataset.planAdd)) a.push(b.dataset.planAdd); });
+    if (b.dataset.planRemove) changePlan(date, a => { const i = a.indexOf(b.dataset.planRemove); if (i >= 0) a.splice(i, 1); });
+    const move = b.dataset.planUp || b.dataset.planDown;
+    if (move) changePlan(date, a => {
+      const i = a.indexOf(move), d = b.dataset.planUp ? -1 : 1, j = i + d;
+      if (i >= 0 && j >= 0 && j < a.length) [a[i], a[j]] = [a[j], a[i]];
+    });
+    return true;
+  }
+  document.addEventListener('click', planClick, true);
+
+  let drag = null;
+  document.addEventListener('pointerdown', e => {
+    if (e.button != null && e.button !== 0) return;
+    const row = e.target.closest('.plan-move');
+    if (!row || e.target.closest('button,a')) return;
+    drag = { id: e.pointerId, row, key: row.dataset.planKey, date: row.dataset.planDate,
+      promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY, moved: false };
+  });
+  document.addEventListener('pointermove', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 9) {
+      drag.moved = true; drag.row.classList.add('is-dragging'); document.body.classList.add('plan-dragging');
+    }
+    if (drag.moved) {
+      e.preventDefault();
+      const scroller = drag.row.closest('.day-view') || drag.row.closest('.view-pane');
+      if (scroller) {
+        if (e.clientY < 90) scroller.scrollBy(0, -22);
+        else if (e.clientY > window.innerHeight - 90) scroller.scrollBy(0, 22);
+      }
+    }
+  }, { passive: false });
+  document.addEventListener('pointerup', e => {
+    if (!drag || drag.id !== e.pointerId) return;
+    const d = drag; drag = null; d.row.classList.remove('is-dragging'); document.body.classList.remove('plan-dragging');
+    if (!d.moved) return;
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    const zone = target && target.closest('[data-plan-drop="' + d.date + '"]');
+    const before = target && target.closest('.pl-promoted');
+    if (zone) changePlan(d.date, a => {
+      const old = a.indexOf(d.key); if (old >= 0) a.splice(old, 1);
+      const at = before ? a.indexOf(before.dataset.planKey) : a.length;
+      a.splice(at < 0 ? a.length : at, 0, d.key);
+    });
+    else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
+  });
+
   function go(id) {
     const u = new URL(location.href);
     // El resumen no lleva parámetro… salvo que haya un `?dia=`/`?tramo=`/`?hosp=`, que
@@ -1420,5 +1522,17 @@ export function mountViews(destinations, ctx) {
   window.addEventListener('hashchange', () => { absorbHash(); apply(); });
   absorbHash();
   apply();
+  if (ctx.plan) {
+    ctx.plan.onChange(date => {
+      const scroll = panes.dias ? panes.dias.scrollTop : 0;
+      if (done.dias && panes.dias) {
+        panes.dias.innerHTML = '<div class="view-inner">' + RENDER.dias(it, ctx) + '</div>';
+        panes.dias.scrollTop = scroll;
+      }
+      if (shownJornada && (!date || date === shownJornada)) { shownJornada = null; showJornada(currentJornada()); }
+      if (shownDay && (!date || date === shownDay) && ctx.focusDay) ctx.focusDay(plannedSpec(routeOf(dayByDate[shownDay], ctx)));
+    });
+    ctx.plan.load().catch(err => window.alert(err.message || 'No se pudo cargar el plan.'));
+  }
   return { go, goDay, goJornada, itinerary: it };
 }
