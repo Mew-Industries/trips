@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Japón + Corea · oct-nov 2026</title>
+<!-- Open Graph. La vista de día los reescribe al abrirse (views.js · task 660), pero el
+     crawler de WhatsApp/Telegram NO ejecuta JavaScript: por eso lo que se comparte desde
+     esa vista es `dia/<fecha>.html` —una página estática con los meta de ESE día que
+     redirige acá (scripts/build_dias.js)— y estos son los del site entero. -->
+<meta name="description" content="Itinerario del viaje a Japón y Corea, oct-nov 2026: mapa, paradas, transportes, hospedajes y el día a día.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Japón + Corea 2026">
+<meta property="og:locale" content="es_AR">
+<meta property="og:title" content="Japón + Corea · oct-nov 2026">
+<meta property="og:description" content="Itinerario del viaje a Japón y Corea, oct-nov 2026: mapa, paradas, transportes, hospedajes y el día a día.">
+<meta property="og:url" content="https://mew-industries.github.io/trips/japon/">
+<meta property="og:image" content="https://mew-industries.github.io/trips/japon/favicon-64.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Japón + Corea · oct-nov 2026">
+<meta name="twitter:description" content="Itinerario del viaje a Japón y Corea, oct-nov 2026: mapa, paradas, transportes, hospedajes y el día a día.">
+<link rel="canonical" href="https://mew-industries.github.io/trips/japon/">
 <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -3703,6 +3719,9 @@ try {
     // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
     galleries,
     catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
+    // El plan fijo de un día y sus sugerencias linkean a Maps igual que el popup del
+    // pin: misma función, mismo recorte del nombre (task 660).
+    gmapsFromName,
     // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
     cityActivities, cityLabel,

@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Japón · 19-31 oct 2026</title>
+<meta name="description" content="Kioto, Osaka y Tokio del 19 al 31 de octubre: mapa, paradas, transportes y qué hacer cada día.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Japón 2026">
+<meta property="og:locale" content="es_AR">
+<meta property="og:title" content="Japón · 19-31 oct 2026">
+<meta property="og:description" content="Kioto, Osaka y Tokio del 19 al 31 de octubre: mapa, paradas, transportes y qué hacer cada día.">
+<meta property="og:url" content="https://mew-industries.github.io/trips/japon/compartido/">
+<meta property="og:image" content="https://mew-industries.github.io/trips/japon/favicon-64.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Japón · 19-31 oct 2026">
+<meta name="twitter:description" content="Kioto, Osaka y Tokio del 19 al 31 de octubre: mapa, paradas, transportes y qué hacer cada día.">
+<link rel="canonical" href="https://mew-industries.github.io/trips/japon/compartido/">
+
 <link rel="icon" type="image/png" sizes="64x64" href="../favicon-64.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
 <link rel="icon" href="../favicon.ico" sizes="any">
@@ -628,7 +641,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-15",
+    "weatherUpdated": "2026-09-16",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -992,7 +1005,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-15",
+    "weatherUpdated": "2026-09-16",
     "weatherMode": "climatología",
     "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1256,7 +1269,7 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-15",
+    "weatherUpdated": "2026-09-16",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [
@@ -3447,6 +3460,9 @@ try {
     // con `data-gal`; el listener de fotos vive en `document` y las agarra igual.
     galleries,
     catOf, catOfAct, CAT_META, CAT_ORDER, legType, MODE_STYLE, maskDates, maskLodging, maskFree, DX,
+    // El plan fijo de un día y sus sugerencias linkean a Maps igual que el popup del
+    // pin: misma función, mismo recorte del nombre (task 660).
+    gmapsFromName,
     // Las actividades son de la CIUDAD, no de la visita (task 552): el catálogo de un
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
     cityActivities, cityLabel,

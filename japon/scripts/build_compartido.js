@@ -14,6 +14,12 @@ const CATEGORIES_SRC = path.join(ROOT, 'data', 'categories.js');
 const CATEGORIES_OUT = path.join(ROOT, 'compartido', 'data', 'categories.js');
 const OLD_DATA = path.join(ROOT, 'compartido', 'data.js');
 const SHARED_IDS = ['kioto', 'osaka', 'tokio-medio'];
+// Lo que se ve al compartir la app del tramo. No nombra el viaje entero ni sus fechas:
+// es la misma regla que el resto del filtro, aplicada al `<head>`.
+const SHARED_TITLE = 'Japón · 19-31 oct 2026';
+const SHARED_NAME = 'Japón 2026';
+const SHARED_DESC = 'Kioto, Osaka y Tokio del 19 al 31 de octubre: mapa, paradas, transportes y qué hacer cada día.';
+const SHARED_URL = 'https://mew-industries.github.io/trips/japon/compartido/';
 
 function arrayBounds(src, marker) {
   const at = src.indexOf(marker);
@@ -141,8 +147,27 @@ function render() {
   const data = buildData(loadDestinations(source));
   let out = source.slice(0, bounds.start) + JSON.stringify(data, null, 2) + source.slice(bounds.end);
 
+  // El bloque de Open Graph de la app principal nombra el viaje entero y apunta a su
+  // URL: acá se reemplaza completo por el del tramo. La vista de día (task 660) también
+  // toca estos meta en caliente, pero saca el nombre del viaje del `<title>` de la
+  // página — así que alcanza con cambiarlos una vez, acá.
+  out = replaceBetween(out, '<!-- Open Graph.', '<link rel="icon" type="image/png" sizes="64x64"', [
+    '<meta name="description" content="' + SHARED_DESC + '">',
+    '<meta property="og:type" content="website">',
+    '<meta property="og:site_name" content="' + SHARED_NAME + '">',
+    '<meta property="og:locale" content="es_AR">',
+    '<meta property="og:title" content="' + SHARED_TITLE + '">',
+    '<meta property="og:description" content="' + SHARED_DESC + '">',
+    '<meta property="og:url" content="' + SHARED_URL + '">',
+    '<meta property="og:image" content="https://mew-industries.github.io/trips/japon/favicon-64.png">',
+    '<meta name="twitter:card" content="summary">',
+    '<meta name="twitter:title" content="' + SHARED_TITLE + '">',
+    '<meta name="twitter:description" content="' + SHARED_DESC + '">',
+    '<link rel="canonical" href="' + SHARED_URL + '">',
+  ].join('\n'));
+
   out = out
-    .replace('<title>Japón + Corea · oct-nov 2026</title>', '<title>Japón · 19-31 oct 2026</title>')
+    .replace('<title>Japón + Corea · oct-nov 2026</title>', '<title>' + SHARED_TITLE + '</title>')
     .replace('<h1>Japón + Corea</h1>', '<h1>Japón</h1>')
     .replace('<span class="subtitle"><span class="dx">6 oct – 18 nov 2026</span><span class="dm">43 días</span></span>', '<span class="subtitle"><span class="dx">19–31 oct 2026</span><span class="dm">12 días</span></span>')
     .replace(/<div class="header-stats">[\s\S]*?<\/div>\s*<button type="button" class="discrete-btn"/, '<div class="header-stats"><span><strong>12</strong> noches</span><span><strong>3</strong> destinos</span><span class="dx"><strong>1/11</strong> vuelven los amigos</span></div>\n    <button type="button" class="discrete-btn"')

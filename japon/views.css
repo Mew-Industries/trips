@@ -142,15 +142,42 @@
 .dy-sleep b { color: #0F6E56; font-weight: 600; }
 .dy-hosp { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .dy-hosp:hover, .dy-hosp:focus-visible { color: #0F6E56; text-decoration: underline; outline: none; }
-.dy-ev { margin-top: 8px; display: grid; gap: 3px; }
-.dy-e { display: grid; grid-template-columns: 46px 1fr; gap: 8px; font-size: 11.5px; line-height: 1.45; align-items: baseline; }
-.dy-time { font-variant-numeric: tabular-nums; font-weight: 700; color: #0F6E56; font-size: 12px; }
-.dy-time.none { color: #cfc9bb; font-weight: 500; }
-.dy-etext { color: #444; }
-.dy-etext .ek { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #b3aea0; margin-right: 6px; }
-.dy-e.resv .dy-etext { color: #0F6E56; font-weight: 600; }
-.dy-e .dy-note { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 1px; font-weight: 400; }
-.dy-sug { margin-top: 9px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); }
+.dy-ev { margin-top: 9px; }
+/* Las sugerencias van en su propia caja —crema, borde punteado— y el plan fijo sobre
+   el blanco de la tarjeta: la diferencia entre "esto pasa" y "esto se puede elegir"
+   se ve antes de leer una palabra, sin ninguna leyenda que la explique. */
+.dy-sug { margin-top: 10px; padding: 9px 10px; border-radius: 8px; background: rgba(0,0,0,0.025); border: 1px dashed rgba(0,0,0,0.11); }
+
+/* El rótulo de cada mitad. El del plan fijo va en verde y el de las sugerencias en
+   gris: es el único lugar donde hace falta nombrarlas. */
+.sg-title { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #b3aea0; margin-bottom: 5px; }
+.sg-title span { font-weight: 600; color: #cfc9bb; letter-spacing: 0; }
+.dv-fijo .sg-title, .dy-ev .sg-title { color: #0F6E56; }
+
+.pl-list { list-style: none; margin: 0; padding: 0 0 0 9px; border-left: 2px solid rgba(15,110,86,0.3); display: grid; gap: 7px; }
+.pl-it { display: grid; grid-template-columns: 56px 1fr; gap: 9px; align-items: baseline; }
+.pl-t { font-variant-numeric: tabular-nums; font-weight: 700; color: #0F6E56; font-size: 12.5px; }
+/* Un tramo terrestre tiene duración pero NO hora de salida: eso se dice, no se
+   estima. "a definir" en ámbar se lee como un hueco por llenar, que es lo que es;
+   un guión se leía como un dato que se perdió. */
+.pl-t.tbd { font-size: 9.5px; font-weight: 700; color: #B87814; line-height: 1.25; white-space: nowrap; }
+.pl-b { min-width: 0; }
+.pl-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; line-height: 1.3; }
+.pl-k { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #b3aea0; }
+.pl-mode, .pl-dur, .pl-ac { font-size: 10px; font-weight: 600; color: #8d8878; }
+.pl-dur { font-variant-numeric: tabular-nums; }
+.pl-w { font-size: 12.5px; font-weight: 600; color: #333; line-height: 1.35; margin-top: 1px; }
+.pl-reserva .pl-w, .pl-vuelo .pl-w { color: #0F6E56; }
+.pl-term { font-size: 11px; color: #6e6a5f; line-height: 1.4; margin-top: 1px; }
+.pl-win { font-size: 11px; color: #6e6a5f; line-height: 1.4; margin-top: 1px; }
+.pl-win .lg-hh { font-weight: 700; color: #0F6E56; white-space: nowrap; }
+.pl-win.tbd .lg-hh { color: #B87814; }
+.pl-d { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 1px; }
+.pl-ref { font-size: 10.5px; color: #8d8878; margin-top: 2px; }
+.pl-ref b { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: #444; }
+.pl-lk { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }
+.pl-a { font-size: 10.5px; font-weight: 600; color: #0F6E56; text-decoration: none; }
+.pl-a:hover { text-decoration: underline; }
 
 /* Sugerencias por categoría: la barra de color es la de los pines del mapa. */
 .sg-node { font-size: 10px; font-weight: 700; color: #b3aea0; text-transform: uppercase; letter-spacing: 0.06em; margin: 4px 0 3px; }
@@ -173,15 +200,28 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .rt-node { font-size: 10px; font-weight: 700; color: #b3aea0; text-transform: uppercase; letter-spacing: 0.06em; margin: 6px 0 2px; }
 .rt-node:first-child { margin-top: 0; }
 .rt-grp { font-size: 10.5px; font-weight: 600; color: #6e6a5f; line-height: 1.4; margin: 4px 0 1px; }
-.rt-item { display: block; }
+/* La fila es el ítem del recorrido MÁS su ↗ a Maps: el botón se lleva el ancho que
+   sobra y el link queda pegado al borde, siempre en el mismo lugar. */
+.rt-item { display: flex; align-items: baseline; gap: 4px; }
 .rt-item.in-grp { padding-left: 9px; }
-.rt-item .sg-item { display: flex; align-items: baseline; gap: 5px; }
+.rt-item .sg-item { display: flex; align-items: baseline; gap: 5px; flex: 1 1 auto; min-width: 0; }
 .rt-item .sg-item::before { content: attr(data-ord); flex: none; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border-radius: 50%; background: var(--c); color: #fff; font-size: 8.5px; font-weight: 700; position: relative; top: 2px; }
 .rt-ic { flex: none; font-size: 10px; }
 .rt-t { flex: none; font-size: 10px; font-weight: 700; color: #0F6E56; }
 /* Sin coordenadas no hay lugar en la línea: van al final, sin número. */
 .rt-rest { margin-top: 4px; }
-.rt-item.plain { display: flex; align-items: baseline; gap: 5px; padding-left: 19px; font-size: 11.5px; line-height: 1.45; color: #8d8878; }
+.rt-item.plain { padding-left: 19px; font-size: 11.5px; line-height: 1.45; color: #8d8878; }
+/* El ítem vuela al punto del mapa; el ↗ abre Maps. Parado en la calle lo que sirve es
+   lo segundo, así que va siempre visible y con su propia área táctil. */
+.rt-mp { flex: none; margin-left: auto; font-size: 11px; font-weight: 700; color: #b3aea0; text-decoration: none; padding: 2px 5px; border-radius: 4px; line-height: 1; }
+.rt-mp:hover, .rt-mp:focus-visible { color: #0F6E56; background: rgba(15,110,86,0.08); outline: none; }
+
+/* El tope de la tarjeta: lo que pasa se esconde, pero el botón lo abre ACÁ MISMO
+   (task 660 — antes las sugerencias del día quedaban detrás de un contador). */
+.sg-wrap:not(.open) .over { display: none; }
+.sg-more { font-family: inherit; font-size: 10.5px; font-weight: 700; color: #0F6E56; background: none; border: 0; padding: 4px 0 0; cursor: pointer; letter-spacing: 0.02em; }
+.sg-more:hover { text-decoration: underline; }
+.sg-more:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; border-radius: 3px; }
 
 /* "todo lo de <ciudad>": el catálogo completo del nodo, plegado. */
 .sg-all { margin-top: 8px; }
@@ -198,6 +238,81 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .dy-free { font-size: 11.5px; color: #b0aa9c; font-style: italic; margin-top: 8px; }
 .dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
 .dy-flight .dy-date { color: #2563EB; }
+/* "abrir": la jornada a pantalla completa, con URL propia. Va abajo de "ver en mapa"
+   en la columna de la fecha, que es donde ya vive todo lo que se le hace al día. */
+.dy-open { display: block; font-family: inherit; font-size: 10.5px; font-weight: 700; white-space: nowrap; margin-top: 5px; padding: 3px 7px; border-radius: 12px; border: 1px solid rgba(15,110,86,0.3); background: rgba(15,110,86,0.06); color: #0F6E56; cursor: pointer; transition: background 0.12s, border-color 0.12s; }
+.dy-open:hover { background: rgba(15,110,86,0.14); border-color: rgba(15,110,86,0.5); }
+.dy-open:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+
+/* -------------------------------------------------- vista de día (task 660) */
+/* La jornada a pantalla completa: una capa POR ENCIMA de todo (header, mapa, tabs),
+   no una tab más. Cerrarla devuelve el site tal como estaba. Es la vista que se abre
+   parado en una estación, así que manda el teléfono: una sola columna, targets
+   grandes y nada que se salga de ancho. */
+.day-view {
+  position: fixed; inset: 0; z-index: 2000; background: #f5f4f0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column;
+}
+.day-view[hidden] { display: none; }
+body.day-open { overflow: hidden; }
+.dv-inner { display: contents; }
+
+/* La barra de arriba queda pegada: salir y cambiar de día son lo que más se usa. */
+.dv-bar {
+  position: sticky; top: 0; z-index: 1; flex: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.dv-close { font-family: inherit; font-size: 13px; font-weight: 700; color: #0F6E56; background: none; border: 0; padding: 6px 4px; cursor: pointer; min-height: 34px; }
+.dv-close:hover { text-decoration: underline; }
+.dv-nav-group { display: flex; align-items: center; gap: 4px; }
+.dv-count { font-size: 11px; font-weight: 700; color: #8d8878; font-variant-numeric: tabular-nums; min-width: 52px; text-align: center; }
+.dv-nav {
+  font-family: inherit; font-size: 17px; line-height: 1; font-weight: 700;
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #0F6E56; cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.dv-nav:hover:not(:disabled) { background: rgba(15,110,86,0.1); border-color: rgba(15,110,86,0.4); }
+/* En los bordes del viaje no hay adónde ir: el botón se apaga, no envuelve. */
+.dv-nav:disabled { color: #d6d1c5; cursor: default; }
+.dv-close:focus-visible, .dv-nav:focus-visible, .dv-share:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+
+.dv-body { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: 16px 16px 48px; }
+.dv-head { padding-bottom: 14px; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 16px; }
+.dv-num { font-size: 10px; color: #c4bfb2; font-weight: 700; letter-spacing: 0.1em; }
+/* "lun 19 oct", con la inicial en mayúscula y nada más: `capitalize` le ponía
+   mayúscula también al mes ("Lun 19 Oct"), que en castellano no va. */
+.dv-date { font-size: 24px; font-weight: 700; line-height: 1.15; margin: 2px 0 7px; letter-spacing: -0.01em; }
+.dv-date::first-letter { text-transform: uppercase; }
+.dv-body .dy-where { font-size: 15px; }
+.dv-body .dy-sleep { font-size: 12.5px; margin-top: 4px; }
+.dv-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.dv-acts .dy-map, .dv-share { margin-top: 0; min-height: 32px; padding: 6px 12px; font-size: 11.5px; }
+.dv-share { font-family: inherit; font-weight: 700; white-space: nowrap; border-radius: 12px; border: 1px solid rgba(15,110,86,0.3); background: rgba(15,110,86,0.06); color: #0F6E56; cursor: pointer; }
+.dv-share:hover { background: rgba(15,110,86,0.14); }
+
+/* Las dos mitades del día, cada una en su caja: arriba lo confirmado, abajo lo
+   opcional. La caja de las sugerencias no es blanca — eso solo ya dice que es otra
+   cosa, sin ninguna leyenda que lo aclare. */
+.dv-fijo { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 13px 14px; margin-bottom: 12px; }
+/* En la vista de día la caja de las sugerencias ya la pone `.dy-sug`: la sección es
+   sólo el hueco donde va. Una caja adentro de otra igual se leía como un error. */
+.dv-sug { margin-bottom: 12px; }
+.dv-sug .dy-sug { margin-top: 0; padding: 13px 14px; border-radius: 10px; }
+.dv-sec .sg-title { font-size: 10px; margin-bottom: 8px; }
+/* A pantalla completa todo es más grande: es lo que se lee caminando. */
+.dv-body .pl-it { grid-template-columns: 62px 1fr; }
+.dv-body .pl-t { font-size: 13.5px; }
+.dv-body .pl-t.tbd { font-size: 11px; }
+.dv-body .pl-w { font-size: 13.5px; }
+.dv-body .pl-list { gap: 11px; }
+.dv-body .sg-item, .dv-body .rt-item.plain { font-size: 13px; }
+.dv-body .rt-mp { font-size: 13px; padding: 4px 7px; }
+.dv-body .pl-a, .dv-body .sg-more { font-size: 12px; }
+.dv-body .dy-free { font-size: 12.5px; }
 
 /* Modo discreto: el mismo criterio que el itinerario de siempre, que pasa a mostrar
    una cantidad de noches. Se cae toda la capa de fechas y horas, y en
@@ -208,7 +323,9 @@ body.discrete .lg-shots, body.discrete .lg-area, body.discrete .lg-links,
 body.discrete .lg-dates, body.discrete .lg-hours, body.discrete .lg-body > .lodging-more,
 body.discrete .tr-date, body.discrete .tr-wd, body.discrete .tr-times,
 body.discrete .tr-segs, body.discrete .tr-dl, body.discrete .tr-lodge,
-body.discrete .dy-date, body.discrete .dy-wd, body.discrete .dy-ev { display: none; }
+body.discrete .dy-date, body.discrete .dy-wd, body.discrete .dy-ev,
+body.discrete .dv-date, body.discrete .dv-num, body.discrete .dv-count,
+body.discrete .dv-fijo { display: none; }
 body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display: flex; align-items: baseline; gap: 8px; }
 
 @media (max-width: 900px) {
@@ -224,5 +341,23 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
   .lg-when, .tr-when, .dy-when { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.07); padding: 0 0 7px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .lg-city, .tr-mode, .dy-num { margin-top: 0; }
   .lg-shots .lgc-track img { height: 110px; }
-  .dy-e { grid-template-columns: 42px 1fr; }
+  .pl-it { grid-template-columns: 46px 1fr; gap: 8px; }
+  /* Targets táctiles: el mismo mínimo que ya lleva `.source-link` en el resto del
+     site. Esto se lee parado en una estación y con una mano. */
+  .rt-mp, .pl-a { min-height: 28px; display: inline-flex; align-items: center; }
+  .dv-body .pl-a, .dv-body .rt-mp, .dv-body .sg-more { min-height: 30px; display: inline-flex; align-items: center; }
+  /* Acá va `inline-block` y no `inline-flex`: estos botones tienen texto Y un `<b>`
+     adentro ("Dormís en <b>Kyotofish</b>"), y flex se come el espacio del medio. */
+  .dv-body .dy-hosp, .dv-body .v-goto { display: inline-block; padding: 5px 0; }
+  .dv-body .sg-item, .dv-body .rt-item.plain { min-height: 30px; }
+  /* En la columna de la fecha ya apilada, los dos botones del día van uno al lado
+     del otro en vez de empujar la fila hacia abajo. */
+  .dy-open { display: inline-block; margin-top: 0; }
+  /* Vista de día: una sola columna al ancho de la pantalla, sin scroll horizontal. */
+  .dv-body { padding: 14px 12px 44px; }
+  .dv-date { font-size: 21px; }
+  .dv-sec { padding: 12px; }
+  .dv-body .pl-it { grid-template-columns: 52px 1fr; }
+  .dv-close, .dv-nav { min-height: 38px; }
+  .dv-nav { width: 38px; height: 38px; }
 }

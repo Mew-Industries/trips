@@ -9,7 +9,7 @@
 // Todo lo nuevo vive en este archivo + views.css: revertir los commits de las vistas
 // devuelve el site exactamente al estado anterior.
 
-import { buildItinerary, fmtRange, fmtDate, fmtWeekday, nightsWord, dayOf, timeOf } from './itinerary.js';
+import { buildItinerary, fmtRange, fmtDate, fmtDateLong, fmtWeekday, nightsWord, dayOf, timeOf, cmp } from './itinerary.js';
 
 const TABS = [
   { id: 'resumen', label: 'Resumen', icon: '🗺️' },
@@ -110,6 +110,12 @@ RENDER.hospedajes = (it, ctx) => {
 // Cada salto entre paradas: cuándo sale, cuándo llega y —sobre todo— qué es lo que
 // fija ese horario. Donde todavía no está decidido lo dice; no lo estima.
 
+// El "cómo llegar" de un salto: el link cargado en los datos o, si no hay, unas
+// directions de Maps entre las dos puntas. La vista Transportes y el plan fijo del
+// día muestran el MISMO tramo, así que el link se arma en un solo lado.
+const legDirUrl = t => t.leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
+  encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
+
 // Chip de hora. `ref` es el día del salto: si la hora cae en otro día se aclara cuál.
 function timeChip(label, dt, ref, cls) {
   if (!dt) return '<span class="tr-t tbd">' + label + ' a definir</span>';
@@ -149,8 +155,7 @@ RENDER.transportes = (it, ctx) => {
     const whyHtml = (leg.why || []).length
       ? '<ul class="tr-why">' + leg.why.map(w => '<li>' + ctx.DX(esc(w), esc(ctx.maskFree(w))) + '</li>').join('') + '</ul>' : '';
 
-    const dirUrl = leg.dirUrl || ('https://www.google.com/maps/dir/?api=1&origin=' +
-      encodeURIComponent(t.from) + '&destination=' + encodeURIComponent(t.to) + '&travelmode=transit');
+    const dirUrl = legDirUrl(t);
 
     // Un salto es compartido cuando lo son sus dos puntas: el que llega a
     // Kioto no lo es, aunque los amigos aterricen ese mismo día.
@@ -530,14 +535,28 @@ const dayHasMap = spec => !!(spec.line.length || spec.stops.length);
 // porque es lo que permite mirar el mapa y volver a encontrar el punto en la lista.
 // El color y el ícono siguen siendo los de la categoría (data/categories.js), que es
 // lo que ataba la lista con los pines cuando la lista se agrupaba por categoría.
-function routeListHtml(spec, ctx, day) {
+//
+// `cap` recorta la lista sin esconderla: lo que pasa del tope sale con la clase
+// `over` y el botón de abajo la abre AHÍ MISMO (task 660). Un rótulo hereda el
+// estado del primer ítem que cuelga de él, si no queda un título suelto arriba de
+// nada. Sin `cap` la lista sale entera, que es como salía antes.
+function routeListHtml(spec, ctx, day, cap) {
   const esc = ctx.escHtml;
+  const lim = cap || Infinity;
+  let k = 0;                              // índice global: recorrido + sueltas
+  const over = () => (k >= lim ? ' over' : '');
   const shortOf = id => (day.here.find(h => h.node.id === id) || { node: {} }).node.short || '';
   // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
   // igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
   const icon = p => '<span class="rt-ic">' + (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon + '</span>';
   const color = p => (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).color;
+  // El botón vuela al punto en el mapa; el ↗ abre Maps. Son dos gestos distintos y
+  // hacen falta los dos: parado en la calle lo que se quiere es la app de mapas, no
+  // el mapa del site. La url sale del dato o, si no hay, de Maps por nombre — igual
+  // que el popup del pin.
+  const maps = act => '<a class="rt-mp" href="' + esc(act.url || ctx.gmapsFromName(act.text)) +
+    '" target="_blank" rel="noopener" aria-label="Abrir en Google Maps">↗</a>';
 
   // Los `group` de los datos ("Asakusa + Sumida River + Skytree" = una salida) siguen
   // apareciendo, pero como lo que son ahora: un tramo del recorrido. Si la geografía
@@ -547,20 +566,25 @@ function routeListHtml(spec, ctx, day) {
   const items = spec.route.map((p, i) => {
     let head = '';
     const nid = p.key.split(':')[0];
-    if (multi && nid !== node) head += '<li class="rt-node">' + esc(shortOf(nid)) + '</li>';
-    if (p.group !== grp && p.group) head += '<li class="rt-grp">' + esc(p.group) + '</li>';
+    if (multi && nid !== node) head += '<li class="rt-node' + over() + '">' + esc(shortOf(nid)) + '</li>';
+    if (p.group !== grp && p.group) head += '<li class="rt-grp' + over() + '">' + esc(p.group) + '</li>';
     node = nid; grp = p.group;
     // Los de una salida van indentados: si no, el primer ítem suelto que viene después
     // se lee como si todavía perteneciera al rótulo de arriba.
-    return head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' +
+    const row = head + '<li class="rt-item' + (p.group ? ' in-grp' : '') + over() + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' +
       '<button type="button" class="sg-item" data-act="' + p.key + '" data-ord="' + (i + 1) + '">' +
         (p.time ? '<span class="rt-t dx">' + p.time + '</span>' : '') + icon(p) + label(p.act) +
-      '</button></li>';
+      '</button>' + maps(p.act) + '</li>';
+    k++;
+    return row;
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
-  const rest = spec.loose.map(p =>
-    '<li class="rt-item plain" data-check="' + p.key + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + '</li>').join('');
+  const rest = spec.loose.map(p => {
+    const row = '<li class="rt-item plain' + over() + '" data-check="' + p.key + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + maps(p.act) + '</li>';
+    k++;
+    return row;
+  }).join('');
 
   return (items ? '<ol class="rt-list">' + items + '</ol>' : '') +
     (rest ? '<ul class="rt-list rt-rest">' + rest + '</ul>' : '');
@@ -571,48 +595,244 @@ const offScreen = (el) => {
   return r.bottom < 0 || r.top > (window.innerHeight || document.documentElement.clientHeight);
 };
 
-RENDER.dias = (it, ctx) => {
+// ---------------------------------------------- el itinerario FIJO de un día
+// Lo confirmado de la jornada, en el orden que ya calcula itinerary.js: traslados,
+// check-in/check-out y lo que tiene hora comprada. Acá no se decide nada nuevo —
+// se le pega a cada evento la logística que YA está en los datos (modo, duración,
+// terminales, ventana de check-in, número de reserva, link a Maps) en vez de
+// dejarla repartida entre la vista Transportes y la de Hospedajes (task 660).
+//
+// La hora vale lo que dice el dato y nada más: los 7 saltos con `segments` (los
+// vuelos) tienen horario real; los 11 terrestres tienen `time` —que es DURACIÓN,
+// no hora de reloj— y no tienen salida. Esos salen con "a definir" y no con un
+// guión, porque "todavía no está decidido" y "falta el dato por error" se leen
+// distinto y acá la diferencia importa. **No se estima ningún horario.**
+
+const modeOf = (ctx, leg) => ctx.MODE_STYLE[ctx.legType(leg)] || {};
+const extLink = (href, label, ctx) =>
+  '<a class="pl-a" href="' + ctx.escHtml(href) + '" target="_blank" rel="noopener">' + ctx.escHtml(label) + ' ↗</a>';
+
+function planItemHtml(e, ctx) {
   const esc = ctx.escHtml;
+  const meta = [], body = [], links = [];
+  // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
+  let title = e.lodging
+    ? '<button type="button" class="dy-hosp" data-hosp-day="' + e.node.id + '">' +
+        ctx.DX(esc(e.lodging.name), esc(e.node.short)) + '</button>'
+    : esc(e.text);
+
+  if (e.kind === 'transporte') {
+    const leg = e.transfer.leg, m = modeOf(ctx, leg);
+    meta.push('<span class="pl-mode" style="color:' + (m.color || '#8d8878') + '">' +
+      esc(leg.mode || '') + ' ' + esc(m.label || '') + '</span>');
+    if (leg.time) meta.push('<span class="pl-dur">' + esc(leg.time) + '</span>');
+    // Las puntas FÍSICAS del salto: la estación por la que se sale y por la que se
+    // entra. Es la logística que se lee parado en el andén, no el nombre de la ciudad.
+    const a = leg.fromTerminal && leg.fromTerminal.name, b = leg.toTerminal && leg.toTerminal.name;
+    if (a || b) body.push('<div class="pl-term">' + esc(a || e.transfer.from) +
+      '<span class="tr-arrow">→</span>' + esc(b || e.transfer.to) + '</div>');
+    if (leg.detail) body.push('<div class="pl-d">' + esc(leg.detail) + '</div>');
+    links.push(extLink(legDirUrl(e.transfer), leg.dirLabel ? String(leg.dirLabel).replace(/\s*↗\s*$/, '') : 'cómo llegar', ctx));
+  } else if (e.kind === 'vuelo') {
+    // Un vuelo entra por segmento y cada punta ya trae su hora real: acá va lo que
+    // el segmento sabe de sí mismo (horarios, avión, tracker) y la terminal de esa punta.
+    const s = e.seg || {}, leg = e.transfer.leg;
+    if (s.when) meta.push('<span class="pl-dur">' + esc(s.when) + '</span>');
+    if (s.aircraft) meta.push('<span class="pl-ac">' + esc(s.aircraft) + '</span>');
+    const term = /^Sale/.test(e.text) ? leg.fromTerminal : leg.toTerminal;
+    if (term && term.name) body.push('<div class="pl-term">' + esc(term.name) + '</div>');
+    if (s.tracker) links.push(extLink(s.tracker, 'seguir el vuelo', ctx));
+  } else if (e.kind === 'check-in' || e.kind === 'check-out') {
+    const L = e.lodging;
+    // La ventana horaria sale del MISMO `hoursParts()` que arma la tarjeta de
+    // Hospedajes: una sola regla para decidir qué se dice y qué se calla. Cuando no
+    // hay ninguna hora ("Horarios a definir") va en ámbar, como el resto de los huecos
+    // del día — en verde se leía como un horario confirmado.
+    const win = ctx.hoursParts(L).join(' · ');
+    body.push('<div class="pl-win dx' + (/\d/.test(win) ? '' : ' tbd') + '">' + win + '</div>');
+    if (L.area) body.push('<div class="pl-d dx">' + esc(L.area) + '</div>');
+    const ref = L.booking && L.booking.ref;
+    if (ref) body.push('<div class="pl-ref dx">reserva <b>' + esc(ref) + '</b></div>');
+    ctx.lodgingLinks(L, 'pl-a').forEach(a => links.push('<span class="dx">' + a + '</span>'));
+  } else if (e.kind === 'reserva') {
+    const a = e.act || {};
+    const note = [a.booked, a.bestTime, a.openHours, a.note].filter(Boolean).join(' · ');
+    if (note) body.push('<div class="pl-d">' + esc(note) + '</div>');
+    links.push(extLink(a.url || ctx.gmapsFromName(a.text), 'Google Maps', ctx));
+  }
+
+  return '<li class="pl-it pl-' + e.kind + '">' +
+    '<span class="pl-t' + (e.time ? '' : ' tbd') + '">' + (e.time || 'a definir') + '</span>' +
+    '<div class="pl-b">' +
+      '<div class="pl-top"><span class="pl-k">' + EV_LABEL[e.kind] + '</span>' + meta.join('') + '</div>' +
+      '<div class="pl-w">' + title + '</div>' +
+      body.join('') +
+      (links.length ? '<div class="pl-lk">' + links.join('') + '</div>' : '') +
+    '</div>' +
+  '</li>';
+}
+
+// El orden en que se LEE el día. `itinerary.js` ordena poniendo primero lo que tiene
+// hora, y en una jornada de traslado eso deja el check-in de las 16:00 arriba de los
+// dos buses que hay que tomar para llegar. Acá se reordena por lo único que se puede
+// afirmar sin inventar un horario: **se hace el check-out antes de viajar y el
+// check-in después de llegar**. Un tramo sin hora toma como piso la del check-out del
+// día (o el arranque del día, si tampoco la tiene) — la hora que se MUESTRA no cambia:
+// sigue diciendo "a definir".
+const PHASE = { 'check-out': 0, transporte: 1, vuelo: 1, 'check-in': 2, reserva: 3 };
+function readOrder(day) {
+  const out = day.events.find(e => e.kind === 'check-out');
+  const floor = (out && out.time) || '00:00';
+  // Los vuelos ya vienen en su secuencia real (`ord`) y cada punta está en hora LOCAL:
+  // ordenarlos por reloj miente (un tramo transpacífico sale a las 17:45 y aterriza a
+  // las 14:40 del mismo día — ver `segEvents` en itinerary.js). Se les fija la clave en
+  // no-decreciente para que la secuencia sobreviva a cualquier orden.
+  let flight = null;
+  const rows = day.events.map((e, i) => {
+    let k = e.time || (e.kind === 'check-out' ? '00:00' : e.kind === 'check-in' ? '23:59' : floor);
+    if (e.ord != null) { if (flight && k < flight) k = flight; flight = k; }
+    return { e, i, k };
+  });
+  return rows
+    .sort((a, b) => cmp(a.k, b.k) || PHASE[a.e.kind] - PHASE[b.e.kind] || a.i - b.i)
+    .map(r => r.e);
+}
+
+const fixedPlanHtml = (day, ctx) => day.events.length
+  ? '<ol class="pl-list">' + readOrder(day).map(e => planItemHtml(e, ctx)).join('') + '</ol>' : '';
+
+// Dónde estás ese día y dónde dormís: las dos líneas de cabecera, compartidas por
+// la tarjeta de la tab y la vista de día.
+function whereHtml(day, ctx) {
+  const esc = ctx.escHtml;
+  return day.here.length
+    ? day.here.map(h => '<button type="button" class="v-goto" data-goto="' + h.node.id + '">' + esc(h.node.short) +
+        '</button><span class="dy-role' + (h.role === 'de paso' ? ' paso' : '') + '">' + h.role + '</span>' +
+        sharedTag(h.node)).join('<span class="tr-arrow">→</span>')
+    : (day.inFlight ? '✈️ En vuelo' : 'Fin del viaje');
+}
+
+function sleepHtml(day, ctx) {
+  const esc = ctx.escHtml;
+  return day.sleep && day.sleep.lodging
+    ? '<button type="button" class="dy-sleep dy-hosp dx" data-hosp-day="' + day.sleep.id + '">Dormís en <b>' + esc(day.sleep.lodging.name) + '</b></button><div class="dy-sleep dm">Dormís en <b>' + esc(day.sleep.short) + '</b></div>'
+    : day.sleep ? '<div class="dy-sleep">Dormís en <b>' + esc(day.sleep.short) + '</b> · sin reservar</div>'
+    : day.inFlight ? '<div class="dy-sleep">Noche a bordo</div>' : '';
+}
+
+// El catálogo COMPLETO de la ciudad, plegado: el reparto por peso le da 2-3 cosas al
+// día y una ciudad tiene cuarenta. El cuerpo se arma recién al abrirlo (ver mountViews).
+function cityCatalogHtml(day, ctx) {
+  const esc = ctx.escHtml, seen = new Set();
+  return day.here.map(h => h.node)
+    .filter(n => !seen.has(ctx.cityLabel(n)) && seen.add(ctx.cityLabel(n)))
+    .filter(n => ctx.cityActivities(n).length).map(n =>
+      '<details class="sg-all"><summary>todo lo de ' + esc(ctx.cityLabel(n)) +
+        ' <b>' + ctx.cityActivities(n).length + '</b></summary>' +
+        '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
+      '</details>').join('');
+}
+
+// Las sugerencias del día, COMO LISTA (Martín, 17/9: «hoy están colapsadas detrás de
+// "todo lo de Kioto · 45" y eso las vuelve invisibles»). Lo que pasa del tope se abre
+// acá mismo con el botón, sin mandar a otra pantalla; el catálogo entero de la ciudad
+// sigue plegado abajo, que es otra cosa: no es lo que toca hoy.
+function sugSectionHtml(day, ctx, cap) {
+  const spec = routeOf(day, ctx);
+  const total = spec.route.length + spec.loose.length;
+  const list = routeListHtml(spec, ctx, day, cap);
+  const all = cityCatalogHtml(day, ctx);
+  if (!list && !all) return '';
+  const more = (cap && total > cap)
+    ? '<button type="button" class="sg-more" data-shown="' + cap + '" data-total="' + total + '">ver las ' + total + '</button>' : '';
+  return '<div class="dy-sug">' +
+    '<div class="sg-title">Sugerencias' + (total ? ' <span>' + total + '</span>' : '') + '</div>' +
+    (list ? '<div class="sg-wrap">' + list + '</div>' + more : '') + all +
+  '</div>';
+}
+
+// ------------------------------------------------------ vista de día (task 660)
+// La misma jornada a pantalla completa, con URL propia (`?jornada=<fecha>`), para
+// abrirla parado en una estación o mandársela a alguien. Usa exactamente los mismos
+// bloques que la tarjeta de la tab: si cambia uno, cambian los dos.
+
+// Título y descripción de un día — los usa el `<title>`/Open Graph de la app y también
+// el generador de las páginas estáticas de `dia/` (scripts/build_dias.js), así que es
+// una función PURA: sin ctx, sin DOM.
+export function dayMeta(day) {
+  const cities = day.here.map(h => h.node.short);
+  // Un día en el aire no toca ningún nodo, pero sí tiene una ruta: en el preview de
+  // WhatsApp "Buenos Aires (EZE) → Tokio" dice bastante más que "noche a bordo". El
+  // último día del viaje no tiene siquiera `inFlight` (el vuelo salió ayer): ahí la
+  // ruta la da el propio aterrizaje.
+  const land = !cities.length && !day.inFlight && day.events.find(e => e.transfer);
+  const where = cities.length ? cities.join(' → ')
+    : day.inFlight ? day.inFlight.from + ' → ' + day.inFlight.to
+    : land ? 'Llegada a ' + land.transfer.to
+    : 'Fin del viaje';
+  const fijos = day.events.length;
+  const sug = day.suggestions.reduce((a, s) => a + s.clusters.reduce((b, c) => b + c.items.length, 0), 0);
+  const bits = [];
+  if (fijos) bits.push(fijos === 1 ? '1 cosa fija' : fijos + ' cosas fijas');
+  if (sug) bits.push(sug === 1 ? '1 sugerencia' : sug + ' sugerencias');
+  // Sin el nombre del viaje: lo pone quien usa esto (el `<title>` de la app lo saca del
+  // suyo, las páginas de `dia/` lo escriben). La app compartida se sirve del MISMO
+  // views.js y no puede nombrar el viaje entero (ver scripts/build_compartido.js).
+  return {
+    date: day.date,
+    city: where,
+    title: 'Día ' + day.n + ' · ' + fmtDateLong(day.date) + ' · ' + where,
+    desc: where + (bits.length ? ' — ' + bits.join(' · ') : ' — sin nada agendado') + '.'
+  };
+}
+
+function dayViewHtml(day, it, ctx) {
+  const esc = ctx.escHtml;
+  const i = it.days.indexOf(day);
+  const prev = it.days[i - 1], next = it.days[i + 1];
+  // En los bordes del viaje el botón queda deshabilitado, no envuelve: el 6/10 no
+  // tiene día anterior y el 18/11 no tiene siguiente.
+  const nav = (d, cls, glyph, lbl) => '<button type="button" class="dv-nav ' + cls + '"' +
+    (d ? ' data-jornada="' + d.date + '" title="' + esc(fmtDateLong(d.date)) + '"' : ' disabled') +
+    ' aria-label="' + lbl + '">' + glyph + '</button>';
+  const spec = routeOf(day, ctx);
+  const plan = fixedPlanHtml(day, ctx);
+
+  return '<div class="dv-bar">' +
+      '<button type="button" class="dv-close" aria-label="Volver a Días">‹ Días</button>' +
+      '<div class="dv-nav-group">' +
+        nav(prev, 'prev', '‹', 'Día anterior') +
+        '<span class="dv-count">' + day.n + ' / ' + it.days.length + '</span>' +
+        nav(next, 'next', '›', 'Día siguiente') +
+      '</div>' +
+    '</div>' +
+    '<div class="dv-body' + (day.inFlight ? ' dy-flight' : '') + '">' +
+      '<div class="dv-head">' +
+        '<div class="dv-num">DÍA ' + day.n + '</div>' +
+        '<h2 class="dv-date">' + esc(fmtDateLong(day.date)) + '</h2>' +
+        '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' +
+        sleepHtml(day, ctx) +
+        '<div class="dv-acts">' +
+          (dayHasMap(spec) ? '<button type="button" class="dy-map dv-map" data-day="' + day.date + '">ver en mapa</button>' : '') +
+          '<button type="button" class="dv-share" data-share="' + day.date + '">compartir</button>' +
+        '</div>' +
+      '</div>' +
+      (plan ? '<section class="dv-sec dv-fijo"><div class="sg-title">Plan fijo <span>' + day.events.length + '</span></div>' + plan + '</section>' : '') +
+      '<section class="dv-sec dv-sug">' + (sugSectionHtml(day, ctx) || '<div class="dy-free">Sin sugerencias para este día.</div>') + '</section>' +
+      (plan ? '' : '<div class="dy-free">Nada confirmado todavía para este día.</div>') +
+    '</div>';
+}
+
+// Cuántas sugerencias muestra la TARJETA antes del "ver las N". Seis entran sin que la
+// fila del día deje de leerse de un vistazo; la vista de día no tiene tope, que es
+// justamente para lo que se abre.
+const CARD_SUG_CAP = 6;
+
+RENDER.dias = (it, ctx) => {
   const rows = it.days.map(day => {
-    const where = day.here.length
-      ? day.here.map(h => '<button type="button" class="v-goto" data-goto="' + h.node.id + '">' + esc(h.node.short) +
-          '</button><span class="dy-role' + (h.role === 'de paso' ? ' paso' : '') + '">' + h.role + '</span>' +
-          sharedTag(h.node)).join('<span class="tr-arrow">→</span>')
-      : (day.inFlight ? '✈️ En vuelo' : 'Fin del viaje');
-
-    const sleep = day.sleep && day.sleep.lodging
-      ? '<button type="button" class="dy-sleep dy-hosp dx" data-hosp-day="' + day.sleep.id + '">Dormís en <b>' + esc(day.sleep.lodging.name) + '</b></button><div class="dy-sleep dm">Dormís en <b>' + esc(day.sleep.short) + '</b></div>'
-      : day.sleep ? '<div class="dy-sleep">Dormís en <b>' + esc(day.sleep.short) + '</b> · sin reservar</div>'
-      : day.inFlight ? '<div class="dy-sleep">Noche a bordo</div>' : '';
-
-    const events = day.events.map(e => {
-      const note = e.act ? [e.act.booked, e.act.bestTime, e.act.openHours].filter(Boolean).join(' · ') : '';
-      // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
-      const what = e.lodging
-        ? '<button type="button" class="dy-hosp" data-hosp-day="' + e.node.id + '">' + ctx.DX(esc(e.lodging.name), esc(e.node.short)) + '</button>'
-        : esc(e.text);
-      return '<div class="dy-e ' + (e.kind === 'reserva' ? 'resv' : '') + '">' +
-        '<span class="dy-time' + (e.time ? '' : ' none') + '">' + (e.time || '—') + '</span>' +
-        '<span class="dy-etext"><span class="ek">' + EV_LABEL[e.kind] + '</span>' + what +
-          (note ? '<div class="dy-note dx">' + esc(note) + '</div>' : '') +
-        '</span></div>';
-    }).join('');
-
     const spec = routeOf(day, ctx);
-    const sug = routeListHtml(spec, ctx, day);
-
-    // El reparto del día muestra dos o tres cosas de una ciudad que tiene cuarenta:
-    // acá abajo está el catálogo entero de la ciudad —el de TODAS sus visitas, que
-    // Tokio son tres paradas y una sola lista—, para que nada quede invisible. El
-    // cuerpo se arma recién al abrirlo (ver mountViews).
-    const seenCity = new Set();
-    const all = day.here.map(h => h.node)
-      .filter(n => !seenCity.has(ctx.cityLabel(n)) && seenCity.add(ctx.cityLabel(n)))
-      .filter(n => ctx.cityActivities(n).length).map(n =>
-        '<details class="sg-all"><summary>todo lo de ' + esc(ctx.cityLabel(n)) +
-          ' <b>' + ctx.cityActivities(n).length + '</b></summary>' +
-          '<div class="sg-all-body" data-node="' + n.id + '"></div>' +
-        '</details>').join('');
+    const plan = fixedPlanHtml(day, ctx);
+    const sug = sugSectionHtml(day, ctx, CARD_SUG_CAP);
 
     // El botón lleva el mapa a esa jornada (foco de día, task 508). No abre nada en el
     // sidebar: la lista ya está acá, lo que cambia es lo que se ve al lado.
@@ -625,12 +845,12 @@ RENDER.dias = (it, ctx) => {
         '<div class="dy-date">' + fmtDate(day.date) + '</div>' +
         '<div class="dy-wd">' + fmtWeekday(day.date) + '</div>' +
         mapBtn +
+        '<button type="button" class="dy-open" data-jornada="' + day.date + '">abrir ↗</button>' +
       '</div>' +
       '<div class="dy-main">' +
-        '<div class="dy-where">' + where + '</div>' + sleep +
-        (events ? '<div class="dy-ev">' + events + '</div>' : '') +
-        (sug || all ? '<div class="dy-sug">' + sug + all + '</div>'
-          : (events ? '' : '<div class="dy-free">Sin nada agendado.</div>')) +
+        '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) +
+        (plan ? '<div class="dy-ev"><div class="sg-title">Plan fijo <span>' + day.events.length + '</span></div>' + plan + '</div>' : '') +
+        (sug || plan ? sug : '<div class="dy-free">Sin nada agendado.</div>') +
       '</div>' +
     '</div></div>';
   });
@@ -693,11 +913,13 @@ export function mountViews(destinations, ctx) {
   // `?tab=` manda; un `?dia=` sin tab explícito abre Días, que es de donde sale el
   // foco, un `?tramo=` abre Transportes y un `?hosp=` abre Hospedajes, que es donde
   // vive cada ficha: el link compartido tiene que aterrizar en la lista que le
-  // corresponde.
+  // corresponde. `?jornada=` no entra acá: no es una tab, es la vista de día por
+  // encima de todo — pero deja Días abajo, que es de donde sale y adonde vuelve.
   function current() {
     const s = new URLSearchParams(location.search);
     if (panes[s.get('tab')]) return s.get('tab');
     if (s.get('dia') && panes.dias) return 'dias';
+    if (dayByDate[s.get('jornada')] && panes.dias) return 'dias';
     if (legById[s.get('tramo')] && panes.transportes) return 'transportes';
     if (hospIds.has(s.get('hosp')) && panes.hospedajes) return 'hospedajes';
     return 'resumen';
@@ -782,6 +1004,197 @@ export function mountViews(destinations, ctx) {
     shownDay = date;
   }
 
+  // --------------------------------------------------- vista de día (task 660)
+  // La jornada a pantalla completa, con URL propia. Vive en una capa por ENCIMA de
+  // todo (header, mapa, tabs) y no reemplaza nada: cerrarla devuelve el site tal
+  // como estaba, con la tab Días abajo. El estado es `?jornada=<fecha>`, del mismo
+  // modo que `?dia=`/`?tramo=`/`?hosp=`: link compartible y "atrás" la cierra.
+  const dayView = document.createElement('section');
+  dayView.className = 'day-view';
+  dayView.id = 'day-view';
+  dayView.hidden = true;
+  dayView.setAttribute('aria-label', 'Vista del día');
+  document.body.appendChild(dayView);
+
+  // El `<title>` y los Open Graph del site, para poder devolverlos al cerrar.
+  const metaTag = (prop) => {
+    const attr = prop.indexOf('og:') === 0 ? 'property' : 'name';
+    let el = document.head.querySelector('meta[' + attr + '="' + prop + '"]');
+    if (!el) { el = document.createElement('meta'); el.setAttribute(attr, prop); document.head.appendChild(el); }
+    return el;
+  };
+  const META_KEYS = ['og:title', 'og:description', 'og:url', 'twitter:title', 'twitter:description'];
+  const BASE_TITLE = document.title;
+  const BASE_META = {};
+  META_KEYS.forEach(k => { BASE_META[k] = metaTag(k).getAttribute('content') || ''; });
+  const canonicalEl = (() => {
+    let el = document.head.querySelector('link[rel="canonical"]');
+    if (!el) { el = document.createElement('link'); el.rel = 'canonical'; document.head.appendChild(el); }
+    return el;
+  })();
+  const BASE_CANONICAL = canonicalEl.getAttribute('href') || location.href.split('?')[0].split('#')[0];
+
+  const appUrl = date => {
+    const u = new URL(location.href);
+    u.hash = '';
+    u.searchParams.set('tab', 'dias');
+    u.searchParams.set('jornada', date);
+    return u.href;
+  };
+  // El nombre del viaje sale del `<title>` que ya tiene la página, no de una constante:
+  // la app compartida se sirve del MISMO views.js con otro título y no puede nombrar el
+  // viaje entero (ver scripts/build_compartido.js).
+  const TRIP = BASE_TITLE.split('·')[0].trim() || BASE_TITLE;
+
+  function setMeta(day) {
+    if (!day) {
+      document.title = BASE_TITLE;
+      META_KEYS.forEach(k => metaTag(k).setAttribute('content', BASE_META[k]));
+      canonicalEl.setAttribute('href', BASE_CANONICAL);
+      return;
+    }
+    const m = dayMeta(day);
+    document.title = m.title + ' · ' + TRIP;
+    metaTag('og:title').setAttribute('content', m.title);
+    metaTag('twitter:title').setAttribute('content', m.title);
+    metaTag('og:description').setAttribute('content', m.desc);
+    metaTag('twitter:description').setAttribute('content', m.desc);
+    metaTag('og:url').setAttribute('content', appUrl(day.date));
+    canonicalEl.setAttribute('href', appUrl(day.date));
+  }
+
+  // Una fecha que no es del viaje se ignora, igual que un `?tab=` desconocido: mejor
+  // la vista de siempre que una pantalla vacía.
+  function currentJornada() {
+    const d = new URLSearchParams(location.search).get('jornada');
+    return dayByDate[d] ? d : null;
+  }
+
+  let shownJornada = null;
+
+  function showJornada(date) {
+    if (date === shownJornada) return;
+    dayView.innerHTML = '';
+    if (date) {
+      // El cuerpo se re-arma en un hijo NUEVO en cada jornada porque `ctx.wire()` le
+      // cuelga su listener al elemento que recibe: sobre el mismo nodo se irían
+      // apilando uno por día visitado. El listener de esta capa, en cambio, va una
+      // sola vez sobre `dayView`, que no se reemplaza nunca.
+      const inner = document.createElement('div');
+      inner.className = 'dv-inner';
+      inner.innerHTML = dayViewHtml(dayByDate[date], it, ctx);
+      dayView.appendChild(inner);
+      dayView.hidden = false;
+      dayView.scrollTop = 0;
+      if (ctx.wire) ctx.wire(inner);
+    } else {
+      dayView.hidden = true;
+    }
+    document.body.classList.toggle('day-open', !!date);
+    setMeta(date ? dayByDate[date] : null);
+    shownJornada = date;
+  }
+
+  // Abrir o cerrar la vista de día. Cerrar deja la tab Días puesta: se vuelve a la
+  // lista de donde salió el link, no al resumen.
+  function goJornada(date) {
+    const u = new URL(location.href);
+    u.hash = '';
+    if (date) { u.searchParams.set('tab', 'dias'); u.searchParams.set('jornada', date); }
+    else u.searchParams.delete('jornada');
+    if (u.href === location.href) return;
+    history.pushState(null, '', u);
+    apply();
+  }
+
+  // `#/dia/<fecha>` es la forma que se escribe a mano o que quedó en un link viejo:
+  // se normaliza a la canónica (`?jornada=`) sin dejar entrada en el histórico, así
+  // el resto del ruteo no tiene que conocer dos formatos.
+  function absorbHash() {
+    const m = /^#\/dia\/(\d{4}-\d{2}-\d{2})$/.exec(location.hash || '');
+    if (!m || !dayByDate[m[1]]) return;
+    const u = new URL(location.href);
+    u.hash = '';
+    u.searchParams.set('tab', 'dias');
+    u.searchParams.set('jornada', m[1]);
+    history.replaceState(null, '', u);
+  }
+
+  // "Ver las N" abre el resto de las sugerencias ACÁ MISMO — no manda a otra pantalla
+  // ni pliega lo que ya se estaba leyendo.
+  function toggleSug(btn) {
+    const wrap = btn.previousElementSibling;
+    if (!wrap || !wrap.classList.contains('sg-wrap')) return;
+    const open = wrap.classList.toggle('open');
+    btn.textContent = open ? 'ver menos' : 'ver las ' + btn.dataset.total;
+  }
+
+  dayView.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;                   // Maps, la ficha del alojamiento: suyos
+    const sum = e.target.closest('.sg-all > summary');
+    if (sum) { fillCatalog(sum.parentNode.querySelector('.sg-all-body')); return; }
+    const more = e.target.closest('.sg-more');
+    if (more) { toggleSug(more); return; }
+    if (e.target.closest('.dv-close')) { goJornada(null); return; }
+    const nav = e.target.closest('[data-jornada]');
+    if (nav) { goJornada(nav.dataset.jornada); return; }
+    const share = e.target.closest('.dv-share');
+    if (share) { shareDay(share.dataset.share, share); return; }
+    // Las salidas hacia el resto del site: el mapa, la ficha del hospedaje, el punto de
+    // una actividad y la parada viven ABAJO de esta capa, así que abrirlos la cierran.
+    // El foco en sí lo hace `ctx.wire()`, que ya corrió sobre el cuerpo de adentro:
+    // acá sólo se cierra, o se harían dos veces las mismas cosas.
+    const map = e.target.closest('.dy-map');
+    if (map) { goDay(map.dataset.day); return; }
+    const hosp = e.target.closest('[data-hosp-day]');
+    if (hosp) { goHosp(hosp.dataset.hospDay); return; }
+    if (e.target.closest('[data-act], [data-goto]')) goJornada(null);
+  });
+
+  // Compartir: `navigator.share` donde existe (el teléfono, que es donde se comparte)
+  // y el portapapeles como plan B. Va la url ESTÁTICA, que es la que trae preview.
+  // El aviso va en el propio botón: el toast del site vive dentro del mapa, que acá
+  // está tapado por esta capa.
+  // Lo que se comparte NO es la url de la app: el preview de WhatsApp/Telegram lo arma
+  // un crawler que no ejecuta JavaScript, así que un `?jornada=` le muestra siempre la
+  // tarjeta del site entero. `dia/<fecha>.html` es una página estática con los meta de
+  // ESE día que redirige a la app (ver scripts/build_dias.js). Se comprueba que exista
+  // en vez de darla por hecha: la app compartida se sirve un nivel más abajo y no las
+  // tiene — ahí se manda el link de la app, que anda igual aunque no traiga preview.
+  async function shareTarget(date) {
+    try {
+      const u = new URL('dia/' + date + '.html', location.href.split('?')[0].split('#')[0]).href;
+      const r = await fetch(u, { method: 'HEAD' });
+      if (r.ok) return u;
+    } catch (err) { /* sin red o fuera de http: queda la url de la app */ }
+    return appUrl(date);
+  }
+
+  async function shareDay(date, btn) {
+    const day = dayByDate[date];
+    if (!day) return;
+    const m = dayMeta(day), url = await shareTarget(date);
+    const say = (txt) => {
+      if (!btn) return;
+      btn.textContent = txt;
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { btn.textContent = 'compartir'; }, 2200);
+    };
+    try {
+      if (navigator.share) { await navigator.share({ title: m.title, text: m.desc, url }); return; }
+      await navigator.clipboard.writeText(url);
+      say('link copiado ✓');
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;       // lo canceló el usuario
+      say('no se pudo copiar');
+    }
+  }
+
+  // Esc cierra la vista, como el lightbox de fotos.
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && currentJornada()) goJornada(null);
+  });
+
   // ------------------------------------------------------- tramos (task 510)
   // La línea del mapa y la ficha de la vista Transportes son dos caras del mismo
   // tramo: tocar cualquiera de las dos selecciona el tramo, y el tramo vive en la URL
@@ -824,6 +1237,7 @@ export function mountViews(destinations, ctx) {
   function goLeg(id, opts) {
     const o = opts || {};
     const u = new URL(location.href);
+    u.searchParams.delete('jornada');   // la ficha vive en otra tab: se sale de la vista de día
     const keep = id && !(o.toggle && id === currentLeg());
     if (keep) { u.searchParams.set('tab', 'transportes'); u.searchParams.set('tramo', id); }
     else u.searchParams.delete('tramo');
@@ -876,6 +1290,7 @@ export function mountViews(destinations, ctx) {
   function goHosp(id, opts) {
     const o = opts || {};
     const u = new URL(location.href);
+    u.searchParams.delete('jornada');   // la ficha vive en otra tab: se sale de la vista de día
     const keep = id && !(o.toggle && id === currentHosp());
     if (keep) { u.searchParams.set('tab', 'hospedajes'); u.searchParams.set('hosp', id); }
     else u.searchParams.delete('hosp');
@@ -915,6 +1330,7 @@ export function mountViews(destinations, ctx) {
     showDay(currentDay());
     showLeg(currentLeg());
     showHosp(currentHosp());
+    showJornada(currentJornada());
   }
 
   function go(id) {
@@ -924,8 +1340,11 @@ export function mountViews(destinations, ctx) {
     // "Resumen" no te saca de la vista implicada (y quedás sin poder volver sin soltar
     // el foco).
     const implied = u.searchParams.get('dia') || u.searchParams.get('tramo') || u.searchParams.get('hosp');
+    // Tocar una tab del riel es salir de la vista de día: el riel está abajo de ella.
+    u.searchParams.delete('jornada');
     if (id === 'resumen' && !implied) u.searchParams.delete('tab');
     else u.searchParams.set('tab', id);
+    if (u.href === location.href) return;
     history.pushState(null, '', u);
     apply();
   }
@@ -935,9 +1354,13 @@ export function mountViews(destinations, ctx) {
   // `?dia=` pelado ya vale por `tab=dias`, y borrarlo sin más te devolvía al resumen.
   function goDay(date) {
     const u = new URL(location.href);
+    const wasJornada = !!currentJornada();
+    u.searchParams.delete('jornada');   // el mapa está abajo de la vista de día
     const tab = date ? 'dias' : current();
     if (tab === 'resumen') u.searchParams.delete('tab'); else u.searchParams.set('tab', tab);
-    if (date && date !== currentDay()) u.searchParams.set('dia', date);
+    // Desde la vista de día el botón SIEMPRE enfoca (no hace toggle): se viene de una
+    // pantalla donde el mapa no se veía, así que "volver a tocar para soltar" no aplica.
+    if (date && (wasJornada || date !== currentDay())) u.searchParams.set('dia', date);
     else u.searchParams.delete('dia');
     history.pushState(null, '', u);
     apply();
@@ -945,6 +1368,10 @@ export function mountViews(destinations, ctx) {
 
   if (panes.dias) {
     panes.dias.addEventListener('click', (e) => {
+      const more = e.target.closest('.sg-more');
+      if (more) { e.stopPropagation(); toggleSug(more); return; }
+      const open = e.target.closest('[data-jornada]');
+      if (open) { e.stopPropagation(); goJornada(open.dataset.jornada); return; }
       const hosp = e.target.closest('[data-hosp-day]');
       if (hosp) { e.stopPropagation(); goHosp(hosp.dataset.hospDay); return; }
       const b = e.target.closest('.dy-map');
@@ -956,6 +1383,9 @@ export function mountViews(destinations, ctx) {
   if (ctx.onDayExit) ctx.onDayExit(() => goDay(null));
 
   window.addEventListener('popstate', apply);
+  // `#/dia/<fecha>` escrito a mano (o pegado desde un link viejo) entra igual.
+  window.addEventListener('hashchange', () => { absorbHash(); apply(); });
+  absorbHash();
   apply();
-  return { go, goDay, itinerary: it };
+  return { go, goDay, goJornada, itinerary: it };
 }
