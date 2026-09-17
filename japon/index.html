@@ -371,6 +371,8 @@
   .sm-hero img { width: 100%; height: 120px; object-fit: cover; display: block; cursor: zoom-in; transition: opacity 0.12s; }
   .sm-hero img:hover { opacity: 0.9; }
   .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
+  .dv-day-map { height: 300px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
+  @media (max-width: 600px) { .dv-day-map { height: 230px; } }
   .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
   .sm-sec { margin-bottom: 12px; }
   .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
@@ -3708,6 +3710,54 @@ const weatherChart = new Chart(ctx, {
   map.on('dragstart', () => { if (meState === 'follow') setState('on'); });
 })();
 
+// Mapa embebido de la vista individual de día. Consume el mismo `dayRoute()` que el
+// foco del mapa principal: no vuelve a calcular orden ni coordenadas. Las únicas
+// resoluciones que hace son cama → coords del hospedaje y parada → coords del nodo.
+let _dayViewMap = null;
+function renderDayMap(container, spec) {
+  if (_dayViewMap) { _dayViewMap.remove(); _dayViewMap = null; }
+  if (!container || !spec) return;
+
+  const coordsOf = p => {
+    if (p.terminal) return p.terminal.coords || null;
+    if (p.ll) return p.ll;
+    if (p.bed) {
+      const n = destinations.find(d => d.id === p.bed);
+      if (!n || !n.lodging || !n.lodging.coords) return null;
+      return isDiscrete() ? maskedLodgingCoords(n) : n.lodging.coords;
+    }
+    return null;
+  };
+  let pts = (spec.line || []).map(coordsOf).filter(Boolean);
+  // Un día sin actividades ni terminales todavía puede tener una parada con coords.
+  // Es contexto real del día; si tampoco existe, views.js ni renderiza el contenedor.
+  if (!pts.length) pts = (spec.stops || []).map(id => {
+    const n = destinations.find(d => d.id === id);
+    return n && n.coords;
+  }).filter(Boolean);
+  if (!pts.length) { container.remove(); return; }
+
+  _dayViewMap = L.map(container, {
+    zoomControl: true, attributionControl: false, scrollWheelZoom: false,
+  });
+  L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_dayViewMap);
+  if (pts.length > 1) L.polyline(pts, {
+    color: '#0F6E56', weight: 3, opacity: 0.78, dashArray: '7, 6',
+    lineCap: 'round', lineJoin: 'round', interactive: false,
+  }).addTo(_dayViewMap);
+  pts.forEach((ll, i) => L.circleMarker(ll, {
+    radius: i === 0 || i === pts.length - 1 ? 6 : 4,
+    color: '#0F6E56', weight: 2, fillColor: '#fff', fillOpacity: 1,
+    interactive: false,
+  }).addTo(_dayViewMap));
+  setTimeout(() => {
+    if (!_dayViewMap) return;
+    _dayViewMap.invalidateSize();
+    if (pts.length === 1) _dayViewMap.setView(pts[0], 13);
+    else _dayViewMap.fitBounds(L.latLngBounds(pts), { padding: [28, 28], maxZoom: 14 });
+  }, 0);
+}
+
 // ---- Vistas laterales (task 499) -------------------------------------------
 // Las tres vistas nuevas leen el mismo `destinations` y reusan los bloques que ya
 // existen acá (reserva, categorías, escape de HTML). Si esto falla, el resumen
@@ -3739,7 +3789,7 @@ try {
     focusAct: (key) => focusMarker(actMarkers[key]),
     // Foco de día (task 508): la vista arma el recorrido (qué puntos y en qué orden)
     // y el mapa lo dibuja; salir vuelve por la URL, por eso el chip avisa para acá.
-    focusDay: enterDayFocus, exitDayFocus,
+    focusDay: enterDayFocus, exitDayFocus, renderDayMap,
     onDayExit: (fn) => { dayExitHandler = fn; },
     wire: (pane) => {
       wireChecklist(pane);

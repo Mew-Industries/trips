@@ -644,11 +644,13 @@ function planItemHtml(e, ctx) {
     if (s.tracker) links.push(extLink(s.tracker, 'seguir el vuelo', ctx));
   } else if (e.kind === 'check-in' || e.kind === 'check-out') {
     const L = e.lodging;
-    // La ventana horaria sale del MISMO `hoursParts()` que arma la tarjeta de
-    // Hospedajes: una sola regla para decidir qué se dice y qué se calla. Cuando no
-    // hay ninguna hora ("Horarios a definir") va en ámbar, como el resto de los huecos
-    // del día — en verde se leía como un horario confirmado.
-    const win = ctx.hoursParts(L).join(' · ');
+    // Cada evento muestra sólo SU punta de la estadía. `hoursParts()` sigue siendo la
+    // fuente única del texto, pero un check-in no adelanta el horario de salida ni un
+    // check-out repite el de llegada. Si falta justo esa punta queda explícito y ámbar,
+    // aunque la otra sí esté cargada.
+    const label = e.kind === 'check-in' ? 'Check-in' : 'Check-out';
+    const win = ctx.hoursParts(L).find(p => p.indexOf(label) !== -1) ||
+      '<span class="lg-hh">Horario a definir</span>';
     body.push('<div class="pl-win dx' + (/\d/.test(win) ? '' : ' tbd') + '">' + win + '</div>');
     if (L.area) body.push('<div class="pl-d dx">' + esc(L.area) + '</div>');
     const ref = L.booking && L.booking.ref;
@@ -797,6 +799,10 @@ function dayViewHtml(day, it, ctx) {
     ' aria-label="' + lbl + '">' + glyph + '</button>';
   const spec = routeOf(day, ctx);
   const plan = fixedPlanHtml(day, ctx);
+  const hasMap = spec.line.length || spec.stops.some(id => {
+    const n = ctx.nodeById[id];
+    return n && n.coords;
+  });
 
   return '<div class="dv-bar">' +
       '<button type="button" class="dv-close" aria-label="Volver a Días">‹ Días</button>' +
@@ -817,7 +823,8 @@ function dayViewHtml(day, it, ctx) {
           '<button type="button" class="dv-share" data-share="' + day.date + '">compartir</button>' +
         '</div>' +
       '</div>' +
-      (plan ? '<section class="dv-sec dv-fijo"><div class="sg-title">Plan fijo <span>' + day.events.length + '</span></div>' + plan + '</section>' : '') +
+      (hasMap ? '<div class="sm-map dv-day-map" data-day-map aria-label="Mapa del recorrido del día"></div>' : '') +
+      (plan ? '<section class="dv-sec dv-fijo"><div class="sg-title"><span>' + day.events.length + '</span></div>' + plan + '</section>' : '') +
       '<section class="dv-sec dv-sug">' + (sugSectionHtml(day, ctx) || '<div class="dy-free">Sin sugerencias para este día.</div>') + '</section>' +
       (plan ? '' : '<div class="dy-free">Nada confirmado todavía para este día.</div>') +
     '</div>';
@@ -849,7 +856,7 @@ RENDER.dias = (it, ctx) => {
       '</div>' +
       '<div class="dy-main">' +
         '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) +
-        (plan ? '<div class="dy-ev"><div class="sg-title">Plan fijo <span>' + day.events.length + '</span></div>' + plan + '</div>' : '') +
+        (plan ? '<div class="dy-ev"><div class="sg-title"><span>' + day.events.length + '</span></div>' + plan + '</div>' : '') +
         (sug || plan ? sug : '<div class="dy-free">Sin nada agendado.</div>') +
       '</div>' +
     '</div></div>';
@@ -1087,7 +1094,9 @@ export function mountViews(destinations, ctx) {
       dayView.hidden = false;
       dayView.scrollTop = 0;
       if (ctx.wire) ctx.wire(inner);
+      if (ctx.renderDayMap) ctx.renderDayMap(inner.querySelector('[data-day-map]'), routeOf(dayByDate[date], ctx));
     } else {
+      if (ctx.renderDayMap) ctx.renderDayMap(null, null);
       dayView.hidden = true;
     }
     document.body.classList.toggle('day-open', !!date);
