@@ -526,9 +526,11 @@ function routeOf(day, ctx) {
   return _routes.get(day);
 }
 
-// Un día sin ningún punto no tiene nada que mostrar en el mapa: sin botón. Alcanza con
-// una punta —la terminal del vuelo que sale, aunque no haya nada más ese día.
-const dayHasMap = spec => !!(spec.line.length || spec.stops.length);
+// El mapa de la jornada muestra el plan confirmado: hospedajes, terminales y actividades
+// con hora/reserva (`anchor`). Las sugerencias siguen en la lista, pero no dibujan ni
+// marcadores ni línea. Mantener este filtro acá también evita renderizar un mapa vacío.
+export const confirmedDayLine = spec => (spec.line || []).filter(p => p.bed || p.terminal || p.anchor);
+const dayHasMap = spec => confirmedDayLine(spec).length > 0 || (spec.stops || []).length > 0;
 
 // El recorrido del día en la sidebar: los mismos puntos, en el mismo orden y con el
 // mismo número que la línea del mapa. El número no depende del foco —está siempre—
@@ -799,10 +801,7 @@ function dayViewHtml(day, it, ctx) {
     ' aria-label="' + lbl + '">' + glyph + '</button>';
   const spec = routeOf(day, ctx);
   const plan = fixedPlanHtml(day, ctx);
-  const hasMap = spec.line.length || spec.stops.some(id => {
-    const n = ctx.nodeById[id];
-    return n && n.coords;
-  });
+  const hasMap = dayHasMap(spec);
 
   return '<div class="dv-bar">' +
       '<button type="button" class="dv-close" aria-label="Volver a Días">‹ Días</button>' +

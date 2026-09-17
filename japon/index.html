@@ -3747,15 +3747,16 @@ function renderDayMap(container, spec) {
     }
     return null;
   };
-  const line = spec.line || [];
-  let pts = line.map(coordsOf).filter(Boolean);
-  // Un día sin actividades ni terminales todavía puede tener una parada con coords.
-  // Es contexto real del día; si tampoco existe, views.js ni renderiza el contenedor.
-  if (!pts.length) pts = (spec.stops || []).map(id => {
+  // El mapa embebido es el plan confirmado. Las camas reservadas y las terminales son
+  // puntas reales del recorrido; entre las actividades entran sólo las anclas con hora.
+  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor);
+  const pts = line.map(coordsOf).filter(Boolean);
+  const stopPts = (spec.stops || []).map(id => {
     const n = destinations.find(d => d.id === id);
     return n && n.coords;
   }).filter(Boolean);
-  if (!pts.length) { container.remove(); return; }
+  const boundsPts = pts.concat(stopPts);
+  if (!boundsPts.length) { container.remove(); return; }
 
   _dayViewMap = L.map(container, {
     zoomControl: true, attributionControl: false, scrollWheelZoom: false,
@@ -3787,28 +3788,37 @@ function renderDayMap(container, spec) {
     }
     if (p.terminal) {
       const name = p.terminal.name || 'Terminal';
-      named(terminalMarker(p.terminal).addTo(_dayViewMap), name);
+      const mode = MODE_STYLE[p.terminal.mode] || {};
+      named(terminalMarker(p.terminal).addTo(_dayViewMap), name,
+        miniPopup(null, escHtml(name), [mode.icon, mode.label || 'Terminal'].filter(Boolean).join(' '), gmapsFromName(name)));
       return;
     }
     const name = p.act && p.act.text ? p.act.text : 'Parada';
-    named(L.marker(ll, { icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000 }).addTo(_dayViewMap), name);
+    const cat = CAT_META[p.cat] || CAT_META.otro;
+    const sub = p.time || (cat.icon + ' ' + cat.label);
+    named(L.marker(ll, { icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000 }).addTo(_dayViewMap), name,
+      miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)));
   });
-  // Un día sin línea usa sus nodos como contexto, igual que el foco del mapa principal.
-  if (!line.length) (spec.stops || []).forEach(id => {
+  // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
+  // como marcadores con el mismo popup de la portada, pero no alteran la polilínea:
+  // esa sigue uniendo únicamente sus puntas físicas y sus eventos anclados.
+  (spec.stops || []).forEach(id => {
     const n = destinations.find(d => d.id === id);
-    if (!n || !n.coords) return;
+    if (!n || !n.coords || seen.has('stop:' + id)) return;
+    seen.add('stop:' + id);
     const icon = L.divIcon({
       html: '<div class="marker-num' + (n.sharedWith ? ' shared' : '') + '">' + (n.n || '?') + '</div>',
       className: '', iconSize: [30, 30], iconAnchor: [15, 15],
     });
+    const title = (n.n ? n.n + '. ' : '') + n.short;
     named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
-      miniPopup(n.img, (n.n ? n.n + '. ' : '') + escHtml(n.short), DX(n.dates), gmapsFromName(n.short)));
+      miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsFromName(n.short)));
   });
   setTimeout(() => {
     if (!_dayViewMap) return;
     _dayViewMap.invalidateSize();
-    if (pts.length === 1) _dayViewMap.setView(pts[0], 13);
-    else _dayViewMap.fitBounds(L.latLngBounds(pts), { padding: [28, 28], maxZoom: 14 });
+    if (boundsPts.length === 1) _dayViewMap.setView(boundsPts[0], 13);
+    else _dayViewMap.fitBounds(L.latLngBounds(boundsPts), { padding: [28, 28], maxZoom: 14 });
   }, 0);
 }
 

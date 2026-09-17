@@ -57,7 +57,7 @@ const check = (name, ok, extra = '') => {
 
 (async () => {
   const { buildItinerary } = await import(path.join(DIR, 'itinerary.js'));
-  const { dayMeta } = await import(path.join(DIR, 'views.js'));
+  const { dayMeta, dayRoute, confirmedDayLine } = await import(path.join(DIR, 'views.js'));
   const it = buildItinerary(arrayLiteral('destinations'));
 
   // 1 · ningún horario inventado
@@ -108,6 +108,26 @@ const check = (name, ok, extra = '') => {
   }).map(d => d.date);
   check('en todo día de traslado el check-out va antes del viaje y el check-in después',
     malOrden.length === 0, malOrden.join(', '));
+
+  // 4 · el mapa individual no mezcla sugerencias con el itinerario confirmado
+  const ctx = {
+    activityId: (act, node) => node.id + ':' + node.activities.indexOf(act),
+    catOfAct: act => act.cat || 'otro',
+    DX: s => s,
+  };
+  const specs = it.days.map(day => ({ day, spec: dayRoute(day, ctx) }));
+  const leaked = specs.flatMap(({ day, spec }) => {
+    const confirmed = new Set(confirmedDayLine(spec));
+    return spec.line.filter(p => !confirmed.has(p) && (p.anchor || p.terminal || p.bed))
+      .map(() => day.date);
+  });
+  check('el mapa diario conserva sólo anclas, terminales y hospedajes', leaked.length === 0,
+    specs.reduce((n, x) => n + confirmedDayLine(x.spec).length, 0) + ' puntos confirmados');
+  const d14 = specs.find(x => x.day.date === '2026-10-19');
+  const d14line = confirmedDayLine(d14.spec);
+  check('el día 14 excluye todas sus sugerencias del mapa',
+    d14line.every(p => p.anchor || p.terminal || p.bed) && d14line.length < d14.spec.line.length,
+    d14line.length + ' confirmados / ' + d14.spec.line.length + ' totales');
 
   console.log(failed ? `\n✗ ${failed} check(s) fallaron` : '\n✓ todo ok');
   process.exit(failed ? 1 : 0);
