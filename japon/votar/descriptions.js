@@ -342,7 +342,7 @@ window.VOTAR_DESCS = {
 
   'p-tottori-sand-dunes': 'Dunas de arena de dos kilómetros sobre el mar de Japón, en la prefectura menos visitada del país. Se puede hacer sandboard, parapente o subirse a un camello. Al lado está el museo de esculturas de arena, que cambia de tema todos los años.',
 
-  'p-towada-art-center': 'Centro de arte contemporáneo en Aomori formado por cajas blancas sueltas, con las obras desparramadas también por la calle de afuera: el caballo de flores de Choi Jeong Hwa y las hormigas gigantes se ven gratis, sin entrar. Es chico y muy bueno.',
+  'p-towada-art-center': 'Centro de arte contemporáneo en Aomori formado por cajas blancas sueltas, con las obras desparramadas también por la calle de afuera: el caballo de flores y las hormigas gigantes se ven gratis, sin entrar. Es chico y muy bueno.',
 
   'p-toyo-department-store': 'Mini galería de puestos vintage en Shimokitazawa, cada uno de un vendedor distinto, en el edificio del Shimokita Garage Department. Es de revolver en un rato corto. Cae bien en el medio de la ruta del barrio.',
 
