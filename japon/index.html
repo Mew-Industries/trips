@@ -717,12 +717,14 @@ const destinations = [
         'Hay que retirar las valijas del locker antes de salir de Nikko.'
       ] },
     tempMax: '18-23', tempMin: '8-14', weatherUpdated: '2026-09-16', weatherMode: 'climatología',
-    intro: 'Base cómoda del tramo norte (Iwate): Ichinoseki es el hub del shinkansen, con hoteles y servicios, y queda a 8 min en tren de Hiraizumi. Se llega de Nikko la noche del 13 (día largo Tokio → Nikko de paso → norte) y al otro día se sigue a Sendai sin horario límite (shinkansen corto, ~40 min). El foco es la garganta de Geibikei: paseo en bote chato de fondo plano con el botero que canta. Cerca está Genbikei (rápidos turquesa + el "dango volador" que llega por un cable). Comida fuerte de la zona: capital de la cocina de mochi (餅本膳) y la carne de Maesawa (前沢牛), un wagyu premium. Hiraizumi (Chūson-ji + el Pabellón Dorado/Konjikidō, Tesoro Nacional UNESCO) queda a 8 min y es un opcional lindo si el día da.',
+    intro: 'Base cómoda del tramo norte (Iwate): Ichinoseki es el hub del shinkansen, con hoteles y servicios, y queda a 8 min en tren de Hiraizumi. Se llega de Nikko la noche del 13. El orden correcto del 14 es bote en Geibikei a la mañana → shinkansen frecuente a Sendai a la tarde (~30-40 min): Sendai no tiene hora límite, así que la holgura la absorbe el shinkansen, no el bote. El foco es la garganta de Geibikei: paseo en bote chato de fondo plano con el botero que canta. Cerca está Genbikei (rápidos turquesa + el "dango volador" que llega por un cable). Comida fuerte de la zona: capital de la cocina de mochi (餅本膳) y la carne de Maesawa (前沢牛), un wagyu premium. Hiraizumi (Chūson-ji + el Pabellón Dorado/Konjikidō, Tesoro Nacional UNESCO) queda a 8 min y es un opcional lindo si el día da.',
     activities: [
       { text: 'Chūson-ji + Konjikidō (Pabellón Dorado, Tesoro Nacional UNESCO) — opcional, 8 min en Hiraizumi', cat: 'templos', coords: [38.9939, 141.0989], url: "https://www.google.com/maps/search/?api=1&query=Chusonji" },
       { text: 'Mōtsū-ji (jardín Jōdo de la era Heian) — opcional, en Hiraizumi', cat: 'parques', coords: [38.9869, 141.1006], url: "https://www.google.com/maps/search/?api=1&query=M%C5%8Dts%C5%AB-ji" },
       { text: 'Cena de carne de Maesawa (前沢牛) / cocina de mochi (餅本膳)', cat: 'comida', coords: [38.9264, 141.1388] },
-      { text: 'Geibikei (paseo en bote por la garganta)', cat: 'parques', coords: [38.989448, 141.255452], url: "https://www.google.com/maps/search/?api=1&query=Geibikei%20Gorge" },
+      { text: 'Geibikei (bote ~90 min ida y vuelta; salidas 9:30, 10:00, 11:00, 12:00, 13:00, 14:00 y 15:00 — temporada 2025-26, confirmar la grilla 2026-27). JR Ofunato Line desde Ichinoseki: ~30 min, pasa cada 1-2 horas; perder un tren son 60-120 min de espera, no 15', cat: 'parques', coords: [38.989448, 141.255452],
+        note: 'Ichinoseki → Geibikei: JR Ofunato Line, ~30 min, pero pasa cada 1-2 horas. Perder un tren son 60-120 min de espera, no 15: es el horario que manda la mañana.',
+        url: "https://www.google.com/maps/search/?api=1&query=Geibikei%20Gorge" },
       { text: 'Genbikei (rápidos + "dango volador" por el cable)', cat: 'comida', coords: [38.9469, 141.0556], url: "https://www.google.com/maps/search/?api=1&query=Genbikei" }
     ],
     daytrips: []
@@ -967,7 +969,7 @@ const destinations = [
       { text: 'Kamishichiken', group: 'Mercado Nishiki + Kamishichiken', cat: 'barrios', coords: [35.030161, 135.736681] },
       { text: 'Fushimi Inari al amanecer (6 AM)', cat: 'templos', coords: [34.99761, 135.773968] },
       { text: 'Pontocho de noche, kaiseki ryori', cat: 'comida', coords: [35.003935, 135.771032] },
-      { text: 'Hirobun (kawadoko / nagashi sōmen, Kibune)', cat: 'comida', coords: [35.125281, 135.7639], url: "https://www.google.com/maps/search/?api=1&query=Hirobun" },
+      { text: 'Hirobun (Kibune) — el restaurante abre en octubre, pero ya no hay kawadoko ni nagashi sōmen: la temporada cierra a fines de septiembre', cat: 'comida', coords: [35.125281, 135.7639], url: "https://www.google.com/maps/search/?api=1&query=Hirobun" },
       { text: 'Garden of Fine Arts Kyoto (Tadao Ando)', cat: 'museos', coords: [35.050655, 135.765443], url: "https://www.google.com/maps/search/?api=1&query=Garden%20of%20Fine%20Arts%20Kyoto" }
     ],
     daytrips: [
@@ -1145,7 +1147,7 @@ const destinations = [
         { route: 'HND → FUK', no: 'NH273', when: '31 oct 19:35 → 21:40', departure: '2026-10-31T19:35', arrival: '2026-10-31T21:40', aircraft: 'B787/A321 · 2h05', tracker: 'https://flightaware.com/live/flight/ANA273' }
       ] },
     tempMax: '16-25', tempMin: '9-18', weatherUpdated: '2026-09-16', weatherMode: 'climatología',
-    intro: 'Cuna del ramen tonkotsu. Se llega de Tokio el 31/10 en avión (ANA NH273 desde Haneda, 19:35 → 21:40) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00).',
+    intro: 'Cuna del ramen tonkotsu. Se llega de Tokio el 31/10 en avión (ANA NH273 desde Haneda, 19:35 → 21:40) y es la última parada en Japón (en esta tanda) antes de cruzar a Corea: el 3/11 se vuela de Fukuoka a Busan (Air Busan BX 506, 11:55 → 13:00). Ojo con las compras: el sistema tax-free japonés cambia el 1/11/2026, justo durante esta estadía. Los lockers de estación no sirven para guardar compras durante el viaje; en los días de traslado hay que llevarlas o resolver guardado de equipaje de largo plazo.',
     activities: [
       { text: 'Ichiran original', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.593241, 130.404597] },
       { text: 'Hakata Issou', group: 'Ramen tonkotsu', cat: 'comida', coords: [33.589782, 130.419012] },
@@ -1273,7 +1275,7 @@ const destinations = [
       { text: 'Namdaemun Market', group: 'Namsan Tower + Namdaemun', cat: 'compras', coords: [37.559456, 126.976979] }
     ],
     daytrips: [
-      { id: 'dmz', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/070401_Panmunjeom3.jpg/360px-070401_Panmunjeom3.jpg', name: 'DMZ Tour', coords: [37.9425, 126.6800], time: 'Bus desde el centro, 1 día', desc: 'Frontera con Corea del Norte. JSA, Dora Observatory. Reservar antes.' }
+      { id: 'dmz', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/070401_Panmunjeom3.jpg/360px-070401_Panmunjeom3.jpg', name: 'DMZ Tour', coords: [37.9425, 126.6800], time: 'Sáb 7 o dom 8, 07:00-08:00 → 14:00-15:00', desc: '3er Túnel de Infiltración + Dora Observatory (₩55.000-75.000 pp). JSA/Panmunjom está cerrado al público indefinidamente. El tour no opera los lunes: el lunes 9/11 no sirve; reservar para el sábado 7 o domingo 8 por la mañana.' }
     ]
   },
   {
