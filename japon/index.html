@@ -3747,7 +3747,8 @@ function renderDayMap(container, spec) {
     }
     return null;
   };
-  let pts = (spec.line || []).map(coordsOf).filter(Boolean);
+  const line = spec.line || [];
+  let pts = line.map(coordsOf).filter(Boolean);
   // Un día sin actividades ni terminales todavía puede tener una parada con coords.
   // Es contexto real del día; si tampoco existe, views.js ni renderiza el contenedor.
   if (!pts.length) pts = (spec.stops || []).map(id => {
@@ -3764,11 +3765,45 @@ function renderDayMap(container, spec) {
     color: '#0F6E56', weight: 3, opacity: 0.78, dashArray: '7, 6',
     lineCap: 'round', lineJoin: 'round', interactive: false,
   }).addTo(_dayViewMap);
-  pts.forEach((ll, i) => L.circleMarker(ll, {
-    radius: i === 0 || i === pts.length - 1 ? 6 : 4,
-    color: '#0F6E56', weight: 2, fillColor: '#fff', fillOpacity: 1,
-    interactive: false,
-  }).addTo(_dayViewMap));
+  const named = (marker, name, popup) => marker
+    .bindTooltip(escHtml(name), { direction: 'top', offset: [0, -6] })
+    .bindPopup(popup || '<div class="popup-title">' + escHtml(name) + '</div>');
+  const seen = new Set();
+  line.forEach(p => {
+    const ll = coordsOf(p);
+    if (!ll) return;
+    if (p.bed) {
+      if (seen.has('bed:' + p.bed)) return;
+      seen.add('bed:' + p.bed);
+      const n = destinations.find(d => d.id === p.bed);
+      if (!n || !n.lodging) return;
+      const name = isDiscrete() ? 'Reservado' : n.lodging.name;
+      const icon = L.divIcon({
+        html: '<div class="lodging-marker">🛏️</div>',
+        className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+      });
+      named(L.marker(ll, { icon }).addTo(_dayViewMap), name, lodgingPopupHtml(n.lodging, n.short));
+      return;
+    }
+    if (p.terminal) {
+      const name = p.terminal.name || 'Terminal';
+      named(terminalMarker(p.terminal).addTo(_dayViewMap), name);
+      return;
+    }
+    const name = p.act && p.act.text ? p.act.text : 'Parada';
+    named(L.marker(ll, { icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000 }).addTo(_dayViewMap), name);
+  });
+  // Un día sin línea usa sus nodos como contexto, igual que el foco del mapa principal.
+  if (!line.length) (spec.stops || []).forEach(id => {
+    const n = destinations.find(d => d.id === id);
+    if (!n || !n.coords) return;
+    const icon = L.divIcon({
+      html: '<div class="marker-num' + (n.sharedWith ? ' shared' : '') + '">' + (n.n || '?') + '</div>',
+      className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+    });
+    named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
+      miniPopup(n.img, (n.n ? n.n + '. ' : '') + escHtml(n.short), DX(n.dates), gmapsFromName(n.short)));
+  });
   setTimeout(() => {
     if (!_dayViewMap) return;
     _dayViewMap.invalidateSize();

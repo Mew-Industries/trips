@@ -129,6 +129,13 @@
 .dy-num { font-size: 9px; color: #c4bfb2; font-weight: 700; letter-spacing: 0.06em; }
 .dy-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
 .dy-wd { font-size: 11px; color: #8d8878; text-transform: capitalize; }
+.dy-card { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s, transform 0.12s; }
+.dy-card:hover { border-color: rgba(15,110,86,0.3); box-shadow: 0 3px 12px rgba(15,110,86,0.09); transform: translateY(-1px); }
+.dy-day-link { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.dy-day-link > span { display: block; }
+.dy-day-link:hover .dy-date { color: #0F6E56; text-decoration: underline; text-underline-offset: 2px; }
+.dy-day-link:focus-visible { outline: 2px solid #0F6E56; outline-offset: 4px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { .dy-card { transition: none; } .dy-card:hover { transform: none; } }
 /* "ver en mapa": manda la jornada al mapa (foco de día). En reposo es un link
    discreto en la columna de la fecha; enfocado, el verde del chip del mapa. */
 .dy-map { font-family: inherit; font-size: 10.5px; font-weight: 600; white-space: nowrap; margin-top: 6px; padding: 3px 6px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: #8d8878; cursor: pointer; transition: color 0.12s, border-color 0.12s, background 0.12s; }
@@ -238,11 +245,6 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .dy-free { font-size: 11.5px; color: #b0aa9c; font-style: italic; margin-top: 8px; }
 .dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
 .dy-flight .dy-date { color: #2563EB; }
-/* "abrir": la jornada a pantalla completa, con URL propia. Va abajo de "ver en mapa"
-   en la columna de la fecha, que es donde ya vive todo lo que se le hace al día. */
-.dy-open { display: block; font-family: inherit; font-size: 10.5px; font-weight: 700; white-space: nowrap; margin-top: 5px; padding: 3px 7px; border-radius: 12px; border: 1px solid rgba(15,110,86,0.3); background: rgba(15,110,86,0.06); color: #0F6E56; cursor: pointer; transition: background 0.12s, border-color 0.12s; }
-.dy-open:hover { background: rgba(15,110,86,0.14); border-color: rgba(15,110,86,0.5); }
-.dy-open:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
 
 /* -------------------------------------------------- vista de día (task 660) */
 /* La jornada a pantalla completa: una capa POR ENCIMA de todo (header, mapa, tabs),
@@ -352,7 +354,6 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
   .dv-body .sg-item, .dv-body .rt-item.plain { min-height: 30px; }
   /* En la columna de la fecha ya apilada, los dos botones del día van uno al lado
      del otro en vez de empujar la fila hacia abajo. */
-  .dy-open { display: inline-block; margin-top: 0; }
   /* Vista de día: una sola columna al ancho de la pantalla, sin scroll horizontal. */
   .dv-body { padding: 14px 12px 44px; }
   .dv-date { font-size: 21px; }

@@ -846,13 +846,14 @@ RENDER.dias = (it, ctx) => {
     const mapBtn = dayHasMap(spec)
       ? '<button type="button" class="dy-map" data-day="' + day.date + '">ver en mapa</button>' : '';
 
-    return '<div class="v-card' + (day.inFlight ? ' dy-flight' : '') + '"><div class="dy-row">' +
+    return '<div class="v-card dy-card' + (day.inFlight ? ' dy-flight' : '') + '" data-jornada-card="' + day.date + '"><div class="dy-row">' +
       '<div class="dy-when">' +
-        '<div class="dy-num">DÍA ' + day.n + '</div>' +
-        '<div class="dy-date">' + fmtDate(day.date) + '</div>' +
-        '<div class="dy-wd">' + fmtWeekday(day.date) + '</div>' +
+        '<button type="button" class="dy-day-link" data-jornada="' + day.date + '" aria-label="Abrir día ' + day.n + ', ' + fmtDateLong(day.date) + '">' +
+          '<span class="dy-num">DÍA ' + day.n + '</span>' +
+          '<span class="dy-date">' + fmtDate(day.date) + '</span>' +
+          '<span class="dy-wd">' + fmtWeekday(day.date) + '</span>' +
+        '</button>' +
         mapBtn +
-        '<button type="button" class="dy-open" data-jornada="' + day.date + '">abrir ↗</button>' +
       '</div>' +
       '<div class="dy-main">' +
         '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) +
@@ -1376,6 +1377,26 @@ export function mountViews(destinations, ctx) {
   }
 
   if (panes.dias) {
+    let cardTouch = null;
+    let swipedCard = null;
+    let swipedUntil = 0;
+    panes.dias.addEventListener('touchstart', (e) => {
+      const card = e.target.closest('[data-jornada-card]');
+      const t = e.touches[0];
+      cardTouch = card && t ? { card, x: t.clientX, y: t.clientY, moved: false } : null;
+    }, { passive: true });
+    panes.dias.addEventListener('touchmove', (e) => {
+      if (!cardTouch || !e.touches[0]) return;
+      const t = e.touches[0];
+      if (Math.hypot(t.clientX - cardTouch.x, t.clientY - cardTouch.y) > 10) cardTouch.moved = true;
+    }, { passive: true });
+    panes.dias.addEventListener('touchend', () => {
+      if (cardTouch && cardTouch.moved) {
+        swipedCard = cardTouch.card;
+        swipedUntil = performance.now() + 500;
+      }
+      cardTouch = null;
+    }, { passive: true });
     panes.dias.addEventListener('click', (e) => {
       const more = e.target.closest('.sg-more');
       if (more) { e.stopPropagation(); toggleSug(more); return; }
@@ -1384,7 +1405,11 @@ export function mountViews(destinations, ctx) {
       const hosp = e.target.closest('[data-hosp-day]');
       if (hosp) { e.stopPropagation(); goHosp(hosp.dataset.hospDay); return; }
       const b = e.target.closest('.dy-map');
-      if (b) { e.stopPropagation(); goDay(b.dataset.day); }
+      if (b) { e.stopPropagation(); goDay(b.dataset.day); return; }
+      const card = e.target.closest('[data-jornada-card]');
+      if (!card || e.target.closest('button, a, input, select, textarea, summary, details, [role="button"], [data-act], [data-goto], [data-hosp-day]')) return;
+      if (card === swipedCard && performance.now() < swipedUntil) return;
+      goJornada(card.dataset.jornadaCard);
     });
   }
   // El chip "✕ Día N" del mapa es la otra salida: pasa por la URL, no por el mapa
