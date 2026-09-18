@@ -15,6 +15,9 @@
  *  3. El orden de lectura del plan fijo: el check-out va antes de los traslados y el
  *     check-in después. Sin eso, un día de traslado muestra el check-in de las 16:00
  *     arriba de los buses que hay que tomar para llegar.
+ *  6. La navegación entre días (task 687): `neighborDay()` es la cuenta que comparten
+ *     los botones de la barra y las flechas del teclado, no envuelve en los bordes, y
+ *     las teclas viven en UN listener con sus guardas (foco de texto, drag, lightbox).
  */
 const fs = require('fs');
 const path = require('path');
@@ -57,7 +60,7 @@ const check = (name, ok, extra = '') => {
 
 (async () => {
   const { buildItinerary } = await import(path.join(DIR, 'itinerary.js'));
-  const { dayMeta, dayRoute, confirmedDayLine } = await import(path.join(DIR, 'views.js'));
+  const { dayMeta, dayRoute, confirmedDayLine, neighborDay } = await import(path.join(DIR, 'views.js'));
   const it = buildItinerary(arrayLiteral('destinations'));
 
   // 1 · ningún horario inventado
@@ -138,6 +141,47 @@ const check = (name, ok, extra = '') => {
     promotedLine.some(p => p.key === firstSuggestion.key && p.promoted) &&
       !promotedLine.some(p => p.key === 'ya-no-existe:99'),
     firstSuggestion.key + ' promovida; key inexistente ignorada');
+
+  // 6 · pasar de día (task 687): la cuenta, los bordes y las teclas
+  const first = it.days[0], last = it.days[it.days.length - 1];
+  check('neighborDay() avanza y retrocede un día del viaje',
+    it.days.every((d, i) => {
+      const nx = neighborDay(it.days, d.date, 1), pv = neighborDay(it.days, d.date, -1);
+      return nx === (it.days[i + 1] || null) && pv === (i ? it.days[i - 1] : null);
+    }), it.days.length + ' jornadas');
+  check('en los bordes del viaje no envuelve',
+    neighborDay(it.days, first.date, -1) === null && neighborDay(it.days, last.date, 1) === null,
+    'primero ' + first.date + ' · último ' + last.date);
+  check('ida y vuelta devuelven el mismo día',
+    it.days.slice(1).every(d => neighborDay(it.days, neighborDay(it.days, d.date, -1).date, 1).date === d.date));
+  check('una fecha que no es del viaje no navega a ningún lado',
+    neighborDay(it.days, '1999-01-01', 1) === null && neighborDay(it.days, '1999-01-01', -1) === null);
+  // Los botones de la barra y el teclado tienen que contar igual: si mañana alguien
+  // vuelve a `it.days[i + 1]` en uno de los dos lados, esto lo delata.
+  check('los botones de la barra usan la MISMA cuenta que las flechas',
+    /const prev = neighborDay\(it\.days, day\.date, -1\), next = neighborDay\(it\.days, day\.date, 1\)/.test(views) &&
+      /const to = neighborDay\(it\.days, date, step\)/.test(views));
+  check('las teclas de la vista viven en un solo listener, no en uno suelto que compita',
+    (views.match(/document\.addEventListener\('keydown'/g) || []).length === 1);
+  check('las flechas navegan con goJornada(), la misma navegación que los botones',
+    /goJornada\(to\.date\)/.test(views));
+  // Sólo el bloque del teclado: si una guarda vive en otro lado del archivo, no cuenta.
+  const kbFrom = views.indexOf('const typingIn =');
+  const kb = views.slice(kbFrom, views.indexOf('// ---', views.indexOf("document.addEventListener('keydown'")));
+  check('el bloque del teclado de la vista se encuentra en views.js', kbFrom > 0 && kb.length > 200,
+    kb.length + ' caracteres');
+  check('las flechas no se le roban al que está escribiendo',
+    /tagName === 'INPUT'/.test(kb) && /tagName === 'TEXTAREA'/.test(kb) &&
+      /tagName === 'SELECT'/.test(kb) && /isContentEditable/.test(kb));
+  check('las flechas no se le roban al drag ni al lightbox',
+    /plan-dragging/.test(kb) && /\.lightbox\.open/.test(kb));
+  check('las flechas con modificador o ya atendidas siguen su camino',
+    /e\.metaKey \|\| e\.ctrlKey \|\| e\.altKey \|\| e\.shiftKey/.test(kb) && /e\.defaultPrevented/.test(kb));
+  check('Escape sigue cerrando la vista', /e\.key === 'Escape'/.test(kb) && /goJornada\(null\)/.test(kb));
+  // El modo discreto es del mapa (index.html) y sigue siendo suyo: la vista no le toca
+  // la `d` ni le mete otra guarda.
+  check('la `d` del modo discreto sigue en su handler de index.html',
+    /if \(e\.key !== 'd' && e\.key !== 'D'\) return;/.test(html) && !/'d'/.test(kb));
 
   console.log(failed ? `\n✗ ${failed} check(s) fallaron` : '\n✓ todo ok');
   process.exit(failed ? 1 : 0);

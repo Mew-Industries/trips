@@ -899,12 +899,20 @@ export function dayMeta(day) {
   };
 }
 
+// El día de al lado dentro del viaje, o `null` si no hay: el 6/10 no tiene anterior y
+// el 18/11 no tiene siguiente. NO envuelve —de la última jornada no se salta a la
+// primera— y es la misma cuenta para los botones de la barra y para las flechas del
+// teclado, así no hay dos ideas de "el día siguiente" que se puedan separar.
+export function neighborDay(days, date, step) {
+  const i = days.findIndex(d => d.date === date);
+  if (i < 0) return null;
+  return days[i + step] || null;
+}
+
 function dayViewHtml(day, it, ctx) {
   const esc = ctx.escHtml;
-  const i = it.days.indexOf(day);
-  const prev = it.days[i - 1], next = it.days[i + 1];
-  // En los bordes del viaje el botón queda deshabilitado, no envuelve: el 6/10 no
-  // tiene día anterior y el 18/11 no tiene siguiente.
+  const prev = neighborDay(it.days, day.date, -1), next = neighborDay(it.days, day.date, 1);
+  // En los bordes del viaje el botón queda deshabilitado, no envuelve.
   const nav = (d, cls, glyph, lbl) => '<button type="button" class="dv-nav ' + cls + '"' +
     (d ? ' data-jornada="' + d.date + '" title="' + esc(fmtDateLong(d.date)) + '"' : ' disabled') +
     ' aria-label="' + lbl + '">' + glyph + '</button>';
@@ -1319,9 +1327,33 @@ export function mountViews(destinations, ctx) {
     }
   }
 
-  // Esc cierra la vista, como el lightbox de fotos.
+  // El teclado de la vista de día vive TODO acá, en un solo listener: Esc cierra (como
+  // el lightbox de fotos) y ‹ › pasan de jornada, que es exactamente lo que hacen los
+  // botones de la barra —misma cuenta (`neighborDay`), misma navegación (`goJornada`),
+  // misma URL—. Dos listeners sueltos para las mismas teclas se pisan; éste es el de
+  // la vista, igual que el de `d` (modo discreto) es el del mapa.
+  //
+  // Las flechas no se le roban a nadie. Siguen su camino normal si:
+  //  · estás escribiendo (input, textarea, select, contenteditable);
+  //  · estás arrastrando una fila del plan (`body.plan-dragging`);
+  //  · el lightbox está abierto encima, que usa ‹ › para recorrer las fotos;
+  //  · la tecla viene con modificador, o alguien ya la atendió (`defaultPrevented`).
+  const typingIn = (el) => !!el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' ||
+    el.tagName === 'SELECT' || el.isContentEditable);
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && currentJornada()) goJornada(null);
+    const date = currentJornada();
+    if (!date) return;
+    if (e.key === 'Escape') { goJornada(null); return; }
+    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (!step || e.defaultPrevented) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey) return;
+    if (typingIn(e.target) || document.body.classList.contains('plan-dragging')) return;
+    if (document.querySelector('.lightbox.open')) return;
+    const to = neighborDay(it.days, date, step);
+    if (!to) return;                                   // primer y último día: no hay a dónde
+    e.preventDefault();
+    goJornada(to.date);
   });
 
   // ------------------------------------------------------- tramos (task 510)
