@@ -35,6 +35,8 @@ y de las guardas del handler:
 
 ## Última corrida (18/9 06:4x)
 
+- **En producción (`https://mew-industries.github.io/trips/japon/`, commit `b917dd2`
+  publicado): 27/27** con la misma suite. Es la corrida que vale para aceptar.
 - **Contra el árbol nuevo: 27/27** (`check_dia_keys.mjs`) y **23/23** (`check_dia_view.js`,
   que antes traía 9 y ahora suma los 14 de esta task).
 - **Contra `e63e02c` (lo que sirve producción hoy): 17 ✓ / 10 ✗**, y los 10 son los de
