@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 301 lugares + 21 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-18T02:21:40+00:00
+// 303 lugares + 24 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-18T02:45:26+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -144,6 +144,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "AMAM DACOTAN Kyoto",
+  "lat": 35.007397,
+  "lon": 135.758422,
+  "cat": "comida",
+  "area": "Kioto",
+  "note": "Pastelería con más de 120 variedades de pan y dulces, dentro de una antigua casa tradicional japonesa donde se ve la elaboración en directo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdG2gqZqbn7/",
+    "owner": "ganassdeviajar",
+    "caption": "Pastelería con más de 120 variedades de pan y dulces, dentro de una antigua casa tradicional japonesa donde se ve la elaboración en directo.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Ameya-Yokocho Market",
   "lat": 35.709003,
   "lon": 139.774626,
@@ -237,6 +254,23 @@ window.SOURCE_THINGS = [
     "owner": "hellomyly",
     "caption": "Club recomendado como foreigner-friendly en el reel.",
     "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
+  "name": "Audeum",
+  "lat": 37.456668,
+  "lon": 127.058918,
+  "cat": "museos",
+  "area": "Seúl",
+  "note": "Primer museo del sonido del mundo, diseñado por Kengo Kuma: tour guiado de 2h por 8 salas de escucha con parlantes rarísimos y arquitectura de madera. Gratis, reservá online con anticipación.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdEYNRKGAqs/",
+    "owner": "veeceecheng",
+    "caption": "Primer museo del sonido del mundo, diseñado por Kengo Kuma: tour guiado de 2h por 8 salas de escucha con parlantes rarísimos y arquitectura de madera. Gratis, reservá online con anticipación.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -5047,6 +5081,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Bebidas del konbini contra el cansancio del viaje",
+  "cat": "tips",
+  "area": "",
+  "note": "En cualquier konbini hay bebidas funcionales para aguantar el ritmo: Lipovitan D para la fatiga física y mental, Q&P (Kowa) para el cansancio y la fatiga visual, y Vitamin Lemon 1000 (C1000) para reforzar las defensas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcoeDJvBu5I/",
+    "owner": "yonagunitours",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Bebidas del konbini contra el jet lag",
   "cat": "tips",
   "area": "",
@@ -5071,6 +5119,20 @@ window.SOURCE_TIPS = [
     "url": "https://www.instagram.com/p/DTUpokCCcgI/",
     "owner": "nicchpmn",
     "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
+  "name": "Drink del konbini para el jetlag al llegar",
+  "cat": "tips",
+  "area": "",
+  "note": "El truco viral: en cualquier konbini (7-Eleven) comprá Pocari Sweat (bebida isotónica) y mezclalo con ginger ale, con hielo, para recuperarte del jetlag y el cansancio apenas aterrizás tras el vuelo largo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdEq8hKTaJq/",
+    "owner": "joannastachnik",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -5279,6 +5341,20 @@ window.SOURCE_TIPS = [
     "url": "https://www.instagram.com/p/DcEE8R8xhth/",
     "owner": "2chasingtime",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Ukon no Chikara para la resaca",
+  "cat": "tips",
+  "area": "",
+  "note": "Shot de cúrcuma que se vende en konbini (~230-270¥); tomarlo antes o después de tomar alcohol ayuda a prevenir y aliviar la resaca.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcoeDJvBu5I/",
+    "owner": "yonagunitours",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -7326,6 +7402,28 @@ window.SOURCE_REELS = [
   "kind": "carousel_container",
   "covers": [
    "p-the-railway-museum"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdEYNRKGAqs",
+  "url": "https://www.instagram.com/p/DdEYNRKGAqs/",
+  "owner": "veeceecheng",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-audeum"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdG2gqZqbn7",
+  "url": "https://www.instagram.com/p/DdG2gqZqbn7/",
+  "owner": "ganassdeviajar",
+  "sharedBy": "Ari",
+  "kind": "clips",
+  "covers": [
+   "p-amam-dacotan-kyoto"
   ],
   "showsEach": true
  }
