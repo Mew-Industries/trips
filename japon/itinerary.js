@@ -193,10 +193,15 @@ function minutesBefore(iso, minutes) {
   return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
 }
 
-function clockDiff(a, b) {
+// Minutos entre dos horas del mismo día. `overnight` es para la ventana que cruza la
+// medianoche —Osaka abre 14:00 y cierra 01:00, o sea 01:00 del día siguiente—: sin eso
+// el mostrador que más tiempo te da sería el que menos margen deja. Sólo se corrige la
+// vuelta del reloj, NO el signo: llegar 20:10 a un límite de 20:00 tiene que seguir
+// dando −10, que es el dato que importa.
+function clockDiff(a, b, overnight) {
   if (!a || !b) return null;
   const mins = iso => { const [h, m] = timeOf(iso).split(':').map(Number); return h * 60 + m; };
-  return mins(b) - mins(a);
+  return mins(b) - mins(a) + (overnight ? 1440 : 0);
 }
 
 // Un día por fecha, del primer despegue al último aterrizaje. Cada día sabe qué
@@ -244,7 +249,9 @@ export function daysOf(dests, transfers) {
         const arrival = transfers.find(t => t.node.id === h.node.id && t.endDate === date && t.arrival);
         events.push(ev(L.checkInFrom || null, 'check-in', L.name, {
           lodging: L, node: h.node,
-          checkInMargin: arrival && L.checkInTo ? clockDiff(arrival.arrival, date + 'T' + L.checkInTo) : null
+          checkInMargin: arrival && L.checkInTo
+            ? clockDiff(arrival.arrival, date + 'T' + L.checkInTo, !!L.checkInFrom && L.checkInTo < L.checkInFrom)
+            : null
         }));
       }
       if (date === h.node.end) events.push(ev(L.checkOutFrom || L.checkOutBy || null, 'check-out', L.name, { lodging: L, node: h.node }));

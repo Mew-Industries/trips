@@ -25,20 +25,38 @@ const planRoute = async route => {
   }
   return route.fulfill({ json: planState });
 };
-for (const scheme of ['light', 'dark']) {
-  const page = await browser.newPage({ viewport: { width: 900, height: 760 }, colorScheme: scheme });
+// El site tiene UN tema y dos modos de lectura: normal y discreto (🙈 / tecla `d`, el
+// que enmascara hospedajes y fechas). No hay dark mode — pasarle `colorScheme: 'dark'`
+// a Playwright no cambia un pixel, y así se sacaban cuatro capturas idénticas que no
+// probaban nada. El badge se mide y se fotografía en los dos MODOS, recortando sobre la
+// caja de sugerencias: si el recorte no contiene la lista, la captura no es evidencia.
+const BADGE_BEFORE = '.rt-item,.rt-item .sg-item{align-items:baseline!important}' +
+  '.rt-item .sg-item::before{font-size:8.5px!important;line-height:normal!important;position:relative!important;top:2px!important}';
+for (const mode of ['normal', 'discreto']) {
+  const page = await browser.newPage({ viewport: { width: 900, height: 900 } });
   await page.route('https://votos.mewis.online/**', route => route.request().method() === 'GET'
     ? route.fulfill({ json: { days: {} } }) : route.fulfill({ json: { ok: true } }));
   await page.goto(base + '?tab=dias&jornada=2026-10-14&plan=test', { waitUntil: 'domcontentloaded' });
   await page.locator('.rt-item').first().waitFor();
+  if (mode === 'discreto') {
+    await page.evaluate(() => document.getElementById('discrete-toggle').click());
+    await page.waitForFunction(() => document.body.classList.contains('discrete'));
+  }
   const style = await page.locator('.rt-item').first().evaluate(el => {
     const row = getComputedStyle(el), badge = getComputedStyle(el.querySelector('.sg-item'), '::before');
     return { align: row.alignItems, size: badge.fontSize, line: badge.lineHeight, top: badge.top, pos: badge.position };
   });
-  check(`${scheme}: filas y badge alineados`, style.align === 'center' && style.size === '9px' && style.line === '9px' && style.pos === 'static', JSON.stringify(style));
-  await page.screenshot({ path: path.join(shots, `alignment-after-${scheme}.png`), fullPage: false });
-  await page.addStyleTag({ content: '.rt-item,.rt-item .sg-item{align-items:baseline!important}.rt-item .sg-item::before{font-size:8.5px!important;line-height:normal!important;position:relative!important;top:2px!important}' });
-  await page.screenshot({ path: path.join(shots, `alignment-before-${scheme}.png`), fullPage: false });
+  check(`${mode}: filas y badge alineados`, style.align === 'center' && style.size === '9px' && style.line === '9px' && style.pos === 'static', JSON.stringify(style));
+  const sug = page.locator('.day-view .dv-sug').first();
+  await sug.scrollIntoViewIfNeeded();
+  const shot = async name => {
+    await sug.screenshot({ path: path.join(shots, name) });
+    return fs.readFileSync(path.join(shots, name)).toString('base64');
+  };
+  const after = await shot(`alignment-after-${mode}.png`);
+  await page.addStyleTag({ content: BADGE_BEFORE });
+  const before = await shot(`alignment-before-${mode}.png`);
+  check(`${mode}: la captura antes/después muestra la diferencia`, before !== after);
   await page.close();
 }
 
@@ -71,8 +89,13 @@ const drop = page.locator('.day-view [data-plan-drop]');
 await drop.waitFor();
 check('zona unificada recibe el drag', await drop.count() === 1);
 const b = await drop.boundingBox();
-await page.mouse.move(b.x + b.width / 2, b.y + Math.min(28, b.height / 2), { steps: 12 });
-await page.screenshot({ path: path.join(shots, 'drag-gap-open.png'), fullPage: false });
+// La captura del hueco se toma en el MEDIO de la lista, no en el borde de arriba:
+// soltando en la primera posición los vecinos casi no se corren y la foto no muestra
+// nada. Parado entre dos renglones, el FLIP abre el hueco y eso es lo que hay que ver.
+await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 12 });
+await page.waitForTimeout(220);
+const gap = await drop.boundingBox();
+await page.screenshot({ path: path.join(shots, 'drag-gap-open.png'), clip: { x: gap.x - 10, y: gap.y - 10, width: gap.width + 20, height: gap.height + 20 } });
 await page.mouse.up();
 await page.waitForTimeout(100);
 check('cero reemplazos de lista durante drag', await page.evaluate(() => window.__listReplacements) === 0, String(await page.evaluate(() => window.__listReplacements)));
@@ -248,6 +271,32 @@ await geibikei.locator('[data-day-map-act]').click();
 check('link de mapa queda en la vista de día', page.url() === beforeUrl && await page.locator('.day-view:not([hidden])').count() === 1);
 await page.goto(base + '?tab=dias&jornada=2026-10-31&plan=test', { waitUntil: 'domcontentloaded' });
 check('check-in calcula margen contra llegada', /margen planificado 1 h 20/.test(await page.locator('.day-view .pl-check-in').innerText()));
+
+// Los dos bordes del margen, ejercidos sobre el hospedaje de Fukuoka (llega 21:40)
+// reescribiendo su ventana en el HTML servido: llegar DESPUÉS del límite, y un límite
+// que cae del otro lado de la medianoche (Osaka abre 14:00 y cierra 01:00). El primero
+// salía "-1 h 40" y el segundo habría contado la vuelta del reloj al revés.
+const SRC = "checkInFrom: '15:00', checkInTo: '23:00'";
+const marginText = async window => {
+  const p = await browser.newPage();
+  await p.route('https://votos.mewis.online/**', route => route.fulfill({ json: { days: {} } }));
+  await p.route('**/japon/?*', async route => {
+    const res = await route.fetch();
+    const html = (await res.text()).replace(SRC, window);
+    return route.fulfill({ response: res, body: html });
+  });
+  await p.goto(base + '?tab=dias&jornada=2026-10-31', { waitUntil: 'domcontentloaded' });
+  await p.locator('.day-view .pl-limit').first().waitFor();
+  const text = await p.locator('.day-view .pl-limit').first().innerText();
+  await p.close();
+  return text;
+};
+const lateText = await marginText("checkInFrom: '15:00', checkInTo: '21:00'");
+check('llegar después del límite se dice, no se resta en negativo',
+  /llegás 40 min tarde/.test(lateText) && !/-\d/.test(lateText), JSON.stringify(lateText));
+const overnightText = await marginText("checkInFrom: '20:00', checkInTo: '01:00'");
+check('el límite de madrugada suma margen, no lo resta',
+  /margen planificado 3 h 20/.test(overnightText), JSON.stringify(overnightText));
 
 // El plan del deep-link resuelve después del primer draw: el mapa debe incorporar
 // los promovidos sin reconstruir la vista completa.

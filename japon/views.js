@@ -672,8 +672,14 @@ function planItemHtml(e, ctx) {
     body.push('<div class="pl-win dx' + (/\d/.test(win) ? '' : ' tbd') + '">' + win + '</div>');
     if (e.kind === 'check-in') {
       const limit = L.checkInTo ? '<b>' + esc(L.checkInTo) + '</b>' : '<b>pendiente de confirmar</b>';
-      const margin = e.checkInMargin != null
-        ? ' · margen planificado <b>' + Math.floor(e.checkInMargin / 60) + ' h ' + String(e.checkInMargin % 60).padStart(2, '0') + '</b>' : '';
+      // El margen es la distancia entre la llegada y el límite, y puede dar NEGATIVO:
+      // llegar 20:10 a un hospedaje que cierra el mostrador 20:00 es exactamente el
+      // caso que hay que ver. Con la resta cruda eso salía "-1 h -50"; el signo lo dice
+      // la frase, y el número siempre se muestra en positivo.
+      const hm = t => t < 60 ? t + ' min' : Math.floor(t / 60) + ' h ' + String(t % 60).padStart(2, '0');
+      const margin = e.checkInMargin == null ? ''
+        : e.checkInMargin >= 0 ? ' · margen planificado <b>' + hm(e.checkInMargin) + '</b>'
+        : ' · llegás <b>' + hm(-e.checkInMargin) + '</b> tarde';
       body.push('<div class="pl-d pl-limit">Límite de check-in: ' + limit + margin + '</div>');
     }
     if (L.area) body.push('<div class="pl-d dx">' + esc(L.area) + '</div>');
@@ -1578,7 +1584,7 @@ export function mountViews(destinations, ctx) {
     d.row.style.pointerEvents = 'none';
     const target = document.elementFromPoint(e.clientX, e.clientY);
     d.row.style.pointerEvents = '';
-    const zone = target && target.closest('[data-plan-drop="' + d.date + '"]');
+    const zone = target && target.closest('[data-plan-drop="' + CSS.escape(d.date) + '"]');
     clearPreview(d);
     if (zone && d.drop === zone) {
       const list = promotedList(zone), rows = [...list.children].filter(el => el !== d.row);
