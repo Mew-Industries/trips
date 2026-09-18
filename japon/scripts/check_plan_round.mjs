@@ -14,6 +14,17 @@ const check = (name, ok, detail = '') => {
 };
 
 const browser = await chromium.launch({ headless: true });
+const planState = { days: {} };
+const writes = [];
+const planRoute = async route => {
+  if (route.request().method() === 'PUT') {
+    const body = route.request().postDataJSON();
+    planState.days[body.date] = { promoted: body.promoted };
+    writes.push(body);
+    return route.fulfill({ json: { ok: true } });
+  }
+  return route.fulfill({ json: planState });
+};
 for (const scheme of ['light', 'dark']) {
   const page = await browser.newPage({ viewport: { width: 900, height: 760 }, colorScheme: scheme });
   await page.route('https://votos.mewis.online/**', route => route.request().method() === 'GET'
@@ -32,12 +43,11 @@ for (const scheme of ['light', 'dark']) {
 }
 
 const page = await browser.newPage({ viewport: { width: 900, height: 1600 } });
-await page.route('https://votos.mewis.online/**', route => route.request().method() === 'GET'
-  ? route.fulfill({ json: { days: {} } }) : route.fulfill({ json: { ok: true } }));
+await page.route('https://votos.mewis.online/**', planRoute);
 await page.goto(base + '?tab=dias&jornada=2026-10-19&plan=test', { waitUntil: 'domcontentloaded' });
 const source = page.locator('.day-view .rt-item.plan-move').first();
 await source.evaluate(el => { window.__dragNode = el; });
-check('drop vacío ausente antes del drag', await page.locator('.day-view [data-plan-drop]').count() === 0);
+check('drop vacío ausente antes del drag', await page.locator('.day-view [data-plan-drop].is-drag-reveal').count() === 0);
 check('sin copy instructivo', (await page.locator('body').innerText()).includes('Arrastrá sugerencias acá') === false);
 const affordance = await source.evaluate(el => ({ grip: !!el.querySelector('.pl-grip'), cursor: getComputedStyle(el).cursor }));
 check('sugerencia tiene affordance', affordance.grip && affordance.cursor === 'grab', JSON.stringify(affordance));
@@ -56,15 +66,48 @@ await page.mouse.down();
 await page.mouse.move(a.x + a.width / 2 + 12, a.y + a.height / 2, { steps: 2 });
 const drop = page.locator('.day-view [data-plan-drop]');
 await drop.waitFor();
-check('drop aparece durante el drag', await drop.count() === 1);
+check('zona unificada recibe el drag', await drop.count() === 1);
 const b = await drop.boundingBox();
 await page.mouse.move(b.x + b.width / 2, b.y + Math.min(28, b.height / 2), { steps: 12 });
 await page.screenshot({ path: path.join(shots, 'drag-gap-open.png'), fullPage: false });
 await page.mouse.up();
-await page.waitForTimeout(50);
+await page.waitForTimeout(100);
 check('cero reemplazos de lista durante drag', await page.evaluate(() => window.__listReplacements) === 0, String(await page.evaluate(() => window.__listReplacements)));
 check('drag conserva identidad del nodo', await page.evaluate(() => window.__dragNode === document.querySelector('.day-view .pl-promoted')));
+const savedKey = await page.locator('.day-view .pl-promoted').first().getAttribute('data-plan-key');
+check('mouse real hace PUT en día sin promociones', writes.some(w => w.date === '2026-10-19' && w.promoted.includes(savedKey)), JSON.stringify(writes.at(-1)));
+await page.reload({ waitUntil: 'domcontentloaded' });
+check('promoción sobrevive reload', await page.locator(`.day-view .pl-promoted[data-plan-key="${savedKey}"]`).count() === 1);
+await page.screenshot({ path: path.join(shots, 'unified-itinerary.png'), fullPage: false });
 check('sin controles ↑↓', await page.locator('[data-plan-up],[data-plan-down]').count() === 0);
+check('itinerario y actividades comparten una lista', await page.locator('.day-view .pl-list[data-plan-drop] > .pl-it').count() >= 2 && await page.locator('.day-view .pl-list[data-plan-drop] > .pl-promoted').count() === 1);
+check('sugerencias sin número; itinerario numerado', await page.locator('.day-view .rt-item .pl-t').count() === 0 && /^\d+\.$/.test((await page.locator('.day-view .pl-promoted .pl-t').innerText()).trim()));
+check('emojis visibles en sugerencias e itinerario', await page.locator('.day-view .rt-item .rt-ic').count() > 0 && /[\u{1F300}-\u{1FAFF}]/u.test(await page.locator('.day-view .pl-promoted .pl-k').innerText()));
+
+// Reproduce el camino que fallaba en un navegador táctil: Chromium cancelaba el
+// pointer al interpretar el movimiento vertical como scroll. Los eventos enviados
+// por CDP son input confiable del navegador, no PointerEvents sintéticos del DOM.
+const touchContext = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+const touch = await touchContext.newPage();
+await touch.route('https://votos.mewis.online/**', planRoute);
+await touch.goto(base + '?tab=dias&jornada=2026-10-19&plan=test', { waitUntil: 'domcontentloaded' });
+const touchSource = touch.locator('.day-view .rt-item.plan-move').first();
+await touchSource.scrollIntoViewIfNeeded();
+const grip = await touchSource.locator('.pl-grip').boundingBox();
+const touchDrop = touch.locator('.day-view [data-plan-drop]');
+const session = await touchContext.newCDPSession(touch);
+await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: grip.x + grip.width / 2, y: grip.y + grip.height / 2 }] });
+await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: grip.x + grip.width / 2 + 12, y: grip.y + grip.height / 2 + 18 }] });
+await touchDrop.waitFor();
+const touchTarget = await touchDrop.boundingBox();
+const touchTargetY = Math.max(20, Math.min(824, touchTarget.y + touchTarget.height - 20));
+await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: touchTarget.x + touchTarget.width / 2, y: touchTargetY }] });
+await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+await touch.waitForTimeout(100);
+check('touch real hace PUT y no termina en pointercancel', writes.some(w => w.date === '2026-10-19' && w.promoted.length === 2), JSON.stringify(writes.at(-1)));
+await touch.reload({ waitUntil: 'domcontentloaded' });
+check('persistencia táctil sobrevive reload', await touch.locator('.day-view .pl-promoted').count() === 2);
+await touchContext.close();
 
 await page.goto(base + '?tab=dias&jornada=2026-10-14&plan=test', { waitUntil: 'domcontentloaded' });
 const geibikei = page.locator('.day-view .pl-reserva').filter({ hasText: 'Geibikei' });
@@ -82,18 +125,22 @@ check('check-in calcula margen contra llegada', /margen planificado 1 h 20/.test
 // El plan del deep-link resuelve después del primer draw: el mapa debe incorporar
 // los promovidos sin reconstruir la vista completa.
 const keysPage = await browser.newPage();
-await keysPage.goto(base + '?tab=dias&jornada=2026-10-18', { waitUntil: 'domcontentloaded' });
+await keysPage.route('https://votos.mewis.online/**', route => route.fulfill({ json: { days: {} } }));
+await keysPage.goto(base + '?tab=dias&jornada=2026-10-19&plan=keys', { waitUntil: 'domcontentloaded' });
+await keysPage.locator('.day-view .rt-item[data-plan-key]').first().waitFor();
 const promotedKeys = await keysPage.locator('.day-view .rt-item[data-plan-key]').evaluateAll(rows => rows.slice(0, 4).map(r => r.dataset.planKey));
+check('fixture deep-link tiene promociones', promotedKeys.length === 4, String(promotedKeys.length));
 await keysPage.close();
 const late = await browser.newPage({ viewport: { width: 900, height: 900 } });
 await late.route('https://votos.mewis.online/**', async route => {
   if (route.request().method() !== 'GET') return route.fulfill({ json: { ok: true } });
   await new Promise(resolve => setTimeout(resolve, 350));
-  return route.fulfill({ json: { days: { '2026-10-18': { promoted: promotedKeys } } } });
+  return route.fulfill({ json: { days: { '2026-10-19': { promoted: promotedKeys } } } });
 });
-await late.goto(base + '?tab=dias&jornada=2026-10-18&plan=late', { waitUntil: 'domcontentloaded' });
+await late.goto(base + '?tab=dias&jornada=2026-10-19&plan=late', { waitUntil: 'domcontentloaded' });
+await late.waitForTimeout(250);
 const initialMarkers = await late.locator('.day-view .leaflet-marker-icon').count();
-await late.waitForFunction(n => document.querySelectorAll('.day-view .leaflet-marker-icon').length >= n, initialMarkers + promotedKeys.length, { timeout: 5000 });
+await late.waitForFunction(n => document.querySelectorAll('.day-view .leaflet-marker-icon').length >= n, Math.max(promotedKeys.length, initialMarkers + promotedKeys.length), { timeout: 5000 });
 const lateMarkers = await late.locator('.day-view .leaflet-marker-icon').count();
 check('mapa deep-link incorpora plan tardío', lateMarkers >= initialMarkers + promotedKeys.length, `${initialMarkers} → ${lateMarkers}`);
 await late.close();
