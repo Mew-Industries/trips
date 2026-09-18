@@ -1637,6 +1637,8 @@ export function mountViews(destinations, ctx) {
   }
 
   const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TOUCH_LONG_PRESS_MS = 320;
+  const DRAG_MOVE_THRESHOLD_PX = 9;
   function dragScope(row) { return row.closest('[data-jornada-card], .dv-inner') || row.parentElement; }
   function ensureDrop(row) {
     const scope = dragScope(row), date = row.dataset.planDate;
@@ -1657,9 +1659,22 @@ export function mountViews(destinations, ctx) {
     return drop;
   }
   function clearPreview(d) {
+    clearTimeout(d.longPressTimer);
+    d.row.classList.remove('is-drag-armed');
     d.row.classList.remove('is-dragging'); d.row.style.transform = ''; d.row.style.width = '';
     (d.list ? [...d.list.children] : []).forEach(el => { if (el !== d.row) el.style.transform = ''; });
     document.body.classList.remove('plan-dragging');
+  }
+
+  function liftDrag(d) {
+    if (d.lifted) return;
+    d.lifted = true;
+    d.row.classList.remove('is-drag-armed');
+    d.row.classList.add('is-dragging');
+    d.row.style.width = d.rect.width + 'px';
+    document.body.classList.add('plan-dragging');
+    ensureDrop(d.row);
+    if (d.touch && navigator.vibrate) navigator.vibrate(12);
   }
   function previewGap(d, target, y) {
     const drop = target && target.closest('[data-plan-drop="' + CSS.escape(d.date) + '"]');
@@ -1686,22 +1701,38 @@ export function mountViews(destinations, ctx) {
   document.addEventListener('pointerdown', e => {
     if (e.button != null && e.button !== 0) return;
     const row = e.target.closest('.plan-move');
-    if (!row || !ctx.plan || !ctx.plan.canEdit() || e.target.closest('button,a') || (e.pointerType === 'touch' && !e.target.closest('.pl-grip'))) return;
+    if (!row || !ctx.plan || !ctx.plan.canEdit() || e.target.closest('button,a')) return;
     const rect = row.getBoundingClientRect(), originList = row.closest('[data-plan-drop]');
+    const touch = e.pointerType === 'touch', grip = !!e.target.closest('.pl-grip');
     drag = { id: e.pointerId, row, key: row.dataset.planKey, date: row.dataset.planDate,
       promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY,
       rect, originList, originRows: originList ? [...originList.children] : [],
-      originIndex: originList ? [...originList.children].indexOf(row) : -1, moved: false };
-    if (row.setPointerCapture) row.setPointerCapture(e.pointerId);
+      originIndex: originList ? [...originList.children].indexOf(row) : -1,
+      touch, grip, lifted: false, moved: false, longPressTimer: null };
+    if (touch && !grip) {
+      row.classList.add('is-drag-armed');
+      drag.longPressTimer = setTimeout(() => {
+        if (!drag || drag.id !== e.pointerId) return;
+        liftDrag(drag);
+        if (row.setPointerCapture) row.setPointerCapture(e.pointerId);
+      }, TOUCH_LONG_PRESS_MS);
+    } else if (row.setPointerCapture) row.setPointerCapture(e.pointerId);
   });
   document.addEventListener('pointermove', e => {
     if (!drag || drag.id !== e.pointerId) return;
-    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 9) {
-      drag.moved = true; drag.row.classList.add('is-dragging'); drag.row.style.width = drag.rect.width + 'px';
-      document.body.classList.add('plan-dragging'); ensureDrop(drag.row);
+    const distance = Math.hypot(e.clientX - drag.x, e.clientY - drag.y);
+    if (drag.touch && !drag.grip && !drag.lifted && distance > DRAG_MOVE_THRESHOLD_PX) {
+      clearTimeout(drag.longPressTimer);
+      drag.row.classList.remove('is-drag-armed');
+      drag = null;
+      return;
     }
-    if (drag.moved) {
+    if (!drag.lifted && distance > DRAG_MOVE_THRESHOLD_PX) {
+      liftDrag(drag);
+    }
+    if (drag.lifted) {
       e.preventDefault();
+      if (distance > DRAG_MOVE_THRESHOLD_PX) drag.moved = true;
       drag.row.style.pointerEvents = 'none';
       const target = document.elementFromPoint(e.clientX, e.clientY);
       drag.row.style.pointerEvents = '';
@@ -1717,7 +1748,10 @@ export function mountViews(destinations, ctx) {
   document.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
     const d = drag; drag = null;
-    if (!d.moved) return;
+    clearTimeout(d.longPressTimer);
+    d.row.classList.remove('is-drag-armed');
+    if (!d.lifted) return;
+    if (!d.moved) { clearPreview(d); syncPlanDom(d.date); return; }
     d.row.style.pointerEvents = 'none';
     const target = document.elementFromPoint(e.clientX, e.clientY);
     d.row.style.pointerEvents = '';
@@ -1735,6 +1769,11 @@ export function mountViews(destinations, ctx) {
     if (!drag || drag.id !== e.pointerId) return;
     const d = drag; drag = null; clearPreview(d); syncPlanDom(d.date);
   });
+  // `touch-action: pan-y` preserva el scroll antes del umbral. Una vez que el long-press
+  // levantó la fila, este listener no pasivo mantiene el gesto en la app.
+  document.addEventListener('touchmove', e => {
+    if (drag && drag.touch && drag.lifted) e.preventDefault();
+  }, { passive: false });
 
   function go(id) {
     const u = new URL(location.href);

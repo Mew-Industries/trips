@@ -322,10 +322,17 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .plan-move:not(.pl-promoted) { touch-action: pan-y; }
 .pl-promoted { touch-action: none; }
 .plan-move { transition: transform 160ms ease; }
+.plan-move.is-drag-armed { -webkit-tap-highlight-color: transparent; }
 .plan-move.is-dragging { position: relative; z-index: 20; cursor: grabbing; box-shadow: 0 7px 20px rgba(0,0,0,.18); transition: none; }
 body.plan-dragging .pl-drop.is-drag-reveal { border-color: #0F6E56; background: rgba(15,110,86,.1); }
+@media (pointer: coarse) {
+  .pl-grip { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: -8px -7px -8px 0; }
+  .plan-move.is-dragging { transform-origin: center; }
+  .plan-move.is-dragging:not([style*="translate3d"]) { transform: scale(1.015); }
+}
 @media (prefers-reduced-motion: reduce) {
   .plan-move, .pl-drop.is-drag-reveal { transition: none !important; }
+  .plan-move.is-dragging:not([style*="translate3d"]) { transform: none; }
 }
 
 /* El tope de la tarjeta: lo que pasa se esconde, pero el botón lo abre ACÁ MISMO

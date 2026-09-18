@@ -168,6 +168,75 @@ await touch.reload({ waitUntil: 'domcontentloaded' });
 check('persistencia táctil sobrevive reload', await touch.locator('.day-view .pl-promoted').count() === 2);
 await touchContext.close();
 
+// Task 690: la fila completa se agarra con long-press, pero un tap o un swipe inmediato
+// conservan su semántica nativa. Todo entra por CDP para que Chromium decida de verdad
+// entre scroll, pointercancel y drag; dispatchEvent(new PointerEvent(...)) no lo prueba.
+const longPressState = { days: {} }, longPressWrites = [];
+const phoneContext = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+const phone = await phoneContext.newPage();
+await phone.route('https://votos.mewis.online/**', async route => {
+  if (route.request().method() === 'PUT') {
+    const body = route.request().postDataJSON();
+    longPressState.days[body.date] = { promoted: body.promoted };
+    longPressWrites.push(body);
+    return route.fulfill({ json: { ok: true } });
+  }
+  return route.fulfill({ json: longPressState });
+});
+await phone.goto(base + '?tab=dias&jornada=2026-10-11&plan=touch-row', { waitUntil: 'domcontentloaded' });
+const phoneSource = phone.locator('.day-view .rt-item.plan-move').first();
+await phoneSource.scrollIntoViewIfNeeded();
+const phoneSession = await phoneContext.newCDPSession(phone);
+const rowPoint = async () => {
+  const name = await phoneSource.locator('.sg-name').boundingBox();
+  return { x: name.x + name.width / 2, y: name.y + name.height / 2 };
+};
+const gripSize = await phoneSource.locator('.pl-grip').boundingBox();
+check('grip táctil mide al menos 44 × 44 px', gripSize.width >= 44 && gripSize.height >= 44,
+  `${gripSize.width}×${gripSize.height}`);
+
+let p = await rowPoint();
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [p] });
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+await phone.waitForTimeout(380);
+check('tap corto no levanta ni escribe', await phone.locator('.is-dragging').count() === 0 &&
+  await phone.locator('[data-plan-drop].is-drag-reveal').count() === 0 && longPressWrites.length === 0);
+
+const scrollMetric = () => phone.evaluate(() => scrollY + [...document.querySelectorAll('.view-pane,.day-view')]
+  .reduce((sum, el) => sum + el.scrollTop, 0));
+const scrollBefore = await scrollMetric();
+p = await rowPoint();
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [p] });
+for (const dy of [20, 55, 95, 135]) {
+  await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: p.x, y: p.y - dy }] });
+}
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+await phone.waitForTimeout(180);
+const scrollAfter = await scrollMetric();
+check('swipe vertical inmediato conserva el scroll', scrollAfter > scrollBefore + 20 &&
+  await phone.locator('.is-dragging').count() === 0 && longPressWrites.length === 0,
+  `${scrollBefore}→${scrollAfter}`);
+
+await phoneSource.scrollIntoViewIfNeeded();
+p = await rowPoint();
+const longPressKey = await phoneSource.getAttribute('data-plan-key');
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [p] });
+await phone.waitForTimeout(360);
+check('long-press sobre la fila muestra que agarró', await phoneSource.evaluate(el => el.classList.contains('is-dragging')));
+const phoneDrop = phone.locator('.day-view [data-plan-drop="2026-10-11"]');
+await phoneDrop.waitFor();
+const phoneTarget = await phoneDrop.boundingBox();
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{
+  x: phoneTarget.x + phoneTarget.width / 2,
+  y: Math.max(20, Math.min(824, phoneTarget.y + Math.min(24, phoneTarget.height / 2))),
+}] });
+await phoneSession.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+await phone.waitForTimeout(150);
+check('long-press de fila promueve con touch real', longPressWrites.at(-1)?.promoted.includes(longPressKey) &&
+  await phone.locator(`.day-view .pl-promoted[data-plan-key="${longPressKey}"]`).count() === 1,
+  JSON.stringify(longPressWrites.at(-1)));
+await phoneContext.close();
+
 // --------------------------------------------------- ronda 4 · arranque en frío
 // El agujero que dejó pasar «cuando refresco ya no está»: hasta acá TODOS los GET del
 // harness devolvían `{days:{}}`, así que nunca se ejercía el caso real —la página pinta
