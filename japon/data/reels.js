@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 279 lugares + 17 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-09T16:38:29+00:00
+// 301 lugares + 21 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-18T02:21:40+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -77,6 +77,23 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DCaU8YohgYn/",
     "owner": "phatlifeproject",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Adachi Wholesale Market",
+  "lat": 35.775017,
+  "lon": 139.804413,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Alternativa a Tsukiji/Toyosu para mariscos sin markup turístico.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa a Tsukiji/Toyosu para mariscos sin markup turístico.",
+    "sharedBy": "Ari"
    }
   ]
  },
@@ -715,6 +732,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Dejima",
+  "lat": 32.743532,
+  "lon": 129.872932,
+  "cat": "museos",
+  "area": "Nagasaki",
+  "note": "Isla artificial donde Japón, en su etapa hermética, confinaba a los comerciantes holandeses para el intercambio comercial, científico y cultural; hoy es una reconstrucción histórica visitable.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc_tQrKjJDn/",
+    "owner": "nakajapatonic",
+    "caption": "Isla artificial donde Japón, en su etapa hermética, confinaba a los comerciantes holandeses para el intercambio comercial, científico y cultural; hoy es una reconstrucción histórica visitable.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "DOG Harajuku",
   "lat": 35.670725,
   "lon": 139.707344,
@@ -869,6 +903,23 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DcBTT_3ouXy/",
     "owner": "francesca_sandroni",
     "caption": "Legendaria tienda de sintetizadores y equipos electrónicos vintage/modulares en Tokio; imperdible para músicos.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Forest of Meditation (Meiso no Mori)",
+  "lat": 35.423423,
+  "lon": 136.760622,
+  "cat": "arquitectura",
+  "area": "Gifu",
+  "note": "Sala funeraria de Toyo Ito con una cubierta blanca ondulada de hormigón junto a un estanque, integrada al bosque.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+    "owner": "urbanwabi",
+    "caption": "Sala funeraria de Toyo Ito con una cubierta blanca ondulada de hormigón junto a un estanque, integrada al bosque.",
     "sharedBy": "Martín"
    }
   ]
@@ -1124,6 +1175,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Hakodate Free Market",
+  "lat": 41.768696,
+  "lon": 140.72906,
+  "cat": "comida",
+  "area": "Hakodate",
+  "note": "Alternativa al Morning Market para mariscos a precio local.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Morning Market para mariscos a precio local.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Hakuba Norikura Winter Oasis",
   "lat": 36.698161,
   "lon": 137.861933,
@@ -1311,6 +1379,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Honcho Market (Honcho Ichiba)",
+  "lat": 37.918534,
+  "lon": 139.069444,
+  "cat": "comida",
+  "area": "Niigata",
+  "note": "Alternativa al Pier Bandai para pescado a precio local.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Pier Bandai para pescado a precio local.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Honjo Life Safety Learning Center",
   "lat": 35.676423,
   "lon": 139.650027,
@@ -1322,6 +1407,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DRhf1iqkz4V/",
     "owner": "veteporahi.viajes"
+   }
+  ]
+ },
+ {
+  "name": "Honpukuji Water Temple",
+  "lat": 34.546387,
+  "lon": 134.989029,
+  "cat": "templos",
+  "area": "Awaji",
+  "note": "Templo budista subterráneo de Tadao Ando: se baja por una escalera que atraviesa un estanque de lotos hacia un espacio en tonos rojos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+    "owner": "urbanwabi",
+    "caption": "Templo budista subterráneo de Tadao Ando: se baja por una escalera que atraviesa un estanque de lotos hacia un espacio en tonos rojos.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -1405,6 +1507,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ippudo (Taito)",
+  "lat": 35.712574,
+  "lon": 139.780204,
+  "cat": "comida",
+  "area": "Taito, Tokio",
+  "note": "Una de las cadenas de ramen más grandes del país; caldo muy recomendado.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DUBneIkCHRr/",
+    "owner": "somosanayalvaro",
+    "caption": "Una de las cadenas de ramen más grandes del país; caldo muy recomendado.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Issey Miyake",
   "lat": 34.075757,
   "lon": 139.478433,
@@ -1445,7 +1564,8 @@ window.SOURCE_THINGS = [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
-    "owner": "shotaspov"
+    "owner": "shotaspov",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -1640,6 +1760,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kanazawa Port Seafood Market",
+  "lat": 36.559734,
+  "lon": 136.652038,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Alternativa al Omicho Market para mariscos más baratos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Omicho Market para mariscos más baratos.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Kappabashi",
   "lat": 35.71058,
   "lon": 139.787964,
@@ -1830,6 +1967,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Kizu Wholesale Market",
+  "lat": 34.657328,
+  "lon": 135.500172,
+  "cat": "comida",
+  "area": "Osaka",
+  "note": "Alternativa al Kuromon Market para mariscos sin precios de turista.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Kuromon Market para mariscos sin precios de turista.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Kumachan Onsen",
   "lat": 35.661048,
   "lon": 139.69738,
@@ -1889,6 +2043,23 @@ window.SOURCE_THINGS = [
     "owner": "viewsfromjapan_",
     "caption": "Museo municipal de arte de Kioto, renovado, en el barrio de Okazaki.",
     "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Kyoto Central Market",
+  "lat": 34.99168,
+  "lon": 135.741092,
+  "cat": "comida",
+  "area": "Kioto",
+  "note": "Alternativa al turístico Nishiki Market: mercado mayorista con precios locales.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al turístico Nishiki Market: mercado mayorista con precios locales.",
+    "sharedBy": "Ari"
    }
   ]
  },
@@ -2151,13 +2322,20 @@ window.SOURCE_THINGS = [
   "lat": 35.666499,
   "lon": 139.705091,
   "cat": "comida",
-  "area": "Tokio",
-  "note": "El spot de date night favorito del reel — udon/menchi",
+  "area": "Harajuku, Tokio",
+  "note": "Udon carbonara (¥950) con manteca, parmesano, panceta y huevo crudo que mezclás para emulsionar; en las callecitas de Harajuku, alternativa sin cola al famoso Shin Udon.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DKabzpUBYQX/",
     "owner": "becamichie"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/C4FUy-fvzQn/",
+    "owner": "thefoodinbox",
+    "caption": "Udon carbonara (¥950) con manteca, parmesano, panceta y huevo crudo que mezclás para emulsionar; en las callecitas de Harajuku, alternativa sin cola al famoso Shin Udon.",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -2208,6 +2386,40 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Miko Sushi Ginza",
+  "lat": 35.668929,
+  "lon": 139.764291,
+  "cat": "comida",
+  "area": "Ginza, Tokio",
+  "note": "Sushi all-you-can-eat de uni (tres tipos de erizo) con menú a la hora del almuerzo; una de las reservas más buscadas de la ciudad.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZcr2Aiy-rR/",
+    "owner": "seefoodstagram",
+    "caption": "Sushi all-you-can-eat de uni (tres tipos de erizo) con menú a la hora del almuerzo; una de las reservas más buscadas de la ciudad.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
+  "name": "Minami Otaru Market",
+  "lat": 36.204824,
+  "lon": 138.252924,
+  "cat": "comida",
+  "area": "Otaru",
+  "note": "Alternativa al Sankaku Market para comer mariscos sin precios de turista.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Sankaku Market para comer mariscos sin precios de turista.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Mineral Osaka",
   "lat": 34.672844,
   "lon": 135.498259,
@@ -2234,6 +2446,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DDKZytiO4vh/",
     "owner": "tacotios"
+   }
+  ]
+ },
+ {
+  "name": "Mirai Suisan",
+  "lat": 35.680849,
+  "lon": 139.646704,
+  "cat": "comida",
+  "area": "Tokio",
+  "note": "Barra que sirve únicamente atún rojo natural de altísima calidad; el dueño Lázaro te va explicando cada corte. Combo final ~30 USD, el lugar favorito del que postea en Japón.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZk-MFmpiWN/",
+    "owner": "acomercongold",
+    "caption": "Barra que sirve únicamente atún rojo natural de altísima calidad; el dueño Lázaro te va explicando cada corte. Combo final ~30 USD, el lugar favorito del que postea en Japón.",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -2316,6 +2545,40 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DFy_rUXP63g/",
     "owner": "japan_tourism.1"
+   }
+  ]
+ },
+ {
+  "name": "Murou Art Forest",
+  "lat": 34.537082,
+  "lon": 136.031622,
+  "cat": "arquitectura",
+  "area": "Nara",
+  "note": "Parque de land art de Dani Karavan en las montañas, con esculturas y estructuras integradas al paisaje y el agua.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+    "owner": "urbanwabi",
+    "caption": "Parque de land art de Dani Karavan en las montañas, con esculturas y estructuras integradas al paisaje y el agua.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Nagahama Fish Market",
+  "lat": 33.594663,
+  "lon": 130.389612,
+  "cat": "comida",
+  "area": "Fukuoka",
+  "note": "Alternativa al Yanagibashi para pescado a precio local.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Yanagibashi para pescado a precio local.",
+    "sharedBy": "Ari"
    }
   ]
  },
@@ -3002,6 +3265,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Sapporo Wholesale Curb Market",
+  "lat": 43.070724,
+  "lon": 141.320771,
+  "cat": "comida",
+  "area": "Sapporo",
+  "note": "Alternativa al turístico Nijo: mercado mayorista con precios más locales para mariscos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al turístico Nijo: mercado mayorista con precios más locales para mariscos.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Seirinkan",
   "lat": 35.642876,
   "lon": 139.699039,
@@ -3139,7 +3419,8 @@ window.SOURCE_THINGS = [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C9dzNNOPC8d/",
-    "owner": "relishwithreese"
+    "owner": "relishwithreese",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -3189,6 +3470,23 @@ window.SOURCE_THINGS = [
     "owner": "japan.compass",
     "caption": "Estanque con lotos dentro del parque Ueno.",
     "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
+  "name": "Shiogama Wholesale Fish Market",
+  "lat": 38.327358,
+  "lon": 141.043843,
+  "cat": "comida",
+  "area": "Shiogama (Sendai)",
+  "note": "Alternativa al Sendai Asaichi: mercado mayorista de pescado con precios locales.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Sendai Asaichi: mercado mayorista de pescado con precios locales.",
+    "sharedBy": "Ari"
    }
   ]
  },
@@ -3502,6 +3800,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Sushi Iisumi",
+  "lat": 35.676299,
+  "lon": 139.73613,
+  "cat": "comida",
+  "area": "Akasaka, Tokio",
+  "note": "Sushi tipo omakase de alta cocina a buen precio; el chef decide el menú, experiencia silenciosa y respetuosa con el producto local.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DUBneIkCHRr/",
+    "owner": "somosanayalvaro",
+    "caption": "Sushi tipo omakase de alta cocina a buen precio; el chef decide el menú, experiencia silenciosa y respetuosa con el producto local.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Sushi Manten (Marunouchi)",
   "lat": 35.678784,
   "lon": 139.76277,
@@ -3650,12 +3965,29 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Tenkazushi",
+  "lat": 35.658884,
+  "lon": 139.698067,
+  "cat": "comida",
+  "area": "Shibuya, Tokio",
+  "note": "Sushi de cinta al lado del cruce de Shibuya; barato, muy fresco y lleno de locales, hecho al momento.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DUBneIkCHRr/",
+    "owner": "somosanayalvaro",
+    "caption": "Sushi de cinta al lado del cruce de Shibuya; barato, muy fresco y lleno de locales, hecho al momento.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Teshima Art Museum",
   "lat": 34.489703,
   "lon": 134.090334,
   "cat": "museos",
-  "area": "Isla Teshima",
-  "note": "Estructura de hormigón tipo gota de agua, una sola obra-espacio de Rei Naito.",
+  "area": "Teshima (Kagawa)",
+  "note": "Museo de Ryue Nishizawa en forma de gota de hormigón con aberturas al cielo; uno de los espacios de arte de las islas del mar interior.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -3663,6 +3995,13 @@ window.SOURCE_THINGS = [
     "owner": "viewsfromjapan_",
     "caption": "Estructura de hormigón tipo gota de agua, una sola obra-espacio de Rei Naito.",
     "sharedBy": "Cata"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+    "owner": "urbanwabi",
+    "caption": "Museo de Ryue Nishizawa en forma de gota de hormigón con aberturas al cielo; uno de los espacios de arte de las islas del mar interior.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -3693,7 +4032,8 @@ window.SOURCE_THINGS = [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
-    "owner": "shotaspov"
+    "owner": "shotaspov",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -3702,8 +4042,8 @@ window.SOURCE_THINGS = [
   "lat": 35.665289,
   "lon": 139.726374,
   "cat": "museos",
-  "area": "Tokio",
-  "note": "Gran centro de exposiciones de Kisho Kurokawa con fachada de vidrio ondulada, en Roppongi.",
+  "area": "Tokio (Roppongi)",
+  "note": "Museo de Kisho Kurokawa con una espectacular fachada de vidrio ondulado y conos invertidos en el atrio.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -3711,6 +4051,13 @@ window.SOURCE_THINGS = [
     "owner": "viewsfromjapan_",
     "caption": "Gran centro de exposiciones de Kisho Kurokawa con fachada de vidrio ondulada, en Roppongi.",
     "sharedBy": "Cata"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+    "owner": "urbanwabi",
+    "caption": "Museo de Kisho Kurokawa con una espectacular fachada de vidrio ondulado y conos invertidos en el atrio.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -3927,6 +4274,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Tokyo Rinkai Disaster Prevention Park",
+  "lat": 35.634949,
+  "lon": 139.795803,
+  "cat": "museos",
+  "area": "Tokyo",
+  "note": "Parque con simulación interactiva y gratuita (Sona Area) que te mete en las primeras 72 horas tras un mega terremoto; experiencias en inglés, chino y coreano, y se pueden comprar kits de emergencia.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DYvrYsyMjcn/",
+    "owner": "rena.eskay",
+    "caption": "Parque con simulación interactiva y gratuita (Sona Area) que te mete en las primeras 72 horas tras un mega terremoto; experiencias en inglés, chino y coreano, y se pueden comprar kits de emergencia.",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
   "name": "Tokyo Skytree",
   "lat": 35.710063,
   "lon": 139.8107,
@@ -3961,17 +4325,41 @@ window.SOURCE_THINGS = [
   ]
  },
  {
-  "name": "Tonkatsu Marushichi (Monzen-nakacho)",
-  "lat": 35.673504,
-  "lon": 139.794844,
+  "name": "Tomari Iyumachi Fish Market",
+  "lat": 26.230066,
+  "lon": 127.680256,
   "cat": "comida",
-  "area": "Tokio",
-  "note": "Katsu sando top de Tokio (¥1.700); sucursal de Koto con menos cola que la de Ginza",
+  "area": "Okinawa (Naha)",
+  "note": "Alternativa al Makishi Public Market para mariscos más baratos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Makishi Public Market para mariscos más baratos.",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
+  "name": "Tonkatsu Marushichi (Monzen-nakacho)",
+  "lat": 35.669639,
+  "lon": 139.769095,
+  "cat": "comida",
+  "area": "Ginza, Tokio",
+  "note": "Tonkatsu (cerdo empanado) de 10; local íntimo para 8 comensales con un solo plato, arroz, huevo y encurtidos. Suele haber cola.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DXRFtuBEZUa/",
     "owner": "eatswithjee"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DUBneIkCHRr/",
+    "owner": "somosanayalvaro",
+    "caption": "Tonkatsu (cerdo empanado) de 10; local íntimo para 8 comensales con un solo plato, arroz, huevo y encurtidos. Suele haber cola.",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -4358,6 +4746,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Washo Market",
+  "lat": 42.989246,
+  "lon": 144.379929,
+  "cat": "comida",
+  "area": "Kushiro",
+  "note": "Alternativa al Fisherman's Wharf MOO; conocido por el katte-don (armás tu bowl de mariscos).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+    "owner": "saliesitinerary",
+    "caption": "Alternativa al Fisherman's Wharf MOO; conocido por el katte-don (armás tu bowl de mariscos).",
+    "sharedBy": "Ari"
+   }
+  ]
+ },
+ {
   "name": "Wayanpuri Ginza",
   "lat": 35.672293,
   "lon": 139.768487,
@@ -4697,6 +5102,48 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Kit konbini contra el jet lag de día",
+  "cat": "tips",
+  "area": "",
+  "note": "Para el bajón de energía diurno: combiná Oronamin C + Pocari Sweat. Evitan los crashes y reponen vitamina C y electrolitos perdidos en los vuelos largos.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc8NU3GxgX7/",
+    "owner": "itsgracechin",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
+  "name": "Kit konbini para pies cansados de caminar",
+  "cat": "tips",
+  "area": "",
+  "note": "Para pies doloridos tras 20.000 pasos: combiná Yukon no Chikara (bebida de cúrcuma) + una bebida de vitamina C + gelatina de ácido cítrico. Antioxidantes contra la inflamación y ácido cítrico para la fatiga muscular. Todo por menos de ¥500.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc8NU3GxgX7/",
+    "owner": "itsgracechin",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
+  "name": "Kit konbini para resfrío y estreñimiento",
+  "cat": "tips",
+  "area": "",
+  "note": "Síntomas de resfrío (garganta/mocos): bebida de vitamina C + gelatina multivitamínica. Estreñimiento: Fibe Mini + gelatina de fibra + green smoothie del 7-Eleven, todo de una.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc8NU3GxgX7/",
+    "owner": "itsgracechin",
+    "sharedBy": "Zava"
+   }
+  ]
+ },
+ {
   "name": "Llevá efectivo para emergencias médicas",
   "cat": "tips",
   "area": "",
@@ -4834,6 +5281,20 @@ window.SOURCE_TIPS = [
     "sharedBy": "Martín"
    }
   ]
+ },
+ {
+  "name": "Yakult 1000 del súper para el jet lag",
+  "cat": "tips",
+  "area": "",
+  "note": "Bebida láctea que se consigue solo en Japón (~¥150 en supermercados), con claim oficial de mejora de sueño y reducción de estrés; útil la primera noche para dormir mejor con el cambio de huso horario.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DY1NFCSRq1G/",
+    "owner": "doctorsarb",
+    "sharedBy": "Zava"
+   }
+  ]
  }
 ];
 // Un registro por reel publicado (task 559): `covers` = los lugares de los
@@ -4902,10 +5363,21 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "C4FUy-fvzQn",
+  "url": "https://www.instagram.com/p/C4FUy-fvzQn/",
+  "owner": "thefoodinbox",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-menchirashi"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "C9dzNNOPC8d",
   "url": "https://www.instagram.com/p/C9dzNNOPC8d/",
   "owner": "relishwithreese",
-  "sharedBy": "",
+  "sharedBy": "Martín",
   "kind": "clips",
   "covers": [
    "p-shimokitazawa"
@@ -5302,7 +5774,7 @@ window.SOURCE_REELS = [
   "code": "DEO7aPwJBVd",
   "url": "https://www.instagram.com/p/DEO7aPwJBVd/",
   "owner": "shotaspov",
-  "sharedBy": "",
+  "sharedBy": "Martín",
   "kind": "clips",
   "covers": [
    "p-the-munch",
@@ -6126,6 +6598,20 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DUBneIkCHRr",
+  "url": "https://www.instagram.com/p/DUBneIkCHRr/",
+  "owner": "somosanayalvaro",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-tenkazushi",
+   "p-tonkatsu-marushichi",
+   "p-ippudo",
+   "p-sushi-iisumi"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DULWshXka4e",
   "url": "https://www.instagram.com/p/DULWshXka4e/",
   "owner": "jimbosantiago",
@@ -6328,6 +6814,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DYvrYsyMjcn",
+  "url": "https://www.instagram.com/p/DYvrYsyMjcn/",
+  "owner": "rena.eskay",
+  "sharedBy": "Zava",
+  "kind": "clips",
+  "covers": [
+   "p-tokyo-rinkai-disaster-prevention-park"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DZD94DATUj4",
   "url": "https://www.instagram.com/p/DZD94DATUj4/",
   "owner": "deannawoo",
@@ -6404,6 +6901,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DZcr2Aiy-rR",
+  "url": "https://www.instagram.com/p/DZcr2Aiy-rR/",
+  "owner": "seefoodstagram",
+  "sharedBy": "Ari",
+  "kind": "clips",
+  "covers": [
+   "p-miko-sushi-ginza"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DZf2nvBMdAx",
   "url": "https://www.instagram.com/p/DZf2nvBMdAx/",
   "owner": "sasharangel",
@@ -6411,6 +6919,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-uniqlo-ginza"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DZk-MFmpiWN",
+  "url": "https://www.instagram.com/p/DZk-MFmpiWN/",
+  "owner": "acomercongold",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-mirai-suisan"
   ],
   "showsEach": true
  },
@@ -6646,6 +7165,43 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Dc0Xx-iAcE5",
+  "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
+  "owner": "saliesitinerary",
+  "sharedBy": "Ari",
+  "kind": "carousel_container",
+  "covers": [
+   "p-sapporo-wholesale-curb-market",
+   "p-minami-otaru-market",
+   "p-hakodate-free-market",
+   "p-washo-market",
+   "p-shiogama-wholesale-fish-market",
+   "p-adachi-wholesale-market",
+   "p-honcho-market",
+   "p-kanazawa-port-seafood-market",
+   "p-kyoto-central-market",
+   "p-kizu-wholesale-market",
+   "p-nagahama-fish-market",
+   "p-tomari-iyumachi-fish-market"
+  ],
+  "showsEach": false
+ },
+ {
+  "code": "Dc6BjNmhGsl",
+  "url": "https://www.instagram.com/p/Dc6BjNmhGsl/",
+  "owner": "urbanwabi",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-honpukuji-water-temple",
+   "p-forest-of-meditation",
+   "p-murou-art-forest",
+   "p-teshima-art-museum",
+   "p-the-national-art-center"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DcBTT_3ouXy",
   "url": "https://www.instagram.com/p/DcBTT_3ouXy/",
   "owner": "francesca_sandroni",
@@ -6728,6 +7284,17 @@ window.SOURCE_REELS = [
    "p-aomori-museum-of-art"
   ],
   "showsEach": false
+ },
+ {
+  "code": "Dc_tQrKjJDn",
+  "url": "https://www.instagram.com/p/Dc_tQrKjJDn/",
+  "owner": "nakajapatonic",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-dejima"
+  ],
+  "showsEach": true
  },
  {
   "code": "Dca1x3UA-Wf",
