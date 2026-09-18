@@ -61,7 +61,8 @@ const check = (name, ok, extra = '') => {
 (async () => {
   const { buildItinerary } = await import(path.join(DIR, 'itinerary.js'));
   const { dayMeta, dayRoute, confirmedDayLine, neighborDay } = await import(path.join(DIR, 'views.js'));
-  const it = buildItinerary(arrayLiteral('destinations'));
+  const destinations = arrayLiteral('destinations');
+  const it = buildItinerary(destinations);
 
   // 1 · ningún horario inventado
   const sinHora = it.transfers.filter(t => !t.departure);
@@ -112,7 +113,7 @@ const check = (name, ok, extra = '') => {
   check('en todo día de traslado el check-out va antes del viaje y el check-in después',
     malOrden.length === 0, malOrden.join(', '));
 
-  // 4 · el mapa individual no mezcla sugerencias con el itinerario confirmado
+  // 4 · el mapa individual recibe sugerencias y mantiene el recorrido confirmado aparte
   const ctx = {
     activityId: (act, node) => node.id + ':' + node.activities.indexOf(act),
     catOfAct: act => act.cat || 'otro',
@@ -124,13 +125,24 @@ const check = (name, ok, extra = '') => {
     return spec.line.filter(p => !confirmed.has(p) && (p.anchor || p.terminal || p.bed))
       .map(() => day.date);
   });
-  check('el mapa diario conserva sólo anclas, terminales y hospedajes', leaked.length === 0,
+  check('la línea confirmada conserva sólo anclas, terminales y hospedajes', leaked.length === 0,
     specs.reduce((n, x) => n + confirmedDayLine(x.spec).length, 0) + ' puntos confirmados');
   const d14 = specs.find(x => x.day.date === '2026-10-19');
   const d14line = confirmedDayLine(d14.spec);
-  check('el día 14 excluye todas sus sugerencias del mapa',
+  check('el día 14 separa sus sugerencias de la línea confirmada',
     d14line.every(p => p.anchor || p.terminal || p.bed) && d14line.length < d14.spec.line.length,
     d14line.length + ' confirmados / ' + d14.spec.line.length + ' totales');
+  const d4 = specs.find(x => x.day.date === '2026-10-09');
+  const d4suggestions = d4.spec.route.filter(p => !p.anchor && !p.promoted && p.ll);
+  check('el 9/10 entrega sus sugerencias geolocalizadas al mapa',
+    d4suggestions.length > 0 && d4suggestions.every(p => p.key && p.cat && p.act),
+    d4suggestions.length + ' sugerencias en el modelo aislado');
+  check('renderDayMap dibuja las sugerencias debajo del itinerario y conserva popup y filtro',
+    /\(spec\.route \|\| \[\]\)\.forEach/.test(html) && /!activeCats\.has\(p\.cat\)/.test(html) &&
+      /zIndexOffset: -1000/.test(html) && /miniPopup\(p\.act && p\.act\.img/.test(html));
+  check('el pin numerado combina número y emoji de categoría a 30 px',
+    /ordIcon\(p\.planNumber, cat\.color, cat\.icon\)/.test(html) &&
+      /class="rt-ord-cat"/.test(html) && /iconSize: \[30, 30\]/.test(html));
 
   // 5 · una key promovida se suma y una key vieja/desaparecida se ignora.
   const firstSuggestion = d14.spec.route.find(p => !p.anchor);

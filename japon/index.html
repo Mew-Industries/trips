@@ -74,7 +74,8 @@
   .day-chip button { font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; padding: 7px 14px; border-radius: 16px; border: 0; background: #0F6E56; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
   .day-chip button:hover { background: #0c5a46; }
   /* El número de orden del recorrido, arriba a la derecha de su punto. */
-  .rt-ord { width: 16px; height: 16px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .rt-ord { position: relative; width: 30px; height: 30px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 13px; line-height: 1; font-weight: 750; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.96); box-shadow: 0 2px 5px rgba(0,0,0,0.32); box-sizing: border-box; }
+  .rt-ord-cat { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; border: 1.5px solid var(--c); font-size: 10px; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
 
   /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
   .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -3194,9 +3195,10 @@ L.DomEvent.disableClickPropagation(dayChip);
 
 // El número del recorrido, pintado con el color de la categoría del punto: es el
 // mismo círculo que la lista de la jornada pone delante del ítem.
-const ordIcon = (n, color) => L.divIcon({
-  html: '<div class="rt-ord" style="background:' + color + '">' + n + '</div>',
-  className: '', iconSize: [16, 16], iconAnchor: [-5, 15],
+const ordIcon = (n, color, emoji) => L.divIcon({
+  html: '<div class="rt-ord" style="background:' + color + ';--c:' + color + '">' + n +
+    (emoji ? '<span class="rt-ord-cat" aria-hidden="true">' + emoji + '</span>' : '') + '</div>',
+  className: '', iconSize: [30, 30], iconAnchor: [15, 15],
 });
 
 // Un punto que el foco muestra directo sobre el mapa (su layerGroup está apagado).
@@ -3247,7 +3249,7 @@ function enterDayFocus(spec) {
     if (p.bed) { step(lodgingMarkers[p.bed]); return; }
     if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
     const ll = step(actMarkers[p.key]);
-    if (ll) ord.push({ ll, color: catColor(p.cat), number: p.planNumber });
+    if (ll) ord.push({ ll, color: catColor(p.cat), emoji: (CAT_META[p.cat] || CAT_META.otro).icon, number: p.planNumber });
   });
   // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
@@ -3268,7 +3270,7 @@ function enterDayFocus(spec) {
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
-  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
   focusLayer.addTo(map);
 
   dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
@@ -3799,9 +3801,8 @@ function renderDayMap(container, spec) {
   _dayViewMap = L.map(container, {
     zoomControl: true, attributionControl: false, scrollWheelZoom: false,
   });
-  // Acá el emoji va siempre, sin corte de zoom: el mapa de la jornada dibuja el
-  // recorrido de UN día (un puñado de puntos), así que no hay densidad que cuidar
-  // ni aunque el día se abra a dos ciudades.
+  // Acá el emoji va siempre: las sugerencias son el catálogo acotado de esta jornada,
+  // no los ~300 lugares de la portada. Su z-index las deja debajo del plan confirmado.
   container.classList.add('pins-emoji');
   L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_dayViewMap);
   if (pts.length > 1) L.polyline(pts, {
@@ -3838,9 +3839,23 @@ function renderDayMap(container, spec) {
     const name = p.act && p.act.text ? p.act.text : 'Parada';
     const cat = CAT_META[p.cat] || CAT_META.otro;
     const sub = p.time || (cat.icon + ' ' + cat.label);
-    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color) : placeIcon(p.cat, 'save', p.key);
+    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon) : placeIcon(p.cat, 'save', p.key);
     const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
       miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)));
+    _dayViewMarkers[p.key] = marker;
+  });
+  // Las sugerencias son la materia prima para decidir el día: se ven en el mapa pero
+  // no entran en la polilínea ni en su encuadre. Las ya promovidas/ancladas se dibujaron
+  // arriba con número; acá quedan sólo las candidatas y respetan el filtro global.
+  (spec.route || []).forEach(p => {
+    if (!p.ll || p.anchor || p.promoted || !activeCats.has(p.cat) || _dayViewMarkers[p.key]) return;
+    const name = p.act && p.act.text ? p.act.text : 'Sugerencia';
+    const cat = CAT_META[p.cat] || CAT_META.otro;
+    const marker = named(L.marker(p.ll, {
+      icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000,
+    }).addTo(_dayViewMap), name,
+      miniPopup(p.act && p.act.img, escHtml(name), escHtml(cat.icon + ' ' + cat.label),
+        (p.act && p.act.url) || gmapsFromName(name)));
     _dayViewMarkers[p.key] = marker;
   });
   // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
