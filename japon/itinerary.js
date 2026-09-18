@@ -184,6 +184,21 @@ function ev(time, kind, text, extra) {
   return Object.assign({ time: time || null, kind, text }, extra || {});
 }
 
+// Las salidas que dependen de una reserva se calculan hacia atrás desde esa ancla.
+// Se mantiene en la capa derivada: el dato declara duraciones, no duplica una hora.
+function minutesBefore(iso, minutes) {
+  if (!iso || !minutes) return null;
+  const [h, m] = timeOf(iso).split(':').map(Number);
+  const total = (h * 60 + m - minutes + 1440) % 1440;
+  return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+}
+
+function clockDiff(a, b) {
+  if (!a || !b) return null;
+  const mins = iso => { const [h, m] = timeOf(iso).split(':').map(Number); return h * 60 + m; };
+  return mins(b) - mins(a);
+}
+
 // Un día por fecha, del primer despegue al último aterrizaje. Cada día sabe qué
 // nodos lo tocan, dónde se duerme esa noche, qué hay con hora y qué se sugiere.
 export function daysOf(dests, transfers) {
@@ -225,10 +240,19 @@ export function daysOf(dests, transfers) {
     for (const h of here) {
       const L = h.node.lodging;
       if (!L) continue;
-      if (date === h.node.start) events.push(ev(L.checkInFrom || null, 'check-in', L.name, { lodging: L, node: h.node }));
+      if (date === h.node.start) {
+        const arrival = transfers.find(t => t.node.id === h.node.id && t.endDate === date && t.arrival);
+        events.push(ev(L.checkInFrom || null, 'check-in', L.name, {
+          lodging: L, node: h.node,
+          checkInMargin: arrival && L.checkInTo ? clockDiff(arrival.arrival, date + 'T' + L.checkInTo) : null
+        }));
+      }
       if (date === h.node.end) events.push(ev(L.checkOutFrom || L.checkOutBy || null, 'check-out', L.name, { lodging: L, node: h.node }));
       for (const a of h.node.activities || []) {
-        if (dayOf(a.at) === date) events.push(ev(timeOf(a.at), 'reserva', a.text, { act: a, node: h.node }));
+        if (dayOf(a.at) === date) events.push(ev(timeOf(a.at), 'reserva', a.text, {
+          act: a, node: h.node,
+          departAt: minutesBefore(a.at, (a.travelMinutes || 0) + (a.boardingMarginMinutes || 0))
+        }));
       }
     }
     events.sort((a, b) =>

@@ -576,36 +576,22 @@ function routeListHtml(spec, ctx, day, cap) {
   // hacen falta los dos: parado en la calle lo que se quiere es la app de mapas, no
   // el mapa del site. La url sale del dato o, si no hay, de Maps por nombre — igual
   // que el popup del pin.
-  const maps = act => '<a class="rt-mp" href="' + esc(act.url || ctx.gmapsFromName(act.text)) +
-    '" target="_blank" rel="noopener" aria-label="Abrir en Google Maps">↗</a>';
+  const category = p => (ctx.CAT_META[p.cat] || ctx.CAT_META.otro).label;
 
   // Los `group` de los datos ("Asakusa + Sumida River + Skytree" = una salida) siguen
   // apareciendo, pero como lo que son ahora: un tramo del recorrido. Si la geografía
   // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
-  let node = null, grp = null;
-  const multi = new Set(spec.route.map(p => p.key.split(':')[0])).size > 1;
   const available = spec.route.filter(p => !p.anchor && !p.promoted);
-  const items = available.map((p, i) => {
-    let head = '';
-    const nid = p.key.split(':')[0];
-    if (multi && nid !== node) head += '<li class="rt-node' + over() + '">' + esc(shortOf(nid)) + '</li>';
-    if (p.group !== grp && p.group) head += '<li class="rt-grp' + over() + '">' + esc(p.group) + '</li>';
-    node = nid; grp = p.group;
-    // Los de una salida van indentados: si no, el primer ítem suelto que viene después
-    // se lee como si todavía perteneciera al rótulo de arriba.
-    const add = ctx.plan && ctx.plan.canEdit() ? '<button type="button" class="pl-toggle" data-plan-add="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Sumar al itinerario">＋</button>' : '';
-    const row = head + '<li class="rt-item plan-move' + (p.group ? ' in-grp' : '') + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" style="--c:' + color(p) + '">' +
-      '<button type="button" class="sg-item" data-act="' + p.key + '" data-ord="' + (i + 1) + '">' +
-        (p.time ? '<span class="rt-t dx">' + p.time + '</span>' : '') + icon(p) + label(p.act) +
-      '</button>' + maps(p.act) + add + '</li>';
+  const items = available.map(p => {
+    const row = '<li class="rt-item plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" style="--c:' + color(p) + '">' +
+      '<span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
   const rest = spec.loose.filter(p => !p.promoted).map(p => {
-    const add = ctx.plan && ctx.plan.canEdit() ? '<button type="button" class="pl-toggle" data-plan-add="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Sumar al itinerario">＋</button>' : '';
-    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" style="--c:' + color(p) + '">' + icon(p) + label(p.act) + maps(p.act) + add + '</li>';
+    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" style="--c:' + color(p) + '"><span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
@@ -676,15 +662,22 @@ function planItemHtml(e, ctx) {
     const win = ctx.hoursParts(L).find(p => p.indexOf(label) !== -1) ||
       '<span class="lg-hh">Horario a definir</span>';
     body.push('<div class="pl-win dx' + (/\d/.test(win) ? '' : ' tbd') + '">' + win + '</div>');
+    if (e.kind === 'check-in') {
+      const limit = L.checkInTo ? '<b>' + esc(L.checkInTo) + '</b>' : '<b>pendiente de confirmar</b>';
+      const margin = e.checkInMargin != null
+        ? ' · margen planificado <b>' + Math.floor(e.checkInMargin / 60) + ' h ' + String(e.checkInMargin % 60).padStart(2, '0') + '</b>' : '';
+      body.push('<div class="pl-d pl-limit">Límite de check-in: ' + limit + margin + '</div>');
+    }
     if (L.area) body.push('<div class="pl-d dx">' + esc(L.area) + '</div>');
     const ref = L.booking && L.booking.ref;
     if (ref) body.push('<div class="pl-ref dx">reserva <b>' + esc(ref) + '</b></div>');
     ctx.lodgingLinks(L, 'pl-a').forEach(a => links.push('<span class="dx">' + a + '</span>'));
   } else if (e.kind === 'reserva') {
     const a = e.act || {};
+    if (e.departAt) body.push('<div class="pl-depart">Salir <b>' + esc(e.departAt) + '</b> · ' + esc(a.outboundLabel || 'traslado previo') + '</div>');
     const note = [a.booked, a.bestTime, a.openHours, a.note].filter(Boolean).join(' · ');
     if (note) body.push('<div class="pl-d">' + esc(note) + '</div>');
-    links.push(extLink(a.url || ctx.gmapsFromName(a.text), 'Google Maps', ctx));
+    if (a.coords) links.push('<button type="button" class="pl-a pl-map-local" data-day-map-act="' + esc(e.node.id + ':' + e.node.activities.indexOf(a)) + '">ver en el mapa</button>');
   }
 
   return '<li class="pl-it pl-' + e.kind + '">' +
@@ -732,10 +725,8 @@ function promotedPlanHtml(day, ctx, spec) {
   const rank = new Map(ctx.plan.promoted(day.date).map((key, i) => [key, i]));
   const all = spec.route.concat(spec.loose).filter(p => p.promoted)
     .sort((a, b) => rank.get(a.key) - rank.get(b.key));
-  const rows = all.map((p, i) => '<li class="pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '">' +
+  const rows = all.map(p => '<li class="pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).label) + '">' +
     '<span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-name">' + esc(p.act.text) + '</span>' +
-    '<span class="pl-order"><button type="button" data-plan-up="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Subir"' + (i ? '' : ' disabled') + '>↑</button>' +
-    '<button type="button" data-plan-down="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Bajar"' + (i + 1 < all.length ? '' : ' disabled') + '>↓</button></span>' +
     '<button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></li>').join('');
   return '<div class="pl-drop" data-plan-drop="' + day.date + '" tabindex="0" aria-label="Itinerario editable. Arrastrá sugerencias acá.">' +
     (rows ? '<ol class="pl-promoted-list">' + rows + '</ol>' : '<div class="pl-empty">Arrastrá sugerencias acá</div>') + '</div>';
@@ -1178,6 +1169,8 @@ export function mountViews(destinations, ctx) {
 
   dayView.addEventListener('click', (e) => {
     if (e.target.closest('a')) return;                   // Maps, la ficha del alojamiento: suyos
+    const localMap = e.target.closest('[data-day-map-act]');
+    if (localMap) { if (ctx.focusDayAct) ctx.focusDayAct(localMap.dataset.dayMapAct); return; }
     const sum = e.target.closest('.sg-all > summary');
     if (sum) { fillCatalog(sum.parentNode.querySelector('.sg-all-body')); return; }
     const more = e.target.closest('.sg-more');
@@ -1392,20 +1385,91 @@ export function mountViews(destinations, ctx) {
   }
 
   function planClick(e) {
-    const b = e.target.closest('[data-plan-add],[data-plan-remove],[data-plan-up],[data-plan-down]');
+    const b = e.target.closest('[data-plan-add],[data-plan-remove]');
     if (!b) return false;
     e.preventDefault(); e.stopPropagation();
     const date = b.dataset.planDate;
     if (b.dataset.planAdd) changePlan(date, a => { if (!a.includes(b.dataset.planAdd)) a.push(b.dataset.planAdd); });
     if (b.dataset.planRemove) changePlan(date, a => { const i = a.indexOf(b.dataset.planRemove); if (i >= 0) a.splice(i, 1); });
-    const move = b.dataset.planUp || b.dataset.planDown;
-    if (move) changePlan(date, a => {
-      const i = a.indexOf(move), d = b.dataset.planUp ? -1 : 1, j = i + d;
-      if (i >= 0 && j >= 0 && j < a.length) [a[i], a[j]] = [a[j], a[i]];
-    });
     return true;
   }
   document.addEventListener('click', planClick, true);
+
+  const make = (tag, cls, text) => {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    return el;
+  };
+  function asPromoted(row) {
+    row.className = 'pl-promoted plan-move';
+    const grip = make('span', 'pl-grip', '⠿'); grip.setAttribute('aria-hidden', 'true');
+    const name = make('span', 'pl-name', row.dataset.planName || '');
+    const remove = make('button', 'pl-toggle remove', '−');
+    remove.type = 'button'; remove.dataset.planRemove = row.dataset.planKey;
+    remove.dataset.planDate = row.dataset.planDate; remove.setAttribute('aria-label', 'Quitar del itinerario');
+    row.replaceChildren(grip, name, remove);
+  }
+  function asSuggestion(row) {
+    row.className = 'rt-item plan-move';
+    const item = make('span', 'sg-item');
+    item.append(make('span', 'sg-name', row.dataset.planName || ''), make('span', 'sg-kind', row.dataset.planCat || ''));
+    row.replaceChildren(item);
+  }
+  function suggestionList(scope) {
+    let list = scope.querySelector('.sg-wrap .rt-list');
+    if (list) return list;
+    const wrap = scope.querySelector('.sg-wrap');
+    if (!wrap) return null;
+    list = make('ol', 'rt-list'); wrap.appendChild(list); return list;
+  }
+  function promotedList(drop) {
+    let list = drop.querySelector('.pl-promoted-list');
+    if (!list) {
+      const empty = drop.querySelector('.pl-empty'); if (empty) empty.remove();
+      list = make('ol', 'pl-promoted-list'); drop.appendChild(list);
+    }
+    return list;
+  }
+  function syncPlanDom(date) {
+    if (!date) {
+      document.querySelectorAll('[data-plan-drop]').forEach(d => syncPlanDom(d.dataset.planDrop));
+      return;
+    }
+    const wanted = ctx.plan.promoted(date);
+    document.querySelectorAll('[data-plan-drop="' + CSS.escape(date) + '"]').forEach(drop => {
+      const scope = drop.closest('[data-jornada-card], .dv-inner') || drop.parentElement;
+      const list = promotedList(drop);
+      wanted.forEach(key => {
+        const row = scope.querySelector('[data-plan-key="' + CSS.escape(key) + '"]');
+        if (!row) return;
+        asPromoted(row); list.appendChild(row);
+      });
+      [...list.querySelectorAll('.pl-promoted')].forEach(row => {
+        if (wanted.includes(row.dataset.planKey)) return;
+        asSuggestion(row); const target = suggestionList(scope); if (target) target.appendChild(row);
+      });
+      if (!list.children.length) {
+        list.remove(); drop.appendChild(make('div', 'pl-empty', 'Arrastrá sugerencias acá'));
+      }
+    });
+  }
+
+  const flip = (list, move) => {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const before = new Map([...list.children].map(el => [el, el.getBoundingClientRect()]));
+    move();
+    if (reduce) return;
+    [...list.children].forEach(el => {
+      const a = before.get(el); if (!a) return;
+      const b = el.getBoundingClientRect(), dy = a.top - b.top;
+      if (!dy) return;
+      el.style.transform = 'translateY(' + dy + 'px)';
+      el.classList.add('is-flipping');
+      requestAnimationFrame(() => { el.style.transform = ''; });
+      el.addEventListener('transitionend', () => el.classList.remove('is-flipping'), { once: true });
+    });
+  };
 
   let drag = null;
   document.addEventListener('pointerdown', e => {
@@ -1413,7 +1477,8 @@ export function mountViews(destinations, ctx) {
     const row = e.target.closest('.plan-move');
     if (!row || e.target.closest('button,a')) return;
     drag = { id: e.pointerId, row, key: row.dataset.planKey, date: row.dataset.planDate,
-      promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY, moved: false };
+      promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY,
+      top: row.getBoundingClientRect().top, moved: false };
   });
   document.addEventListener('pointermove', e => {
     if (!drag || drag.id !== e.pointerId) return;
@@ -1422,6 +1487,19 @@ export function mountViews(destinations, ctx) {
     }
     if (drag.moved) {
       e.preventDefault();
+      drag.row.style.pointerEvents = 'none';
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      drag.row.style.pointerEvents = '';
+      const drop = target && target.closest('[data-plan-drop="' + CSS.escape(drag.date) + '"]');
+      if (drop) {
+        const list = promotedList(drop);
+        if (!drag.row.classList.contains('pl-promoted')) asPromoted(drag.row);
+        const hit = target.closest('.pl-promoted');
+        const before = hit && e.clientY < hit.getBoundingClientRect().top + hit.offsetHeight / 2 ? hit : hit && hit.nextSibling;
+        if (drag.row.parentNode !== list || before !== drag.row.nextSibling) flip(list, () => list.insertBefore(drag.row, before));
+      }
+      const now = drag.row.getBoundingClientRect();
+      drag.row.style.transform = 'translate3d(' + (e.clientX - drag.x) + 'px,' + (e.clientY - drag.y - (now.top - drag.top)) + 'px,0)';
       const scroller = drag.row.closest('.day-view') || drag.row.closest('.view-pane');
       if (scroller) {
         if (e.clientY < 90) scroller.scrollBy(0, -22);
@@ -1431,17 +1509,17 @@ export function mountViews(destinations, ctx) {
   }, { passive: false });
   document.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
-    const d = drag; drag = null; d.row.classList.remove('is-dragging'); document.body.classList.remove('plan-dragging');
+    const d = drag; drag = null; d.row.classList.remove('is-dragging'); d.row.style.transform = ''; document.body.classList.remove('plan-dragging');
     if (!d.moved) return;
+    d.row.style.pointerEvents = 'none';
     const target = document.elementFromPoint(e.clientX, e.clientY);
+    d.row.style.pointerEvents = '';
     const zone = target && target.closest('[data-plan-drop="' + d.date + '"]');
-    const before = target && target.closest('.pl-promoted');
     if (zone) changePlan(d.date, a => {
-      const old = a.indexOf(d.key); if (old >= 0) a.splice(old, 1);
-      const at = before ? a.indexOf(before.dataset.planKey) : a.length;
-      a.splice(at < 0 ? a.length : at, 0, d.key);
+      a.splice(0, a.length, ...[...zone.querySelectorAll('.pl-promoted')].map(row => row.dataset.planKey));
     });
     else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
+    else syncPlanDom(d.date);
   });
 
   function go(id) {
@@ -1524,12 +1602,7 @@ export function mountViews(destinations, ctx) {
   apply();
   if (ctx.plan) {
     ctx.plan.onChange(date => {
-      const scroll = panes.dias ? panes.dias.scrollTop : 0;
-      if (done.dias && panes.dias) {
-        panes.dias.innerHTML = '<div class="view-inner">' + RENDER.dias(it, ctx) + '</div>';
-        panes.dias.scrollTop = scroll;
-      }
-      if (shownJornada && (!date || date === shownJornada)) { shownJornada = null; showJornada(currentJornada()); }
+      syncPlanDom(date);
       if (shownDay && (!date || date === shownDay) && ctx.focusDay) ctx.focusDay(plannedSpec(routeOf(dayByDate[shownDay], ctx)));
     });
     ctx.plan.load().catch(err => window.alert(err.message || 'No se pudo cargar el plan.'));
