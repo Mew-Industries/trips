@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 303 lugares + 24 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-18T02:45:26+00:00
+// 319 lugares + 26 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-18T03:59:19+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -61,6 +61,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYjMif2vng2/",
     "owner": "sara_34chi_"
+   }
+  ]
+ },
+ {
+  "name": "417 EDIFICE Lumine Est Shinjuku",
+  "lat": 35.691422,
+  "lon": 139.701092,
+  "cat": "compras",
+  "area": "Shinjuku, Tokio",
+  "note": "Tienda de menswear japonés contemporáneo: prendas limpias y versátiles para armar guardarropa diario, dentro de Lumine Est.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdHPW8OGVRZ/",
+    "owner": "theregoreece",
+    "caption": "Tienda de menswear japonés contemporáneo: prendas limpias y versátiles para armar guardarropa diario, dentro de Lumine Est.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -213,6 +230,23 @@ window.SOURCE_THINGS = [
     "owner": "viewsfromjapan_",
     "caption": "Museo de arte junto al yacimiento Sannai-Maruyama, hogar del perro gigante de Nara.",
     "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Asakusa",
+  "lat": 35.718586,
+  "lon": 139.795885,
+  "cat": "barrios",
+  "area": "Tokio",
+  "note": "Barrio tradicional que el guía recomienda recorrer de mañana en sus tours.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dck_aBhBIAF/",
+    "owner": "shintaro_tkd",
+    "caption": "Barrio tradicional que el guía recomienda recorrer de mañana en sus tours.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -485,6 +519,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Cartel de Glico (Glico Running Man), Dotonbori",
+  "lat": 34.668934,
+  "lon": 135.501068,
+  "cat": "otros",
+  "area": "Dotonbori, Osaka",
+  "note": "El cartel icónico del corredor de Glico sobre el canal de Dotonbori, en el puente Ebisubashi; punto de foto clásico de Osaka que aparece en el reel.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdDGCUGyA_o/",
+    "owner": "_luvsae",
+    "caption": "El cartel icónico del corredor de Glico sobre el canal de Dotonbori, en el puente Ebisubashi; punto de foto clásico de Osaka que aparece en el reel.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "CAS:pace",
   "lat": 35.670911,
   "lon": 139.707544,
@@ -563,6 +614,23 @@ window.SOURCE_THINGS = [
     "owner": "archdigestsyou",
     "caption": "Flagship de Peter Marino (2004): fachada de cortina de vidrio con ~700.000 LEDs; adentro Chanel Nexus Hall (arte/conciertos gratis) y restaurante de Alain Ducasse arriba.",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Chermside Sandwich",
+  "lat": 35.670824,
+  "lon": 139.705795,
+  "cat": "comida",
+  "area": "Harajuku, Tokio",
+  "note": "Sandwichería viral en Takeshita Street; sándwiches gruesos rellenos de carne (Meat Box con res cocida lenta y Katsu Box con milanesa de cerdo de 5cm), servidos con papas. A pasos de la estación Harajuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcaHJYty_Wd/",
+    "owner": "japan_tourism.1",
+    "caption": "Sandwichería viral en Takeshita Street; sándwiches gruesos rellenos de carne (Meat Box con res cocida lenta y Katsu Box con milanesa de cerdo de 5cm), servidos con papas. A pasos de la estación Harajuku.",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -794,6 +862,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DaV40hcva65/",
     "owner": "travelingwithyohan"
+   }
+  ]
+ },
+ {
+  "name": "Dog Heart",
+  "lat": 35.6804,
+  "lon": 139.769017,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Lugar donde se puede alquilar un perro por un rato para pasearlo y darle mimos; también se puede adoptar o hacer foster.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/CxRxEGCPTaA/",
+    "owner": "bokksuoriginals",
+    "caption": "Lugar donde se puede alquilar un perro por un rato para pasearlo y darle mimos; también se puede adoptar o hacer foster.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -1094,7 +1179,7 @@ window.SOURCE_THINGS = [
   "lon": 139.704761,
   "cat": "ocio",
   "area": "Shinjuku, Tokio",
-  "note": "Laberinto de callejones con bares diminutos en Shinjuku.",
+  "note": "El barrio de callecitas con decenas de bares diminutos que el guía dice ser su lugar favorito de la zona de Kabukicho.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1109,6 +1194,13 @@ window.SOURCE_THINGS = [
     "owner": "japan.compass",
     "caption": "Laberinto de callejones con bares diminutos en Shinjuku.",
     "sharedBy": "Zava"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dck_aBhBIAF/",
+    "owner": "shintaro_tkd",
+    "caption": "El barrio de callecitas con decenas de bares diminutos que el guía dice ser su lugar favorito de la zona de Kabukicho.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -1156,6 +1248,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DJgb3vuu7Zm/",
     "owner": "hawaiijapan"
+   }
+  ]
+ },
+ {
+  "name": "grenier 北浜店",
+  "lat": 34.68833,
+  "lon": 135.508998,
+  "cat": "comida",
+  "area": "Osaka (Kitahama)",
+  "note": "Café en Kitahama; su pie de crema de custard y vainilla con la tapa brûlée (1000 yen) fue de los mejores postres del posteador en Osaka.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DaKvDl_z60y/",
+    "owner": "coffeegomi",
+    "caption": "Café en Kitahama; su pie de crema de custard y vainilla con la tapa brûlée (1000 yen) fue de los mejores postres del posteador en Osaka.",
+    "sharedBy": "Ari"
    }
   ]
  },
@@ -1541,6 +1650,40 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Ichiwa (Ichimonjiya Wasuke)",
+  "lat": 35.045327,
+  "lon": 135.742784,
+  "cat": "comida",
+  "area": "Kyoto",
+  "note": "Casa de aburi-mochi que funciona desde ~el año 1000 junto al santuario Imamiya; Guinness la reconoce como la dulcería más antigua del mundo. Solo sirve mochi del tamaño de un pulgar, rebozado en harina de soja, asado al ",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc_mSwOkYLa/",
+    "owner": "localize.food",
+    "caption": "Casa de aburi-mochi que funciona desde ~el año 1000 junto al santuario Imamiya; Guinness la reconoce como la dulcería más antigua del mundo. Solo sirve mochi del tamaño de un pulgar, rebozado en harina de soja, asado al ",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Imamiya Shrine",
+  "lat": 35.045951,
+  "lon": 135.742048,
+  "cat": "templos",
+  "area": "Kyoto",
+  "note": "Santuario fundado en el 994 al que peregrinaban los que comían en Ichiwa; el barrio conserva las viejas casas de aburi-mochi frente a su entrada.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc_mSwOkYLa/",
+    "owner": "localize.food",
+    "caption": "Santuario fundado en el 994 al que peregrinaban los que comían en Ichiwa; el barrio conserva las viejas casas de aburi-mochi frente a su entrada.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "Ippudo (Taito)",
   "lat": 35.712574,
   "lon": 139.780204,
@@ -1705,7 +1848,7 @@ window.SOURCE_THINGS = [
   "lon": 139.702625,
   "cat": "barrios",
   "area": "Shinjuku, Tokio",
-  "note": "Barrio de entretenimiento nocturno de Shinjuku.",
+  "note": "Zona nocturna que el guía recorre de noche; famosa por su vida nocturna (hosts, cabarets) y sus curiosidades.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -1713,6 +1856,13 @@ window.SOURCE_THINGS = [
     "owner": "japan.compass",
     "caption": "Barrio de entretenimiento nocturno de Shinjuku.",
     "sharedBy": "Zava"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dck_aBhBIAF/",
+    "owner": "shintaro_tkd",
+    "caption": "Zona nocturna que el guía recorre de noche; famosa por su vida nocturna (hosts, cabarets) y sus curiosidades.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -1903,6 +2053,23 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DbTs5pAzMMH/",
     "owner": "sharonnhsu",
     "caption": "Tienda de bolsos artesanales únicos, con piezas 'spiky' de colores hechas con técnica de shibori; recomendada para compras especiales en Kioto.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "KAWANO",
+  "lat": 35.69142,
+  "lon": 139.702335,
+  "cat": "compras",
+  "area": "Shinjuku, Tokio",
+  "note": "Concept store de varios pisos con diseñadores y labels japoneses (TAAKK, amok, DISCOVERED, ANREALAGE, wjk); onda experimental y fashion-forward.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdHPW8OGVRZ/",
+    "owner": "theregoreece",
+    "caption": "Concept store de varios pisos con diseñadores y labels japoneses (TAAKK, amok, DISCOVERED, ANREALAGE, wjk); onda experimental y fashion-forward.",
     "sharedBy": "Martín"
    }
   ]
@@ -3230,6 +3397,40 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Reve Doux",
+  "lat": 37.509766,
+  "lon": 127.109302,
+  "cat": "comida",
+  "area": "Jamsil (Songpa-gu), Seúl",
+  "note": "Café famoso por sus croissants de mil hojas; probá el croissant 'wappu' con crema pastelera de vainilla y cobertura de caramelo, súper crocante.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Da-QNqxzr5J/",
+    "owner": "coffeegomi",
+    "caption": "Café famoso por sus croissants de mil hojas; probá el croissant 'wappu' con crema pastelera de vainilla y cobertura de caramelo, súper crocante.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Rokusan Angel",
+  "lat": 35.663328,
+  "lon": 139.734188,
+  "cat": "ocio",
+  "area": "Tokio",
+  "note": "Cabaret/girls bar con show y barra libre (all you can drink); ahí terminaron festejando el cumple.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
+    "owner": "alexissswgr",
+    "caption": "Cabaret/girls bar con show y barra libre (all you can drink); ahí terminaron festejando el cumple.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Round 1 Umeda",
   "lat": 34.703257,
   "lon": 135.501041,
@@ -3455,6 +3656,23 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/C9dzNNOPC8d/",
     "owner": "relishwithreese",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Shinjuku",
+  "lat": 35.693825,
+  "lon": 139.703356,
+  "cat": "barrios",
+  "area": "Tokio",
+  "note": "Barrio nocturno y ruidoso donde arrancan la salida; zona de maid cafés, bares y vida nocturna.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
+    "owner": "alexissswgr",
+    "caption": "Barrio nocturno y ruidoso donde arrancan la salida; zona de maid cafés, bares y vida nocturna.",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -3772,6 +3990,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "STUDIOUS MENS Lumine Est Shinjuku",
+  "lat": 35.691213,
+  "lon": 139.701106,
+  "cat": "compras",
+  "area": "Shinjuku, Tokio",
+  "note": "Tienda que carga la marca CULLNI (sastrería minimal y siluetas relajadas), ya que no hay flagship de CULLNI en Shinjuku.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdHPW8OGVRZ/",
+    "owner": "theregoreece",
+    "caption": "Tienda que carga la marca CULLNI (sastrería minimal y siluetas relajadas), ya que no hay flagship de CULLNI en Shinjuku.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "Suginami Animation Museum",
   "lat": 35.710572,
   "lon": 139.607794,
@@ -3943,6 +4178,23 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/DcYZqIYGGrz/",
     "owner": "viewsfromjapan_",
     "caption": "Casa-taller del artista Taro Okamoto convertida en museo, en Aoyama.",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "teamLab Borderless",
+  "lat": 35.662069,
+  "lon": 139.743267,
+  "cat": "museos",
+  "area": "Tokio",
+  "note": "Galería de arte digital inmersiva; la describe como muy estimulante y que 'está padrísimo'.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
+    "owner": "alexissswgr",
+    "caption": "Galería de arte digital inmersiva; la describe como muy estimulante y que 'está padrísimo'.",
     "sharedBy": "Cata"
    }
   ]
@@ -4347,13 +4599,20 @@ window.SOURCE_THINGS = [
   "lon": 139.745433,
   "cat": "miradores",
   "area": "Tokio",
-  "note": "Vista nocturna de la Tokyo Tower iluminada; la torre tiene miradores con panorámica de la ciudad.",
+  "note": "Su lugar favorito de Japón; fue a ver el atardecer con la torre roja de fondo.",
   "sources": [
    {
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DbTLepZTZtL/",
     "owner": "ryuseitenshi18",
     "caption": "Vista nocturna de la Tokyo Tower iluminada; la torre tiene miradores con panorámica de la ciudad.",
+    "sharedBy": "Cata"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
+    "owner": "alexissswgr",
+    "caption": "Su lugar favorito de Japón; fue a ver el atardecer con la torre roja de fondo.",
     "sharedBy": "Cata"
    }
   ]
@@ -4686,6 +4945,23 @@ window.SOURCE_THINGS = [
   ]
  },
  {
+  "name": "Urban Research iD Lumine Est Shinjuku",
+  "lat": 35.691213,
+  "lon": 139.701106,
+  "cat": "compras",
+  "area": "Shinjuku, Tokio",
+  "note": "Streetwear japonés con estilo pulido; la sucursal de Shinjuku está en Lumine EST, piso 5.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdHPW8OGVRZ/",
+    "owner": "theregoreece",
+    "caption": "Streetwear japonés con estilo pulido; la sucursal de Shinjuku está en Lumine EST, piso 5.",
+    "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
   "name": "Used Camera Box",
   "lat": 35.68948,
   "lon": 139.696652,
@@ -4885,6 +5161,23 @@ window.SOURCE_THINGS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DIbEBpwhgL5/",
     "owner": "xu_osaka"
+   }
+  ]
+ },
+ {
+  "name": "Yabaton",
+  "lat": 35.680036,
+  "lon": 139.768085,
+  "cat": "comida",
+  "area": "Tokio (origen Nagoya)",
+  "note": "Cadena de miso katsu de Nagoya, la comida favorita del guía; menciona que también hay sucursal en Tokio.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dck_aBhBIAF/",
+    "owner": "shintaro_tkd",
+    "caption": "Cadena de miso katsu de Nagoya, la comida favorita del guía; menciona que también hay sucursal en Tokio.",
+    "sharedBy": "Martín"
    }
   ]
  },
@@ -5137,6 +5430,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Frases básicas de japonés para el día a día",
+  "cat": "tips",
+  "area": "",
+  "note": "Saludos y cortesías esenciales: konnichiwa (hola), arigatou (gracias), sumimasen (disculpe/perdón), onegaishimasu (por favor), gomen nasai (perdón), hajimemashite (mucho gusto), ohayou (buenos días), oyasumi (buenas noches), sayounara/mata ne (adiós/nos vemos).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DcsuyeBgF0t/",
+    "owner": "aienepal",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Hacete tu propio kimono en Tokio para llevártelo",
   "cat": "tips",
   "area": "Tokio",
@@ -5146,6 +5453,20 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/C-546YSSsaO/",
     "owner": "shannon_savvytourist"
+   }
+  ]
+ },
+ {
+  "name": "Imprimir el diario del día que naciste en el konbini",
+  "cat": "tips",
+  "area": "",
+  "note": "En la impresora/copiadora de los konbini (FamilyMart) podés imprimir la portada del diario del día que naciste como souvenir. Elegí Japan Times (está en inglés), poné la fecha: 500 yenes por una cara.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZ76_70hzh6/",
+    "owner": "elchurchesoficial",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -5526,6 +5847,17 @@ window.SOURCE_REELS = [
    "p-bar-piano"
   ],
   "showsEach": false
+ },
+ {
+  "code": "CxRxEGCPTaA",
+  "url": "https://www.instagram.com/p/CxRxEGCPTaA/",
+  "owner": "bokksuoriginals",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-dog-heart"
+  ],
+  "showsEach": true
  },
  {
   "code": "CzciGC4yzZx",
@@ -7043,6 +7375,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Da-QNqxzr5J",
+  "url": "https://www.instagram.com/p/Da-QNqxzr5J/",
+  "owner": "coffeegomi",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-reve-doux"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "Da-bH3DDDvF",
   "url": "https://www.instagram.com/p/Da-bH3DDDvF/",
   "owner": "nakajapatonic",
@@ -7072,6 +7415,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-la-collina-omihachiman"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DaKvDl_z60y",
+  "url": "https://www.instagram.com/p/DaKvDl_z60y/",
+  "owner": "coffeegomi",
+  "sharedBy": "Ari",
+  "kind": "clips",
+  "covers": [
+   "p-grenier"
   ],
   "showsEach": true
  },
@@ -7278,6 +7632,20 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Dc90SpNNTN6",
+  "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
+  "owner": "alexissswgr",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-shinjuku",
+   "p-teamlab-borderless",
+   "p-tokyo-tower",
+   "p-rokusan-angel"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DcBTT_3ouXy",
   "url": "https://www.instagram.com/p/DcBTT_3ouXy/",
   "owner": "francesca_sandroni",
@@ -7362,6 +7730,18 @@ window.SOURCE_REELS = [
   "showsEach": false
  },
  {
+  "code": "Dc_mSwOkYLa",
+  "url": "https://www.instagram.com/p/Dc_mSwOkYLa/",
+  "owner": "localize.food",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-ichiwa",
+   "p-imamiya-shrine"
+  ],
+  "showsEach": false
+ },
+ {
   "code": "Dc_tQrKjJDn",
   "url": "https://www.instagram.com/p/Dc_tQrKjJDn/",
   "owner": "nakajapatonic",
@@ -7384,6 +7764,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DcaHJYty_Wd",
+  "url": "https://www.instagram.com/p/DcaHJYty_Wd/",
+  "owner": "japan_tourism.1",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-chermside-sandwich"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DcaUJYyD8FI",
   "url": "https://www.instagram.com/p/DcaUJYyD8FI/",
   "owner": "tatlerasia",
@@ -7395,6 +7786,20 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Dck_aBhBIAF",
+  "url": "https://www.instagram.com/p/Dck_aBhBIAF/",
+  "owner": "shintaro_tkd",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-golden-gai",
+   "p-yabaton",
+   "p-kabukicho",
+   "p-asakusa"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "Dcvq343kurY",
   "url": "https://www.instagram.com/p/Dcvq343kurY/",
   "owner": "japan.explores",
@@ -7402,6 +7807,17 @@ window.SOURCE_REELS = [
   "kind": "carousel_container",
   "covers": [
    "p-the-railway-museum"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdDGCUGyA_o",
+  "url": "https://www.instagram.com/p/DdDGCUGyA_o/",
+  "owner": "_luvsae",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-cartel-de-glico"
   ],
   "showsEach": true
  },
@@ -7426,5 +7842,19 @@ window.SOURCE_REELS = [
    "p-amam-dacotan-kyoto"
   ],
   "showsEach": true
+ },
+ {
+  "code": "DdHPW8OGVRZ",
+  "url": "https://www.instagram.com/p/DdHPW8OGVRZ/",
+  "owner": "theregoreece",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-417-edifice-lumine-est-shinjuku",
+   "p-kawano",
+   "p-urban-research-id-lumine-est-shinjuku",
+   "p-studious-mens-lumine-est-shinjuku"
+  ],
+  "showsEach": false
  }
 ];
