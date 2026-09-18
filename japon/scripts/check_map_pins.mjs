@@ -1,7 +1,7 @@
 // Verificación en navegador de los pines de lugar del mapa (task 688): cada pin muestra
 // el emoji de su categoría —el mismo de `data/categories.js` que usa la lista— dentro
-// del disco con el aro del color, de cerca; lejos vuelve al punto de color para que el
-// mapa de una ciudad entera (~300 lugares) siga siendo legible. Y lo que ya tenía
+// del disco con el aro del color cuando la densidad real lo permite; con muchos puntos
+// visibles vuelve al punto de color. Y lo que ya tenía
 // identidad propia —paradas numeradas, cama, aeropuerto— no se toca.
 //
 // No es parte de ninguna suite: necesita Chromium y el sitio servido. Levantarlo con
@@ -90,7 +90,7 @@ const pinState = (sel = '#map') => page.evaluate((sel) => {
 await page.goto(BASE, { waitUntil: 'networkidle', timeout: 60000 });
 await page.waitForTimeout(1800);
 
-// ------------------------------------------------ 1 · el emoji de cada categoría (AC1)
+// ----------------------------------------------- 1 · taxonomía dentro de cada pin
 // Ir a Tokio por la UI: el click en una fila de la lista vuela al lugar con zoom 14.
 await page.evaluate(() => {
   const row = [...document.querySelectorAll('.act-row')].find(r => /shinjuku|shibuya|asakusa/i.test(r.textContent));
@@ -114,10 +114,8 @@ check('un lugar de comida se ve 🍜', pares.has(comida.color + '|' + comida.ico
   (pares.get(comida.color + '|' + comida.icon) || 0) + ' pines ' + comida.icon);
 check('uno de templos y museos se ve ⛩️', pares.has(templo.color + '|' + templo.icon),
   (pares.get(templo.color + '|' + templo.icon) || 0) + ' pines ' + templo.icon);
-check('el emoji está visible, no sólo en el HTML', cerca.emojiVisible === cerca.total,
-  cerca.emojiVisible + '/' + cerca.total);
-check('el color de categoría sigue puesto: es el aro del pin', cerca.aro === hexToRgb(cerca.aroDe),
-  cerca.aroDe + ' → ' + cerca.aro);
+check('con Tokio denso el emoji queda guardado en el HTML pero se ve el punto', cerca.emojiVisible === 0,
+  cerca.emojiVisible + '/' + cerca.total + ' emojis visibles');
 await page.screenshot({ path: `${OUT}/ac1-emoji-cerca.png` });
 
 // El pin sigue siendo clickeable (la caja del ícono es transparente al mouse; el click
@@ -137,22 +135,18 @@ if (box) await page.mouse.click(box.x, box.y);
 await page.waitForTimeout(700);
 check('el click sobre el pin abre su popup', !!box && await page.evaluate(() => !!document.querySelector('#map .leaflet-popup')));
 
-// ------------------------------------------- 2 · densidad: lejos vuelve el punto (AC2)
+// -------------------------------------- 2 · mucha densidad: queda el punto (AC2)
 await page.evaluate(() => { document.querySelectorAll('.leaflet-popup-close-button').forEach(b => b.click()); });
 for (const z of [13, 12, 11]) {
   const got = await zoomOutTo(z);
   const s = await pinState();
-  if (z === 13) {
-    check('a zoom 13 (barrio en pantalla) el pin es el emoji', got === 13 && s.emojiVisible === s.total && s.size === 22,
-      s.total + ' pines de ' + s.size + 'px');
-  } else {
-    check('a zoom ' + z + ' (ciudad entera) vuelve el punto de 12px',
-      got === z && s.emojiVisible === 0 && s.size === 12, s.total + ' pines de ' + s.size + 'px, 0 emojis');
-  }
+  check('con todos prendidos a zoom ' + z + ' la densidad deja puntos de 12px',
+    got === z && s.emojiVisible === 0 && s.size === 12,
+    (await page.locator('#map').getAttribute('data-visible-place-pins')) + ' visibles · ' + s.total + ' totales');
   await page.screenshot({ path: `${OUT}/ac2-tokio-z${z}.png` });
 }
 
-// ------------------------------------ 3 · el hover desde la lista resalta su pin (AC4)
+// --------------------------------------- 3 · el hover desde la lista resalta su pin
 // El enganche es `.pp[data-id]`: la fila del day trip en la lista prende `.active` sobre
 // el pin del mapa. Se hace con el mouse de verdad, no despachando el evento a mano.
 // La fila vive adentro de la tarjeta del destino: se abre como la abre cualquiera,
@@ -191,7 +185,16 @@ await page.mouse.move(700, 450);
 await page.waitForTimeout(400);
 check('al salir de la fila el pin vuelve a su tamaño', !(await estadoPin()).activo);
 
-// --------------------------------------------- 4 · los filtros por categoría (AC3)
+// ------------------------- 4 · filtro con poca densidad, sin tocar el zoom (AC1, AC3)
+await page.goto(BASE, { waitUntil: 'networkidle', timeout: 60000 });
+await page.waitForTimeout(1200);
+await page.evaluate(() => {
+  const row = [...document.querySelectorAll('.act-row')].find(r => /shinjuku|shibuya|asakusa/i.test(r.textContent));
+  if (row) row.click();
+});
+await page.waitForTimeout(2200);
+await page.keyboard.press('Escape');
+await zoomOutTo(11);
 const contar = () => page.evaluate(() => {
   const by = {};
   document.querySelectorAll('#map .pp').forEach(p => {
@@ -226,7 +229,48 @@ const vuelta = await contar();
 check('“Todo” devuelve el mapa como estaba',
   JSON.stringify(vuelta) === JSON.stringify(antes), Object.values(vuelta).reduce((a, b) => a + b, 0) + ' pines');
 
-// ------------------- 5 · paradas numeradas, cama y aeropuerto sin cambios (AC5)
+// En la misma escala de ciudad, aislar una categoría chica cruza el umbral sin que
+// haya zoom: el handler de filtro tiene que recalcular por sí solo.
+const zoomAntesFiltro = await zoom();
+await clickCat('Bar/noche');
+const pocos = await pinState();
+const pocosVisibles = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
+check('un filtro con pocos lugares prende el emoji a zoom de ciudad sin tocar el zoom',
+  zoomAntesFiltro === await zoom() && pocosVisibles > 0 && pocosVisibles <= 40 && pocos.emojiVisible === pocos.total,
+  pocosVisibles + ' visibles · zoom ' + await zoom() + ' · ' + pocos.size + 'px');
+check('el emoji filtrado conserva el aro de su categoría', pocos.aro === hexToRgb(pocos.aroDe),
+  pocos.aroDe + ' → ' + pocos.aro);
+await page.screenshot({ path: `${OUT}/ac1-filtro-ciudad.png` });
+
+// Mover el mapa a una zona vacía conserva el zoom y apaga el modo emoji (cero pines no
+// necesita pin abierto). Volver exactamente con el gesto inverso lo prende otra vez:
+// la única señal que cambió entre ambos estados fue `moveend`.
+const mapBox = await page.locator('#map').boundingBox();
+const drag = async (fromX, toX) => {
+  await page.mouse.move(fromX, mapBox.y + mapBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(toX, mapBox.y + mapBox.height / 2, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(900);
+};
+const zoomAntesMove = await zoom();
+await drag(mapBox.x + mapBox.width * .8, mapBox.x + mapBox.width * .2);
+await drag(mapBox.x + mapBox.width * .8, mapBox.x + mapBox.width * .2);
+const trasMover = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
+check('mover el mapa recalcula la densidad sin cambiar el zoom',
+  zoomAntesMove === await zoom() && trasMover === 0 && !(await page.locator('#map').evaluate(e => e.classList.contains('pins-emoji'))),
+  pocosVisibles + ' → ' + trasMover + ' visibles · zoom ' + await zoom());
+await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
+await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
+const trasVolver = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
+check('volver al área con pines restaura los emojis por moveend',
+  trasVolver === pocosVisibles && await page.locator('#map').evaluate(e => e.classList.contains('pins-emoji')),
+  trasMover + ' → ' + trasVolver + ' visibles');
+await page.screenshot({ path: `${OUT}/ac4-moveend.png` });
+
+await clickCat('Todo');
+
+// ------------------- 5 · paradas numeradas, cama y aeropuerto sin cambios
 // De cero y con todas las familias prendidas (los aeropuertos y el transporte vienen
 // apagados por default), mirando Japón entero.
 await page.goto(BASE, { waitUntil: 'networkidle', timeout: 60000 });
