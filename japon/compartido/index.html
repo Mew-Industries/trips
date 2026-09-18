@@ -3570,6 +3570,9 @@ try {
     // día de Tokio es el mismo esté la parada 1, la 10 o la 15.
     cityActivities, cityLabel,
     activityId, activityGroupsHtml: activityCatalogHtml,
+    // Los links del lugar (Maps, el reel del que salió) son los mismos en la ficha de
+    // actividad y en su renglón del itinerario (task 686): una función para los dos.
+    sourceLinksHtml,
     nodeById: Object.fromEntries(destinations.map(d => [d.id, d])),
     focusTrip, openStopModal, flash,
     // Tramos (task 510): la línea del mapa y la ficha de la vista Transportes son la

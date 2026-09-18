@@ -152,6 +152,16 @@ Martín, con el screenshot del 14/10: «la font la veo irregular… hay muchas f
 
 La guarda no es un grep sino el recorrido de los computed styles de la card del 14/10 a 1400 y 390 px (`check_plan_round.mjs`): cualquier `font-size` nuevo que aterrice en la jornada aparece ahí con su clase y su texto, venga de la regla que venga.
 
+### Decir cada cosa una vez (ronda 5 · task 686)
+
+Martín, 18/9, sobre la misma lista: el check-in decía el límite dos veces, el rótulo de categoría se repetía renglón a renglón y las actividades promovidas habían perdido los links que sí tienen en su ficha. Tres reglas, las tres con guarda en `check_plan_round.mjs`:
+
+- **El límite del check-in se dice donde ya se lee: en el rango.** `Check-in 15:00–23:00` tiene las 23:00 adentro, así que el renglón de abajo se queda sólo con el **margen**, que es dato nuevo. Pero "una vez" es literal: la ventana puede salir de la línea de la reserva (`booking.checkIn`, que gana sobre `checkInFrom`/`checkInTo`) y decir sólo "desde 16:00" — si el rango NO nombra el límite, el renglón lo sigue diciendo. Sin `checkInTo` el estado es propio ("Horario límite pendiente de confirmar") y, como todo lo demás en esta card desde la ronda 4, se marca con **fondo y no con tinta nueva**: ámbar `--tbd-bg` para el dato que falta, `--late-bg` para la llegada que cae después del límite. Ponerlos como color de texto lo caza el check de la escala tipográfica, que es para lo que está.
+- **El rótulo de categoría ABRE el grupo.** Dos actividades seguidas de la misma categoría lo dicen una vez, y al cambiar de categoría vuelve. El rótulo (`.pl-cat`) cruza las dos columnas del `.pl-it` (`grid-column: 1 / -1`), así el número queda a la altura del nombre que numera; el `⠿` se mudó al final del renglón —con el `−`— porque sin rótulo quedaba un renglón con un grip suelto y aire al pedo. **Y se recalcula sobre el DOM**: el orden lo cambia el dedo, así que `relabelPlan()` corre junto a `renumberPlan()` después de cada drag y de cada promoción; decidirlo sólo al renderizar deja el rótulo donde lo había puesto el orden viejo.
+- **Promover un lugar no le saca sus links.** El renglón del itinerario usa la MISMA `sourceLinksHtml()` que la ficha de actividad (llega por `ctx`), inline en el `.pl-mainrow` y sólo si el lugar tiene fuentes: nada de un renglón fijo por ítem. En el camino vivo (promover con el dedo) el `act` se busca por la clave en el recorrido del día (`actOfPlanKey`), que es donde clave y actividad ya están juntas.
+
+El check del rótulo no compara contra una lista de rótulos esperados sino contra la **regla** (`opensRule`: lo lleva el que abre su categoría y ninguno más). Con rótulos escritos a mano, un reordenamiento que los deja en el mismo lugar pasaba sin ejercer nada.
+
 ## Un tramo, dos caras: la línea y su ficha (2026-08-11 · task 510)
 
 La polyline del mapa y la tarjeta de la vista Transportes son **el mismo tramo**, y tocar cualquiera de las dos selecciona las dos. Martín: «apretar un tramo de transporte en el mapa debería mostrar el análogo en el sidebar de transporte».

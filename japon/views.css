@@ -36,6 +36,7 @@
      tinta. */
   --tbd-bg: rgba(184,120,20,0.14);
   --off-bg: rgba(155,61,61,0.07);
+  --late-bg: rgba(155,61,61,0.16);
 }
 
 /* Dos columnas: el mapa a la izquierda —siempre visible, fuera de las tabs— y a la
@@ -235,6 +236,13 @@
 .pl-win.tbd .lg-hh { color: var(--muted); background: var(--tbd-bg); border-radius: 4px; padding: 1px 4px; }
 .pl-d { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; margin-top: 1px; }
 .pl-d b { font-weight: 600; }
+/* El renglón del check-in ya no repite la hora límite: dice el margen y nada más. Los
+   dos estados que el rango de arriba NO deja ver se marcan como se marca todo lo demás
+   en esta card — con fondo, no con un color de tinta nuevo (ronda 4): ámbar para el dato
+   que falta, el rojo de "esto se saca" para la llegada que cae después del límite. */
+.pl-limit.is-tbd b, .pl-limit.is-late b { border-radius: 4px; padding: 1px 4px; }
+.pl-limit.is-tbd b { background: var(--tbd-bg); }
+.pl-limit.is-late b { background: var(--late-bg); }
 .pl-ref { font-size: var(--fs-meta); color: var(--muted); margin-top: 2px; }
 .pl-ref b { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 600; color: var(--ink); }
 .pl-lk { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }
@@ -287,7 +295,11 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .pl-drop.is-drag-reveal.is-visible { opacity: 1; transform: none; }
 .pl-drop:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
 .pl-empty { padding: 8px; text-align: center; color: var(--muted); font-size: var(--fs-meta); }
-.pl-promoted { min-height: 36px; padding: 3px 0; border-radius: 7px; }
+.pl-promoted { min-height: 36px; padding: 3px 0; border-radius: 7px; row-gap: 0; }
+/* El rótulo de categoría abre el grupo y cruza las dos columnas: es un encabezado de
+   lo que viene, no un dato del renglón (task 686). Los que siguen dentro de la misma
+   categoría no lo tienen, así que el número queda a la altura de su nombre. */
+.pl-promoted > .pl-cat { grid-column: 1 / -1; line-height: 1.3; margin-bottom: 1px; }
 /* El renglón del ítem: nombre + lo que lo acompaña (el círculo de checklist que le
    cuelga `wireChecklist`, el botón de quitar). Vale para lo promovido y para una
    reserva, que es una actividad igual. */

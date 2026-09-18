@@ -645,6 +645,13 @@ const modeOf = (ctx, leg) => ctx.MODE_STYLE[ctx.legType(leg)] || {};
 const extLink = (href, label, ctx) =>
   '<a class="pl-a" href="' + ctx.escHtml(href) + '" target="_blank" rel="noopener">' + ctx.escHtml(label) + ' ↗</a>';
 
+// Los links que el lugar ya tiene en el catálogo (Maps, el reel de donde salió) viajan
+// con él al itinerario: promoverlo no le quita sus fuentes (task 686). Es la MISMA
+// función que pinta la ficha de actividad, así que los dos lados no se pueden separar.
+// Sin fuentes no se agrega nada: el renglón no gana un hueco fijo por existir.
+const actLinksHtml = (act, ctx) =>
+  act && ctx.sourceLinksHtml && (act.sources || []).length ? ctx.sourceLinksHtml(act) : '';
+
 function planItemHtml(e, ctx, planNumber) {
   const esc = ctx.escHtml;
   const meta = [], body = [], links = [];
@@ -690,7 +697,6 @@ function planItemHtml(e, ctx, planNumber) {
       '<span class="lg-hh">Horario a definir</span>';
     body.push('<div class="pl-win dx' + (/\d/.test(win) ? '' : ' tbd') + '">' + win + '</div>');
     if (e.kind === 'check-in') {
-      const limit = L.checkInTo ? '<b>' + esc(L.checkInTo) + '</b>' : '<b>pendiente de confirmar</b>';
       // El margen es la distancia entre la llegada y el límite, y puede dar NEGATIVO:
       // llegar 20:10 a un hospedaje que cierra el mostrador 20:00 es exactamente el
       // caso que hay que ver. Con la resta cruda eso salía "-1 h -50"; el signo lo dice
@@ -699,7 +705,21 @@ function planItemHtml(e, ctx, planNumber) {
       const margin = e.checkInMargin == null ? ''
         : e.checkInMargin >= 0 ? ' · margen planificado <b>' + hm(e.checkInMargin) + '</b>'
         : ' · llegás <b>' + hm(-e.checkInMargin) + '</b> tarde';
-      body.push('<div class="pl-d pl-limit">Límite de check-in: ' + limit + margin + '</div>');
+      // La hora límite ya la dice el rango de arriba ("Check-in 15:00–23:00"): volver a
+      // escribirla como "Límite de check-in: 23:00" era decir dos veces lo mismo en dos
+      // renglones seguidos (task 686). Queda el margen, que SÍ es dato nuevo, y quedan
+      // los estados que el rango no deja ver: que falte la punta derecha —ámbar, como
+      // cualquier hueco por llenar— y que la llegada caiga después del límite.
+      //
+      // "Una vez" es literal: la ventana puede venir de la reserva y decir sólo "desde
+      // 16:00". Si el rango NO nombra el límite, este renglón es el único lugar donde se
+      // puede leer y ahí sí se dice.
+      const pending = !L.checkInTo;
+      const late = e.checkInMargin != null && e.checkInMargin < 0;
+      const state = pending ? '<b>Horario límite pendiente de confirmar</b>'
+        : win.indexOf(L.checkInTo) === -1 ? 'Límite de check-in: <b>' + esc(L.checkInTo) + '</b>' : '';
+      if (state || margin) body.push('<div class="pl-d pl-limit' + (pending ? ' is-tbd' : '') + (late ? ' is-late' : '') + '">' +
+        [state, margin.replace(/^ · /, '')].filter(Boolean).join(' · ') + '</div>');
     }
     if (L.area) body.push('<div class="pl-d dx">' + esc(L.area) + '</div>');
     const ref = L.booking && L.booking.ref;
@@ -766,12 +786,22 @@ function promotedRowsHtml(day, ctx, spec) {
   const all = spec.route.concat(spec.loose).filter(p => p.promoted)
     .sort((a, b) => rank.get(a.key) - rank.get(b.key));
   const fixedCount = readOrder(day).filter(e => e.kind === 'reserva').length;
+  let previousCat = null;
   return all.map((p, i) => {
     const meta = ctx.CAT_META[p.cat] || ctx.CAT_META.otro;
     const number = fixedCount + i + 1;
+    // El rótulo de categoría ABRE el grupo y no se repite renglón a renglón (task 686):
+    // tres templos seguidos dicen "templos y museos" una vez, y al cambiar de categoría
+    // el rótulo vuelve. Lo mismo recalcula `relabelPlan()` sobre el DOM cuando el orden
+    // cambia por drag: son los dos lados de la misma regla.
+    const opensCat = p.cat !== previousCat;
+    previousCat = p.cat;
     return '<li class="pl-it pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(meta.label) + '" data-plan-icon="' + esc(meta.icon) + '" data-plan-number="' + (number > 0 ? number : '') + '">' +
-      '<span class="pl-t">' + (number > 0 ? number + '.' : '•') + '</span><div class="pl-b"><div class="pl-top"><span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-k">' + meta.icon + ' ' + esc(meta.label) + '</span></div>' +
-      '<div class="pl-mainrow" data-check="' + esc(p.key) + '"><span class="pl-w">' + esc(p.act.text) + '</span><button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></div></div></li>';
+      (opensCat ? '<div class="pl-cat"><span class="pl-k">' + meta.icon + ' ' + esc(meta.label) + '</span></div>' : '') +
+      '<span class="pl-t">' + (number > 0 ? number + '.' : '•') + '</span><div class="pl-b">' +
+      '<div class="pl-mainrow" data-check="' + esc(p.key) + '"><span class="pl-w">' + esc(p.act.text) + '</span>' + actLinksHtml(p.act, ctx) +
+      '<span class="pl-grip" aria-hidden="true">⠿</span>' +
+      '<button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></div></div></li>';
   }).join('');
 }
 
@@ -1462,16 +1492,23 @@ export function mountViews(destinations, ctx) {
     if (text != null) el.textContent = text;
     return el;
   };
+  // El lugar que se acaba de promover con el dedo es el mismo que sale del render, así
+  // que tiene que llegar con lo mismo: sus links. La actividad se busca por la clave en
+  // el recorrido de ese día —el único lugar donde clave y `act` ya están juntos—.
+  const actOfPlanKey = (date, key) => {
+    const day = dayByDate[date];
+    if (!day) return null;
+    const spec = routeOf(day, ctx);
+    const p = spec.route.concat(spec.loose).find(x => x.key === key);
+    return p && p.act;
+  };
   function asPromoted(row) {
     if (row.classList.contains('pl-promoted')) return;
     row.className = 'pl-it pl-promoted plan-move';
     const number = row.dataset.planNumber;
     const time = make('span', 'pl-t', number ? number + '.' : '•');
     const body = make('div', 'pl-b');
-    const top = make('div', 'pl-top');
     const grip = make('span', 'pl-grip', '⠿'); grip.setAttribute('aria-hidden', 'true');
-    const kind = make('span', 'pl-k', (row.dataset.planIcon ? row.dataset.planIcon + ' ' : '') + (row.dataset.planCat || 'actividad'));
-    top.append(grip, kind);
     const main = make('div', 'pl-mainrow');
     // Promover es lo que le da sentido al check: la actividad pasa a ser plan del día.
     // `wireChecks` le cuelga el círculo con el estado que ya tenga esa clave.
@@ -1480,8 +1517,33 @@ export function mountViews(destinations, ctx) {
     const remove = make('button', 'pl-toggle remove', '−');
     remove.type = 'button'; remove.dataset.planRemove = row.dataset.planKey;
     remove.dataset.planDate = row.dataset.planDate; remove.setAttribute('aria-label', 'Quitar del itinerario');
-    main.append(name, remove); body.append(top, main); row.replaceChildren(time, body);
+    main.append(name);
+    const links = actLinksHtml(actOfPlanKey(row.dataset.planDate, row.dataset.planKey), ctx);
+    if (links) main.insertAdjacentHTML('beforeend', links);
+    main.append(grip, remove);
+    // El rótulo no se decide acá: lo pone `relabelPlan()` mirando al vecino de arriba,
+    // que es lo único que puede saber si esta categoría ya se dijo.
+    body.append(main); row.replaceChildren(time, body);
     if (ctx.wireChecks) ctx.wireChecks(row);
+  }
+  // La otra mitad de la regla del rótulo (task 686). El orden lo cambia el drag, así que
+  // "ya se dijo" es una propiedad del DOM, no del render: se recalcula igual que los
+  // números. Un renglón fijo en el medio corta la serie — ahí la categoría vuelve a ser
+  // noticia.
+  function relabelPlan(list) {
+    let previous = null;
+    [...list.children].forEach(row => {
+      if (!row.classList.contains('pl-promoted')) { previous = null; return; }
+      const cat = row.dataset.planCat || 'actividad';
+      const opens = cat !== previous;
+      previous = cat;
+      const head = row.querySelector(':scope > .pl-cat');
+      if (!opens) { if (head) head.remove(); return; }
+      if (head) return;
+      const made = make('div', 'pl-cat');
+      made.append(make('span', 'pl-k', (row.dataset.planIcon ? row.dataset.planIcon + ' ' : '') + cat));
+      row.prepend(made);
+    });
   }
   function renumberPlan(list) {
     let number = 0;
@@ -1533,7 +1595,7 @@ export function mountViews(destinations, ctx) {
         if (wanted.includes(row.dataset.planKey)) return;
         asSuggestion(row); const target = suggestionList(scope); if (target) target.appendChild(row);
       });
-      renumberPlan(list);
+      renumberPlan(list); relabelPlan(list);
       if (!list.children.length) {
         const section = drop.parentElement;
         drop.remove();
@@ -1632,7 +1694,7 @@ export function mountViews(destinations, ctx) {
     if (zone && d.drop === zone) {
       const list = promotedList(zone), rows = [...list.children].filter(el => el !== d.row);
       list.insertBefore(d.row, rows[d.index] || null); asPromoted(d.row);
-      renumberPlan(list);
+      renumberPlan(list); relabelPlan(list);
       changePlan(d.date, a => { a.splice(0, a.length, ...[...list.children].filter(row => row.dataset.planKey).map(row => row.dataset.planKey)); });
     } else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
     else syncPlanDom(d.date);
