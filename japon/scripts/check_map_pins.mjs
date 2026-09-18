@@ -267,14 +267,18 @@ const DIA = '2026-10-22';
 await page.goto(BASE + '?tab=dias&jornada=' + DIA, { waitUntil: 'networkidle', timeout: 60000 });
 await page.waitForTimeout(2600);
 const diaReal = await page.evaluate(() => ({
-  ord: [...document.querySelectorAll('#day-view .rt-ord')].map(e => e.textContent.trim()).join(' '),
+  ord: [...document.querySelectorAll('#day-view .rt-ord')].map(e =>
+    [...e.childNodes].find(n => n.nodeType === Node.TEXT_NODE)?.textContent.trim() || ''
+  ).join(' '),
+  ordCats: document.querySelectorAll('#day-view .rt-ord .rt-ord-cat').length,
   camas: document.querySelectorAll('#day-view .lodging-marker').length,
   pp: document.querySelectorAll('#day-view .pp').length,
   emojiOn: document.querySelector('#day-view .leaflet-container').classList.contains('pins-emoji'),
 }));
-check('la jornada real mantiene sus paradas numeradas y su cama',
-  diaReal.ord === '1 2 3' && diaReal.camas === 1 && diaReal.pp === 0 && diaReal.emojiOn,
-  'paradas ' + diaReal.ord + ' · ' + diaReal.camas + ' cama · contenedor en modo emoji: ' + diaReal.emojiOn);
+check('la jornada real mantiene sus paradas numeradas, suma sugerencias y conserva su cama',
+  diaReal.ord === '1 2 3' && diaReal.ordCats === 3 && diaReal.camas === 1 && diaReal.pp > 0 && diaReal.emojiOn,
+  'paradas ' + diaReal.ord + ' con ' + diaReal.ordCats + ' categorías · ' + diaReal.camas +
+    ' cama · ' + diaReal.pp + ' sugerencias · contenedor en modo emoji: ' + diaReal.emojiOn);
 await page.screenshot({ path: `${OUT}/ac5-jornada-real.png` });
 
 const viewsSrc = readFileSync(join(DIR, 'views.js'), 'utf8');
