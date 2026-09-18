@@ -2937,7 +2937,7 @@ function enterDayFocus(spec) {
     if (p.bed) { step(lodgingMarkers[p.bed]); return; }
     if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
     const ll = step(actMarkers[p.key]);
-    if (ll) ord.push({ ll, color: catColor(p.cat) });
+    if (ll) ord.push({ ll, color: catColor(p.cat), number: p.planNumber });
   });
   // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
@@ -2958,7 +2958,7 @@ function enterDayFocus(spec) {
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
-  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
   focusLayer.addTo(map);
 
   dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
@@ -3478,7 +3478,8 @@ function renderDayMap(container, spec) {
   // puntas reales del recorrido; entre las actividades entran sólo las anclas con hora.
   const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
   const pts = line.map(coordsOf).filter(Boolean);
-  const stopPts = (spec.stops || []).map(id => {
+  const hasActivityStops = line.some(p => !p.bed && !p.terminal);
+  const stopPts = (hasActivityStops ? [] : (spec.stops || [])).map(id => {
     const n = destinations.find(d => d.id === id);
     return n && n.coords;
   }).filter(Boolean);
@@ -3523,14 +3524,15 @@ function renderDayMap(container, spec) {
     const name = p.act && p.act.text ? p.act.text : 'Parada';
     const cat = CAT_META[p.cat] || CAT_META.otro;
     const sub = p.time || (cat.icon + ' ' + cat.label);
-    const marker = named(L.marker(ll, { icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000 }).addTo(_dayViewMap), name,
+    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color) : placeIcon(p.cat, 'save', p.key);
+    const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
       miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)));
     _dayViewMarkers[p.key] = marker;
   });
   // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
   // como marcadores con el mismo popup de la portada, pero no alteran la polilínea:
   // esa sigue uniendo únicamente sus puntas físicas y sus eventos anclados.
-  (spec.stops || []).forEach(id => {
+  (hasActivityStops ? [] : (spec.stops || [])).forEach(id => {
     const n = destinations.find(d => d.id === id);
     if (!n || !n.coords || seen.has('stop:' + id)) return;
     seen.add('stop:' + id);

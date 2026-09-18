@@ -207,6 +207,55 @@ for (const [label, url, scope] of [
   await cold.close();
 }
 
+// Task 685: la numeración nace de la lista unificada, no de la posición que cada
+// actividad ocupaba en el recorrido de sugerencias. El mapa consume ese mismo número.
+const numberedState = { days: { '2026-10-11': { promoted: [...coldKeys] } } };
+const numberedWrites = [];
+const numbered = await browser.newPage({ viewport: { width: 900, height: 1200 } });
+await numbered.route('https://votos.mewis.online/**', async route => {
+  if (route.request().method() === 'PUT') {
+    const body = route.request().postDataJSON();
+    numberedState.days[body.date] = { promoted: body.promoted };
+    numberedWrites.push(body);
+    return route.fulfill({ json: { ok: true } });
+  }
+  return route.fulfill({ json: numberedState });
+});
+await numbered.goto(base + '?tab=dias&jornada=2026-10-11&plan=numeros', { waitUntil: 'domcontentloaded' });
+await numbered.locator('.day-view .pl-promoted').first().waitFor();
+const visibleNumbers = () => numbered.locator('.day-view .pl-promoted > .pl-t').allTextContents();
+const pinNumbers = () => numbered.locator('.day-view [data-day-map] .rt-ord').allTextContents();
+check('tres promovidos se numeran 1, 2, 3 sin huecos',
+  JSON.stringify(await visibleNumbers()) === JSON.stringify(['1.', '2.', '3.']), JSON.stringify(await visibleNumbers()));
+check('los pines promovidos usan los mismos números que las filas',
+  JSON.stringify(await pinNumbers()) === JSON.stringify(['1', '2', '3']), JSON.stringify(await pinNumbers()));
+await numbered.locator('.day-view [data-day-map]').screenshot({ path: path.join(shots, 'promovidos-mapa-numerado.png') });
+
+// Reordenar el tercero al principio con input real renumera las tres filas y persiste
+// el nuevo orden, sin heredar ningún ordinal del catálogo de sugerencias.
+const lastRow = numbered.locator('.day-view .pl-promoted').last();
+const firstRow = numbered.locator('.day-view .pl-promoted').first();
+const lastBox = await lastRow.boundingBox(), firstBox = await firstRow.boundingBox();
+const movedKey = await lastRow.getAttribute('data-plan-key');
+await numbered.mouse.move(lastBox.x + lastBox.width / 2, lastBox.y + lastBox.height / 2);
+await numbered.mouse.down();
+await numbered.mouse.move(lastBox.x + lastBox.width / 2 + 12, lastBox.y + lastBox.height / 2, { steps: 2 });
+await numbered.mouse.move(firstBox.x + firstBox.width / 2, firstBox.y + 2, { steps: 10 });
+await numbered.mouse.up();
+await numbered.waitForTimeout(150);
+check('reordenar renumera 1, 2, 3 y guarda el orden nuevo',
+  JSON.stringify(await visibleNumbers()) === JSON.stringify(['1.', '2.', '3.']) &&
+    numberedWrites.at(-1)?.promoted[0] === movedKey,
+  JSON.stringify(numberedWrites.at(-1)));
+
+await numbered.locator('.day-view .pl-promoted').nth(1).locator('[data-plan-remove]').click();
+await numbered.waitForTimeout(150);
+check('quitar el del medio renumera filas y pines',
+  JSON.stringify(await visibleNumbers()) === JSON.stringify(['1.', '2.']) &&
+    JSON.stringify(await pinNumbers()) === JSON.stringify(['1', '2']),
+  `filas=${JSON.stringify(await visibleNumbers())} pines=${JSON.stringify(await pinNumbers())}`);
+await numbered.close();
+
 // Arrastrar y refrescar contra un server con estado, en un día sin itinerario fijo: es
 // el gesto de Martín, con F5 en el medio.
 const f5 = await browser.newPage({ viewport: { width: 900, height: 1400 } });
@@ -253,6 +302,9 @@ const COLORS = ['rgb(26, 26, 26)', 'rgb(141, 136, 120)', 'rgb(15, 110, 86)'];
 const typeInventory = root => Array.from(document.querySelectorAll(root)).flatMap(el => {
   const out = [];
   const walk = node => {
+    // La escala tipográfica mide la card; los glifos de Leaflet (incluidos los
+    // ordinales del mapa) son iconografía superpuesta, no texto de la ficha.
+    if (node.nodeType === 1 && node.closest('.leaflet-container')) return;
     const cs = getComputedStyle(node);
     if (cs.display === 'none' || cs.visibility === 'hidden') return;
     for (const child of node.childNodes) {

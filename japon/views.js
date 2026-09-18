@@ -422,6 +422,15 @@ function orderBlocks(blocks, startLL, endLL) {
 // terminales, sólo cambia el orden de adentro—. La app nunca lo pasa.
 export function dayRoute(day, ctx, keepOrder) {
   const wake = bedOf(day.wake), bed = bedOf(day.sleep);
+  // La numeración pertenece al itinerario, no al catálogo geográfico. Primero
+  // numeramos las actividades fijas en el orden de lectura; las promociones continúan
+  // esa secuencia en el orden guardado por el plan.
+  const fixedNumbers = new Map();
+  let fixedCount = 0;
+  readOrder(day).forEach(e => {
+    if (e.kind !== 'reserva' || !e.act || !e.node) return;
+    fixedNumbers.set(ctx.activityId ? ctx.activityId(e.act, e.node) : e.node.id + ':' + e.node.activities.indexOf(e.act), ++fixedCount);
+  });
   const byNode = new Map();
   const bucket = node => {
     if (!byNode.has(node.id)) byNode.set(node.id, []);
@@ -439,6 +448,7 @@ export function dayRoute(day, ctx, keepOrder) {
     const i = (e.node.activities || []).indexOf(e.act);
     if (i >= 0) bucket(e.node).push(entry(e.node, i, e.act, {
       anchor: true, time: e.time || null, cap: capBefore(e.act.at),
+      planNumber: fixedNumbers.get(ctx.activityId ? ctx.activityId(e.act, e.node) : e.node.id + ':' + i) || null,
     }));
   }
   // Y las sugerencias del día, que son las que se pueden mover.
@@ -451,8 +461,14 @@ export function dayRoute(day, ctx, keepOrder) {
   // eliminada/renombrada en itinerary.js, queda ignorada sin ensuciar el render.
   const wanted = ctx.plan ? ctx.plan.promoted(day.date) : [];
   const promoted = new Set(wanted);
-  byNode.forEach(pts => pts.forEach(p => { if (!p.anchor && promoted.has(p.key)) p.promoted = true; }));
-  loose.forEach(p => { if (promoted.has(p.key)) p.promoted = true; });
+  const markPromoted = p => {
+    if (!p.anchor && promoted.has(p.key)) {
+      p.promoted = true;
+      p.planNumber = fixedCount + wanted.indexOf(p.key) + 1;
+    }
+  };
+  byNode.forEach(pts => pts.forEach(markPromoted));
+  loose.forEach(markPromoted);
 
   // Los tramos que se toman ESE día, por id: un vuelo con escalas emite un evento por
   // segmento, pero el salto —y sus terminales— es uno.
@@ -629,7 +645,7 @@ const modeOf = (ctx, leg) => ctx.MODE_STYLE[ctx.legType(leg)] || {};
 const extLink = (href, label, ctx) =>
   '<a class="pl-a" href="' + ctx.escHtml(href) + '" target="_blank" rel="noopener">' + ctx.escHtml(label) + ' ↗</a>';
 
-function planItemHtml(e, ctx) {
+function planItemHtml(e, ctx, planNumber) {
   const esc = ctx.escHtml;
   const meta = [], body = [], links = [];
   let check = null;                   // clave de checklist, sólo para lo que es actividad
@@ -691,6 +707,7 @@ function planItemHtml(e, ctx) {
     ctx.lodgingLinks(L, 'pl-a').forEach(a => links.push('<span class="dx">' + a + '</span>'));
   } else if (e.kind === 'reserva') {
     const a = e.act || {};
+    if (planNumber && e.time) meta.unshift('<span class="pl-dur">' + esc(e.time) + '</span>');
     // Una reserva ES una actividad del día (Geibikei, teamLab): lleva el mismo círculo
     // de checklist que una actividad promovida, con la misma clave.
     if (ctx.activityId && e.node) check = ctx.activityId(a, e.node);
@@ -702,7 +719,7 @@ function planItemHtml(e, ctx) {
 
   const anchored = !!e.time && (e.kind === 'reserva' || e.kind === 'check-in');
   return '<li class="pl-it pl-' + e.kind + (anchored ? ' pl-anchor' : '') + '"' + (anchored ? ' data-plan-anchor="true"' : '') + '>' +
-    '<span class="pl-t' + (e.time ? '' : ' tbd') + '">' + (e.time || 'a definir') + '</span>' +
+    '<span class="pl-t' + (planNumber || e.time ? '' : ' tbd') + '">' + (planNumber ? planNumber + '.' : (e.time || 'a definir')) + '</span>' +
     '<div class="pl-b">' +
       '<div class="pl-top"><span class="pl-k">' + EV_LABEL[e.kind] + '</span>' + meta.join('') + '</div>' +
       '<div class="pl-mainrow"' + (check ? ' data-check="' + esc(check) + '"' : '') + '><div class="pl-w">' + title + '</div></div>' +
@@ -738,16 +755,20 @@ function readOrder(day) {
     .map(r => r.e);
 }
 
-const fixedPlanHtml = (day, ctx) => readOrder(day).map(e => planItemHtml(e, ctx)).join('');
+const fixedPlanHtml = (day, ctx) => {
+  let number = 0;
+  return readOrder(day).map(e => planItemHtml(e, ctx, e.kind === 'reserva' ? ++number : null)).join('');
+};
 
 function promotedRowsHtml(day, ctx, spec) {
   const esc = ctx.escHtml;
   const rank = new Map(ctx.plan.promoted(day.date).map((key, i) => [key, i]));
   const all = spec.route.concat(spec.loose).filter(p => p.promoted)
     .sort((a, b) => rank.get(a.key) - rank.get(b.key));
-  return all.map(p => {
+  const fixedCount = readOrder(day).filter(e => e.kind === 'reserva').length;
+  return all.map((p, i) => {
     const meta = ctx.CAT_META[p.cat] || ctx.CAT_META.otro;
-    const number = spec.route.indexOf(p) + 1;
+    const number = fixedCount + i + 1;
     return '<li class="pl-it pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(meta.label) + '" data-plan-icon="' + esc(meta.icon) + '" data-plan-number="' + (number > 0 ? number : '') + '">' +
       '<span class="pl-t">' + (number > 0 ? number + '.' : '•') + '</span><div class="pl-b"><div class="pl-top"><span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-k">' + meta.icon + ' ' + esc(meta.label) + '</span></div>' +
       '<div class="pl-mainrow" data-check="' + esc(p.key) + '"><span class="pl-w">' + esc(p.act.text) + '</span><button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></div></div></li>';
@@ -1462,6 +1483,16 @@ export function mountViews(destinations, ctx) {
     main.append(name, remove); body.append(top, main); row.replaceChildren(time, body);
     if (ctx.wireChecks) ctx.wireChecks(row);
   }
+  function renumberPlan(list) {
+    let number = 0;
+    [...list.children].forEach(row => {
+      if (!row.classList.contains('pl-reserva') && !row.classList.contains('pl-promoted')) return;
+      number++;
+      row.dataset.planNumber = String(number);
+      const badge = row.querySelector(':scope > .pl-t');
+      if (badge) { badge.textContent = number + '.'; badge.classList.remove('tbd'); }
+    });
+  }
   function asSuggestion(row) {
     if (row.classList.contains('rt-item')) return;
     row.className = 'rt-item plan-move';
@@ -1502,6 +1533,7 @@ export function mountViews(destinations, ctx) {
         if (wanted.includes(row.dataset.planKey)) return;
         asSuggestion(row); const target = suggestionList(scope); if (target) target.appendChild(row);
       });
+      renumberPlan(list);
       if (!list.children.length) {
         const section = drop.parentElement;
         drop.remove();
@@ -1600,6 +1632,7 @@ export function mountViews(destinations, ctx) {
     if (zone && d.drop === zone) {
       const list = promotedList(zone), rows = [...list.children].filter(el => el !== d.row);
       list.insertBefore(d.row, rows[d.index] || null); asPromoted(d.row);
+      renumberPlan(list);
       changePlan(d.date, a => { a.splice(0, a.length, ...[...list.children].filter(row => row.dataset.planKey).map(row => row.dataset.planKey)); });
     } else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
     else syncPlanDom(d.date);
