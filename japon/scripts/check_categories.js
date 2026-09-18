@@ -128,10 +128,23 @@ badTips.forEach(t => console.error('  TIP INVÁLIDO: ' + t.name +
 const stale = Object.keys(PLACE_CAT_OVERRIDES).filter(n => !usedOverride.has(catKey(n)));
 if (stale.length) console.log('\nOverrides que no matchean ningún lugar (¿nombre cambiado?):\n  ' + stale.join('\n  '));
 
-if (bad || activityUncovered.length || badTips.length) {
+// El pin del mapa dibuja `icon` y `color` de cada categoría (task 688: el emoji dentro
+// del disco, el color en el aro). Una categoría nueva sin emoji no rompe nada visible
+// —el pin sale mudo— así que el que avisa es este check, no el navegador.
+const meta = PLACE_TAXONOMY.meta;
+const noIcon = Object.keys(meta).filter(c => !meta[c].icon || !String(meta[c].icon).trim());
+const noColor = Object.keys(meta).filter(c => !/^#[0-9a-f]{6}$/i.test(String(meta[c].color || '')));
+console.log('\nPines del mapa: ' + PLACE_TAXONOMY.order.length + ' categorías con emoji y color · ' +
+  PLACE_TAXONOMY.order.map(c => meta[c].icon).join(' '));
+noIcon.forEach(c => console.error('  SIN EMOJI: ' + c + ' (el pin del mapa queda vacío)'));
+noColor.forEach(c => console.error('  SIN COLOR VÁLIDO: ' + c + ' (color=' + meta[c].color + ')'));
+
+if (bad || activityUncovered.length || badTips.length || noIcon.length || noColor.length) {
   if (bad) console.error('\n✗ ' + bad + ' lugar(es) sin categoría válida');
   if (activityUncovered.length) console.error('\n✗ ' + activityUncovered.length + ' actividad(es) sin coord+categoría');
   if (badTips.length) console.error('\n✗ ' + badTips.length + ' tip(s) mal formado(s)');
+  if (noIcon.length || noColor.length) console.error('\n✗ ' + (noIcon.length + noColor.length) +
+    ' categoría(s) sin emoji o sin color para el pin del mapa');
   process.exit(1);
 }
 console.log('\n✓ todos los lugares tienen exactamente una categoría de la taxonomía');

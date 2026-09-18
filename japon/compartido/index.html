@@ -437,9 +437,22 @@
   /* Nodo del viaje juntos: halo violeta alrededor del pin de la cadena. */
   .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
-  /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual. */
-  .pp { width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); transition: transform 0.15s; margin: 1px; }
-  .pp:hover, .pp.active { transform: scale(1.45); }
+  /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual.
+     De cerca el pin muestra el emoji de su categoría (el mismo que la lista) sobre
+     un disco blanco con el aro del color: el color sigue siendo lo que agrupa de un
+     vistazo y lo que prenden los filtros, el emoji dice de qué se trata sin abrir el
+     popup. Lejos vuelve al punto de 12px — el mapa llega a ~300 lugares y a zoom de
+     ciudad entera 22px por pin taparían las calles. El cambio es CSS sobre el
+     contenedor del mapa (`.pins-emoji`), así que no hay que rehacer 300 íconos en
+     cada zoom.
+     La caja del divIcon es transparente al mouse y sólo el pin recibe el click: si no,
+     el cuadrado de 24px se comería los clicks de sus vecinos en las zonas densas. */
+  .leaflet-marker-icon.pp-icon { pointer-events: none; }
+  .pp { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; transform: translate(-50%, -50%); transition: transform 0.15s; }
+  .pp-emoji { display: none; font-size: 12.5px; line-height: 1; }
+  .pp:hover, .pp.active { transform: translate(-50%, -50%) scale(1.45); }
+  .pins-emoji .pp { width: 22px; height: 22px; background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
+  .pins-emoji .pp-emoji { display: block; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -646,7 +659,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-17",
+    "weatherUpdated": "2026-09-18",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -1010,7 +1023,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-17",
+    "weatherUpdated": "2026-09-18",
     "weatherMode": "climatología",
     "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1274,7 +1287,7 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-17",
+    "weatherUpdated": "2026-09-18",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [
@@ -2035,8 +2048,8 @@ document.addEventListener('click', (e) => {
   queueChecklistChange(key, checkedActivities.has(key));
 });
 
-// Pins de lugares: el color dice la categoría y todos comparten la misma forma.
-// La fuente sólo vive en el popup. Cada pin queda
+// Pins de lugares: el color y el emoji dicen la categoría y todos comparten la misma
+// forma. La fuente sólo vive en el popup. Cada pin queda
 // registrado en `placePins` para poder filtrarlo por categoría sin romper los
 // toggles de capa (se agrega/quita del layerGroup en el que ya estaba).
 const placePins = [];
@@ -2070,11 +2083,17 @@ function focusMarker(m) {
   map.flyTo(m.getLatLng(), 14, { duration: 0.8 });
   m.openPopup();
 }
+// El pin de un lugar lleva el emoji de su categoría —el mismo de `data/categories.js`
+// que muestra la lista— adentro del disco con el aro del color. Siempre va en el HTML:
+// quién lo muestra y quién se queda en el punto lo decide el CSS del contenedor
+// (`.pins-emoji`), abajo.
 function placeIcon(cat, kind, id) {
-  const size = 14;
+  const size = 24;
+  const meta = CAT_META[cat] || CAT_META.otro;
   return L.divIcon({
-    html: '<div class="pp" style="--c:' + catColor(cat) + '"' + (id ? ' data-id="' + id + '"' : '') + '></div>',
-    className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
+    html: '<div class="pp" style="--c:' + meta.color + '"' + (id ? ' data-id="' + id + '"' : '') + '>' +
+      '<span class="pp-emoji">' + meta.icon + '</span></div>',
+    className: 'pp-icon', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
   });
 }
 function placePin(coords, cat, kind, layer, id) {
@@ -2084,6 +2103,16 @@ function placePin(coords, cat, kind, layer, id) {
   placePins.push({ m: m, layer: layer, cat: cat });
   return m;
 }
+// A partir de acá el pin se abre en emoji. Por debajo —Japón entero, una región, una
+// ciudad completa— se queda en el punto de color: con ~300 lugares prendidos, los
+// emojis a esa escala se pisan entre ellos y tapan el mapa. 13 es el primer nivel en
+// el que un barrio ocupa la pantalla, que es cuando el emoji sirve para algo.
+const PIN_EMOJI_ZOOM = 13;
+function syncPinZoom() {
+  map.getContainer().classList.toggle('pins-emoji', map.getZoom() >= PIN_EMOJI_ZOOM);
+}
+map.on('zoomend', syncPinZoom);
+syncPinZoom();
 
 const markers = {};
 const destLayer = L.layerGroup().addTo(map);
@@ -3489,6 +3518,10 @@ function renderDayMap(container, spec) {
   _dayViewMap = L.map(container, {
     zoomControl: true, attributionControl: false, scrollWheelZoom: false,
   });
+  // Acá el emoji va siempre, sin corte de zoom: el mapa de la jornada dibuja el
+  // recorrido de UN día (un puñado de puntos), así que no hay densidad que cuidar
+  // ni aunque el día se abra a dos ciudades.
+  container.classList.add('pins-emoji');
   L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_dayViewMap);
   if (pts.length > 1) L.polyline(pts, {
     color: '#0F6E56', weight: 3, opacity: 0.78, dashArray: '7, 6',
