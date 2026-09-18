@@ -228,22 +228,26 @@ button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; 
 .pl-toggle { flex: none; width: 28px; height: 28px; border: 1px solid rgba(15,110,86,.28); border-radius: 50%; background: rgba(15,110,86,.06); color: #0F6E56; font-family: inherit; font-size: 17px; font-weight: 700; line-height: 1; cursor: pointer; }
 .pl-toggle:hover, .pl-toggle:focus-visible { background: rgba(15,110,86,.15); outline: 2px solid #0F6E56; outline-offset: 1px; }
 .pl-drop { min-height: 48px; margin-top: 10px; padding: 7px; border: 1.5px dashed rgba(15,110,86,.28); border-radius: 9px; background: rgba(15,110,86,.025); }
+.pl-drop.is-drag-reveal { opacity: 0; transform: scaleY(.92); transform-origin: top; transition: opacity 120ms ease, transform 120ms ease; }
+.pl-drop.is-drag-reveal.is-visible { opacity: 1; transform: none; }
 .pl-drop:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
 .pl-empty { padding: 8px; text-align: center; color: #a19b8d; font-size: 11px; }
 .pl-promoted-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
 .pl-promoted { display: flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 5px; border-radius: 7px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); touch-action: pan-y; }
-.pl-grip { color: #aaa395; font-size: 17px; cursor: grab; }
+.pl-grip { flex: none; color: #aaa395; font-size: 17px; line-height: 1; cursor: grab; }
+.rt-item.plan-move { cursor: grab; }
+.rt-item.plan-move:active, .plan-move.is-dragging, .plan-move.is-dragging .pl-grip { cursor: grabbing; }
 .pl-name { flex: 1; min-width: 0; font-size: 12px; line-height: 1.3; }
 .pl-order { display: flex; gap: 2px; }
 .pl-order button { width: 28px; height: 28px; border: 0; border-radius: 5px; background: #f4f2ed; color: #5f5a50; cursor: pointer; }
 .pl-order button:disabled { opacity: .3; cursor: default; }
 .pl-toggle.remove { color: #9b3d3d; border-color: rgba(155,61,61,.24); background: rgba(155,61,61,.05); }
-.plan-move { touch-action: pan-y; }
-.plan-move.is-dragging { position: relative; z-index: 20; cursor: grabbing; box-shadow: 0 7px 20px rgba(0,0,0,.18); }
-.plan-move.is-flipping { transition: transform 180ms ease; }
+.plan-move { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.plan-move { transition: transform 160ms ease; }
+.plan-move.is-dragging { position: relative; z-index: 20; cursor: grabbing; box-shadow: 0 7px 20px rgba(0,0,0,.18); transition: none; }
 body.plan-dragging .pl-drop { border-color: #0F6E56; background: rgba(15,110,86,.1); }
 @media (prefers-reduced-motion: reduce) {
-  .plan-move, .plan-move.is-flipping { transition: none !important; }
+  .plan-move, .pl-drop.is-drag-reveal { transition: none !important; }
 }
 
 /* El tope de la tarjeta: lo que pasa se esconde, pero el botón lo abre ACÁ MISMO

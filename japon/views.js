@@ -584,14 +584,14 @@ function routeListHtml(spec, ctx, day, cap) {
   const available = spec.route.filter(p => !p.anchor && !p.promoted);
   const items = available.map(p => {
     const row = '<li class="rt-item plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" style="--c:' + color(p) + '">' +
-      '<span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
+      '<span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
   const rest = spec.loose.filter(p => !p.promoted).map(p => {
-    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" style="--c:' + color(p) + '"><span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
+    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" style="--c:' + color(p) + '"><span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item"><span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
@@ -728,8 +728,8 @@ function promotedPlanHtml(day, ctx, spec) {
   const rows = all.map(p => '<li class="pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).label) + '">' +
     '<span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-name">' + esc(p.act.text) + '</span>' +
     '<button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></li>').join('');
-  return '<div class="pl-drop" data-plan-drop="' + day.date + '" tabindex="0" aria-label="Itinerario editable. Arrastrá sugerencias acá.">' +
-    (rows ? '<ol class="pl-promoted-list">' + rows + '</ol>' : '<div class="pl-empty">Arrastrá sugerencias acá</div>') + '</div>';
+  return rows ? '<div class="pl-drop" data-plan-drop="' + day.date + '" tabindex="0" aria-label="Itinerario editable">' +
+    '<ol class="pl-promoted-list">' + rows + '</ol></div>' : '';
 }
 
 // Dónde estás ese día y dónde dormís: las dos líneas de cabecera, compartidas por
@@ -1402,6 +1402,7 @@ export function mountViews(destinations, ctx) {
     return el;
   };
   function asPromoted(row) {
+    if (row.classList.contains('pl-promoted')) return;
     row.className = 'pl-promoted plan-move';
     const grip = make('span', 'pl-grip', '⠿'); grip.setAttribute('aria-hidden', 'true');
     const name = make('span', 'pl-name', row.dataset.planName || '');
@@ -1411,10 +1412,12 @@ export function mountViews(destinations, ctx) {
     row.replaceChildren(grip, name, remove);
   }
   function asSuggestion(row) {
+    if (row.classList.contains('rt-item')) return;
     row.className = 'rt-item plan-move';
+    const grip = make('span', 'pl-grip', '⠿'); grip.setAttribute('aria-hidden', 'true');
     const item = make('span', 'sg-item');
     item.append(make('span', 'sg-name', row.dataset.planName || ''), make('span', 'sg-kind', row.dataset.planCat || ''));
-    row.replaceChildren(item);
+    row.replaceChildren(grip, item);
   }
   function suggestionList(scope) {
     let list = scope.querySelector('.sg-wrap .rt-list');
@@ -1426,7 +1429,6 @@ export function mountViews(destinations, ctx) {
   function promotedList(drop) {
     let list = drop.querySelector('.pl-promoted-list');
     if (!list) {
-      const empty = drop.querySelector('.pl-empty'); if (empty) empty.remove();
       list = make('ol', 'pl-promoted-list'); drop.appendChild(list);
     }
     return list;
@@ -1450,56 +1452,82 @@ export function mountViews(destinations, ctx) {
         asSuggestion(row); const target = suggestionList(scope); if (target) target.appendChild(row);
       });
       if (!list.children.length) {
-        list.remove(); drop.appendChild(make('div', 'pl-empty', 'Arrastrá sugerencias acá'));
+        const section = drop.parentElement;
+        drop.remove();
+        if (section && section.dataset.dragPlanShell === 'true') section.remove();
       }
     });
   }
 
-  const flip = (list, move) => {
-    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const before = new Map([...list.children].map(el => [el, el.getBoundingClientRect()]));
-    move();
-    if (reduce) return;
-    [...list.children].forEach(el => {
-      const a = before.get(el); if (!a) return;
-      const b = el.getBoundingClientRect(), dy = a.top - b.top;
-      if (!dy) return;
-      el.style.transform = 'translateY(' + dy + 'px)';
-      el.classList.add('is-flipping');
-      requestAnimationFrame(() => { el.style.transform = ''; });
-      el.addEventListener('transitionend', () => el.classList.remove('is-flipping'), { once: true });
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function dragScope(row) { return row.closest('[data-jornada-card], .dv-inner') || row.parentElement; }
+  function ensureDrop(row) {
+    const scope = dragScope(row), date = row.dataset.planDate;
+    let drop = scope.querySelector('[data-plan-drop="' + CSS.escape(date) + '"]');
+    if (drop) return drop;
+    drop = make('div', 'pl-drop is-drag-reveal');
+    drop.dataset.planDrop = date; drop.tabIndex = 0; drop.setAttribute('aria-label', 'Itinerario editable');
+    drop.appendChild(make('ol', 'pl-promoted-list'));
+    const fixed = scope.querySelector('.dv-fijo, .dy-ev');
+    if (fixed) fixed.appendChild(drop);
+    else {
+      const sug = scope.querySelector('.dv-sug, .dy-sug');
+      const section = make(scope.classList.contains('dv-inner') ? 'section' : 'div', scope.classList.contains('dv-inner') ? 'dv-sec dv-fijo' : 'dy-ev');
+      section.dataset.dragPlanShell = 'true';
+      section.innerHTML = '<div class="sg-title">Itinerario</div>';
+      section.appendChild(drop); (sug || scope.lastElementChild).before(section);
+    }
+    requestAnimationFrame(() => drop.classList.add('is-visible'));
+    return drop;
+  }
+  function clearPreview(d) {
+    d.row.classList.remove('is-dragging'); d.row.style.transform = ''; d.row.style.width = '';
+    (d.list ? [...d.list.children] : []).forEach(el => { if (el !== d.row) el.style.transform = ''; });
+    document.body.classList.remove('plan-dragging');
+  }
+  function previewGap(d, target, y) {
+    const drop = target && target.closest('[data-plan-drop="' + CSS.escape(d.date) + '"]');
+    if (!drop) { d.drop = null; d.index = null; return; }
+    const list = promotedList(drop), rows = [...list.children].filter(el => el !== d.row);
+    let index = rows.findIndex(el => y < el.getBoundingClientRect().top + el.offsetHeight / 2);
+    if (index < 0) index = rows.length;
+    d.drop = drop; d.list = list; d.index = index;
+    if (reducedMotion()) return;
+    const h = d.rect.height + 5;
+    rows.forEach((el, i) => {
+      let dy = i >= index ? h : 0;
+      if (d.promoted && el.parentNode === d.originList) {
+        const old = d.originRows.indexOf(el), from = d.originIndex;
+        if (old > from) dy -= h;
+      }
+      el.style.transform = dy ? 'translateY(' + dy + 'px)' : '';
     });
-  };
+  }
 
   let drag = null;
   document.addEventListener('pointerdown', e => {
     if (e.button != null && e.button !== 0) return;
     const row = e.target.closest('.plan-move');
     if (!row || e.target.closest('button,a')) return;
+    const rect = row.getBoundingClientRect(), originList = row.closest('.pl-promoted-list');
     drag = { id: e.pointerId, row, key: row.dataset.planKey, date: row.dataset.planDate,
       promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY,
-      top: row.getBoundingClientRect().top, moved: false };
+      rect, originList, originRows: originList ? [...originList.children] : [],
+      originIndex: originList ? [...originList.children].indexOf(row) : -1, moved: false };
   });
   document.addEventListener('pointermove', e => {
     if (!drag || drag.id !== e.pointerId) return;
     if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 9) {
-      drag.moved = true; drag.row.classList.add('is-dragging'); document.body.classList.add('plan-dragging');
+      drag.moved = true; drag.row.classList.add('is-dragging'); drag.row.style.width = drag.rect.width + 'px';
+      document.body.classList.add('plan-dragging'); ensureDrop(drag.row);
     }
     if (drag.moved) {
       e.preventDefault();
       drag.row.style.pointerEvents = 'none';
       const target = document.elementFromPoint(e.clientX, e.clientY);
       drag.row.style.pointerEvents = '';
-      const drop = target && target.closest('[data-plan-drop="' + CSS.escape(drag.date) + '"]');
-      if (drop) {
-        const list = promotedList(drop);
-        if (!drag.row.classList.contains('pl-promoted')) asPromoted(drag.row);
-        const hit = target.closest('.pl-promoted');
-        const before = hit && e.clientY < hit.getBoundingClientRect().top + hit.offsetHeight / 2 ? hit : hit && hit.nextSibling;
-        if (drag.row.parentNode !== list || before !== drag.row.nextSibling) flip(list, () => list.insertBefore(drag.row, before));
-      }
-      const now = drag.row.getBoundingClientRect();
-      drag.row.style.transform = 'translate3d(' + (e.clientX - drag.x) + 'px,' + (e.clientY - drag.y - (now.top - drag.top)) + 'px,0)';
+      previewGap(drag, target, e.clientY);
+      drag.row.style.transform = 'translate3d(' + (e.clientX - drag.x) + 'px,' + (e.clientY - drag.y) + 'px,0)';
       const scroller = drag.row.closest('.day-view') || drag.row.closest('.view-pane');
       if (scroller) {
         if (e.clientY < 90) scroller.scrollBy(0, -22);
@@ -1509,16 +1537,18 @@ export function mountViews(destinations, ctx) {
   }, { passive: false });
   document.addEventListener('pointerup', e => {
     if (!drag || drag.id !== e.pointerId) return;
-    const d = drag; drag = null; d.row.classList.remove('is-dragging'); d.row.style.transform = ''; document.body.classList.remove('plan-dragging');
+    const d = drag; drag = null;
     if (!d.moved) return;
     d.row.style.pointerEvents = 'none';
     const target = document.elementFromPoint(e.clientX, e.clientY);
     d.row.style.pointerEvents = '';
     const zone = target && target.closest('[data-plan-drop="' + d.date + '"]');
-    if (zone) changePlan(d.date, a => {
-      a.splice(0, a.length, ...[...zone.querySelectorAll('.pl-promoted')].map(row => row.dataset.planKey));
-    });
-    else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
+    clearPreview(d);
+    if (zone && d.drop === zone) {
+      const list = promotedList(zone), rows = [...list.children].filter(el => el !== d.row);
+      list.insertBefore(d.row, rows[d.index] || null); asPromoted(d.row);
+      changePlan(d.date, a => { a.splice(0, a.length, ...[...list.children].map(row => row.dataset.planKey)); });
+    } else if (d.promoted) changePlan(d.date, a => { const i = a.indexOf(d.key); if (i >= 0) a.splice(i, 1); });
     else syncPlanDom(d.date);
   });
 
@@ -1604,6 +1634,9 @@ export function mountViews(destinations, ctx) {
     ctx.plan.onChange(date => {
       syncPlanDom(date);
       if (shownDay && (!date || date === shownDay) && ctx.focusDay) ctx.focusDay(plannedSpec(routeOf(dayByDate[shownDay], ctx)));
+      if (shownJornada && (!date || date === shownJornada) && ctx.renderDayMap) {
+        ctx.renderDayMap(dayView.querySelector('[data-day-map]'), routeOf(dayByDate[shownJornada], ctx));
+      }
     });
     ctx.plan.load().catch(err => window.alert(err.message || 'No se pudo cargar el plan.'));
   }
