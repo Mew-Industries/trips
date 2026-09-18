@@ -247,9 +247,12 @@ function catListHtml(items, ctx, nodeId) {
   // Las actividades que nombran el hospedaje pierden ese nombre en discreto,
   // igual que en la tarjeta de la parada.
   const label = act => ctx.DX(esc(act.text), esc(ctx.maskLodging(act.text)));
+  // Sin círculo de checklist: una sugerencia todavía no es un plan, así que no hay nada
+  // que tachar (Martín, 18/9). El check vive en los ítems del itinerario — ver
+  // `promotedRowsHtml` y el `reserva` de `planItemHtml`.
   const itemHtml = ({ key, act }) => act.coords
-    ? '<li data-check="' + key + '"><button type="button" class="sg-item" data-act="' + key + '">' + label(act) + '</button></li>'
-    : '<li class="sg-item plain" data-check="' + key + '">' + label(act) + '</li>';
+    ? '<li><button type="button" class="sg-item" data-act="' + key + '">' + label(act) + '</button></li>'
+    : '<li class="sg-item plain">' + label(act) + '</li>';
 
   return catGroups(items, ctx).map(g => {
     const meta = ctx.CAT_META[g.cat] || ctx.CAT_META.otro;
@@ -584,7 +587,7 @@ function routeListHtml(spec, ctx, day, cap) {
   // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
   const available = spec.route.filter(p => !p.anchor && !p.promoted);
   const items = available.map(p => {
-    const row = '<li class="rt-item plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" data-plan-number="' + routeNumber(p) + '" style="--c:' + color(p) + '">' +
+    const row = '<li class="rt-item plan-move' + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" data-plan-number="' + routeNumber(p) + '" style="--c:' + color(p) + '">' +
       '<span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
@@ -592,7 +595,7 @@ function routeListHtml(spec, ctx, day, cap) {
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
   const rest = spec.loose.filter(p => !p.promoted).map(p => {
-    const row = '<li class="rt-item plain plan-move' + over() + '" data-check="' + p.key + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" style="--c:' + color(p) + '"><span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
+    const row = '<li class="rt-item plain plan-move' + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" style="--c:' + color(p) + '"><span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
@@ -626,6 +629,7 @@ const extLink = (href, label, ctx) =>
 function planItemHtml(e, ctx) {
   const esc = ctx.escHtml;
   const meta = [], body = [], links = [];
+  let check = null;                   // clave de checklist, sólo para lo que es actividad
   // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
   let title = e.lodging
     ? '<button type="button" class="dy-hosp" data-hosp-day="' + e.node.id + '">' +
@@ -635,8 +639,10 @@ function planItemHtml(e, ctx) {
 
   if (e.kind === 'transporte') {
     const leg = e.transfer.leg, m = modeOf(ctx, leg);
-    meta.push('<span class="pl-mode" style="color:' + (m.color || '#8d8878') + '">' +
-      esc(leg.mode || '') + ' ' + esc(m.label || '') + '</span>');
+    // El modo ya se lee en su emoji (🚄 / ✈️ / 🚌): pintarlo además de su color metía
+    // un color de texto por cada medio de transporte en una card que ya tenía diez
+    // (ronda 4). El color del modo sigue donde sirve: la línea del mapa y la ficha.
+    meta.push('<span class="pl-mode">' + esc(leg.mode || '') + ' ' + esc(m.label || '') + '</span>');
     if (leg.time) meta.push('<span class="pl-dur">' + esc(leg.time) + '</span>');
     // Las puntas FÍSICAS del salto: la estación por la que se sale y por la que se
     // entra. Es la logística que se lee parado en el andén, no el nombre de la ciudad.
@@ -676,6 +682,9 @@ function planItemHtml(e, ctx) {
     ctx.lodgingLinks(L, 'pl-a').forEach(a => links.push('<span class="dx">' + a + '</span>'));
   } else if (e.kind === 'reserva') {
     const a = e.act || {};
+    // Una reserva ES una actividad del día (Geibikei, teamLab): lleva el mismo círculo
+    // de checklist que una actividad promovida, con la misma clave.
+    if (ctx.activityId && e.node) check = ctx.activityId(a, e.node);
     if (e.departAt) body.push('<div class="pl-depart">Salir <b>' + esc(e.departAt) + '</b> · ' + esc(a.outboundLabel || 'traslado previo') + '</div>');
     const note = [a.booked, a.bestTime, a.openHours, a.note].filter(Boolean).join(' · ');
     if (note) body.push('<div class="pl-d">' + esc(note) + '</div>');
@@ -687,7 +696,7 @@ function planItemHtml(e, ctx) {
     '<span class="pl-t' + (e.time ? '' : ' tbd') + '">' + (e.time || 'a definir') + '</span>' +
     '<div class="pl-b">' +
       '<div class="pl-top"><span class="pl-k">' + EV_LABEL[e.kind] + '</span>' + meta.join('') + '</div>' +
-      '<div class="pl-w">' + title + '</div>' +
+      '<div class="pl-mainrow"' + (check ? ' data-check="' + esc(check) + '"' : '') + '><div class="pl-w">' + title + '</div></div>' +
       body.join('') +
       (links.length ? '<div class="pl-lk">' + links.join('') + '</div>' : '') +
     '</div>' +
@@ -732,7 +741,7 @@ function promotedRowsHtml(day, ctx, spec) {
     const number = spec.route.indexOf(p) + 1;
     return '<li class="pl-it pl-promoted plan-move" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(meta.label) + '" data-plan-icon="' + esc(meta.icon) + '" data-plan-number="' + (number > 0 ? number : '') + '">' +
       '<span class="pl-t">' + (number > 0 ? number + '.' : '•') + '</span><div class="pl-b"><div class="pl-top"><span class="pl-grip" aria-hidden="true">⠿</span><span class="pl-k">' + meta.icon + ' ' + esc(meta.label) + '</span></div>' +
-      '<div class="pl-promoted-main"><span class="pl-w">' + esc(p.act.text) + '</span><button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></div></div></li>';
+      '<div class="pl-mainrow" data-check="' + esc(p.key) + '"><span class="pl-w">' + esc(p.act.text) + '</span><button type="button" class="pl-toggle remove" data-plan-remove="' + p.key + '" data-plan-date="' + day.date + '" aria-label="Quitar del itinerario">−</button></div></div></li>';
   }).join('');
 }
 
@@ -920,6 +929,7 @@ export function mountViews(destinations, ctx) {
   const panes = { resumen: document.getElementById('view-resumen') };
   const btns = {};
   const done = {};
+  const wired = {};
 
   for (const t of tabs) {
     const b = document.createElement('button');
@@ -998,11 +1008,17 @@ export function mountViews(destinations, ctx) {
     }
     if (id !== 'resumen' && !done[id]) {
       panes[id].innerHTML = '<div class="view-inner">' + RENDER[id](it, ctx) + '</div>';
-      if (ctx.wire) ctx.wire(panes[id]);
-      panes[id].addEventListener('click', (e) => {
-        const s = e.target.closest('.sg-all > summary');
-        if (s) fillCatalog(s.parentNode.querySelector('.sg-all-body'));
-      });
+      // Los listeners van UNA sola vez por pane: el pane sobrevive al re-render (sólo se
+      // reemplaza su contenido), así que volver a colgarlos —cuando el plan llega tarde y
+      // hay que repintar— duplicaría cada click.
+      if (!wired[id]) {
+        if (ctx.wire) ctx.wire(panes[id]);
+        panes[id].addEventListener('click', (e) => {
+          const s = e.target.closest('.sg-all > summary');
+          if (s) fillCatalog(s.parentNode.querySelector('.sg-all-body'));
+        });
+        wired[id] = true;
+      } else if (ctx.wireChecks) ctx.wireChecks(panes[id]);
       done[id] = true;
       // Las fichas recién existen ahora: si ya había un tramo o un hospedaje
       // seleccionado (deep-link que aterrizó en otra tab), hay que volver a marcarlo
@@ -1418,12 +1434,16 @@ export function mountViews(destinations, ctx) {
     const grip = make('span', 'pl-grip', '⠿'); grip.setAttribute('aria-hidden', 'true');
     const kind = make('span', 'pl-k', (row.dataset.planIcon ? row.dataset.planIcon + ' ' : '') + (row.dataset.planCat || 'actividad'));
     top.append(grip, kind);
-    const main = make('div', 'pl-promoted-main');
+    const main = make('div', 'pl-mainrow');
+    // Promover es lo que le da sentido al check: la actividad pasa a ser plan del día.
+    // `wireChecks` le cuelga el círculo con el estado que ya tenga esa clave.
+    main.dataset.check = row.dataset.planKey;
     const name = make('span', 'pl-w', row.dataset.planName || '');
     const remove = make('button', 'pl-toggle remove', '−');
     remove.type = 'button'; remove.dataset.planRemove = row.dataset.planKey;
     remove.dataset.planDate = row.dataset.planDate; remove.setAttribute('aria-label', 'Quitar del itinerario');
     main.append(name, remove); body.append(top, main); row.replaceChildren(time, body);
+    if (ctx.wireChecks) ctx.wireChecks(row);
   }
   function asSuggestion(row) {
     if (row.classList.contains('rt-item')) return;
@@ -1651,14 +1671,39 @@ export function mountViews(destinations, ctx) {
   absorbHash();
   apply();
   if (ctx.plan) {
+    // La carga del plan y un guardado NO son el mismo evento, aunque los dos lleguen por
+    // `onChange` (ronda 4, 18/9 — Martín: «la persistencia está bien entre páginas pero
+    // cuando refresco ya no está»):
+    //
+    // - `save(date, …)` emite con la fecha concreta y ahí manda el camino QUIRÚRGICO
+    //   (`syncPlanDom`): mueve el renglón y nada más. Es lo que sacó el titileo en la
+    //   ronda 3 y no se toca.
+    // - `load()` emite con `date === null` y llega DESPUÉS del primer pintado. En ese
+    //   pintado `promoted()` era `[]`, así que un día sin nada fijo ni siquiera tiene su
+    //   `[data-plan-drop]` — y `syncPlanDom(null)` sólo recorre las zonas que YA existen.
+    //   No había dónde aplicar lo que acababa de traer el server: por eso navegar
+    //   funcionaba (cada `apply()` re-renderiza) y refrescar no. La carga completa
+    //   vuelve a pintar la vista, una sola vez, al arrancar y con el puntero lejos.
     ctx.plan.onChange(date => {
+      if (date == null) { repaintPlanViews(); return; }
       syncPlanDom(date);
-      if (shownDay && (!date || date === shownDay) && ctx.focusDay) ctx.focusDay(plannedSpec(routeOf(dayByDate[shownDay], ctx)));
-      if (shownJornada && (!date || date === shownJornada) && ctx.renderDayMap) {
+      if (shownDay && date === shownDay && ctx.focusDay) ctx.focusDay(plannedSpec(routeOf(dayByDate[shownDay], ctx)));
+      if (shownJornada && date === shownJornada && ctx.renderDayMap) {
         ctx.renderDayMap(dayView.querySelector('[data-day-map]'), routeOf(dayByDate[shownJornada], ctx));
       }
     });
     ctx.plan.load().catch(err => window.alert(err.message || 'No se pudo cargar el plan.'));
+  }
+
+  // Volver a pintar lo que depende del plan. Sin plan cargado no hay nada que rehacer:
+  // el pintado de arranque ya es correcto y repintar sería el titileo que se sacó.
+  function repaintPlanViews() {
+    if (!it.days.some(d => ctx.plan.promoted(d.date).length)) return;
+    const scroll = panes.dias ? panes.dias.scrollTop : 0;
+    done.dias = false;          // el pane se rearma con las promociones ya en la mano
+    shownJornada = null;        // y la vista de día también, con su mapa
+    apply();
+    if (panes.dias) panes.dias.scrollTop = scroll;
   }
   return { go, goDay, goJornada, itinerary: it };
 }

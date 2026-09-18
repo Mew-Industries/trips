@@ -128,11 +128,11 @@
   .chart-wrap { height: 200px; position: relative; display: none; }
   .chart-wrap.open { display: block; }
   .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 13.5px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
   /* La cama cuya ficha está abierta en el sidebar (?hosp=) queda marcada mientras dure la selección. */
   .lodging-marker.sel { border-color: #5B2E96; box-shadow: 0 0 0 3px rgba(122,79,176,0.3), 0 2px 6px rgba(0,0,0,0.3); }
   /* Punta de un traslado en el foco de día (aeropuerto/estación/puerto): mismo verde de la línea del recorrido. */
-  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
+  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 13.5px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
   .mini-pop { min-width: 150px; max-width: 210px; }
   .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
   .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
@@ -432,7 +432,7 @@
   .dt-row-time { font-size: 10px; color: #888; }
   .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
 
-  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
   .marker-num.pending { background: #fff; border: 2px dashed #A9A497; color: #8d8878; }
   /* Nodo del viaje juntos: halo violeta alrededor del pin de la cadena. */
   .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
@@ -479,9 +479,11 @@
   .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
   [data-check].is-done .activity-check { color: #0F6E56; }
   [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
-  [data-check].is-done .activity-title, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
-  .thing-row[data-check], .sg-list li[data-check], .rt-item[data-check] { display: flex; align-items: center; }
-  .rt-item[data-check] > .sg-item { flex: 1; }
+  [data-check].is-done .activity-title, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic, [data-check].is-done .pl-w { text-decoration: line-through; color: #8d8878; opacity: .72; }
+  /* El círculo se tacha en la vista de cosas y en los ítems del ITINERARIO del día
+     (`.pl-mainrow[data-check]`, que ya es flex). En las sugerencias no va: todavía no
+     son plan, no hay nada que dar por hecho (Martín, 18/9). */
+  .thing-row[data-check] { display: flex; align-items: center; }
 
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
@@ -566,6 +568,7 @@
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 import { mountViews } from '../views.js';
+import { createPlanClient } from '../plan/client.js';
 
 const destinations = [
   {
@@ -643,7 +646,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-16",
+    "weatherUpdated": "2026-09-17",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -815,7 +818,7 @@ const destinations = [
         ]
       },
       {
-        "text": "Hirobun (kawadoko / nagashi sōmen, Kibune)",
+        "text": "Hirobun (Kibune) — el restaurante abre en octubre, pero ya no hay kawadoko ni nagashi sōmen: la temporada cierra a fines de septiembre",
         "cat": "comida",
         "coords": [
           35.125281,
@@ -1007,7 +1010,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-16",
+    "weatherUpdated": "2026-09-17",
     "weatherMode": "climatología",
     "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1271,7 +1274,7 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-16",
+    "weatherUpdated": "2026-09-17",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [
@@ -1929,7 +1932,7 @@ function activityCatalogHtml(entries, node, interactive = true) {
     ? '<div class="activity-featured" data-activity-home="featured"><div class="featured-label">★ Destacados</div><ul class="card-list">' + featured.map(e => activityRowHtml(e, node, interactive)).join('') + '</ul></div>' : '';
   const rows = regular.map(e => activityRowHtml(e, node, interactive)).join('');
   return '<div class="activity-catalog">' + chips + '<div class="activity-scroll"><div class="activity-live">' + featuredHtml +
-    '<ul class="card-list activity-list" data-activity-home="live">' + rows + '</ul></div>' +
+    '<ul class="card-list activity-list activity-category-list" data-activity-home="live">' + rows + '</ul></div>' +
     '<details class="activity-done"><summary class="activity-done-summary">✓ 0 hechas</summary><ul class="card-list activity-list activity-done-list"></ul></details></div></div>';
 }
 
@@ -3455,8 +3458,10 @@ const weatherChart = new Chart(ctx, {
 // foco del mapa principal: no vuelve a calcular orden ni coordenadas. Las únicas
 // resoluciones que hace son cama → coords del hospedaje y parada → coords del nodo.
 let _dayViewMap = null;
+let _dayViewMarkers = {};
 function renderDayMap(container, spec) {
   if (_dayViewMap) { _dayViewMap.remove(); _dayViewMap = null; }
+  _dayViewMarkers = {};
   if (!container || !spec) return;
 
   const coordsOf = p => {
@@ -3469,14 +3474,16 @@ function renderDayMap(container, spec) {
     }
     return null;
   };
-  let pts = (spec.line || []).map(coordsOf).filter(Boolean);
-  // Un día sin actividades ni terminales todavía puede tener una parada con coords.
-  // Es contexto real del día; si tampoco existe, views.js ni renderiza el contenedor.
-  if (!pts.length) pts = (spec.stops || []).map(id => {
+  // El mapa embebido es el plan confirmado. Las camas reservadas y las terminales son
+  // puntas reales del recorrido; entre las actividades entran sólo las anclas con hora.
+  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
+  const pts = line.map(coordsOf).filter(Boolean);
+  const stopPts = (spec.stops || []).map(id => {
     const n = destinations.find(d => d.id === id);
     return n && n.coords;
   }).filter(Boolean);
-  if (!pts.length) { container.remove(); return; }
+  const boundsPts = pts.concat(stopPts);
+  if (!boundsPts.length) { container.remove(); return; }
 
   _dayViewMap = L.map(container, {
     zoomControl: true, attributionControl: false, scrollWheelZoom: false,
@@ -3486,16 +3493,60 @@ function renderDayMap(container, spec) {
     color: '#0F6E56', weight: 3, opacity: 0.78, dashArray: '7, 6',
     lineCap: 'round', lineJoin: 'round', interactive: false,
   }).addTo(_dayViewMap);
-  pts.forEach((ll, i) => L.circleMarker(ll, {
-    radius: i === 0 || i === pts.length - 1 ? 6 : 4,
-    color: '#0F6E56', weight: 2, fillColor: '#fff', fillOpacity: 1,
-    interactive: false,
-  }).addTo(_dayViewMap));
+  const named = (marker, name, popup) => marker
+    .bindTooltip(escHtml(name), { direction: 'top', offset: [0, -6] })
+    .bindPopup(popup || '<div class="popup-title">' + escHtml(name) + '</div>');
+  const seen = new Set();
+  line.forEach(p => {
+    const ll = coordsOf(p);
+    if (!ll) return;
+    if (p.bed) {
+      if (seen.has('bed:' + p.bed)) return;
+      seen.add('bed:' + p.bed);
+      const n = destinations.find(d => d.id === p.bed);
+      if (!n || !n.lodging) return;
+      const name = isDiscrete() ? 'Reservado' : n.lodging.name;
+      const icon = L.divIcon({
+        html: '<div class="lodging-marker">🛏️</div>',
+        className: '', iconSize: [28, 28], iconAnchor: [14, 14],
+      });
+      named(L.marker(ll, { icon }).addTo(_dayViewMap), name, lodgingPopupHtml(n.lodging, n.short));
+      return;
+    }
+    if (p.terminal) {
+      const name = p.terminal.name || 'Terminal';
+      const mode = MODE_STYLE[p.terminal.mode] || {};
+      named(terminalMarker(p.terminal).addTo(_dayViewMap), name,
+        miniPopup(null, escHtml(name), [mode.icon, mode.label || 'Terminal'].filter(Boolean).join(' '), gmapsFromName(name)));
+      return;
+    }
+    const name = p.act && p.act.text ? p.act.text : 'Parada';
+    const cat = CAT_META[p.cat] || CAT_META.otro;
+    const sub = p.time || (cat.icon + ' ' + cat.label);
+    const marker = named(L.marker(ll, { icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000 }).addTo(_dayViewMap), name,
+      miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)));
+    _dayViewMarkers[p.key] = marker;
+  });
+  // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
+  // como marcadores con el mismo popup de la portada, pero no alteran la polilínea:
+  // esa sigue uniendo únicamente sus puntas físicas y sus eventos anclados.
+  (spec.stops || []).forEach(id => {
+    const n = destinations.find(d => d.id === id);
+    if (!n || !n.coords || seen.has('stop:' + id)) return;
+    seen.add('stop:' + id);
+    const icon = L.divIcon({
+      html: '<div class="marker-num' + (n.sharedWith ? ' shared' : '') + '">' + (n.n || '?') + '</div>',
+      className: '', iconSize: [30, 30], iconAnchor: [15, 15],
+    });
+    const title = (n.n ? n.n + '. ' : '') + n.short;
+    named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
+      miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsFromName(n.short)));
+  });
   setTimeout(() => {
     if (!_dayViewMap) return;
     _dayViewMap.invalidateSize();
-    if (pts.length === 1) _dayViewMap.setView(pts[0], 13);
-    else _dayViewMap.fitBounds(L.latLngBounds(pts), { padding: [28, 28], maxZoom: 14 });
+    if (boundsPts.length === 1) _dayViewMap.setView(boundsPts[0], 13);
+    else _dayViewMap.fitBounds(L.latLngBounds(boundsPts), { padding: [28, 28], maxZoom: 14 });
   }, 0);
 }
 
@@ -3531,7 +3582,19 @@ try {
     // Foco de día (task 508): la vista arma el recorrido (qué puntos y en qué orden)
     // y el mapa lo dibuja; salir vuelve por la URL, por eso el chip avisa para acá.
     focusDay: enterDayFocus, exitDayFocus, renderDayMap,
+    focusDayAct: (key) => {
+      const marker = _dayViewMarkers[key];
+      if (!marker || !_dayViewMap) return;
+      _dayViewMap.setView(marker.getLatLng(), Math.max(_dayViewMap.getZoom(), 14));
+      marker.openPopup();
+      document.querySelector('[data-day-map]')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    },
+    plan: createPlanClient(),
     onDayExit: (fn) => { dayExitHandler = fn; },
+    // Colgar el círculo de checklist sobre un pedazo de DOM ya montado: lo usa la vista
+    // cuando promueve un renglón al itinerario (ahí nace su `data-check`) y cuando el
+    // plan llega tarde y hay que repintar sin volver a colgar los listeners del pane.
+    wireChecks: (root) => wireChecklist(root),
     wire: (pane) => {
       wireChecklist(pane);
       pane.addEventListener('click', (e) => {

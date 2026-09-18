@@ -131,11 +131,11 @@
   .chart-wrap { height: 200px; position: relative; display: none; }
   .chart-wrap.open { display: block; }
   .airport-marker { width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid #4A6FA5; color: #4A6FA5; display: flex; align-items: center; justify-content: center; font-size: 11px; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
+  .lodging-marker { width: 28px; height: 28px; border-radius: 50% 50% 50% 2px; background: #fff; border: 2px solid #7A4FB0; display: flex; align-items: center; justify-content: center; font-size: 13.5px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; }
   /* La cama cuya ficha está abierta en el sidebar (?hosp=) queda marcada mientras dure la selección. */
   .lodging-marker.sel { border-color: #5B2E96; box-shadow: 0 0 0 3px rgba(122,79,176,0.3), 0 2px 6px rgba(0,0,0,0.3); }
   /* Punta de un traslado en el foco de día (aeropuerto/estación/puerto): mismo verde de la línea del recorrido. */
-  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
+  .term-marker { width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 13.5px; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer; }
   .mini-pop { min-width: 150px; max-width: 210px; }
   .mini-pop-img { width: 100%; height: 92px; object-fit: cover; border-radius: 6px; margin-bottom: 6px; display: block; background: #ece9e2; }
   .mini-pop-maps { display: inline-block; margin-top: 6px; font-size: 11px; color: #0F6E56; text-decoration: none; font-weight: 600; }
@@ -435,7 +435,7 @@
   .dt-row-time { font-size: 10px; color: #888; }
   .dt-row-desc { font-size: 11px; color: #555; line-height: 1.45; }
 
-  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-family: -apple-system, sans-serif; font-size: 12px; font-weight: 600; color: #04342C; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
+  .marker-num { width: 30px; height: 30px; border-radius: 50%; background: #5DCAA5; border: 2px solid #0F6E56; display: flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.2s, background 0.2s, color 0.2s; cursor: pointer; }
   .marker-num.pending { background: #fff; border: 2px dashed #A9A497; color: #8d8878; }
   /* Nodo del tramo compartido: halo violeta alrededor del pin de la cadena. */
   .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
@@ -482,9 +482,11 @@
   .activity-check:hover, .activity-check:focus-visible { color: #0F6E56; outline: none; }
   [data-check].is-done .activity-check { color: #0F6E56; }
   [data-check].is-done .activity-check::before { content: '✓'; display: flex; align-items: center; justify-content: center; background: #0F6E56; border-color: #0F6E56; color: #fff; font-size: 10px; font-weight: 800; }
-  [data-check].is-done .activity-title, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic { text-decoration: line-through; color: #aaa497; opacity: .72; }
-  .thing-row[data-check], .sg-list li[data-check], .rt-item[data-check] { display: flex; align-items: center; }
-  .rt-item[data-check] > .sg-item { flex: 1; }
+  [data-check].is-done .activity-title, [data-check].is-done .act-row-plain, [data-check].is-done .sg-item, [data-check].is-done .rt-ic, [data-check].is-done .pl-w { text-decoration: line-through; color: #8d8878; opacity: .72; }
+  /* El círculo se tacha en la vista de cosas y en los ítems del ITINERARIO del día
+     (`.pl-mainrow[data-check]`, que ya es flex). En las sugerencias no va: todavía no
+     son plan, no hay nada que dar por hecho (Martín, 18/9). */
+  .thing-row[data-check] { display: flex; align-items: center; }
 
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
@@ -3870,6 +3872,10 @@ try {
     },
     plan: createPlanClient(),
     onDayExit: (fn) => { dayExitHandler = fn; },
+    // Colgar el círculo de checklist sobre un pedazo de DOM ya montado: lo usa la vista
+    // cuando promueve un renglón al itinerario (ahí nace su `data-check`) y cuando el
+    // plan llega tarde y hay que repintar sin volver a colgar los listeners del pane.
+    wireChecks: (root) => wireChecklist(root),
     wire: (pane) => {
       wireChecklist(pane);
       pane.addEventListener('click', (e) => {

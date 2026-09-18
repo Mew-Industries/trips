@@ -127,6 +127,29 @@ Martín, 17/9 con el screenshot de la tarjeta del 19/10: «cada día debería te
 - **La app compartida usa el MISMO `views.js`**, así que la vista de día también vive ahí. Por eso `dayMeta()` no nombra el viaje (el nombre lo saca la app del `<title>` de su página y las páginas de `dia/` lo escriben ellas) y el share cae en la url de la app: `japon/compartido/` no tiene su propio `dia/`. El bloque de Open Graph lo reemplaza entero `build_compartido.js`, que es quien sabe qué se puede decir del tramo.
 - Verificación: `node evidence/660/tooling/check.mjs <base> <shots>` en el workspace de Mew (44 checks: ruteo, el 19/10 completo, sugerencias como lista, bordes del viaje, meta/preview, mobile, los 11 legs sin hora, el resto del site y la compartida) + `node japon/scripts/check_dia_view.js` (invariantes sobre el modelo, sin navegador).
 
+## El plan editable del día: arrastrar, guardar y volver (2026-09-17/18 · task 676)
+
+Con `?plan=<token>` la jornada deja de ser sólo lectura: una sugerencia se **arrastra** al itinerario del día, y lo que queda ahí se guarda en el server (`plan/client.js` → `votos.mewis.online/plan`). Cuatro rondas de review de Martín dejaron estas reglas, y cada una tiene su guarda en `scripts/check_plan_round.mjs` (Chromium + el sitio servido; usa **input real** —`page.mouse` y `Input.dispatchTouchEvent` por CDP—, no PointerEvents sintéticos, que es justo lo que dejaba pasar el gesto roto):
+
+- **Una sola lista por día.** Traslados, check-in/out, reservas y actividades promovidas son ítems del MISMO `<ol class="pl-list pl-drop" data-plan-drop="<fecha>">` (`unifiedPlanHtml`). Lo que tiene hora comprada es **ancla**: se muestra con su hora y el resto se acomoda alrededor. Las sugerencias viven aparte, en su caja crema, y **no llevan número**; los ítems del itinerario sí.
+- **El arrastre nunca repinta.** El ítem sigue al puntero por `transform` y los vecinos abren el hueco con FLIP (`previewGap`); al soltar se **mueve el nodo** y se guarda. Prohibido `innerHTML` sobre la lista en el camino del save — eso era el titileo de la ronda 2. No hay botones ↑↓: el gesto se descubre por affordance (grip `⠿`, `cursor: grab`), sin una línea de copy que lo explique.
+- **⚠️ Cargar y guardar NO son el mismo evento, aunque los dos lleguen por `onChange`.** `save(date, …)` emite con la fecha concreta → camino quirúrgico (`syncPlanDom(date)`, mueve el renglón y nada más). `load()` emite con **`date === null`** y llega DESPUÉS del primer pintado, cuando `promoted()` todavía era `[]`: un día sin nada fijo ni siquiera tiene su `[data-plan-drop]`, así que no hay dónde aplicar lo que trajo el server. Ese emit **re-renderiza** (`repaintPlanViews`). Confundirlos rompe una de las dos cosas: si el save repinta vuelve el titileo, y si la carga no repinta se pierde todo al refrescar (ronda 4 — «la persistencia está bien entre páginas pero cuando refresco ya no está»). Por eso los listeners del pane se cuelgan **una sola vez** (`wired[id]`) aunque el contenido se rearme.
+- **El mapa del día se suscribe al plan**, no al render: entrar directo por deep-link a un día con promovidos los dibuja igual (`renderDayMap` desde el `onChange`).
+- **El círculo de "hecho" es del itinerario, no del catálogo de candidatos.** `data-check` va en el `.pl-mainrow` de lo promovido y de las reservas (una reserva ES una actividad: Geibikei, teamLab); las filas de sugerencia no lo llevan. La clave es la misma `activityId` de siempre, así el tachado es el mismo en todas las superficies.
+- El backend (`plan/server/plan.py`) guarda bien, orden incluido: ante una promoción que "no persiste", el sospechoso es el render, no el PUT.
+
+### La escala tipográfica de la jornada (ronda 4)
+
+Martín, con el screenshot del 14/10: «la font la veo irregular… hay muchas fonts con distintos tamaños, widths, weights, colores». Eran **15 tamaños, 3 pesos, 10 colores y 3 familias** en una pantalla. La vista de día —tarjeta de la tab, pantalla completa y el mapa del día— se mapea ahora a una escala declarada arriba de `views.css`:
+
+- tamaños **10 / 11.5 / 13.5 / 21 px** (variables `--fs-lbl`, `--fs-meta`, `--fs-body`, `--fs-day`);
+- pesos **400 / 600**, y **700 sólo en la fecha del día**;
+- colores de texto **tinta `--ink` · apagado `--muted` · acento `--accent`**, y nada más. Lo que antes distinguía por color de tinta —el ámbar de "a definir", el rojo de quitar, el color del medio de transporte— lo dice ahora un **fondo** o su emoji; el color del modo sigue donde sirve, que es la línea del mapa.
+- una sola familia: la del sistema. Leaflet imponía `Helvetica Neue` en los pines y `Lucida Console` a 22px en el zoom — se neutraliza en `views.css`.
+- **`.pl-depart` no puede ser más grande que `.pl-w`**: la deducción ("Salir 08:45 · JR Ofunato Line…") no puede gritar más fuerte que el hecho del que sale. Estaba en 16px, el texto más grande de la card.
+
+La guarda no es un grep sino el recorrido de los computed styles de la card del 14/10 a 1400 y 390 px (`check_plan_round.mjs`): cualquier `font-size` nuevo que aterrice en la jornada aparece ahí con su clase y su texto, venga de la regla que venga.
+
 ## Un tramo, dos caras: la línea y su ficha (2026-08-11 · task 510)
 
 La polyline del mapa y la tarjeta de la vista Transportes son **el mismo tramo**, y tocar cualquiera de las dos selecciona las dos. Martín: «apretar un tramo de transporte en el mapa debería mostrar el análogo en el sidebar de transporte».

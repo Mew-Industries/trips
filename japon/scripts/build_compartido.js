@@ -176,6 +176,11 @@ function render() {
     .replace('<script src="data/added_by.js"></script>', '<script>window.PLACE_ADDED_BY = {};</script>')
     .replace('href="views.css"', 'href="../views.css"')
     .replace("from './views.js'", "from '../views.js'")
+    // La app compartida se sirve un nivel más abajo y no duplica módulos: el cliente del
+    // plan es el MISMO de arriba. Sin este reescrito el import se va a 404, el módulo
+    // entero deja de evaluar y la página queda sin tabs — en silencio, porque un módulo
+    // que no resuelve no tira error de página.
+    .replace("from './plan/client.js'", "from '../plan/client.js'")
     .replace(/href="favicon(-\d+)?\.(png|ico)"/g, 'href="../favicon$1.$2"')
     .replaceAll('tramo compartido', 'viaje juntos');
 

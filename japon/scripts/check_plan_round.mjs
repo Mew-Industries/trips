@@ -57,7 +57,10 @@ await page.evaluate(() => {
   document.addEventListener('pointerup', () => { window.__pointerDown = false; }, true);
   new MutationObserver(ms => {
     if (!window.__pointerDown) return;
-    window.__listReplacements += ms.filter(m => m.type === 'childList' && m.target.closest && m.target.closest('.rt-list,.pl-promoted-list')).length;
+    // Las DOS listas del día: la de sugerencias y la del itinerario (que desde la ronda 3
+    // es `.pl-list[data-plan-drop]`; el viejo `.pl-promoted-list` ya no existe y dejaba
+    // la mitad del gesto sin vigilar).
+    window.__listReplacements += ms.filter(m => m.type === 'childList' && m.target.closest && m.target.closest('.rt-list,.pl-list')).length;
   }).observe(document.body, { subtree: true, childList: true });
 });
 const a = await source.boundingBox();
@@ -74,6 +77,10 @@ await page.mouse.up();
 await page.waitForTimeout(100);
 check('cero reemplazos de lista durante drag', await page.evaluate(() => window.__listReplacements) === 0, String(await page.evaluate(() => window.__listReplacements)));
 check('drag conserva identidad del nodo', await page.evaluate(() => window.__dragNode === document.querySelector('.day-view .pl-promoted')));
+// Promover es lo que le da sentido al check: el renglón lo estrena al entrar al
+// itinerario, sin esperar a un re-render.
+check('el ítem promovido estrena su círculo de checklist',
+  await page.locator('.day-view .pl-promoted .activity-check').count() === 1);
 const savedKey = await page.locator('.day-view .pl-promoted').first().getAttribute('data-plan-key');
 check('mouse real hace PUT en día sin promociones', writes.some(w => w.date === '2026-10-19' && w.promoted.includes(savedKey)), JSON.stringify(writes.at(-1)));
 await page.reload({ waitUntil: 'domcontentloaded' });
@@ -109,6 +116,71 @@ await touch.reload({ waitUntil: 'domcontentloaded' });
 check('persistencia táctil sobrevive reload', await touch.locator('.day-view .pl-promoted').count() === 2);
 await touchContext.close();
 
+// --------------------------------------------------- ronda 4 · arranque en frío
+// El agujero que dejó pasar «cuando refresco ya no está»: hasta acá TODOS los GET del
+// harness devolvían `{days:{}}`, así que nunca se ejercía el caso real —la página pinta
+// con el plan vacío y el server contesta DESPUÉS con promovidos—. Y el día tiene que ser
+// uno SIN nada fijo (el 11/10 es un día entero en Tokio: ni check-in, ni traslado, ni
+// reserva), porque ahí el primer pintado ni siquiera crea la `[data-plan-drop]` sobre la
+// que trabajaba `syncPlanDom`. Con el código de la ronda 3 esto queda en 0 promovidos.
+const coldKeysPage = await browser.newPage();
+await coldKeysPage.route('https://votos.mewis.online/**', route => route.fulfill({ json: { days: {} } }));
+await coldKeysPage.goto(base + '?tab=dias&jornada=2026-10-11&plan=frio', { waitUntil: 'domcontentloaded' });
+await coldKeysPage.locator('.day-view .rt-item[data-plan-key]').first().waitFor();
+const coldKeys = await coldKeysPage.locator('.day-view .rt-item[data-plan-key]').evaluateAll(rows => rows.slice(0, 3).map(r => r.dataset.planKey));
+check('el 11/10 no tiene itinerario fijo (es el día que rompía)',
+  coldKeys.length === 3 && await coldKeysPage.locator('.day-view [data-plan-drop]').count() === 0);
+await coldKeysPage.close();
+
+const coldRoute = async route => {
+  if (route.request().method() !== 'GET') return route.fulfill({ json: { ok: true } });
+  await new Promise(resolve => setTimeout(resolve, 300));   // resuelve después del primer pintado
+  return route.fulfill({ json: { days: { '2026-10-11': { promoted: coldKeys } } } });
+};
+for (const [label, url, scope] of [
+  ['vista de día', '?tab=dias&jornada=2026-10-11&plan=frio', '.day-view'],
+  ['tarjeta de la tab', '?tab=dias&plan=frio', '[data-jornada-card="2026-10-11"]'],
+]) {
+  const cold = await browser.newPage({ viewport: { width: 900, height: 1200 } });
+  await cold.route('https://votos.mewis.online/**', coldRoute);
+  await cold.goto(base + url, { waitUntil: 'domcontentloaded' });
+  await cold.locator(`${scope} .pl-promoted`).first().waitFor({ timeout: 5000 }).catch(() => {});
+  check(`${label}: el plan que llega tarde crea la zona del día`,
+    await cold.locator(`${scope} [data-plan-drop="2026-10-11"]`).count() === 1);
+  check(`${label}: el plan que llega tarde promueve sus ítems`,
+    await cold.locator(`${scope} .pl-promoted`).count() === coldKeys.length,
+    String(await cold.locator(`${scope} .pl-promoted`).count()));
+  check(`${label}: lo promovido ya no figura como sugerencia`,
+    await cold.locator(`${scope} .rt-item[data-plan-key="${coldKeys[0]}"]`).count() === 0);
+  await cold.close();
+}
+
+// Arrastrar y refrescar contra un server con estado, en un día sin itinerario fijo: es
+// el gesto de Martín, con F5 en el medio.
+const f5 = await browser.newPage({ viewport: { width: 900, height: 1400 } });
+await f5.route('https://votos.mewis.online/**', planRoute);
+await f5.goto(base + '?tab=dias&jornada=2026-10-11&plan=test', { waitUntil: 'domcontentloaded' });
+const f5src = f5.locator('.day-view .rt-item.plan-move').first();
+await f5src.scrollIntoViewIfNeeded();
+const f5box = await f5src.boundingBox();
+const f5key = await f5src.getAttribute('data-plan-key');
+await f5.mouse.move(f5box.x + f5box.width / 2, f5box.y + f5box.height / 2);
+await f5.mouse.down();
+await f5.mouse.move(f5box.x + f5box.width / 2 + 14, f5box.y + f5box.height / 2, { steps: 3 });
+const f5drop = f5.locator('.day-view [data-plan-drop="2026-10-11"]');
+await f5drop.waitFor();
+const f5target = await f5drop.boundingBox();
+await f5.mouse.move(f5target.x + f5target.width / 2, f5target.y + Math.min(24, f5target.height / 2), { steps: 10 });
+await f5.mouse.up();
+await f5.waitForTimeout(150);
+check('arrastrar en un día sin itinerario fijo hace PUT',
+  writes.some(w => w.date === '2026-10-11' && w.promoted.includes(f5key)), JSON.stringify(writes.at(-1)));
+await f5.reload({ waitUntil: 'domcontentloaded' });
+await f5.locator(`.day-view .pl-promoted[data-plan-key="${f5key}"]`).waitFor({ timeout: 5000 }).catch(() => {});
+check('F5 deja el ítem donde se lo dejó',
+  await f5.locator(`.day-view .pl-promoted[data-plan-key="${f5key}"]`).count() === 1);
+await f5.close();
+
 await page.goto(base + '?tab=dias&jornada=2026-10-14&plan=test', { waitUntil: 'domcontentloaded' });
 const geibikei = page.locator('.day-view .pl-reserva').filter({ hasText: 'Geibikei' });
 const text = await geibikei.innerText();
@@ -116,6 +188,61 @@ check('Geibikei fijo con salida calculada', /Salir 08:45/.test(text), text.repla
 check('Geibikei avisa temporada', /temporada 2025-26, pendiente de reconfirmar/.test(text));
 const checkin = page.locator('.day-view .pl-check-in').first();
 check('check-in muestra límite', /Límite de check-in:/.test(await checkin.innerText()));
+
+// ------------------------------------------------- ronda 4 · una sola escala
+// Martín, 18/9, sobre esta misma card: «hay muchas fonts con distintos tamaños, widths,
+// weights, colores». Eran 15 tamaños, 3 pesos, 10 colores y 3 familias. Se recorre el
+// texto REAL de la jornada —el que está a la vista, pseudo-elementos aparte— y se exige
+// la escala declarada arriba de views.css. Si alguien agrega un `font-size` nuevo, acá
+// aparece con su clase y su texto.
+const SIZES = ['10px', '11.5px', '13.5px', '21px'];
+const WEIGHTS = ['400', '600', '700'];
+const COLORS = ['rgb(26, 26, 26)', 'rgb(141, 136, 120)', 'rgb(15, 110, 86)'];
+const typeInventory = root => Array.from(document.querySelectorAll(root)).flatMap(el => {
+  const out = [];
+  const walk = node => {
+    const cs = getComputedStyle(node);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return;
+    for (const child of node.childNodes) {
+      if (child.nodeType === 3 && child.textContent.trim()) {
+        out.push({ cls: String(node.className || node.tagName), size: cs.fontSize, weight: cs.fontWeight,
+          color: cs.color, fam: cs.fontFamily.split(',')[0].trim(), txt: child.textContent.trim().slice(0, 30) });
+      }
+      if (child.nodeType === 1) walk(child);
+    }
+  };
+  walk(el);
+  return out;
+});
+for (const width of [1400, 390]) {
+  const type = await browser.newPage({ viewport: { width, height: 1000 } });
+  await type.route('https://votos.mewis.online/**', route => route.fulfill({ json: { days: {} } }));
+  await type.goto(base + '?tab=dias&jornada=2026-10-14&plan=test', { waitUntil: 'domcontentloaded' });
+  await type.locator('.day-view .pl-it').first().waitFor();
+  const inv = await type.evaluate(typeInventory, '.day-view');
+  const off = inv.filter(i => !SIZES.includes(i.size) || !WEIGHTS.includes(i.weight) ||
+    !COLORS.includes(i.color) || i.fam !== '-apple-system');
+  check(`${width}px: la card del 14/10 entra en la escala`, inv.length > 40 && off.length === 0,
+    off.length ? off.slice(0, 4).map(i => `${i.cls} ${i.size}/${i.weight}/${i.color}/${i.fam} «${i.txt}»`).join(' · ')
+      : `${inv.length} nodos · ${[...new Set(inv.map(i => i.size))].length} tamaños`);
+  // La deducción no puede gritar más fuerte que el hecho: "Salir 08:45 · JR Ofunato…"
+  // estaba en 16px, más grande que el nombre de la actividad.
+  const pair = await type.evaluate(() => ({
+    depart: parseFloat(getComputedStyle(document.querySelector('.day-view .pl-depart')).fontSize),
+    name: parseFloat(getComputedStyle(document.querySelector('.day-view .pl-reserva .pl-w')).fontSize),
+  }));
+  check(`${width}px: .pl-depart no le gana a .pl-w`, pair.depart <= pair.name, JSON.stringify(pair));
+  await type.close();
+}
+
+// El círculo de "hecho" es del itinerario, no del catálogo de candidatos (Martín, 18/9:
+// «lo dejaría sólo para lo que está en el itinerario, no para las sugerencias»).
+check('las sugerencias no llevan círculo de checklist',
+  await page.locator('.day-view .rt-item .activity-check').count() === 0 &&
+  await page.locator('.day-view .rt-item[data-check]').count() === 0);
+check('el itinerario sí lo lleva (Geibikei es una actividad)',
+  await geibikei.locator('.activity-check').count() === 1);
+
 const beforeUrl = page.url();
 await geibikei.locator('[data-day-map-act]').click();
 check('link de mapa queda en la vista de día', page.url() === beforeUrl && await page.locator('.day-view:not([hidden])').count() === 1);
