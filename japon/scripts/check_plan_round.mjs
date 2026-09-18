@@ -25,6 +25,35 @@ const planRoute = async route => {
   }
   return route.fulfill({ json: planState });
 };
+
+// Sin el link privado la vista es deliberadamente de sólo lectura. Se usa mouse real:
+// si el handler público vuelve a enganchar el puntero, este gesto lo hace visible.
+const publicPage = await browser.newPage({ viewport: { width: 900, height: 1200 } });
+const publicWrites = [];
+await publicPage.route('https://votos.mewis.online/**', async route => {
+  if (route.request().method() === 'PUT') publicWrites.push(route.request().postDataJSON());
+  return route.fulfill({ json: { days: {} } });
+});
+await publicPage.goto(base + '?tab=dias&jornada=2026-10-19', { waitUntil: 'domcontentloaded' });
+const publicSource = publicPage.locator('.day-view .rt-item').first();
+await publicSource.waitFor();
+check('sin token muestra una sola línea para habilitar edición',
+  await publicPage.locator('.day-view .plan-readonly-note:visible').count() === 1 &&
+  /link privado del plan/.test(await publicPage.locator('.day-view .plan-readonly-note:visible').innerText()));
+const publicBox = await publicSource.boundingBox();
+await publicPage.mouse.move(publicBox.x + publicBox.width / 2, publicBox.y + publicBox.height / 2);
+await publicPage.mouse.down();
+await publicPage.mouse.move(publicBox.x + publicBox.width / 2 + 30, publicBox.y + publicBox.height / 2 + 30, { steps: 5 });
+await publicPage.mouse.up();
+check('sin token el ítem no se levanta con mouse real',
+  await publicPage.locator('.day-view .is-dragging').count() === 0 &&
+  await publicPage.locator('.day-view [data-plan-drop].is-drag-reveal').count() === 0 &&
+  await publicSource.locator('.pl-grip').count() === 0 &&
+  !await publicSource.evaluate(el => el.classList.contains('plan-move')) &&
+  (await publicSource.evaluate(el => getComputedStyle(el).cursor)) !== 'grab' &&
+  publicWrites.length === 0);
+await publicPage.screenshot({ path: path.join(shots, 'plan-publico-solo-lectura.png'), fullPage: false });
+await publicPage.close();
 // El site tiene UN tema y dos modos de lectura: normal y discreto (🙈 / tecla `d`, el
 // que enmascara hospedajes y fechas). No hay dark mode — pasarle `colorScheme: 'dark'`
 // a Playwright no cambia un pixel, y así se sacaban cuatro capturas idénticas que no

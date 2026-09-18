@@ -202,6 +202,7 @@
    el blanco de la tarjeta: la diferencia entre "esto pasa" y "esto se puede elegir"
    se ve antes de leer una palabra, sin ninguna leyenda que la explique. */
 .dy-sug { margin-top: 10px; padding: 9px 10px; border-radius: 8px; background: rgba(0,0,0,0.025); border: 1px dashed rgba(0,0,0,0.11); }
+.plan-readonly-note { margin: 4px 0 10px; font-size: var(--fs-meta); color: var(--muted); }
 
 /* El rótulo de cada mitad. El del plan fijo va en verde y el de las sugerencias en
    gris: es el único lugar donde hace falta nombrarlas. */

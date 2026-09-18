@@ -566,6 +566,9 @@ const dayHasMap = spec => confirmedDayLine(spec).length > 0 || (spec.stops || []
 // nada. Sin `cap` la lista sale entera, que es como salía antes.
 function routeListHtml(spec, ctx, day, cap) {
   const esc = ctx.escHtml;
+  const editable = !!(ctx.plan && ctx.plan.canEdit());
+  const moveClass = editable ? ' plan-move' : '';
+  const grip = editable ? '<span class="pl-grip" aria-hidden="true">⠿</span>' : '';
   const lim = cap || Infinity;
   let k = 0;                              // índice global: recorrido + sueltas
   const over = () => (k >= lim ? ' over' : '');
@@ -587,15 +590,15 @@ function routeListHtml(spec, ctx, day, cap) {
   // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
   const available = spec.route.filter(p => !p.anchor && !p.promoted);
   const items = available.map(p => {
-    const row = '<li class="rt-item plan-move' + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" data-plan-number="' + routeNumber(p) + '" style="--c:' + color(p) + '">' +
-      '<span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
+    const row = '<li class="rt-item' + moveClass + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" data-plan-number="' + routeNumber(p) + '" style="--c:' + color(p) + '">' +
+      grip + '<span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
   const rest = spec.loose.filter(p => !p.promoted).map(p => {
-    const row = '<li class="rt-item plain plan-move' + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" style="--c:' + color(p) + '"><span class="pl-grip" aria-hidden="true">⠿</span><span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
+    const row = '<li class="rt-item plain' + moveClass + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" style="--c:' + color(p) + '">' + grip + '<span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
   }).join('');
@@ -753,8 +756,12 @@ function promotedRowsHtml(day, ctx, spec) {
 
 function unifiedPlanHtml(day, ctx, spec) {
   const rows = fixedPlanHtml(day, ctx) + (ctx.plan && ctx.plan.canEdit() ? promotedRowsHtml(day, ctx, spec) : '');
-  return rows ? '<ol class="pl-list pl-drop" data-plan-drop="' + day.date + '" aria-label="Itinerario ordenable">' + rows + '</ol>' : '';
+  const label = ctx.plan && ctx.plan.canEdit() ? 'Itinerario ordenable' : 'Itinerario';
+  return rows ? '<ol class="pl-list pl-drop" data-plan-drop="' + day.date + '" aria-label="' + label + '">' + rows + '</ol>' : '';
 }
+
+const planReadonlyNoteHtml = ctx => ctx.plan && !ctx.plan.canEdit()
+  ? '<p class="plan-readonly-note">Para editar, abrí el link privado del plan.</p>' : '';
 
 // Dónde estás ese día y dónde dormís: las dos líneas de cabecera, compartidas por
 // la tarjeta de la tab y la vista de día.
@@ -863,6 +870,7 @@ function dayViewHtml(day, it, ctx) {
       '</div>' +
     '</div>' +
     '<div class="dv-body' + (day.inFlight ? ' dy-flight' : '') + '">' +
+      planReadonlyNoteHtml(ctx) +
       '<div class="dv-head">' +
         '<div class="dv-num">DÍA ' + day.n + '</div>' +
         '<h2 class="dv-date">' + esc(fmtDateLong(day.date)) + '</h2>' +
@@ -915,7 +923,8 @@ RENDER.dias = (it, ctx) => {
 
   // El rango de fechas cae en discreto, igual que el del header (que ahí dice "43 días").
   return '<div class="v-title">Días <span>' + it.days.length + ' jornadas' +
-    ctx.DX(' · ' + fmtDate(it.start) + ' → ' + fmtDate(it.end)) + '</span></div>' + rows.join('');
+    ctx.DX(' · ' + fmtDate(it.start) + ' → ' + fmtDate(it.end)) + '</span></div>' +
+    planReadonlyNoteHtml(ctx) + rows.join('');
 };
 
 export function mountViews(destinations, ctx) {
@@ -1406,7 +1415,9 @@ export function mountViews(destinations, ctx) {
   // El servidor guarda sólo keys de sugerencias. El cliente aplica el cambio primero
   // para que lista y mapa respondan al soltar; si la red falla, `client.save` revierte.
   async function changePlan(date, mutate) {
-    if (!ctx.plan || !ctx.plan.canEdit() || !dayByDate[date]) return;
+    const programmerError = message => { const err = new Error(message); console.error(err); throw err; };
+    if (!ctx.plan || !ctx.plan.canEdit()) programmerError('changePlan requiere acceso de edición al plan.');
+    if (!dayByDate[date]) programmerError('changePlan recibió una fecha fuera del itinerario: ' + date);
     const next = [...ctx.plan.promoted(date)];
     mutate(next);
     try { await ctx.plan.save(date, next); }
@@ -1549,7 +1560,7 @@ export function mountViews(destinations, ctx) {
   document.addEventListener('pointerdown', e => {
     if (e.button != null && e.button !== 0) return;
     const row = e.target.closest('.plan-move');
-    if (!row || e.target.closest('button,a') || (e.pointerType === 'touch' && !e.target.closest('.pl-grip'))) return;
+    if (!row || !ctx.plan || !ctx.plan.canEdit() || e.target.closest('button,a') || (e.pointerType === 'touch' && !e.target.closest('.pl-grip'))) return;
     const rect = row.getBoundingClientRect(), originList = row.closest('[data-plan-drop]');
     drag = { id: e.pointerId, row, key: row.dataset.planKey, date: row.dataset.planDate,
       promoted: row.classList.contains('pl-promoted'), x: e.clientX, y: e.clientY,
