@@ -327,9 +327,12 @@ check('mover el mapa al mar deja la pantalla sin pines, sin cambiar el zoom',
   pocos.onScreen + ' → ' + trasMover.onScreen + ' en pantalla · zoom ' + await zoom());
 await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
 await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
+// El gesto inverso no repone el encuadre al píxel (inercia + timing de tiles): lo que
+// se afirma es que volvieron pines y TODOS los que entraron quedaron bien clasificados,
+// no que el viewport sea idéntico.
 const trasVolver = await pinState();
 check('volver al área con pines los reclasifica por moveend',
-  trasVolver.onScreen === pocos.onScreen && trasVolver.emojiOnScreen === pocos.emojiOnScreen &&
+  trasVolver.onScreen > 0 && trasVolver.emojiOnScreen === trasVolver.onScreen &&
     trasVolver.solapes === 0 && trasVolver.dotsSolos === 0,
   trasMover.onScreen + ' → ' + trasVolver.onScreen + ' en pantalla · ' +
     trasVolver.emojiOnScreen + ' emoji · ' + trasVolver.solapes + ' solapes');
