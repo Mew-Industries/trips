@@ -352,8 +352,8 @@ check('con todo prendido, mover reclasifica lo que entra: clusters en punto, sin
     todoMovido.solapes + ' solapes · ' + todoMovido.dotsSolos + ' puntos sin vecino');
 
 // ------------------- 5 · paradas numeradas, cama y aeropuerto sin cambios
-// De cero y con todas las familias prendidas (los aeropuertos y el transporte vienen
-// apagados por default), mirando Japón entero.
+// De cero y con todas las familias prendidas (por default sólo actividades viene
+// encendida), mirando Japón entero.
 await page.goto(BASE, { waitUntil: 'networkidle', timeout: 60000 });
 await page.waitForTimeout(1800);
 await page.evaluate(() => {
