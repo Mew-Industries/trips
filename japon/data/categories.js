@@ -11,7 +11,7 @@
 // Verificación: node scripts/check_categories.js
 
 window.PLACE_TAXONOMY = {
-  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'actividad', 'taller', 'compras', 'barrio', 'otro'],
+  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'landmark', 'actividad', 'taller', 'compras', 'barrio', 'otro'],
   meta: {
     'comida':       { label: 'Comida',     icon: '🍜',  color: '#D8452F' },
     'bar-noche':    { label: 'Bar/noche',  icon: '🍸',  color: '#6D4AA8' },
@@ -24,6 +24,18 @@ window.PLACE_TAXONOMY = {
     // con el violeta apagado de bar-noche.
     'arte':         { label: 'Arte',       icon: '🎨',  color: '#A733B5' },
     'arquitectura': { label: 'Arquitectura', icon: '🏛️', color: '#237C78' },
+    // Hitos icónicos donde el plan es ir a VERLO (y la foto): un cruce, una
+    // estatua, un cartel, la meca JDM de Daikoku. El corte contra
+    // `arquitectura` es que acá el edificio no importa —no siempre lo hay— y
+    // contra `actividad`, que no se entra a ningún lado. El marrón es el color
+    // de la señalética vial de atractivos turísticos en medio mundo. Para
+    // `taller` el marrón se había descartado por pegarse al ocre de
+    // templo-museo, pero este va mucho más oscuro (L 36 contra L 62 del ocre):
+    // ΔE2000 22.1 contra el par más cercano (el rojo de comida) y ≥ 25 contra
+    // taller, templo-museo y las demás —tips incluido—, bien arriba del piso
+    // de ~15. Contraste 7.4:1 sobre blanco, sobra para el punto de 9px del
+    // chip y el aro del pin.
+    'landmark':     { label: 'Landmarks',  icon: '🗼', color: '#7A4A21' },
     'actividad':    { label: 'Actividades', icon: '🎢', color: '#0F8FA8' },
     // Talleres: el plan del lugar es APRENDER o HACER algo con instrucción y
     // volver con la pieza (forjar un shuriken, soplar un vaso, tejer una
@@ -99,6 +111,31 @@ window.PLACE_CAT_OVERRIDES = {
   'WOMB': 'bar-noche',
   'WWW / WWW X': 'bar-noche',
   'ZEROTOKYO': 'bar-noche',
+  // Segunda pasada (task 693): clubes y bares que seguían cayendo en
+  // `actividad` por el default de `ocio`. El corte: si el plan es tomar algo,
+  // bailar o ver música de noche, va acá; el head spa (Wayanpuri), los cat
+  // cafes y los arcades se quedan en `actividad`.
+  'ATOM Tokyo': 'bar-noche',                    // club foreigner-friendly
+  'Baia': 'bar-noche',                          // club de tres niveles
+  'Bar Centifolia': 'bar-noche',                // el mismo cocktail bar que CENTIFOLIA, cargado dos veces
+  'Chokuritsuenjin (直立猿人)': 'bar-noche',      // jazz kissa era Showa, vinilos y tragos
+  'Club Harlem': 'bar-noche',                   // club en Shinjuku
+  'Golden Gai': 'bar-noche',                    // el callejón de bares de Kabukicho
+  'LIVE HAUS': 'bar-noche',                     // live house de Shimokitazawa, rock y DJs de madrugada
+  'Mitsuki': 'bar-noche',                       // sótano de neón en Shibuya, música y baile
+  'Neverland Tokyo': 'bar-noche',               // club en Shinjuku
+  'Nonbei Yokocho': 'bar-noche',                // callejón de bares junto a las vías en Shibuya
+  'Oh-Jo Building': 'bar-noche',                // el mismo castillo-fiesta que OHJO BLDG, cargado dos veces
+  'Rokusan Angel': 'bar-noche',                 // cabaret/girls bar con show y barra libre
+  'T2 Tokyo': 'bar-noche',                      // club EDM/pop abierto hasta el amanecer
+  'Vent': 'bar-noche',                          // el mismo club techno que VENT Tokyo, cargado dos veces
+  'WARP Shinjuku': 'bar-noche',                 // club temática alien, varios pisos
+
+  // --- Landmarks: hitos donde el plan es verlo y la foto ---
+  'Shibuya Crossing': 'landmark',               // el cruce peatonal más famoso de Tokio
+  'Hachiko Statue': 'landmark',                 // la estatua-punto de encuentro
+  'Cartel de Glico (Glico Running Man), Dotonbori': 'landmark',   // el cartel del corredor sobre Ebisubashi
+  'Daikoku PA': 'landmark',                     // la parada de autos meca de la cultura JDM
 
   // --- Arte: museos de arte, galerías, land art y exhibiciones ---
   // El corte contra `templo-museo` es qué se va a ver: si es obra (cuadros,
@@ -122,15 +159,14 @@ window.PLACE_CAT_OVERRIDES = {
   'MIHO MUSEUM': 'arte',
   'Murou Art Forest': 'arte',                   // land art de Dani Karavan
   'Naoshima': 'arte',                           // day trip del jue 22/10 desde Kioto
-  // --- Naoshima (day trip con entradas desde el 15/9): las actividades son todas arte ---
+  // --- Naoshima: quedan solo las tres actividades con entrada comprada. Lee
+  // Ufan, Valley Gallery, las calabazas de Kusama y el Art House Project
+  // salieron de index.html el 3/9, cuando el day trip se volvió parada con
+  // itinerario cerrado (Chichu → Benesse → Minamidera); sus overrides se
+  // borraron con ellos (task 693). ---
   'Chichu Art Museum': 'arte',
   'Benesse House Museum': 'arte',
   'Minamidera (Art House Project, James Turrell)': 'arte',
-  'Lee Ufan Museum': 'arte',
-  'Valley Gallery': 'arte',
-  'Red Pumpkin de Kusama (puerto de Miyanoura)': 'arte',
-  'Yellow Pumpkin de Kusama (muelle de Benesse)': 'arte',
-  'Art House Project (Honmura)': 'arte',
   '国境を越えて・祈り': 'arte',                    // escultura de Kan Yasuda en Awaji Yumebutai
   'Aomori Museum of Art': 'arte',
   'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)': 'arte',
@@ -166,9 +202,11 @@ window.PLACE_CAT_OVERRIDES = {
   'Goyomatsu Limestone Cave': 'actividad',                 // el plan es el monorriel
   'Yanagawa': 'barrio',
   'Round 1 Umeda': 'actividad',
+  'Ueno Zoo': 'actividad',                      // zoológico con pandas; estaba en `otros` de los reels
 
   // --- Actividades del itinerario (index.html) ---
   'Dotonbori (luces, takoyaki, kushikatsu)': 'barrio',
+  'Check-in del night tour — café TAIRA (Awesome Tours)': 'actividad',   // punto de encuentro del tour comprado de Okunoin
 
   // --- Guardados de Maps sin destino asignado (orphanPlaces) ---
   'Yakushima National Park': 'parque',
