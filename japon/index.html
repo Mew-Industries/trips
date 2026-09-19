@@ -442,21 +442,22 @@
   .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
   /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual.
-     Cuando la densidad lo permite, el pin muestra el emoji de su categoría (el mismo que la lista) sobre
+     Cuando tiene aire alrededor, el pin muestra el emoji de su categoría (el mismo que la lista) sobre
      un disco blanco con el aro del color: el color sigue siendo lo que agrupa de un
      vistazo y lo que prenden los filtros, el emoji dice de qué se trata sin abrir el
-     popup. Con muchos lugares visibles vuelve al punto de 12px — el mapa llega a
-     ~300 lugares y 22px por pin taparían las calles. El cambio es CSS sobre el
-     contenedor del mapa (`.pins-emoji`), así que no hay que rehacer 300 íconos en
-     cada zoom.
+     popup. La decisión es POR PIN: `syncPinEmojis()` marca `.pp-dot` a los que tienen
+     otro pin encima en pantalla y esos vuelven al punto de 12px — así un cluster en
+     Shibuya no le apaga el emoji a un templo aislado en el mismo viewport. `.pins-emoji`
+     en el contenedor habilita el modo (el mapa de la jornada lo prende sin marcar
+     ningún `.pp-dot`: ahí el emoji va siempre).
      La caja del divIcon es transparente al mouse y sólo el pin recibe el click: si no,
      el cuadrado de 24px se comería los clicks de sus vecinos en las zonas densas. */
   .leaflet-marker-icon.pp-icon { pointer-events: none; }
   .pp { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; transform: translate(-50%, -50%); transition: transform 0.15s; }
   .pp-emoji { display: none; font-size: 12.5px; line-height: 1; }
   .pp:hover, .pp.active { transform: translate(-50%, -50%) scale(1.45); }
-  .pins-emoji .pp { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
-  .pins-emoji .pp-emoji { display: block; }
+  .pins-emoji .pp:not(.pp-dot) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
+  .pins-emoji .pp:not(.pp-dot) .pp-emoji { display: block; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -2385,22 +2386,59 @@ function placePin(coords, cat, kind, layer, id) {
   placePins.push({ m: m, layer: layer, cat: cat });
   return m;
 }
-// El emoji entra cuando hay lugar real en el viewport, no a un zoom fijo. 40 es el
-// máximo que conserva ~60px promedio entre centros aun en el viewport móvil más
-// chico; por encima vuelven los puntos para no tapar calles ni etiquetas.
-const PIN_EMOJI_MAX_VISIBLE = 40;
-function syncPinDensity() {
-  const bounds = map.getBounds();
-  const visible = placePins.reduce((n, p) =>
-    n + (map.hasLayer(p.m) && bounds.contains(p.m.getLatLng()) ? 1 : 0), 0);
+// El emoji se decide POR PIN y por solape en pantalla, no por conteo global: contar
+// visibles apagaba el emoji de un templo aislado porque Shibuya metía 60 puntos en el
+// mismo viewport. Un pin lo muestra si ningún otro pin visible cae a menos de
+// PIN_EMOJI_CLEARANCE_PX de su centro en el contenedor — el diámetro del disco con
+// emoji (22px + aro): a esa distancia dos discos ya se tocan. Con vecino más cerca,
+// los dos quedan en punto (`.pp-dot`).
+const PIN_EMOJI_CLEARANCE_PX = 24;
+function syncPinEmojis() {
   const container = map.getContainer();
-  container.dataset.visiblePlacePins = visible;
-  container.classList.toggle('pins-emoji', visible > 0 && visible <= PIN_EMOJI_MAX_VISIBLE);
+  // El contenedor queda siempre en modo emoji; quién se ve como punto lo dice
+  // `.pp-dot`, pin por pin. Es la misma clase que el mapa de la jornada prende
+  // para su catálogo acotado (ahí nunca hay `.pp-dot`: emoji siempre).
+  container.classList.add('pins-emoji');
   // A media distancia el disco más chico reduce solapes; de cerca llega a los 22px.
   container.style.setProperty('--pin-emoji-size', Math.max(18, Math.min(22, 18 + (map.getZoom() - 10) * 2)) + 'px');
+  // El barrido es O(n): grilla de celdas de R px sobre coordenadas de pantalla y cada
+  // pin mira sólo su celda y las 8 vecinas. Entran también los pines de justo afuera
+  // del borde (pad 20%): uno a 10px del margen empuja igual que uno adentro.
+  const R = PIN_EMOJI_CLEARANCE_PX;
+  const bounds = map.getBounds().pad(0.2);
+  const grid = new Map();
+  const vis = [];
+  placePins.forEach(p => {
+    if (!map.hasLayer(p.m) || !bounds.contains(p.m.getLatLng())) return;
+    const icon = p.m.getElement();
+    if (!icon) return;
+    const pt = map.latLngToContainerPoint(p.m.getLatLng());
+    const e = { el: icon.firstChild, x: pt.x, y: pt.y,
+      gx: Math.floor(pt.x / R), gy: Math.floor(pt.y / R), dot: false };
+    vis.push(e);
+    const k = e.gx + ':' + e.gy;
+    const cell = grid.get(k);
+    if (cell) cell.push(e); else grid.set(k, [e]);
+  });
+  vis.forEach(e => {
+    for (let dx = -1; dx <= 1 && !e.dot; dx++) for (let dy = -1; dy <= 1 && !e.dot; dy++) {
+      const cell = grid.get((e.gx + dx) + ':' + (e.gy + dy));
+      if (!cell) continue;
+      for (const o of cell) {
+        // Un vecino a <1px es el mismo lugar dos veces (daytrip + guardado comparten
+        // coords exactas, hay ~20 pares así): no cuenta como solape — los discos quedan
+        // perfectamente apilados y se ven como un solo pin. Si contara, esos lugares no
+        // tendrían emoji nunca, ni aislados a zoom de manzana.
+        const d2 = (o.x - e.x) * (o.x - e.x) + (o.y - e.y) * (o.y - e.y);
+        if (o !== e && d2 >= 1 && d2 < R * R) { e.dot = true; break; }
+      }
+    }
+  });
+  vis.forEach(e => { if (e.el) e.el.classList.toggle('pp-dot', e.dot); });
+  container.dataset.visiblePlacePins = vis.length;
 }
-map.on('zoomend moveend', syncPinDensity);
-syncPinDensity();
+map.on('zoomend moveend', syncPinEmojis);
+syncPinEmojis();
 
 const markers = {};
 const destLayer = L.layerGroup().addTo(map);
@@ -3137,7 +3175,7 @@ function setLayer(key, on) {
     allLayersBtn.classList.toggle('active', allLayersOn());
     allLayersBtn.setAttribute('aria-pressed', String(allLayersOn()));
   }
-  syncPinDensity();
+  syncPinEmojis();
 }
 
 // Ir a un punto cuya familia está apagada dejaba el mapa encuadrado y sin pin (el
@@ -3357,7 +3395,7 @@ function applyCatFilter(skipUrl) {
   });
   CAT_ORDER.forEach(c => catBtns[c].classList.toggle('off', !activeCats.has(c)));
   allCatsBtn.hidden = activeCats.size === CAT_ORDER.length;
-  syncPinDensity();
+  syncPinEmojis();
   if (skipUrl) return;
   const u = new URL(location.href);
   if (activeCats.size === CAT_ORDER.length) u.searchParams.delete('cat');

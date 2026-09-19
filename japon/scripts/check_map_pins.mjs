@@ -1,7 +1,9 @@
-// Verificación en navegador de los pines de lugar del mapa (task 688): cada pin muestra
-// el emoji de su categoría —el mismo de `data/categories.js` que usa la lista— dentro
-// del disco con el aro del color cuando la densidad real lo permite; con muchos puntos
-// visibles vuelve al punto de color. Y lo que ya tenía
+// Verificación en navegador de los pines de lugar del mapa (tasks 688/691/692): cada
+// pin muestra el emoji de su categoría —el mismo de `data/categories.js` que usa la
+// lista— dentro del disco con el aro del color cuando tiene aire alrededor. La decisión
+// es POR PIN y por solape en pantalla (`syncPinEmojis`): con otro pin visible a menos de
+// PIN_EMOJI_CLEARANCE_PX (24), los dos quedan en punto (`.pp-dot`); un par en las MISMAS
+// coords (daytrip + guardado duplicados) cuenta como un solo lugar. Y lo que ya tenía
 // identidad propia —paradas numeradas, cama, aeropuerto— no se toca.
 //
 // No es parte de ninguna suite: necesita Chromium y el sitio servido. Levantarlo con
@@ -68,22 +70,65 @@ const zoomInTo = async (z) => {
   return zoom();
 };
 // Lo que se mira de cada pin: qué emoji dibuja, de qué color es el aro y si el emoji
-// está realmente visible (no basta con que esté en el HTML).
+// está realmente visible (no basta con que esté en el HTML). Además, las dos garantías
+// del criterio por solape, medidas sobre los pines DENTRO del viewport:
+//   solapes  — pares de emojis visibles a menos de 24px entre centros (>=1px: un par en
+//              las mismas coords es el mismo lugar apilado, no un solape). Debe ser 0.
+//   dotsSolos — puntos que no tienen NINGÚN vecino a <24px (contando también los pines
+//              de justo afuera de la pantalla): no tendrían por qué ser punto. Debe ser 0.
 const pinState = (sel = '#map') => page.evaluate((sel) => {
   const root = document.querySelector(sel);
+  const box = root.getBoundingClientRect();
   const pins = [...root.querySelectorAll('.pp')];
+  const geo = pins.map(p => {
+    const r = p.getBoundingClientRect();
+    const e = p.querySelector('.pp-emoji');
+    return {
+      x: r.left + r.width / 2 - box.left, y: r.top + r.height / 2 - box.top,
+      emoji: !!e && getComputedStyle(e).display !== 'none',
+      dot: p.classList.contains('pp-dot'),
+      w: Math.round(r.width),
+    };
+  });
+  const onScreen = geo.filter(g => g.x >= 0 && g.x <= box.width && g.y >= 0 && g.y <= box.height);
+  const em = onScreen.filter(g => g.emoji);
+  let solapes = 0;
+  for (let i = 0; i < em.length; i++) for (let j = i + 1; j < em.length; j++) {
+    const d = Math.hypot(em[i].x - em[j].x, em[i].y - em[j].y);
+    if (d >= 1 && d < 24) solapes++;
+  }
+  let dotsSolos = 0;
+  onScreen.filter(g => g.dot).forEach(g => {
+    if (!geo.some(o => { const d = Math.hypot(o.x - g.x, o.y - g.y); return d >= 1 && d < 24; })) dotsSolos++;
+  });
   return {
     total: pins.length,
+    onScreen: onScreen.length,
     // Sin `.pp-emoji` (el pin viejo, sólo punto) cuenta como emoji ausente, no como error.
     emojiVisible: pins.filter(p => {
       const e = p.querySelector('.pp-emoji');
       return e && getComputedStyle(e).display !== 'none';
     }).length,
+    emojiOnScreen: em.length,
+    dotsOnScreen: onScreen.filter(g => g.dot).length,
+    solapes, dotsSolos,
     size: pins.length ? Math.round(pins[0].getBoundingClientRect().width) : null,
+    dotSize: onScreen.find(g => g.dot) ? onScreen.find(g => g.dot).w : null,
+    emojiSize: em.length ? em[0].w : null,
     pares: pins.map(p => p.style.getPropertyValue('--c').trim() + '|' +
       (p.querySelector('.pp-emoji') ? p.querySelector('.pp-emoji').textContent : '')),
     aro: pins.length ? getComputedStyle(pins[0]).borderTopColor : null,
     aroDe: pins.length ? pins[0].style.getPropertyValue('--c').trim() : null,
+    // El aro del disco se mide sobre un pin que esté mostrando el emoji: el primero
+    // del DOM puede ser un punto, y el punto lleva el borde blanco, no el del color.
+    aroEmoji: (() => {
+      const p = pins.find(p => { const e = p.querySelector('.pp-emoji'); return e && getComputedStyle(e).display !== 'none'; });
+      return p ? getComputedStyle(p).borderTopColor : null;
+    })(),
+    aroEmojiDe: (() => {
+      const p = pins.find(p => { const e = p.querySelector('.pp-emoji'); return e && getComputedStyle(e).display !== 'none'; });
+      return p ? p.style.getPropertyValue('--c').trim() : null;
+    })(),
   };
 }, sel);
 
@@ -114,9 +159,19 @@ check('un lugar de comida se ve 🍜', pares.has(comida.color + '|' + comida.ico
   (pares.get(comida.color + '|' + comida.icon) || 0) + ' pines ' + comida.icon);
 check('uno de templos y museos se ve ⛩️', pares.has(templo.color + '|' + templo.icon),
   (pares.get(templo.color + '|' + templo.icon) || 0) + ' pines ' + templo.icon);
-check('con Tokio denso el emoji queda guardado en el HTML pero se ve el punto', cerca.emojiVisible === 0,
-  cerca.emojiVisible + '/' + cerca.total + ' emojis visibles');
-await page.screenshot({ path: `${OUT}/ac1-emoji-cerca.png` });
+// AC2 (692): a zoom de barrio el emoji se decide pin por pin. Una buena parte lo
+// muestra (los que tienen aire), los clusters quedan en punto, y NUNCA hay un emoji
+// pisando a otro. El 35% es el piso honesto medido: a z14 el viewport de desktop
+// abarca ~11km de Tokio central (Shibuya + Shinjuku + Ginza juntos) y esos clusters
+// se quedan en punto justamente por el criterio.
+check('a zoom de barrio buena parte de los pines muestra emoji',
+  cerca.emojiOnScreen >= cerca.onScreen * 0.35,
+  cerca.emojiOnScreen + '/' + cerca.onScreen + ' en pantalla con emoji');
+check('los clusters quedan en punto', cerca.dotsOnScreen > 0, cerca.dotsOnScreen + ' puntos');
+check('ningún emoji pisa a otro (centros a ≥24px)', cerca.solapes === 0, cerca.solapes + ' solapes');
+check('ningún punto está solo (todo punto tiene un vecino a <24px)', cerca.dotsSolos === 0,
+  cerca.dotsSolos + ' puntos sin vecino');
+await page.screenshot({ path: `${OUT}/ac2-emoji-barrio.png` });
 
 // El pin sigue siendo clickeable (la caja del ícono es transparente al mouse; el click
 // tiene que llegar igual al marker y abrir su popup).
@@ -135,15 +190,23 @@ if (box) await page.mouse.click(box.x, box.y);
 await page.waitForTimeout(700);
 check('el click sobre el pin abre su popup', !!box && await page.evaluate(() => !!document.querySelector('#map .leaflet-popup')));
 
-// -------------------------------------- 2 · mucha densidad: queda el punto (AC2)
+// ------------------- 2 · zoom de ciudad: aislados con emoji, clusters en punto (AC1)
+// El criterio viejo (conteo global) apagaba TODO por encima de 40 visibles: con los
+// ~200 pines de Tokio el emoji recién entraba a zoom de manzana. Ahora a cualquier
+// zoom los aislados (Odaiba, Kasukabe, Maihama) tienen emoji y los clusters de
+// Shibuya/Shinjuku/Ginza quedan en punto de 12px, sin que un emoji pise a otro.
 await page.evaluate(() => { document.querySelectorAll('.leaflet-popup-close-button').forEach(b => b.click()); });
 for (const z of [13, 12, 11]) {
   const got = await zoomOutTo(z);
   const s = await pinState();
-  check('con todos prendidos a zoom ' + z + ' la densidad deja puntos de 12px',
-    got === z && s.emojiVisible === 0 && s.size === 12,
-    (await page.locator('#map').getAttribute('data-visible-place-pins')) + ' visibles · ' + s.total + ' totales');
-  await page.screenshot({ path: `${OUT}/ac2-tokio-z${z}.png` });
+  check('a zoom ' + z + ' los pines aislados conservan el emoji',
+    got === z && s.emojiOnScreen > 0,
+    s.emojiOnScreen + '/' + s.onScreen + ' en pantalla con emoji');
+  check('y los clusters quedan en punto de 12px', s.dotsOnScreen > 0 && s.dotSize === 12,
+    s.dotsOnScreen + ' puntos de ' + s.dotSize + 'px');
+  check('sin solapes ni puntos sin motivo a zoom ' + z, s.solapes === 0 && s.dotsSolos === 0,
+    s.solapes + ' solapes · ' + s.dotsSolos + ' puntos sin vecino');
+  await page.screenshot({ path: `${OUT}/ac1-tokio-z${z}.png` });
 }
 
 // --------------------------------------- 3 · el hover desde la lista resalta su pin
@@ -194,7 +257,7 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(2200);
 await page.keyboard.press('Escape');
-await zoomOutTo(11);
+await zoomOutTo(12);
 const contar = () => page.evaluate(() => {
   const by = {};
   document.querySelectorAll('#map .pp').forEach(p => {
@@ -229,22 +292,24 @@ const vuelta = await contar();
 check('“Todo” devuelve el mapa como estaba',
   JSON.stringify(vuelta) === JSON.stringify(antes), Object.values(vuelta).reduce((a, b) => a + b, 0) + ' pines');
 
-// En la misma escala de ciudad, aislar una categoría chica cruza el umbral sin que
-// haya zoom: el handler de filtro tiene que recalcular por sí solo.
+// En la misma escala de ciudad, aislar una categoría con pocos lugares y aire entre
+// ellos prende el emoji en TODOS sin tocar el zoom: el handler de filtro recalcula por
+// sí solo (AC3). "Arte" deja ~7 lugares repartidos por Tokio; "Bar/noche" no sirve de
+// fixture: sus 28 lugares se apiñan en Shinjuku y a este zoom se tapan entre ellos.
 const zoomAntesFiltro = await zoom();
-await clickCat('Bar/noche');
+await clickCat('Arte');
 const pocos = await pinState();
-const pocosVisibles = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
-check('un filtro con pocos lugares prende el emoji a zoom de ciudad sin tocar el zoom',
-  zoomAntesFiltro === await zoom() && pocosVisibles > 0 && pocosVisibles <= 40 && pocos.emojiVisible === pocos.total,
-  pocosVisibles + ' visibles · zoom ' + await zoom() + ' · ' + pocos.size + 'px');
-check('el emoji filtrado conserva el aro de su categoría', pocos.aro === hexToRgb(pocos.aroDe),
-  pocos.aroDe + ' → ' + pocos.aro);
-await page.screenshot({ path: `${OUT}/ac1-filtro-ciudad.png` });
+check('un filtro con pocos lugares prende el emoji en todos a zoom de ciudad sin tocar el zoom',
+  zoomAntesFiltro === await zoom() && pocos.onScreen > 0 && pocos.emojiOnScreen === pocos.onScreen,
+  pocos.emojiOnScreen + '/' + pocos.onScreen + ' con emoji · zoom ' + await zoom());
+check('y sin ningún emoji pisando a otro', pocos.solapes === 0, pocos.solapes + ' solapes');
+check('el emoji filtrado conserva el aro de su categoría', pocos.aroEmoji === hexToRgb(pocos.aroEmojiDe),
+  pocos.aroEmojiDe + ' → ' + pocos.aroEmoji);
+await page.screenshot({ path: `${OUT}/ac3-filtro-ciudad.png` });
 
-// Mover el mapa a una zona vacía conserva el zoom y apaga el modo emoji (cero pines no
-// necesita pin abierto). Volver exactamente con el gesto inverso lo prende otra vez:
-// la única señal que cambió entre ambos estados fue `moveend`.
+// Mover el mapa a una zona vacía conserva el zoom y deja la pantalla sin pines. Volver
+// exactamente con el gesto inverso los trae de nuevo, ya reclasificados: la única señal
+// que cambió entre ambos estados fue `moveend` (AC4).
 const mapBox = await page.locator('#map').boundingBox();
 const drag = async (fromX, toX) => {
   await page.mouse.move(fromX, mapBox.y + mapBox.height / 2);
@@ -256,19 +321,32 @@ const drag = async (fromX, toX) => {
 const zoomAntesMove = await zoom();
 await drag(mapBox.x + mapBox.width * .8, mapBox.x + mapBox.width * .2);
 await drag(mapBox.x + mapBox.width * .8, mapBox.x + mapBox.width * .2);
-const trasMover = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
-check('mover el mapa recalcula la densidad sin cambiar el zoom',
-  zoomAntesMove === await zoom() && trasMover === 0 && !(await page.locator('#map').evaluate(e => e.classList.contains('pins-emoji'))),
-  pocosVisibles + ' → ' + trasMover + ' visibles · zoom ' + await zoom());
+const trasMover = await pinState();
+check('mover el mapa al mar deja la pantalla sin pines, sin cambiar el zoom',
+  zoomAntesMove === await zoom() && trasMover.onScreen === 0,
+  pocos.onScreen + ' → ' + trasMover.onScreen + ' en pantalla · zoom ' + await zoom());
 await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
 await drag(mapBox.x + mapBox.width * .2, mapBox.x + mapBox.width * .8);
-const trasVolver = Number(await page.locator('#map').getAttribute('data-visible-place-pins'));
-check('volver al área con pines restaura los emojis por moveend',
-  trasVolver === pocosVisibles && await page.locator('#map').evaluate(e => e.classList.contains('pins-emoji')),
-  trasMover + ' → ' + trasVolver + ' visibles');
+const trasVolver = await pinState();
+check('volver al área con pines los reclasifica por moveend',
+  trasVolver.onScreen === pocos.onScreen && trasVolver.emojiOnScreen === pocos.emojiOnScreen &&
+    trasVolver.solapes === 0 && trasVolver.dotsSolos === 0,
+  trasMover.onScreen + ' → ' + trasVolver.onScreen + ' en pantalla · ' +
+    trasVolver.emojiOnScreen + ' emoji · ' + trasVolver.solapes + ' solapes');
 await page.screenshot({ path: `${OUT}/ac4-moveend.png` });
 
 await clickCat('Todo');
+
+// Con todo prendido, el mismo gesto: lo que entra al viewport se clasifica en el
+// momento — los que caen cerca de otro quedan en punto y no aparece ningún solape
+// ni ningún punto injustificado (AC4, la mitad "entra un pin denso").
+await drag(mapBox.x + mapBox.width * .3, mapBox.x + mapBox.width * .7);
+const todoMovido = await pinState();
+check('con todo prendido, mover reclasifica lo que entra: clusters en punto, sin solapes',
+  todoMovido.dotsOnScreen > 0 && todoMovido.emojiOnScreen > 0 &&
+    todoMovido.solapes === 0 && todoMovido.dotsSolos === 0,
+  todoMovido.emojiOnScreen + ' emoji + ' + todoMovido.dotsOnScreen + ' puntos · ' +
+    todoMovido.solapes + ' solapes · ' + todoMovido.dotsSolos + ' puntos sin vecino');
 
 // ------------------- 5 · paradas numeradas, cama y aeropuerto sin cambios
 // De cero y con todas las familias prendidas (los aeropuertos y el transporte vienen
