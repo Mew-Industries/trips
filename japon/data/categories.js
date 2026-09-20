@@ -72,7 +72,7 @@ window.PLACE_CAT_LEGACY = {
   templos: 'templo-museo',
   museos: 'templo-museo',
   arquitectura: 'arquitectura',
-  miradores: 'templo-museo',   // arquitectura y miradores entran acá
+  miradores: 'landmark',       // torres y decks de observación: el plan es la vista/el hito (task 695)
   parques: 'parque',
   barrios: 'barrio',
   compras: 'compras',
@@ -130,12 +130,20 @@ window.PLACE_CAT_OVERRIDES = {
   'T2 Tokyo': 'bar-noche',                      // club EDM/pop abierto hasta el amanecer
   'Vent': 'bar-noche',                          // el mismo club techno que VENT Tokyo, cargado dos veces
   'WARP Shinjuku': 'bar-noche',                 // club temática alien, varios pisos
+  // Tercera pasada (task 695): bares que venían como `comida` o `miradores`.
+  'Beer Hall Lion Ginza': 'bar-noche',          // la cervecería de 1934: el plan es la birra, no la carta
+  'Ebisu Dagashi Bar (えびす駄菓子バー)': 'bar-noche',   // bar de golosinas retro, se va a tomar
+  'Le Chamber (bar de cócteles)': 'bar-noche',  // speakeasy de Gangnam
+  'Ohjo Building': 'bar-noche',                 // tercera grafía del mismo OHJO BLDG / Oh-Jo Building
+  'Omoide Yokocho': 'bar-noche',                // callejón de izakayas: unifica las dos entradas (Shinjuku y última cena), como Nonbei y Golden Gai
 
   // --- Landmarks: hitos donde el plan es verlo y la foto ---
   'Shibuya Crossing': 'landmark',               // el cruce peatonal más famoso de Tokio
   'Hachiko Statue': 'landmark',                 // la estatua-punto de encuentro
   'Cartel de Glico (Glico Running Man), Dotonbori': 'landmark',   // el cartel del corredor sobre Ebisubashi
   'Daikoku PA': 'landmark',                     // la parada de autos meca de la cultura JDM
+  'Shibuya Scramble': 'landmark',               // el mismo cruce que "Shibuya Crossing", cargado dos veces
+  'Rainbow Bridge': 'landmark',                 // el puente se va a VER (desde Odaiba, de noche), no a cruzarlo
 
   // --- Arte: museos de arte, galerías, land art y exhibiciones ---
   // El corte contra `templo-museo` es qué se va a ver: si es obra (cuadros,
@@ -143,7 +151,7 @@ window.PLACE_CAT_OVERRIDES = {
   // historia del lugar, se queda allá. Los museos que no son de arte (cerveza
   // Sapporo, Nintendo, perfume de Oita, Audeum) siguen en `templo-museo`, y
   // los lugares donde el plan es el EDIFICIO (Le Corbusier, KAIT, DDP) siguen
-  // en `arquitectura` / `templo-museo`.
+  // en `arquitectura`.
   'teamLab Planets': 'arte',
   'teamLab Borderless': 'arte',
   'Museo Ghibli si conseguís entrada': 'arte',
@@ -171,6 +179,25 @@ window.PLACE_CAT_OVERRIDES = {
   'Aomori Museum of Art': 'arte',
   'Museo al Aire Libre de Hakone (Hakone Open-Air Museum)': 'arte',
   'Museo de Arte Leeum': 'arte',
+  // Tercera pasada (task 695): museos de arte de reels que el legacy
+  // `museos → templo-museo` dejaba bajo ⛩️.
+  '21st Century Museum of Contemporary Art': 'arte',   // el mismo museo de Kanazawa que "Museo del Siglo XXI", cargado dos veces
+  'Teshima Art Museum': 'arte',                 // la gota de Nishizawa: la obra y el edificio son lo mismo
+  'Towada Art Center': 'arte',                  // arte contemporáneo, sedes de Nishizawa/Kusama
+  'Kyocera Museum of Art': 'arte',              // el museo de arte municipal de Kioto
+  'Hiroshi Senju Museum': 'arte',               // las cascadas de Senju en Karuizawa
+  'Hachinohe Art Museum': 'arte',               // museo de arte de Hachinohe
+  'Taro Okamoto Memorial Museum': 'arte',       // la casa-atelier del artista en Aoyama, hoy museo
+  'Karimoku Research Center': 'arte',           // galería/archivo de diseño de la mueblera Karimoku
+  'The National Art Center': 'arte',            // el de Kurokawa en Roppongi, sin colección propia: puras muestras
+  'The National Art Center Tokyo': 'arte',      // el mismo, cargado dos veces (venía como `arquitectura`)
+
+  // --- Arquitectura: guardados por el EDIFICIO, no por lo que pasa adentro ---
+  'KAIT Workshop & Plaza': 'arquitectura',      // los edificios de Ishigami en el campus KAIT
+  'Keihan Uji Station': 'arquitectura',         // la estación semienterrada de hormigón
+  'Kioi Seido': 'arquitectura',                 // la capilla de madera de Kioi-cho
+  'Reiyukai Shakaden Temple': 'arquitectura',   // el reel lo guarda por el brutalismo, no por el culto
+  'Dongdaemun Design Plaza (DDP, Zaha Hadid)': 'arquitectura',   // el plan es el edificio de Zaha
 
   // --- Talleres: te sentás a hacer la pieza y te la llevás ---
   // Todos venían de `ocio` → `actividad`, mezclados con clubes, onsen y parques
@@ -187,12 +214,15 @@ window.PLACE_CAT_OVERRIDES = {
   'Studio J-45': 'taller',                      // soplás tu propio vaso de vidrio
   'studio NIN': 'taller',                       // forjás shuriken/kunai o una hoja
   'Unimocc Art Gallery Café': 'taller',         // pintás tu torta-lienzo
+  // Tercera pasada (task 695): el plan es HACER la prenda, mismo criterio que
+  // Aisorashi. ("KAIT Workshop" sigue siendo el edificio de Ishigami — está en
+  // `arquitectura` —, y Taro Okamoto, la casa-atelier ya museo, en `arte`.)
+  'Betty Smith Ebisu Factory': 'taller',        // armás tu par de jeans en la fábrica
+  'UNIQLO UTme! (Harajuku)': 'taller',          // diseñás y estampás tu remera en el momento
   // Mirados y dejados donde estaban: Oita Fragrance Museum y Suginami Animation
   // Museum son museos que ADEMÁS tienen workshop (el plan es la colección);
   // Honjo Life Safety Learning Center es un simulador guiado, no salís con nada
-  // hecho; UNIQLO UTme! es un kiosco dentro de un local (el plan es comprar la
-  // remera); "KAIT Workshop" es el nombre del edificio de Ishigami, no un curso;
-  // y la casa-taller de Taro Okamoto es el atelier del artista, ya museo.
+  // hecho.
 
   // --- Reels que el legacy dejaba mal clasificados ---
   'Nintendo Museum': 'templo-museo',
@@ -203,10 +233,17 @@ window.PLACE_CAT_OVERRIDES = {
   'Yanagawa': 'barrio',
   'Round 1 Umeda': 'actividad',
   'Ueno Zoo': 'actividad',                      // zoológico con pandas; estaba en `otros` de los reels
+  // Tercera pasada (task 695):
+  'Tokyo Rinkai Disaster Prevention Park': 'actividad',   // simulador de terremoto guiado, mismo criterio que Honjo
 
   // --- Actividades del itinerario (index.html) ---
   'Dotonbori (luces, takoyaki, kushikatsu)': 'barrio',
   'Check-in del night tour — café TAIRA (Awesome Tours)': 'actividad',   // punto de encuentro del tour comprado de Okunoin
+  // Tercera pasada (task 695):
+  'Genbikei (rápidos + "dango volador" por el cable)': 'parque',   // la garganta con los rápidos; el dango es el snack, no el plan
+  'Harajuku': 'barrio',                         // unifica las dos entradas (llegada `barrios` / pre-vuelo `compras`)
+  'GENTLE MONSTER (flagship)': 'compras',       // flagship de anteojos con puesta escenográfica, pero se va a comprar
+  'HAUS NOWHERE Seoul': 'compras',              // la tienda-experiencia de GENTLE MONSTER en Seúl, mismo criterio
 
   // --- Guardados de Maps sin destino asignado (orphanPlaces) ---
   'Yakushima National Park': 'parque',
@@ -227,9 +264,9 @@ window.PLACE_CAT_OVERRIDES = {
   // --- Day trips ---
   'Kamakura': 'templo-museo',
   'Yokohama': 'barrio',
-  'KAIT広場 + Kanagawa Inst. of Technology': 'templo-museo',
+  'KAIT広場 + Kanagawa Inst. of Technology': 'arquitectura',   // el day trip es por los edificios de Ishigami (task 695)
   'Fukazawa Tiny Museum': 'templo-museo',
-  'Kazenooka Jumokuso Cemetery': 'templo-museo',
+  'Kazenooka Jumokuso Cemetery': 'arquitectura',   // el cementerio-paisaje de Fumihiko Maki (task 695)
   'Canal subterráneo de descarga (G-Cans)': 'actividad',
   'Nonohana': 'otro',
   'Matsushima': 'parque',
@@ -241,7 +278,7 @@ window.PLACE_CAT_OVERRIDES = {
   'Uji': 'templo-museo',
   'Monte Hiei (Enryaku-ji)': 'templo-museo',
   'Kobe': 'barrio',
-  'PL Tower (Great Peace Prayer Tower)': 'templo-museo',
+  'PL Tower (Great Peace Prayer Tower)': 'arquitectura',   // la torre expresionista; su duplicado "PL Peace Tower" ya estaba acá (task 695)
   'Dazaifu': 'templo-museo',
   'Gyeongju': 'templo-museo',
   'DMZ Tour': 'actividad',

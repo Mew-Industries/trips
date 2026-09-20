@@ -294,10 +294,12 @@ check('“Todo” devuelve el mapa como estaba',
 
 // En la misma escala de ciudad, aislar una categoría con pocos lugares y aire entre
 // ellos prende el emoji en TODOS sin tocar el zoom: el handler de filtro recalcula por
-// sí solo (AC3). "Arte" deja ~7 lugares repartidos por Tokio; "Bar/noche" no sirve de
-// fixture: sus 28 lugares se apiñan en Shinjuku y a este zoom se tapan entre ellos.
+// sí solo (AC3). "Talleres" deja 5 lugares repartidos por Tokio sin ningún par a menos
+// de PIN_EMOJI_CLEARANCE_PX; "Arte" dejó de servir de fixture en la task 695 (los
+// museos nuevos apiñan Roppongi y Aoyama) y "Bar/noche" nunca sirvió: sus lugares se
+// apiñan en Shinjuku y a este zoom se tapan entre ellos.
 const zoomAntesFiltro = await zoom();
-await clickCat('Arte');
+await clickCat('Talleres');
 const pocos = await pinState();
 check('un filtro con pocos lugares prende el emoji en todos a zoom de ciudad sin tocar el zoom',
   zoomAntesFiltro === await zoom() && pocos.onScreen > 0 && pocos.emojiOnScreen === pocos.onScreen,
