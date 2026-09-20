@@ -425,20 +425,30 @@ await fx.waitForTimeout(2800);
 const dia = await fx.evaluate(() => {
   const root = document.querySelector('#day-view');
   const pins = [...root.querySelectorAll('.pp')];
+  const visible = p => {
+    const e = p.querySelector('.pp-emoji');
+    return e && getComputedStyle(e).display !== 'none';
+  };
+  const shape = p => Math.round(p.getBoundingClientRect().width) + 'px·emoji:' + visible(p) +
+    '·op:' + getComputedStyle(p).opacity;
   return {
     total: pins.length,
-    emojiVisible: pins.filter(p => {
-      const e = p.querySelector('.pp-emoji');
-      return e && getComputedStyle(e).display !== 'none';
-    }).length,
-    size: pins.length ? Math.round(pins[0].getBoundingClientRect().width) : null,
+    sugs: pins.filter(p => p.classList.contains('pp-sug')).map(shape),
+    linea: pins.filter(p => !p.classList.contains('pp-sug')).map(shape),
     pares: pins.map(p => p.style.getPropertyValue('--c').trim() + '|' +
       (p.querySelector('.pp-emoji') ? p.querySelector('.pp-emoji').textContent : '')),
   };
 });
-check('el mapa de la jornada muestra el emoji de la categoría, sin corte de zoom',
-  dia.total > 0 && dia.emojiVisible === dia.total && dia.size === 22,
-  dia.total + ' pines de ' + dia.size + 'px · ' + [...new Set(dia.pares)].join(' '));
+// Desde la task 698 la sugerencia del mapa de la jornada descansa ATENUADA: punto de
+// 12px con el tinte de su categoría, sin emoji (el emoji sigue en el DOM —los pares se
+// validan abajo— y aparece con hover/popup: eso lo cubre check_day_map_suggestions).
+// El pin de lugar que viene de la LÍNEA del día (acá, las anclas desnumeradas por el
+// fixture) no es sugerencia y conserva el disco de 22px con emoji, sin corte de zoom.
+check('la sugerencia de la jornada descansa atenuada y el pin de línea sigue nítido',
+  dia.sugs.length > 0 && dia.sugs.every(s => s === '12px·emoji:false·op:0.35') &&
+    dia.linea.length > 0 && dia.linea.every(s => s === '22px·emoji:true·op:1'),
+  dia.sugs.length + ' sugerencias [' + [...new Set(dia.sugs)].join(' ') + '] · ' +
+    dia.linea.length + ' de línea [' + [...new Set(dia.linea)].join(' ') + ']');
 check('y los pares color|emoji son los mismos de la taxonomía',
   dia.total > 0 && dia.pares.every(p => esperados.has(p.toLowerCase())), [...new Set(dia.pares)].join(' '));
 check('la cama de la jornada sigue intacta',

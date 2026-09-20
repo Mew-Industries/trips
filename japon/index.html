@@ -466,6 +466,14 @@
   .pp:hover, .pp.active { transform: translate(-50%, -50%) scale(1.45); }
   .pins-emoji .pp:not(.pp-dot) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
   .pins-emoji .pp:not(.pp-dot) .pp-emoji { display: block; }
+  /* Sugerencia candidata del mapa de la jornada: el recorrido numerado es lo único
+     nítido; la candidata queda como punto apagado con el tinte de su categoría, sin
+     emoji ni disco blanco. Hover o popup abierto (tap) la traen a plena opacidad con
+     su emoji y la escala de siempre. Sólo en la vista de jornada (.dv-day-map): la
+     portada y el foco de día no cambian. */
+  .dv-day-map .pp.pp-sug { transition: transform 0.15s, opacity 0.15s; }
+  .dv-day-map .pp.pp-sug:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
+  .dv-day-map .pp.pp-sug:not(:hover):not(.active) .pp-emoji { display: none; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -2378,11 +2386,11 @@ function focusMarker(m) {
 // que muestra la lista— adentro del disco con el aro del color. Siempre va en el HTML:
 // quién lo muestra y quién se queda en el punto lo decide el CSS del contenedor
 // (`.pins-emoji`), abajo.
-function placeIcon(cat, kind, id) {
+function placeIcon(cat, kind, id, cls) {
   const size = 24;
   const meta = CAT_META[cat] || CAT_META.otro;
   return L.divIcon({
-    html: '<div class="pp" style="--c:' + meta.color + '"' + (id ? ' data-id="' + id + '"' : '') + '>' +
+    html: '<div class="pp' + (cls ? ' ' + cls : '') + '" style="--c:' + meta.color + '"' + (id ? ' data-id="' + id + '"' : '') + '>' +
       '<span class="pp-emoji">' + meta.icon + '</span></div>',
     className: 'pp-icon', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
   });
@@ -3959,11 +3967,16 @@ function renderDayMap(container, spec) {
     if (!p.ll || p.anchor || p.promoted || _dayViewMarkers[p.key]) return;
     const name = p.act && p.act.text ? p.act.text : 'Sugerencia';
     const cat = CAT_META[p.cat] || CAT_META.otro;
+    // `pp-sug`: candidata atenuada (task 698) — el CSS de .dv-day-map la deja como
+    // punto apagado y hover/popup la traen nítida. Con el popup abierto (tap, "ver
+    // en el mapa") se sostiene con `.active`, que en desktop no hay hover que dure.
     const marker = named(L.marker(p.ll, {
-      icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000,
+      icon: placeIcon(p.cat, 'save', p.key, 'pp-sug'), zIndexOffset: -1000,
     }), name,
       miniPopup(p.act && p.act.img, escHtml(name), escHtml(cat.icon + ' ' + cat.label),
         (p.act && p.act.url) || gmapsFromName(name)));
+    marker.on('popupopen', () => marker.getElement()?.querySelector('.pp')?.classList.add('active'));
+    marker.on('popupclose', () => marker.getElement()?.querySelector('.pp')?.classList.remove('active'));
     if (activeCats.has(p.cat)) marker.addTo(_dayViewMap);
     _dayViewMarkers[p.key] = marker;
     _dayViewSuggestions.push({ m: marker, cat: p.cat });
