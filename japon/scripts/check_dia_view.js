@@ -138,7 +138,9 @@ const check = (name, ok, extra = '') => {
     d4suggestions.length > 0 && d4suggestions.every(p => p.key && p.cat && p.act),
     d4suggestions.length + ' sugerencias en el modelo aislado');
   check('renderDayMap dibuja las sugerencias debajo del itinerario y conserva popup y filtro',
-    /\(spec\.route \|\| \[\]\)\.forEach/.test(html) && /!activeCats\.has\(p\.cat\)/.test(html) &&
+    // Desde la task 697 el filtro no descarta al dibujar: crea todos los marcadores y
+    // agrega al mapa sólo los de categorías activas, para que los chips refiltren en vivo.
+    /\(spec\.route \|\| \[\]\)\.forEach/.test(html) && /if \(activeCats\.has\(p\.cat\)\) marker\.addTo\(_dayViewMap\)/.test(html) &&
       /zIndexOffset: -1000/.test(html) && /miniPopup\(p\.act && p\.act\.img/.test(html));
   check('el pin numerado combina número y emoji de categoría a 30 px',
     /ordIcon\(p\.planNumber, cat\.color, cat\.icon\)/.test(html) &&

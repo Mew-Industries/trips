@@ -65,8 +65,9 @@
 
   /* Foco de día: el mapa queda mostrando una sola jornada. Mientras dura, los
      controles que el foco pisa no se muestran — decir dos cosas distintas sobre lo
-     mismo confunde más que ayudar. El chip es la única salida. */
-  #map.day-focus .map-bars, #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
+     mismo confunde más que ayudar. El chip es la única salida. Los chips de
+     categoría (.map-bars) sí se quedan: filtran los pines de la jornada (task 697). */
+  #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
   /* La leyenda de modos explica las líneas de transporte: sin ellas dibujadas, sobra. */
   #map.no-legs .route-legend { display: none; }
   .day-chip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1001; display: none; }
@@ -374,6 +375,13 @@
   .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
   .dv-day-map { height: 300px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
   @media (max-width: 600px) { .dv-day-map { height: 230px; } }
+  /* Chips de categoría sobre el mapita de la jornada: la misma barra de la portada,
+     abajo. En 230-300 px de alto la fila entera no entra plegada: va en una sola
+     línea scrolleable, el mismo trato que la portada le da al mobile. */
+  .dv-day-map .map-bars { left: 0; right: 0; bottom: 8px; }
+  .dv-day-map .map-cats { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
+  .dv-day-map .map-cats::-webkit-scrollbar { display: none; }
+  .dv-day-map .map-cats .mc { flex: none; font-size: 10px; padding: 4px 8px; }
   .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
   .sm-sec { margin-bottom: 12px; }
   .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
@@ -3282,11 +3290,13 @@ function enterDayFocus(spec) {
   // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
   const prev = dayFocus ? dayFocus.prev : { center: map.getCenter(), zoom: map.getZoom() };
   clearDayFocusLayers();
-  dayFocus = { date: spec.date, prev, shown: [] };
+  dayFocus = { date: spec.date, prev, shown: [], catMarkers: [] };
   TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
   // El foco apaga el transporte del viaje entero, pero el salto de ESE día es parte de
-  // la jornada: su línea se queda —y con ella el click a su ficha—. Mismo criterio que
-  // los pines del día, que también entran sin importar los filtros de afuera.
+  // la jornada: su línea se queda —y con ella el click a su ficha—. Los pines del día
+  // entran sin importar los toggles de familia, pero los chips de categoría sí les
+  // hablan (task 697): cada uno queda anotado en `catMarkers` con su categoría para
+  // que `applyCatFilter` los prenda y apague también durante el foco.
   (spec.legs || []).forEach(id => (legSegments[id] || []).forEach(s => { showFocused(s.pl); showFocused(s.hit); }));
 
   const line = [], ord = [];
@@ -3294,8 +3304,12 @@ function enterDayFocus(spec) {
   (spec.line || []).forEach(p => {
     if (p.bed) { step(lodgingMarkers[p.bed]); return; }
     if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
-    const ll = step(actMarkers[p.key]);
-    if (ll) ord.push({ ll, color: catColor(p.cat), emoji: (CAT_META[p.cat] || CAT_META.otro).icon, number: p.planNumber });
+    const m = actMarkers[p.key];
+    const ll = step(m);
+    if (ll) {
+      ord.push({ ll, cat: p.cat, color: catColor(p.cat), emoji: (CAT_META[p.cat] || CAT_META.otro).icon, number: p.planNumber });
+      dayFocus.catMarkers.push({ m, cat: p.cat, holder: map });
+    }
   });
   // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
@@ -3316,7 +3330,11 @@ function enterDayFocus(spec) {
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
-  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  // El número filtra junto con su pin: apagar la categoría apaga el círculo también.
+  ord.forEach((p, i) => {
+    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
+    dayFocus.catMarkers.push({ m, cat: p.cat, holder: focusLayer });
+  });
   focusLayer.addTo(map);
 
   dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
@@ -3332,6 +3350,9 @@ function enterDayFocus(spec) {
   const fit = line.concat(ctxPts);
   if (fit.length === 1) map.flyTo(fit[0], 14, { duration: 0.7 });
   else if (fit.length) map.flyToBounds(L.latLngBounds(fit), { padding: [70, 70], maxZoom: 15, duration: 0.7 });
+  // El filtro es uno solo: entrar al foco con una categoría apagada la respeta acá
+  // también (el encuadre no — sigue mostrando el recorrido entero, que no baila).
+  applyCatFilter(true);
 }
 
 function clearDayFocusLayers() {
@@ -3362,31 +3383,50 @@ L.DomEvent.disableScrollPropagation(barsWrap);
 // Filtro por categoría — los chips son a la vez la leyenda de color de los pines.
 // Con todo prendido, un click aísla esa categoría; después cada click suma o saca.
 // El estado va a la URL (?cat=comida,bar-noche) para poder compartir la vista.
+//
+// El estado es UNO SOLO (task 697): la barra de la portada y la del mapita de la
+// jornada leen y escriben el mismo `activeCats` — filtrar en una y mirar la otra
+// muestra lo mismo. Por eso las barras se fabrican acá (`buildCatBar`) y se anotan
+// en `catBars`, para que `applyCatFilter` les sincronice el estado a todas.
 const activeCats = new Set(CAT_ORDER);
-const catBar = document.createElement('div');
-catBar.className = 'map-cats';
-const catBtns = {};
-CAT_ORDER.forEach(c => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'mc';
-  btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
-  btn.addEventListener('click', () => {
-    if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
-    else if (activeCats.has(c)) activeCats.delete(c);
-    else activeCats.add(c);
-    applyCatFilter();
+const catBars = [];
+function buildCatBar() {
+  const bar = document.createElement('div');
+  bar.className = 'map-cats';
+  const btns = {};
+  CAT_ORDER.forEach(c => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mc';
+    btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
+    btn.addEventListener('click', () => {
+      if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
+      else if (activeCats.has(c)) activeCats.delete(c);
+      else activeCats.add(c);
+      applyCatFilter();
+    });
+    btns[c] = btn;
+    bar.appendChild(btn);
   });
-  catBtns[c] = btn;
-  catBar.appendChild(btn);
-});
-const allCatsBtn = document.createElement('button');
-allCatsBtn.type = 'button';
-allCatsBtn.className = 'mc mc-all';
-allCatsBtn.textContent = 'Todo';
-allCatsBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
-catBar.appendChild(allCatsBtn);
-barsWrap.appendChild(catBar);
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = 'mc mc-all';
+  allBtn.textContent = 'Todo';
+  allBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
+  bar.appendChild(allBtn);
+  const entry = { bar, btns, allBtn };
+  catBars.push(entry);
+  return entry;
+}
+barsWrap.appendChild(buildCatBar().bar);
+
+// El mapa embebido de la jornada y sus piezas viven declarados acá arriba porque
+// `applyCatFilter` los toca y corre antes de que `renderDayMap` exista siquiera
+// (el deep-link de ?cat= la llama al cargar la página).
+let _dayViewMap = null;
+let _dayViewMarkers = {};
+let _dayViewSuggestions = [];   // { m, cat } — sólo candidatas; el plan no filtra
+let _dayViewCatBar = null;
 
 function applyCatFilter(skipUrl) {
   placePins.forEach(p => {
@@ -3394,8 +3434,25 @@ function applyCatFilter(skipUrl) {
     if (on && !p.layer.hasLayer(p.m)) p.layer.addLayer(p.m);
     else if (!on && p.layer.hasLayer(p.m)) p.layer.removeLayer(p.m);
   });
-  CAT_ORDER.forEach(c => catBtns[c].classList.toggle('off', !activeCats.has(c)));
-  allCatsBtn.hidden = activeCats.size === CAT_ORDER.length;
+  // En foco de día los pines de la jornada están sueltos sobre el mapa (sus
+  // layerGroups quedaron apagados), así que se prenden/apagan uno por uno. Camas,
+  // terminales y tramos no tienen categoría: quedan siempre.
+  if (dayFocus) dayFocus.catMarkers.forEach(e => {
+    const on = activeCats.has(e.cat);
+    if (on && !e.holder.hasLayer(e.m)) e.holder.addLayer(e.m);
+    else if (!on && e.holder.hasLayer(e.m)) e.holder.removeLayer(e.m);
+  });
+  // En el mapita de la jornada filtran SOLO las sugerencias: los promovidos y las
+  // anclas son plan, no candidatas, y se dibujan siempre.
+  if (_dayViewMap) _dayViewSuggestions.forEach(s => {
+    const on = activeCats.has(s.cat);
+    if (on && !_dayViewMap.hasLayer(s.m)) s.m.addTo(_dayViewMap);
+    else if (!on && _dayViewMap.hasLayer(s.m)) _dayViewMap.removeLayer(s.m);
+  });
+  catBars.forEach(b => {
+    CAT_ORDER.forEach(c => b.btns[c].classList.toggle('off', !activeCats.has(c)));
+    b.allBtn.hidden = activeCats.size === CAT_ORDER.length;
+  });
   syncPinEmojis();
   if (skipUrl) return;
   const u = new URL(location.href);
@@ -3816,11 +3873,13 @@ const weatherChart = new Chart(ctx, {
 // Mapa embebido de la vista individual de día. Consume el mismo `dayRoute()` que el
 // foco del mapa principal: no vuelve a calcular orden ni coordenadas. Las únicas
 // resoluciones que hace son cama → coords del hospedaje y parada → coords del nodo.
-let _dayViewMap = null;
-let _dayViewMarkers = {};
+// (Su estado —`_dayViewMap` y compañía— está declarado junto a `activeCats`, arriba:
+// `applyCatFilter` lo toca y corre antes de que este bloque exista.)
 function renderDayMap(container, spec) {
   if (_dayViewMap) { _dayViewMap.remove(); _dayViewMap = null; }
+  if (_dayViewCatBar) { catBars.splice(catBars.indexOf(_dayViewCatBar), 1); _dayViewCatBar = null; }
   _dayViewMarkers = {};
+  _dayViewSuggestions = [];
   if (!container || !spec) return;
 
   const coordsOf = p => {
@@ -3894,16 +3953,20 @@ function renderDayMap(container, spec) {
   // Las sugerencias son la materia prima para decidir el día: se ven en el mapa pero
   // no entran en la polilínea ni en su encuadre. Las ya promovidas/ancladas se dibujaron
   // arriba con número; acá quedan sólo las candidatas y respetan el filtro global.
+  // Se crean TODAS y se agrega al mapa sólo lo activo: así los chips refiltran en vivo
+  // (applyCatFilter) sin volver a armar el mapa.
   (spec.route || []).forEach(p => {
-    if (!p.ll || p.anchor || p.promoted || !activeCats.has(p.cat) || _dayViewMarkers[p.key]) return;
+    if (!p.ll || p.anchor || p.promoted || _dayViewMarkers[p.key]) return;
     const name = p.act && p.act.text ? p.act.text : 'Sugerencia';
     const cat = CAT_META[p.cat] || CAT_META.otro;
     const marker = named(L.marker(p.ll, {
       icon: placeIcon(p.cat, 'save', p.key), zIndexOffset: -1000,
-    }).addTo(_dayViewMap), name,
+    }), name,
       miniPopup(p.act && p.act.img, escHtml(name), escHtml(cat.icon + ' ' + cat.label),
         (p.act && p.act.url) || gmapsFromName(name)));
+    if (activeCats.has(p.cat)) marker.addTo(_dayViewMap);
     _dayViewMarkers[p.key] = marker;
+    _dayViewSuggestions.push({ m: marker, cat: p.cat });
   });
   // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
   // como marcadores con el mismo popup de la portada, pero no alteran la polilínea:
@@ -3920,6 +3983,17 @@ function renderDayMap(container, spec) {
     named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
       miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsFromName(n.short)));
   });
+  // La misma barra de chips de la portada, abajo del mapita (task 697). Es otra
+  // instancia del MISMO estado: tocar acá filtra las sugerencias de arriba y deja
+  // el mapa principal (y ?cat=) igual de filtrado.
+  const dayBars = document.createElement('div');
+  dayBars.className = 'map-bars';
+  _dayViewCatBar = buildCatBar();
+  dayBars.appendChild(_dayViewCatBar.bar);
+  container.appendChild(dayBars);
+  L.DomEvent.disableClickPropagation(dayBars);
+  L.DomEvent.disableScrollPropagation(dayBars);
+  applyCatFilter(true);   // pinta el estado vigente en la barra recién montada
   setTimeout(() => {
     if (!_dayViewMap) return;
     _dayViewMap.invalidateSize();
@@ -3966,6 +4040,10 @@ try {
     focusDayAct: (key) => {
       const marker = _dayViewMarkers[key];
       if (!marker || !_dayViewMap) return;
+      // "Ver en el mapa" con la categoría apagada: se la prende (chips incluidos),
+      // igual que revealPin en la portada — volar a un pin que no está no muestra nada.
+      const sug = _dayViewSuggestions.find(s => s.m === marker);
+      if (sug) revealCat(sug.cat);
       _dayViewMap.setView(marker.getLatLng(), Math.max(_dayViewMap.getZoom(), 14));
       marker.openPopup();
       document.querySelector('[data-day-map]')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });

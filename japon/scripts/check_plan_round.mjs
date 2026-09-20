@@ -403,7 +403,10 @@ await numbered.route('https://votos.mewis.online/**', async route => {
 await numbered.goto(base + '?tab=dias&jornada=2026-10-11&plan=numeros', { waitUntil: 'domcontentloaded' });
 await numbered.locator('.day-view .pl-promoted').first().waitFor();
 const visibleNumbers = () => numbered.locator('.day-view .pl-promoted > .pl-t').allTextContents();
-const pinNumbers = () => numbered.locator('.day-view [data-day-map] .rt-ord').allTextContents();
+// El .rt-ord lleva el emoji de su categoría adentro (task 689): acá interesa el
+// número, así que se queda sólo con los dígitos.
+const pinNumbers = async () =>
+  (await numbered.locator('.day-view [data-day-map] .rt-ord').allTextContents()).map(t => t.replace(/\D/g, ''));
 check('tres promovidos se numeran 1, 2, 3 sin huecos',
   JSON.stringify(await visibleNumbers()) === JSON.stringify(['1.', '2.', '3.']), JSON.stringify(await visibleNumbers()));
 check('los pines promovidos usan los mismos números que las filas',
