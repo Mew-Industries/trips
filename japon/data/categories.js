@@ -11,7 +11,7 @@
 // Verificación: node scripts/check_categories.js
 
 window.PLACE_TAXONOMY = {
-  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'landmark', 'actividad', 'taller', 'compras', 'barrio', 'otro'],
+  order: ['comida', 'bar-noche', 'parque', 'templo-museo', 'arte', 'arquitectura', 'landmark', 'actividad', 'taller', 'compras', 'barrio', 'otro', 'sin-identificar'],
   meta: {
     'comida':       { label: 'Comida',     icon: '🍜',  color: '#D8452F' },
     'bar-noche':    { label: 'Bar/noche',  icon: '🍸',  color: '#6D4AA8' },
@@ -56,6 +56,16 @@ window.PLACE_TAXONOMY = {
     'compras':      { label: 'Compras',    icon: '🛍️', color: '#D4408C' },
     'barrio':       { label: 'Barrios',    icon: '🏙️', color: '#3B6FD4' },
     'otro':         { label: 'Otros',      icon: '✨',  color: '#8C8C8C' },
+    // Guardados que no se sabe QUÉ son (un pin de Maps sin nota ni nombre que
+    // diga nada): cola de trabajo para Martín, no basura — por eso SÍ va en
+    // `order`, para que tenga chip filtrable y se vea en la leyenda. Se vacía
+    // moviendo cada lugar a su categoría real cuando se identifica. El gris
+    // claro dice "todavía sin color asignado" sin pisar el gris medio de
+    // `otro`: ΔE2000 16.4 contra #8C8C8C —su par más cercano en toda la
+    // paleta, arriba del piso de ~15— y ≥ 16 contra el resto. El contraste
+    // sobre blanco es bajo (1.7:1) a propósito de que se lea como placeholder;
+    // el ❓ dentro del pin es lo que carga la identificación.
+    'sin-identificar': { label: 'Sin identificar', icon: '❓', color: '#C4C4C4' },
     // Consejos del viaje (reels sin lugar concreto: JR Pass, valija, eSIM,
     // etiqueta). Está en `meta` pero NO en `order` A PROPÓSITO: un tip no tiene
     // coordenada, así que nunca es un pin —y `order` es lo que arma los filtros
@@ -235,6 +245,15 @@ window.PLACE_CAT_OVERRIDES = {
   'Ueno Zoo': 'actividad',                      // zoológico con pandas; estaba en `otros` de los reels
   // Tercera pasada (task 695):
   'Tokyo Rinkai Disaster Prevention Park': 'actividad',   // simulador de terremoto guiado, mismo criterio que Honjo
+
+  // --- Guardados de Maps sin nota: no se sabe qué son (task 696) ---
+  // Tres pins que Martín guardó en Google Maps sin nota y entraron a
+  // index.html como `miradores`, así que caían en 🗼 landmark. Hasta que
+  // Martín diga qué son, van en `sin-identificar`; cuando lo diga, se mueve
+  // cada uno a su categoría real y se borra de acá.
+  '1-15 Udagawacho (Shibuya)': 'sin-identificar',
+  'stoop': 'sin-identificar',
+  '2 Chome-13-4 Uenosakuragi (Yanaka)': 'sin-identificar',
 
   // --- Actividades del itinerario (index.html) ---
   'Dotonbori (luces, takoyaki, kushikatsu)': 'barrio',
