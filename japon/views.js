@@ -657,11 +657,13 @@ function planItemHtml(e, ctx, planNumber) {
   const meta = [], body = [], links = [];
   let check = null;                   // clave de checklist, sólo para lo que es actividad
   // El nombre del hospedaje es dato sensible: en modo discreto queda la ciudad.
-  let title = e.lodging
+  // Sin el número de parada (`node.n`) adelante: acá adentro de UN día ese numerador
+  // no ordena nada — "8. Chichu Art Museum" parecía un segundo contador roto al lado
+  // del 1. 2. 3. de la lista (task 699). La ciudad ya la dice la cabecera del día.
+  const title = e.lodging
     ? '<button type="button" class="dy-hosp" data-hosp-day="' + e.node.id + '">' +
         ctx.DX(esc(e.lodging.name), esc(e.node.short)) + '</button>'
     : esc(e.text);
-  if (e.node && e.node.n) title = '<span class="pl-stop">' + esc(e.node.n) + '.</span> ' + title;
 
   if (e.kind === 'transporte') {
     const leg = e.transfer.leg, m = modeOf(ctx, leg);
@@ -775,7 +777,7 @@ function readOrder(day) {
     .map(r => r.e);
 }
 
-const fixedPlanHtml = (day, ctx) => {
+export const fixedPlanHtml = (day, ctx) => {
   let number = 0;
   return readOrder(day).map(e => planItemHtml(e, ctx, e.kind === 'reserva' ? ++number : null)).join('');
 };

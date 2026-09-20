@@ -18,6 +18,8 @@
  *  6. La navegación entre días (task 687): `neighborDay()` es la cuenta que comparten
  *     los botones de la barra y las flechas del teclado, no envuelve en los bordes, y
  *     las teclas viven en UN listener con sus guardas (foco de texto, drag, lightbox).
+ *  7. Ningún título del plan fijo arranca con "<número>." (task 699): el número de
+ *     parada del viaje (`node.n`) es del itinerario general, no de la vista de un día.
  */
 const fs = require('fs');
 const path = require('path');
@@ -60,7 +62,7 @@ const check = (name, ok, extra = '') => {
 
 (async () => {
   const { buildItinerary } = await import(path.join(DIR, 'itinerary.js'));
-  const { dayMeta, dayRoute, confirmedDayLine, neighborDay } = await import(path.join(DIR, 'views.js'));
+  const { dayMeta, dayRoute, confirmedDayLine, neighborDay, fixedPlanHtml } = await import(path.join(DIR, 'views.js'));
   const destinations = arrayLiteral('destinations');
   const it = buildItinerary(destinations);
 
@@ -196,6 +198,35 @@ const check = (name, ok, extra = '') => {
   // la `d` ni le mete otra guarda.
   check('la `d` del modo discreto sigue en su handler de index.html',
     /if \(e\.key !== 'd' && e\.key !== 'D'\) return;/.test(html) && !/'d'/.test(kb));
+
+  // 7 · ningún título del plan fijo con número de parada adelante (task 699).
+  // Se renderiza el plan fijo REAL de cada jornada (todos los kind: hospedaje,
+  // check-in/out, transporte, vuelo, reserva) y se mira el título (`.pl-w`); el
+  // numerador legítimo (1. 2. 3. de las reservas) vive en `.pl-t`, afuera del título.
+  const renderCtx = {
+    escHtml: s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;'),
+    DX: nombre => nombre,
+    hoursParts: () => [],
+    lodgingLinks: () => [],
+    legType: () => 'tren',
+    MODE_STYLE: {},
+    activityId: (act, node) => node.id + ':' + node.activities.indexOf(act),
+  };
+  const numerados = it.days.flatMap(day => {
+    const htmlDia = fixedPlanHtml(day, renderCtx);
+    const titles = [...htmlDia.matchAll(/<div class="pl-w">([\s\S]*?)<\/div>/g)]
+      .map(x => x[1].replace(/<[^>]*>/g, '').trim());
+    return titles.filter(t => /^\d+\.\s/.test(t)).map(t => day.date + ' «' + t + '»');
+  });
+  check('ningún título de la vista de día empieza con un número de parada',
+    numerados.length === 0, numerados.slice(0, 5).join(' · '));
+  const kioto = it.days.find(d => d.date === '2026-10-22');
+  const kiotoTitles = [...fixedPlanHtml(kioto, renderCtx).matchAll(/<div class="pl-w">([\s\S]*?)<\/div>/g)]
+    .map(x => x[1].replace(/<[^>]*>/g, '').trim());
+  check('el 22/10 (Kioto, parada 8) muestra Naoshima y el hospedaje sin "8." adelante',
+    kiotoTitles.length > 0 && kiotoTitles.every(t => !/^8\./.test(t)),
+    kiotoTitles.join(' · '));
 
   console.log(failed ? `\n✗ ${failed} check(s) fallaron` : '\n✓ todo ok');
   process.exit(failed ? 1 : 0);
