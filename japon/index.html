@@ -618,6 +618,7 @@
 <script src="data/categories.js"></script>
 <script src="data/reels.js"></script>
 <script src="data/added_by.js"></script>
+<script src="data/activity_gpids.js"></script>
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 import { mountViews } from './views.js';
@@ -2135,7 +2136,11 @@ const sourceThingByIndex = [];
 // Maps). El de reels pisa al de la lista: es el que ya validó el bounding box.
 const GPID = Object.assign({}, window.PLACE_GPID || {});
 sourceThings.forEach(p => { if (p.gpid) GPID[thingKey(p.name)] = p.gpid; });
-const gpidOf = name => GPID[thingKey(name)];
+// Las actividades del itinerario tienen su propio gpid (data/activity_gpids.js,
+// geocodificado con validación ≤300 m contra las coords de la actividad — task
+// 705 addendum): va primero, es el id verificado contra ESTE punto del mapa.
+const ACTIVITY_GPIDS = window.ACTIVITY_GPIDS || {};
+const gpidOf = name => ACTIVITY_GPIDS[thingKey(name)] || GPID[thingKey(name)];
 const CITY_ALIASES = [
   ['tokio', /^(tokio|tokyo)\b/], ['kioto', /^(kioto|kyoto)\b/],
   ['osaka', /^osaka\b/]

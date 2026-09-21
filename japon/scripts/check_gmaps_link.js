@@ -44,4 +44,37 @@ for (const [name, got, want] of checks) {
   console.log(`${ok ? '✓' : '✗'} ${name}`);
   if (!ok) { console.log(`    got:  ${got}\n    want: ${want}`); failed++; }
 }
+
+// Actividades del itinerario (task 705 addendum): tienen coords pero ningún
+// gpid propio en el HTML — data/activity_gpids.js (geocodificado con validación
+// ≤300 m) las cubre y gpidOf lo consulta ANTES que el GPID de reels/added_by.
+vm.runInContext('window = this; ' +
+  html.match(/const catKey = [\s\S]*?\.trim\(\);/)[0] + '\n' +
+  html.match(/const thingKey = .*;/)[0] +
+  '; this.thingKey = thingKey;', ctx);
+vm.runInContext(fs.readFileSync(path.join(__dirname, '..', 'data', 'activity_gpids.js'), 'utf8'), ctx);
+const AG = ctx.window.ACTIVITY_GPIDS || {};
+
+// El caso del veredicto de Martín: "Ichiran original" (Fukuoka) tiene que abrir
+// LA ficha ICHIRAN Original Shop and Headquarters (ftid …:0x686cca1ac34ca0bb),
+// no un homónimo. Vale el CID decimal o el ChIJ equivalente de la misma ficha.
+const ichiranGpid = AG[ctx.thingKey('Ichiran original')];
+const ichiranIdOk = String(ichiranGpid) === '7524611293723795643' ||
+  ichiranGpid === 'ChIJSc8jdZORQTURu6BMwxrKbGg';
+const ichiranHref = ctx.gmapsLink('Ichiran original', [33.593241, 130.404597], ichiranGpid);
+
+const bools = [
+  ['index.html carga data/activity_gpids.js',
+    /<script src="data\/activity_gpids\.js"><\/script>/.test(html)],
+  ['gpidOf mira ACTIVITY_GPIDS antes que el GPID de reels/added_by',
+    /const gpidOf = name => ACTIVITY_GPIDS\[thingKey\(name\)\] \|\| GPID\[thingKey\(name\)\]/.test(html)],
+  ['actividad del itinerario con gpid: el href abre ficha exacta (?cid= / query_place_id=)',
+    /(\?cid=|query_place_id=)/.test(ichiranHref)],
+  [`Ichiran original → la ficha 0x686cca1ac34ca0bb (gpid: ${ichiranGpid})`,
+    ichiranIdOk && (ichiranHref.includes('cid=' + ichiranGpid) || ichiranHref.includes('query_place_id=' + ichiranGpid))],
+];
+for (const [name, ok] of bools) {
+  console.log(`${ok ? '✓' : '✗'} ${name}`);
+  if (!ok) failed++;
+}
 process.exit(failed ? 1 : 0);
