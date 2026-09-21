@@ -1845,10 +1845,26 @@ routeLegend.onAdd = function () {
 routeLegend.addTo(map);
 
 // Popup estilo "mini Google Maps": foto (si hay) + nombre + sub + link a Maps.
-function gmapsFromName(name) {
-  return 'https://www.google.com/maps/search/?api=1&query=' +
-    encodeURIComponent(name.split('(')[0].split('/')[0].trim());
+// Link a Maps de un lugar, del mejor dato disponible (task 705):
+//  · gpid (place_id "ChIJ…" del geocoder, o CID numérico del sync de la lista):
+//    abre la ficha exacta — con coords en query no cae en un homónimo;
+//  · solo coords: búsqueda del nombre centrada en el punto;
+//  · solo nombre: la búsqueda de texto de siempre (puede abrir una lista).
+function gmapsLink(name, coords, gpid) {
+  const q = String(name || '').split('(')[0].split('/')[0].trim();
+  if (gpid && /^\d+$/.test(String(gpid))) return 'https://maps.google.com/?cid=' + gpid;
+  if (gpid) {
+    const query = coords ? coords[0] + ',' + coords[1] : q;
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query) +
+      '&query_place_id=' + encodeURIComponent(gpid);
+  }
+  if (coords) {
+    return 'https://www.google.com/maps/place/' + encodeURIComponent(q) +
+      '/@' + coords[0] + ',' + coords[1] + ',17z';
+  }
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
 }
+function gmapsFromName(name) { return gmapsLink(name); }
 // `lodging.url` es SIEMPRE la ficha pública del alojamiento (Airbnb, Rakuten, sitio
 // oficial): informativa, no es la reserva. Se rotula por lo que es y no por el dominio
 // — rotularla con el nombre de la OTA hacía que Sendai (reservado en Booking, ficha en
@@ -2114,6 +2130,12 @@ const thingKey = name => catKey(String(name || '').split('(')[0]);
 const ADDED_BY = window.PLACE_ADDED_BY || {};
 const sourceThings = window.SOURCE_THINGS || [];
 const sourceThingByIndex = [];
+// place_id de Google por thingKey (task 705): reels.js trae `gpid` (capturado por
+// el geocoder) y added_by.js puede traer PLACE_GPID (CID del sync de la lista de
+// Maps). El de reels pisa al de la lista: es el que ya validó el bounding box.
+const GPID = Object.assign({}, window.PLACE_GPID || {});
+sourceThings.forEach(p => { if (p.gpid) GPID[thingKey(p.name)] = p.gpid; });
+const gpidOf = name => GPID[thingKey(name)];
 const CITY_ALIASES = [
   ['tokio', /^(tokio|tokyo)\b/], ['kioto', /^(kioto|kyoto)\b/],
   ['osaka', /^osaka\b/]
@@ -2125,13 +2147,18 @@ function cityKeyOf(value) {
 }
 const cityOfNode = d => cityKeyOf(d.name || d.short || d.id);
 const activityId = (a, d) => a.activityId || ('act-' + cityOfNode(d) + '-' + (thingKey(a.text).replace(/\s+/g, '-') || 'sin-nombre'));
-function mapsSource(name, url) {
-  return { type: 'google_maps', url: url || gmapsFromName(name), label: 'Google Maps' };
+// Con coords se prefiere el link nuevo (gpid si hay, si no centrado en el punto)
+// por sobre el `url:` hardcodeado del dato: ése es search por nombre (task 705).
+function mapsSource(name, url, coords) {
+  const href = coords ? gmapsLink(name, coords, gpidOf(name)) : (url || gmapsLink(name));
+  return { type: 'google_maps', url: href, label: 'Google Maps' };
 }
 destinations.forEach(d => (d.activities || []).forEach(a => {
-  a.sources = a.sources || [mapsSource(a.text, a.url)];
+  a.sources = a.sources || [mapsSource(a.text, a.url, a.coords)];
 }));
-orphanPlaces.forEach(p => { p.sources = p.sources || [mapsSource(p.name, p.url)]; });
+orphanPlaces.forEach(p => {
+  p.sources = p.sources || [mapsSource(p.name, p.url, p.lat != null ? [p.lat, p.lon] : null)];
+});
 
 function nearestDestination(p) {
   let dest = destinations.find(d => p.area === d.short || (p.area || '').indexOf(d.short + ' ') === 0);
@@ -2152,8 +2179,10 @@ sourceThings.forEach((p, sourceIndex) => {
   if (!thing) thing = orphanPlaces.find(a => thingKey(a.name) === key);
   if (!thing) {
     const dest = nearestDestination(p);
+    // Nace de un reel pero también es un lugar de Maps: su popup lleva las dos
+    // evidencias — la ficha exacta (gpid, ya en GPID) además del 🎬 Reel.
     thing = { text: p.name, name: p.name, coords: [p.lat, p.lon], cat: p.cat,
-      area: p.area, note: p.note, sources: [] };
+      area: p.area, note: p.note, sources: [mapsSource(p.name, null, [p.lat, p.lon])] };
     if (dest) dest.activities.push(thing);
     else { thing.lat = p.lat; thing.lon = p.lon; orphanPlaces.push(thing); }
   }
@@ -2537,7 +2566,7 @@ destinations.forEach(d => {
     : DX(d.dates + ' · ') + d.nights + ' noches';
   const title = (d.n ? d.n + '. ' : '') + d.short;
   marker.bindPopup(
-    miniPopup(d.img, title + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsFromName(d.short))
+    miniPopup(d.img, title + (d.flag ? ' ' + d.flag : ''), datesLine, gmapsLink(d.short, d.coords))
   );
   markers[d.id] = marker;
   nearAdd(marker, title, '#0F6E56');
@@ -2550,7 +2579,7 @@ destinations.forEach(d => {
     const cat = catOf(dt.name, dt.cat);
     const marker = placePin(dt.coords, cat, 'dt', dtLayer, dt.id);
     marker.bindPopup(
-      miniPopup(dt.img, escHtml(dt.name), CAT_LABELS[cat] + ' · day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time), dt.url || gmapsFromName(dt.name))
+      miniPopup(dt.img, escHtml(dt.name), CAT_LABELS[cat] + ' · day trip desde ' + escHtml(d.short) + ' · ' + escHtml(dt.time), dt.coords ? gmapsLink(dt.name, dt.coords, gpidOf(dt.name)) : (dt.url || gmapsLink(dt.name)))
     );
     dtMarkers[dt.id] = marker;
     nearAdd(marker, dt.name, catColor(cat));
@@ -2560,7 +2589,8 @@ destinations.forEach(d => {
 // LUGARES GUARDADOS (Google Maps) — círculos del color de su categoría, tanto
 // los de cada destino como los orphans que no caen en ninguno.
 function placePopup(p, sub) {
-  return miniPopup(p.img, escHtml(p.name), sub, p.url || gmapsFromName(p.name));
+  const ll = p.coords || (p.lat != null ? [p.lat, p.lon] : null);
+  return miniPopup(p.img, escHtml(p.name), sub, ll ? gmapsLink(p.name, ll, p.gpid || gpidOf(p.name)) : (p.url || gmapsLink(p.name)));
 }
 
 
@@ -4046,7 +4076,7 @@ function renderDayMap(container, spec) {
       const name = p.terminal.name || 'Terminal';
       const mode = MODE_STYLE[p.terminal.mode] || {};
       named(terminalMarker(p.terminal).addTo(_dayViewMap), name,
-        miniPopup(null, escHtml(name), [mode.icon, mode.label || 'Terminal'].filter(Boolean).join(' '), gmapsFromName(name)));
+        miniPopup(null, escHtml(name), [mode.icon, mode.label || 'Terminal'].filter(Boolean).join(' '), gmapsLink(name, ll)));
       return;
     }
     const name = p.act && p.act.text ? p.act.text : 'Parada';
@@ -4058,7 +4088,7 @@ function renderDayMap(container, spec) {
     const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon, done ? 'pp-done' : '')
       : placeIcon(p.cat, 'save', p.key, done ? 'pp-done' : '');
     const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
-      withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)), p.key));
+      withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), gmapsLink(name, ll, gpidOf(name))), p.key));
     marker.on('popupopen', () => marker.getElement()?.querySelector('.pp, .rt-ord')?.classList.add('active'));
     marker.on('popupclose', () => marker.getElement()?.querySelector('.pp, .rt-ord')?.classList.remove('active'));
     marker._doneMeta = { done, ord: p.planNumber || 0, cat: p.cat, color: cat.color, emoji: cat.icon, cls: '' };
@@ -4083,7 +4113,7 @@ function renderDayMap(container, spec) {
       icon: placeIcon(p.cat, 'save', p.key, 'pp-sug' + (done ? ' pp-done' : '')), zIndexOffset: -1000,
     }), name,
       withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(cat.icon + ' ' + cat.label),
-        (p.act && p.act.url) || gmapsFromName(name)), p.key));
+        gmapsLink(name, p.ll, gpidOf(name))), p.key));
     marker._doneMeta = { done, ord: 0, cat: p.cat, cls: 'pp-sug' };
     marker.on('popupopen', () => marker.getElement()?.querySelector('.pp')?.classList.add('active'));
     marker.on('popupclose', () => marker.getElement()?.querySelector('.pp')?.classList.remove('active'));
@@ -4104,7 +4134,7 @@ function renderDayMap(container, spec) {
     });
     const title = (n.n ? n.n + '. ' : '') + n.short;
     named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
-      miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsFromName(n.short)));
+      miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsLink(n.short, n.coords)));
   });
   // La misma barra de chips de la portada, abajo del mapita (task 697). Es otra
   // instancia del MISMO estado: tocar acá filtra las sugerencias de arriba y deja
