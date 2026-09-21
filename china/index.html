@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>China · un mes · Beijing a Hong Kong · 2026</title>
+<title>China · dos meses · Beijing a Hong Kong · 2026</title>
 <link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -284,13 +284,13 @@
 
 <header class="site-header">
   <div class="header-title">
-    <h1>China · un mes, de norte a sur</h1>
-    <span class="subtitle">10 oct – 8 nov 2026</span>
+    <h1>China · dos meses, de norte a sur</h1>
+    <span class="subtitle">10 oct – 9 dic 2026</span>
   </div>
   <div class="header-stats">
     <span><strong>Norte</strong> Beijing</span>
-    <span><strong>29</strong> noches</span>
-    <span><strong>11</strong> paradas</span>
+    <span><strong>60</strong> noches</span>
+    <span><strong>19</strong> paradas</span>
     <span><strong>tren bala · vuelo · crucero</strong></span>
     <span><strong>Sur</strong> Hong Kong</span>
   </div>
@@ -333,17 +333,17 @@ const destinations = [
       'https://commons.wikimedia.org/wiki/Special:FilePath/The_Forbidden_City_-_View_from_Coal_Hill.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/Temple_of_Heaven_20160323_01.jpg?width=600'
     ],
-    dates: '10-14 oct', nights: 4,
-    arrival: '10 oct · punto de partida del viaje', departure: '14 oct · tren bala hacia Xi’an',
+    dates: '10-15 oct', nights: 5,
+    arrival: '10 oct · punto de partida del viaje', departure: '15 oct · tren bala hacia Datong',
     lodging: {
       name: 'Hotel en Dongcheng (cerca de Wangfujing)', type: 'Hotel · sugerencia (sin reserva)',
-      area: 'Dongcheng, a pasos de la Ciudad Prohibida y Wangfujing: base céntrica y bien conectada al metro para las 4 primeras noches.',
+      area: 'Dongcheng, a pasos de la Ciudad Prohibida y Wangfujing: base céntrica y bien conectada al metro para las 5 primeras noches.',
       coords: [39.9163, 116.4104],
-      checkIn: '10 oct', checkOut: '14 oct', nights: 4, booked: false,
+      checkIn: '10 oct', checkOut: '15 oct', nights: 5, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Dongcheng%20Beijing%20hotels'
     },
-    tempMax: '14-23', tempMin: '4-13', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'Arranque del viaje en la capital. 4 noches para los grandes clásicos imperiales — la Ciudad Prohibida, el Templo del Cielo, el Palacio de Verano — y una excursión de día entero a la Gran Muralla. Metro y taxi dentro de la ciudad.',
+    tempMax: '14-23', tempMin: '4-13', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Arranque del viaje en la capital. 5 noches para los grandes clásicos imperiales — la Ciudad Prohibida, el Templo del Cielo, el Palacio de Verano — más una excursión de día entero a la Gran Muralla y tiempo de sobra para perderse por los hutongs. Metro y taxi dentro de la ciudad.',
     activities: [
       { text: 'Ciudad Prohibida (Palacio Imperial)', cat: 'museos', coords: [39.9163, 116.3972] },
       { text: 'Plaza de Tian’anmen', cat: 'barrios', coords: [39.9055, 116.3976] },
@@ -360,27 +360,97 @@ const destinations = [
     ]
   },
   {
-    id: 'xian', n: 2, type: 'destino', name: 'Xi’an', short: 'Xi’an',
+    id: 'datong', n: 2, type: 'destino', name: 'Datong', short: 'Datong',
+    coords: [40.0768, 113.3001],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Yungang%20Grottoes%2003.2025.%204.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Yungang%20Grottoes%2003.2025.%204.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Hanging%20Monastery%20near%20Datong%2C%20China%2001.JPG?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Datong%20Ancient%20City%20Wall%2001.jpg?width=600'
+    ],
+    dates: '15-17 oct', nights: 2,
+    arrival: '15 oct · desde Beijing en tren bala', departure: '17 oct · tren bala hacia Pingyao',
+    leg: { mode: '🚄', time: '~1 h 50', dist: '300 km', detail: 'Tren de alta velocidad Beijing Norte → Datong Sur', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Beijing Norte → Datong Sur', when: '300 km · ~1 h 50 en tren bala', road: 'Línea de alta velocidad Beijing–Zhangjiakou–Datong' }
+    ] },
+    lodging: {
+      name: 'Hotel dentro de la ciudad amurallada', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Casco antiguo reconstruido, dentro de la muralla Ming: caminable a los monasterios de Huayan y Shanhua y a la Pantalla de los Nueve Dragones.',
+      coords: [40.0900, 113.2990],
+      checkIn: '15 oct', checkOut: '17 oct', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Datong%20old%20town%20hotels'
+    },
+    tempMax: '5-20', tempMin: '-5-10', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Capital carbonera reconvertida en puerta del arte budista: las grutas de Yungang, talladas en el siglo V, están a media hora del centro. 2 noches con aire ya bien seco y frío de estepa — a mediados de octubre las mínimas rozan el cero — y una excursión al Monasterio Colgante.',
+    activities: [
+      { text: 'Grutas de Yungang (51.000 budas tallados)', cat: 'museos', coords: [40.1097, 113.1289] },
+      { text: 'Monasterio de Huayan (dinastía Liao)', cat: 'museos', coords: [40.0894, 113.2947] },
+      { text: 'Pantalla de los Nueve Dragones', cat: 'museos', coords: [40.0925, 113.3047] },
+      { text: 'Muralla Ming de Datong (paseo en lo alto)', cat: 'miradores', coords: [40.0900, 113.3080] },
+      { text: 'Templo Shanhua', cat: 'museos', coords: [40.0839, 113.2997] },
+      { text: 'Sopa de cordero y daoxiao mian (fideos cortados a cuchillo)', cat: 'comida', coords: [40.0910, 113.3010] }
+    ],
+    daytrips: [
+      { id: 'xuankong', name: 'Monasterio Colgante (Xuankong Si)', coords: [39.6659, 113.7050], time: '~1 h 15 desde Datong', desc: 'Templo de 1.500 años clavado a media altura en un acantilado del monte Heng, sostenido por vigas encajadas en la roca. Combinable con la pagoda de Yingxian en el mismo día.' },
+      { id: 'yingxian', name: 'Pagoda de madera de Yingxian', coords: [39.5547, 113.1878], time: '~1 h 30 desde Datong', desc: 'La pagoda de madera más antigua y alta del mundo (1056, 67 m), en pie sin un solo clavo estructural tras casi mil años de terremotos.' }
+    ]
+  },
+  {
+    id: 'pingyao', n: 3, type: 'destino', name: 'Pingyao', short: 'Pingyao',
+    coords: [37.2014, 112.1743],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/1%20pingyao%20ancient%20city%20aerial%20pano%202019.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1%20pingyao%20ancient%20city%20aerial%20pano%202019.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Pingyao%20Street.jpg?width=600'
+    ],
+    dates: '17-19 oct', nights: 2,
+    arrival: '17 oct · desde Datong en tren bala', departure: '19 oct · tren bala hacia Xi’an',
+    leg: { mode: '🚄', time: '~2 h 40', dist: '360 km', detail: 'Tren de alta velocidad Datong Sur → Pingyao Gucheng (vía Taiyuan)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Datong Sur → Pingyao Gucheng', when: '360 km · ~2 h 40 en tren bala', road: 'Línea de alta velocidad Datong–Xi’an (Datong–Taiyuan–Pingyao)' }
+    ] },
+    lodging: {
+      name: 'Posada de patio (kang) en el casco antiguo', type: 'Guesthouse · sugerencia (sin reserva)',
+      area: 'Casa de patio tradicional dentro de la muralla, cerca de la calle Ming-Qing: dormir en un kang de ladrillo es parte del plan.',
+      coords: [37.2005, 112.1750],
+      checkIn: '17 oct', checkOut: '19 oct', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Pingyao%20ancient%20city%20guesthouse'
+    },
+    tempMax: '11-22', tempMin: '1-13', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La ciudad amurallada Ming mejor conservada de China, y capital financiera del imperio en el siglo XIX: acá nacieron los primeros bancos del país. 2 noches intramuros, sin autos, entre patios grises y farolitos rojos.',
+    activities: [
+      { text: 'Muralla Ming completa (6 km en lo alto)', cat: 'miradores', coords: [37.1960, 112.1750] },
+      { text: 'Rishengchang, el primer banco de China (1823)', cat: 'museos', coords: [37.2020, 112.1720] },
+      { text: 'Calle Ming-Qing (Nan Dajie)', cat: 'barrios', coords: [37.1990, 112.1750] },
+      { text: 'Templo del Dios de la Ciudad (Chenghuang Miao)', cat: 'museos', coords: [37.1980, 112.1790] },
+      { text: 'Carne de vaca de Pingyao y vinagre de Shanxi', cat: 'comida', coords: [37.2000, 112.1760] }
+    ],
+    daytrips: [
+      { id: 'qiaojia', name: 'Casa de la familia Qiao (Qiaojia Dayuan)', coords: [37.3629, 112.4229], time: '~40 min desde Pingyao', desc: 'El complejo de patios de una dinastía de mercaderes de Shanxi, escenario de "La linterna roja" de Zhang Yimou.' },
+      { id: 'shuanglin', name: 'Templo Shuanglin', coords: [37.1730, 112.1330], time: '~15 min desde Pingyao', desc: 'Más de 2.000 esculturas budistas de arcilla pintada Song–Ming en un monasterio fortificado. Pasa desapercibido y es una joya.' }
+    ]
+  },
+  {
+    id: 'xian', n: 4, type: 'destino', name: 'Xi’an', short: 'Xi’an',
     coords: [34.3416, 108.9398],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/51714-Terracota-Army.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/51714-Terracota-Army.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/City_wall_of_Xi%27an_51550-Xian_%2827959363326%29.jpg?width=600'
     ],
-    dates: '14-17 oct', nights: 3,
-    arrival: '14 oct · desde Beijing en tren bala', departure: '17 oct · tren bala hacia Chengdu',
-    leg: { mode: '🚄', time: '~4 h 30', dist: '1.216 km', detail: 'Tren de alta velocidad Beijing Oeste → Xi’an Norte', dirLabel: 'ver en Maps ↗', segments: [
-      { route: 'Beijing Oeste → Xi’an Norte', when: '1.216 km · ~4 h 30 en tren bala', road: 'Línea de alta velocidad Beijing–Guangzhou (CRH/CR400)' }
+    dates: '19-23 oct', nights: 4,
+    arrival: '19 oct · desde Pingyao en tren bala', departure: '23 oct · tren bala hacia Chengdu',
+    leg: { mode: '🚄', time: '~2 h 50', dist: '470 km', detail: 'Tren de alta velocidad Pingyao Gucheng → Xi’an Norte', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Pingyao Gucheng → Xi’an Norte', when: '470 km · ~2 h 50 en tren bala', road: 'Línea de alta velocidad Datong–Xi’an' }
     ] },
     lodging: {
       name: 'Hotel dentro de la muralla', type: 'Hotel · sugerencia (sin reserva)',
       area: 'Casco antiguo, dentro de la muralla Ming y cerca de la Torre de la Campana: caminable al Barrio Musulmán.',
       coords: [34.2614, 108.9530],
-      checkIn: '14 oct', checkOut: '17 oct', nights: 3, booked: false,
+      checkIn: '19 oct', checkOut: '23 oct', nights: 4, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Xian%20old%20city%20hotels'
     },
-    tempMax: '12-28', tempMin: '7-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'Antigua capital de trece dinastías y punto de partida de la Ruta de la Seda. 3 noches para los Guerreros de Terracota, la muralla Ming (que se recorre en bici) y la comida del Barrio Musulmán.',
+    tempMax: '11-24', tempMin: '5-12', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Antigua capital de trece dinastías y punto de partida de la Ruta de la Seda. 4 noches para los Guerreros de Terracota, la muralla Ming (que se recorre en bici), la comida del Barrio Musulmán y un día entero para el monte Hua.',
     activities: [
       { text: 'Muralla de la ciudad (recorrido en bici)', cat: 'miradores', coords: [34.2610, 108.9423] },
       { text: 'Barrio Musulmán + Gran Mezquita', cat: 'comida', coords: [34.2660, 108.9370] },
@@ -393,15 +463,15 @@ const destinations = [
     ]
   },
   {
-    id: 'chengdu', n: 3, type: 'destino', name: 'Chengdu', short: 'Chengdu',
+    id: 'chengdu', n: 5, type: 'destino', name: 'Chengdu', short: 'Chengdu',
     coords: [30.5728, 104.0668],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chengdu_Research_Base_Eingang.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/Chengdu_Research_Base_Eingang.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/Jingli.jpeg?width=600'
     ],
-    dates: '17-20 oct', nights: 3,
-    arrival: '17 oct · desde Xi’an en tren bala (túneles del Qinling)', departure: '20 oct · tren bala hacia Chongqing',
+    dates: '23-28 oct', nights: 5,
+    arrival: '23 oct · desde Xi’an en tren bala (túneles del Qinling)', departure: '28 oct · tren bala hacia Chongqing',
     leg: { mode: '🚄', time: '~3 h 30', dist: '700 km', detail: 'Tren de alta velocidad Xi’an → Chengdu Este (cruce de la cordillera Qinling)', dirLabel: 'ver en Maps ↗', segments: [
       { route: 'Xi’an Norte → Chengdu Este', when: '700 km · ~3 h 30 en tren bala', road: 'Línea de alta velocidad Xi’an–Chengdu (túneles del Qinling)' }
     ] },
@@ -409,11 +479,11 @@ const destinations = [
       name: 'Hotel cerca de Jinli / Wuhou', type: 'Hotel · sugerencia (sin reserva)',
       area: 'Zona de Jinli y el Templo de Wuhou: ambiente de casco antiguo, casas de té y buenos accesos al panda base.',
       coords: [30.6420, 104.0480],
-      checkIn: '17 oct', checkOut: '20 oct', nights: 3, booked: false,
+      checkIn: '23 oct', checkOut: '28 oct', nights: 5, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jinli%20Chengdu%20hotels'
     },
-    tempMax: '14-26', tempMin: '11-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'La capital de Sichuan: pandas, casas de té y el mejor hotpot picante del país. 3 noches con base tranquila antes del tramo hacia el Yangtsé. Ideal para excursiones al Buda de Leshan.',
+    tempMax: '14-26', tempMin: '10-17', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La capital de Sichuan: pandas, casas de té y el mejor hotpot picante del país. 5 noches con base tranquila antes del tramo hacia el Yangtsé — con margen para dos excursiones grandes, el Buda de Leshan y el monte Emei.',
     activities: [
       { text: 'Base de investigación del panda gigante', cat: 'parques', coords: [30.7333, 104.1450] },
       { text: 'Calle antigua de Jinli', cat: 'barrios', coords: [30.6420, 104.0480] },
@@ -424,31 +494,32 @@ const destinations = [
     ],
     daytrips: [
       { id: 'leshan', name: 'Gran Buda de Leshan', coords: [29.5449, 103.7710], time: '~1 h en tren bala', desc: 'El buda de piedra tallado más grande del mundo (71 m), esculpido en un acantilado sobre la confluencia de tres ríos. Combinable con el Monte Emei.' },
-      { id: 'dujiangyan', name: 'Dujiangyan + valle de pandas', coords: [30.9990, 103.6170], time: '~40 min en tren bala', desc: 'Sistema de irrigación del siglo III a.C. (Patrimonio de la Humanidad) y otro centro de pandas más tranquilo que el de la ciudad.' }
+      { id: 'dujiangyan', name: 'Dujiangyan + valle de pandas', coords: [30.9990, 103.6170], time: '~40 min en tren bala', desc: 'Sistema de irrigación del siglo III a.C. (Patrimonio de la Humanidad) y otro centro de pandas más tranquilo que el de la ciudad.' },
+      { id: 'emei', name: 'Monte Emei (Emeishan)', coords: [29.5990, 103.4840], time: '~1 h 30 en tren bala + bus', desc: 'Una de las cuatro montañas sagradas del budismo chino: monasterios entre bosque de niebla, monos descarados y la cumbre dorada a 3.077 m. Día largo o noche en un monasterio.' }
     ]
   },
   {
-    id: 'chongqing', n: 4, type: 'destino', name: 'Chongqing', short: 'Chongqing',
+    id: 'chongqing', n: 6, type: 'destino', name: 'Chongqing', short: 'Chongqing',
     coords: [29.5630, 106.5516],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Chongqing_Nightscape.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/Chongqing_Nightscape.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/202308_Hongya_Cave_at_night_from_Qiansimen_Bridge.jpg?width=600'
     ],
-    dates: '20-21 oct', nights: 1,
-    arrival: '20 oct · desde Chengdu en tren bala', departure: '21 oct · embarque del crucero por el Yangtsé',
+    dates: '28-30 oct', nights: 2,
+    arrival: '28 oct · desde Chengdu en tren bala', departure: '30 oct · embarque del crucero por el Yangtsé',
     leg: { mode: '🚄', time: '~1 h 15', dist: '300 km', detail: 'Tren de alta velocidad Chengdu → Chongqing', dirLabel: 'ver en Maps ↗', segments: [
       { route: 'Chengdu Este → Chongqing Norte', when: '300 km · ~1 h 15 en tren bala', road: 'Línea de alta velocidad Chengdu–Chongqing' }
     ] },
     lodging: {
       name: 'Hotel en Jiefangbei', type: 'Hotel · sugerencia (sin reserva)',
-      area: 'Centro de Jiefangbei, cerca de Hongyadong y el embarcadero del Yangtsé. 1 noche antes de subir al crucero.',
+      area: 'Centro de Jiefangbei, cerca de Hongyadong y el embarcadero del Yangtsé. 2 noches antes de subir al crucero.',
       coords: [29.5570, 106.5770],
-      checkIn: '20 oct', checkOut: '21 oct', nights: 1, booked: false,
+      checkIn: '28 oct', checkOut: '30 oct', nights: 2, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jiefangbei%20Chongqing%20hotels'
     },
-    tempMax: '16-27', tempMin: '12-17', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'Megaciudad vertical sobre la confluencia del Yangtsé y el Jialing: rascacielos entre montañas, monorriel que atraviesa un edificio y hotpot por todos lados. Noche de paso para embarcar el crucero.',
+    tempMax: '17-25', tempMin: '12-17', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Megaciudad vertical sobre la confluencia del Yangtsé y el Jialing: rascacielos entre montañas, monorriel que atraviesa un edificio y hotpot por todos lados. 2 noches para Hongyadong de noche, Ciqikou y el teleférico antes de embarcar el crucero.',
     activities: [
       { text: 'Hongyadong (complejo colgante iluminado)', cat: 'miradores', coords: [29.5630, 106.5810] },
       { text: 'Pueblo antiguo de Ciqikou', cat: 'barrios', coords: [29.5820, 106.4470] },
@@ -459,15 +530,15 @@ const destinations = [
     daytrips: []
   },
   {
-    id: 'yangtze', n: 5, type: 'destino', name: 'Crucero por el Yangtsé', short: 'Yangtsé',
+    id: 'yangtze', n: 7, type: 'destino', name: 'Crucero por el Yangtsé', short: 'Yangtsé',
     coords: [31.0500, 110.0000],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Qutang_Gorge_on_Changjiang.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/Qutang_Gorge_on_Changjiang.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/ThreeGorgesDam-China2009.jpg?width=600'
     ],
-    dates: '21-24 oct', nights: 3,
-    arrival: '21 oct · embarque en Chongqing', departure: '24 oct · desembarco en Yichang',
+    dates: '30 oct-2 nov', nights: 3,
+    arrival: '30 oct · embarque en Chongqing', departure: '2 nov · desembarco en Yichang',
     leg: { mode: '🚢', time: '3 noches a bordo', dist: '~660 km de río', detail: 'Crucero río abajo Chongqing → Yichang (Fengdu · Tres Gargantas · presa)', dirLabel: 'ver en Maps ↗',
       via: [[29.8900, 107.6800], [30.8100, 108.3800], [31.0470, 109.5900], [31.0700, 110.4000], [30.8236, 111.0030]],
       segments: [
@@ -478,10 +549,10 @@ const destinations = [
       name: 'Camarote a bordo (crucero fluvial)', type: 'Camarote · sugerencia (sin reserva)',
       area: 'Camarote con balcón en un crucero del Yangtsé (Century / Victoria u otro). Pensión completa a bordo, 3 noches río abajo.',
       coords: [31.0500, 110.0000],
-      checkIn: '21 oct', checkOut: '24 oct', nights: 3, booked: false,
+      checkIn: '30 oct', checkOut: '2 nov', nights: 3, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yangtze%20River%20cruise%20Three%20Gorges'
     },
-    tempMax: '12-26', tempMin: '6-16', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    tempMax: '14-22', tempMin: '8-13', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
     intro: 'El corazón del viaje: tres noches navegando el Yangtsé río abajo desde Chongqing hasta Yichang, cruzando las Tres Gargantas. Fengdu, el arroyo Shennong en barcas pequeñas y las esclusas gigantes de la presa.',
     activities: [
       { text: 'Garganta de Qutang (la del billete de 10 yuanes)', cat: 'miradores', coords: [31.0470, 109.5670] },
@@ -493,133 +564,96 @@ const destinations = [
     daytrips: []
   },
   {
-    id: 'zhangjiajie', n: 6, type: 'destino', name: 'Zhangjiajie', short: 'Zhangjiajie',
-    coords: [29.1170, 110.4790],
-    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
+    id: 'wuhan', n: 8, type: 'destino', name: 'Wuhan', short: 'Wuhan',
+    coords: [30.5928, 114.3055],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Yellow%20Crane%20Tower%2061469-Wuhan%20%2849149984218%29.jpg?width=600',
     imgs: [
-      'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
-      'https://commons.wikimedia.org/wiki/Special:FilePath/Tianmen_38330-Zhangjiajie_%2849047525877%29.jpg?width=600'
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Yellow%20Crane%20Tower%2061469-Wuhan%20%2849149984218%29.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Wuhan%20East%20Lake%2003.jpg?width=600'
     ],
-    dates: '24-26 oct', nights: 2,
-    arrival: '24 oct · desde Yichang en tren bala', departure: '26 oct · tren bala hacia Guilin',
-    leg: { mode: '🚄', time: '~2 h 30', dist: '380 km', detail: 'Tren de alta velocidad Yichang → Zhangjiajie (tras desembarcar del crucero)', dirLabel: 'ver en Maps ↗', segments: [
-      { route: 'Yichang Este → Zhangjiajie Oeste', when: '380 km · ~2 h 30 en tren bala', road: 'Línea de alta velocidad Zhengzhou–Wanzhou / Qianjiang–Changde' }
+    dates: '2-4 nov', nights: 2,
+    arrival: '2 nov · desde Yichang en tren, tras desembarcar', departure: '4 nov · tren bala hacia Huangshan',
+    leg: { mode: '🚄', time: '~2 h 00', dist: '300 km', detail: 'Tren Yichang Este → Hankou (Wuhan), tras desembarcar del crucero', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Yichang Este → Hankou', when: '300 km · ~2 h en tren', road: 'Línea Hankou–Yichang (Han-Yi)' }
     ] },
     lodging: {
-      name: 'Hotel en Wulingyuan', type: 'Hotel · sugerencia (sin reserva)',
-      area: 'Wulingyuan, en la puerta del parque forestal: cómodo para madrugar y subir a los pilares antes de las multitudes.',
-      coords: [29.3450, 110.5490],
-      checkIn: '24 oct', checkOut: '26 oct', nights: 2, booked: false,
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Wulingyuan%20Zhangjiajie%20hotels'
+      name: 'Hotel en Hankou (Jianghan Road)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Hankou, cerca de la peatonal Jianghan y el malecón de las antiguas concesiones: la zona con más vida para dos noches.',
+      coords: [30.5810, 114.2890],
+      checkIn: '2 nov', checkOut: '4 nov', nights: 2, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Jianghan%20Road%20Wuhan%20hotels'
     },
-    tempMax: '16-28', tempMin: '10-20', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'Los pilares de arenisca que inspiraron las montañas flotantes de Avatar. 2 noches para el parque forestal de Wulingyuan, el ascensor de Bailong y la montaña Tianmen con su sendero de cristal.',
+    tempMax: '18-28', tempMin: '11-17', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La ciudad-bisagra del Yangtsé: acá el río ya es un mar y lo cruza el primer puente que lo domó. 2 noches para la Torre de la Grulla Amarilla, las campanas de bronce del museo de Hubei y un desayuno de reganmian como manda la tradición local.',
     activities: [
-      { text: 'Parque forestal de Wulingyuan (pilares de Avatar)', cat: 'parques', coords: [29.3150, 110.4340] },
-      { text: 'Montaña Tianzi (Tianzishan)', cat: 'miradores', coords: [29.3480, 110.4820] },
-      { text: 'Ascensor de Bailong (glass elevator)', cat: 'otros', coords: [29.3220, 110.4380] },
-      { text: 'Montaña Tianmen + sendero de cristal', cat: 'miradores', coords: [29.0510, 110.4790] },
-      { text: 'Teleférico de Tianmen (uno de los más largos)', cat: 'otros', coords: [29.1130, 110.4790] },
-      { text: 'Arroyo del Látigo Dorado (Golden Whip)', cat: 'parques', coords: [29.3200, 110.4400] }
+      { text: 'Torre de la Grulla Amarilla (Huanghelou)', cat: 'miradores', coords: [30.5449, 114.3021] },
+      { text: 'Museo Provincial de Hubei (campanas del marqués Yi)', cat: 'museos', coords: [30.5647, 114.3667] },
+      { text: 'Lago del Este (Donghu) en bici', cat: 'parques', coords: [30.5580, 114.4160] },
+      { text: 'Barrio de Tanhualin', cat: 'barrios', coords: [30.5539, 114.3083] },
+      { text: 'Peatonal Jianghan y el Bund de Hankou', cat: 'barrios', coords: [30.5822, 114.2889] },
+      { text: 'Callejón Hubu: reganmian (fideos secos-calientes)', cat: 'comida', coords: [30.5470, 114.3080] },
+      { text: 'Gran Puente del Yangtsé (cruce a pie)', cat: 'miradores', coords: [30.5490, 114.2880] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'huangshan', n: 9, type: 'destino', name: 'Huangshan', short: 'Huangshan',
+    coords: [29.7132, 118.3151],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Huangshan%20Yingkesong.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Huangshan%20Yingkesong.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Huangshan%20fengjing.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Ancient%20Villages%20in%20Southern%20Anhui%20%E2%80%93%20Xidi%20and%20Hongcun-114147.jpg?width=600'
+    ],
+    dates: '4-7 nov', nights: 3,
+    arrival: '4 nov · desde Wuhan en tren bala', departure: '7 nov · tren bala hacia Hangzhou',
+    leg: { mode: '🚄', time: '~4 h 00', dist: '550 km', detail: 'Tren de alta velocidad Hankou → Huangshan Norte (vía Hefei)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Hankou → Huangshan Norte', when: '550 km · ~4 h en tren bala', road: 'Líneas Wuhan–Hefei y Hefei–Fuzhou' }
+    ] },
+    lodging: {
+      name: 'Hotel en Tunxi (calle antigua)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Tunxi, el casco viejo de la ciudad de Huangshan: base para madrugar hacia la montaña y volver a dormir abajo. Una noche arriba es opción si el pronóstico acompaña.',
+      coords: [29.7100, 118.3060],
+      checkIn: '4 nov', checkOut: '7 nov', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Tunxi%20Old%20Street%20hotels'
+    },
+    tempMax: '15-30', tempMin: '7-17', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La Montaña Amarilla: los picos de granito entre mar de nubes que pintó media dinastía. Principios de noviembre suma el rojo del otoño y algo de frío en altura — abrigo para la cumbre. 3 noches en Tunxi, con un día entero para la montaña y otro para las aldeas hui de Hongcun y Xidi.',
+    activities: [
+      { text: 'Cima Guangming (Bright Summit, 1.860 m)', cat: 'miradores', coords: [30.1319, 118.1552] },
+      { text: 'Gran Cañón del Mar del Oeste (Xihai)', cat: 'miradores', coords: [30.1360, 118.1440] },
+      { text: 'Pino que da la Bienvenida (Yingkesong)', cat: 'parques', coords: [30.1080, 118.1670] },
+      { text: 'Calle antigua de Tunxi (Lao Jie)', cat: 'barrios', coords: [29.7095, 118.3043] },
+      { text: 'Puente Ming de Zhenhai', cat: 'barrios', coords: [29.7078, 118.3007] },
+      { text: 'Té Maofeng y cocina hui', cat: 'comida', coords: [29.7100, 118.3060] }
     ],
     daytrips: [
-      { id: 'glassbridge', name: 'Gran Cañón + puente de cristal', coords: [29.3860, 110.5540], time: '~40 min desde Wulingyuan', desc: 'El puente de vidrio más alto y largo del mundo cuando abrió: 300 m sobre el cañón de Zhangjiajie.' },
-      { id: 'fenghuang', name: 'Pueblo antiguo de Fenghuang', coords: [27.9480, 109.5990], time: '~4 h ida (excursión larga)', desc: 'Ciudad ribereña de casas colgantes sobre pilotes junto al río Tuo. Especialmente linda de noche, iluminada.' }
+      { id: 'hongcun', name: 'Aldea de Hongcun', coords: [30.0113, 117.9916], time: '~1 h desde Tunxi', desc: 'Aldea hui Patrimonio de la Humanidad con forma de buey: la laguna Media Luna y el lago del Sur salieron en "El tigre y el dragón".' },
+      { id: 'xidi', name: 'Aldea de Xidi', coords: [29.9046, 117.9797], time: '~45 min desde Tunxi', desc: 'La otra aldea Patrimonio: 124 casas Ming y Qing de muros blancos y tejados grises, con menos turistas que Hongcun.' }
     ]
   },
   {
-    id: 'guilin', n: 7, type: 'destino', name: 'Guilin y Yangshuo', short: 'Guilin',
-    coords: [25.2740, 110.2900],
-    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
-    imgs: [
-      'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
-      'https://commons.wikimedia.org/wiki/Special:FilePath/1_guilin_yangshuo_2017.jpg?width=600',
-      'https://commons.wikimedia.org/wiki/Special:FilePath/LongshengRiceTerrace.jpg?width=600'
-    ],
-    dates: '26-29 oct', nights: 3,
-    arrival: '26 oct · desde Zhangjiajie en tren bala', departure: '29 oct · vuelo doméstico a Shanghái',
-    leg: { mode: '🚄', time: '~3 h 00', dist: '460 km', detail: 'Tren de alta velocidad Zhangjiajie → Guilin', dirLabel: 'ver en Maps ↗', segments: [
-      { route: 'Zhangjiajie Oeste → Guilin Norte', when: '460 km · ~3 h 00 en tren bala', road: 'Línea de alta velocidad Zhangjiajie–Huaihua–Guilin' }
-    ] },
-    lodging: {
-      name: 'Hotel en Yangshuo (West Street)', type: 'Hotel · sugerencia (sin reserva)',
-      area: 'Yangshuo, entre picos kársticos y el río Yulong: más lindo para dormir que Guilin ciudad. West Street a pasos.',
-      coords: [24.7784, 110.4960],
-      checkIn: '26 oct', checkOut: '29 oct', nights: 3, booked: false,
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yangshuo%20West%20Street%20hotels'
-    },
-    tempMax: '19-29', tempMin: '13-21', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'El paisaje kárstico de postal: picos de piedra caliza sobre el río Li. 3 noches para el crucero fluvial Guilin–Yangshuo, las balsas de bambú del Yulong y una excursión a las terrazas de arroz de Longji.',
-    activities: [
-      { text: 'Crucero por el río Li (Guilin → Yangshuo)', cat: 'miradores', coords: [25.0000, 110.4000] },
-      { text: 'Xingping (el paisaje del billete de 20 yuanes)', cat: 'miradores', coords: [24.9330, 110.6660] },
-      { text: 'West Street de Yangshuo', cat: 'barrios', coords: [24.7784, 110.4960] },
-      { text: 'Balsas de bambú por el río Yulong', cat: 'parques', coords: [24.7500, 110.4200] },
-      { text: 'Colina de la Luna (Moon Hill)', cat: 'miradores', coords: [24.7300, 110.4600] },
-      { text: 'Cueva de la Flauta de Caña (Guilin)', cat: 'parques', coords: [25.3060, 110.2820] }
-    ],
-    daytrips: [
-      { id: 'longji', name: 'Terrazas de arroz de Longji (Longsheng)', coords: [25.7560, 110.1290], time: '~2 h desde Guilin', desc: 'La "espina dorsal del dragón": laderas enteras esculpidas en terrazas de arroz por las minorías zhuang y yao. En octubre, doradas antes de la cosecha.' }
-    ]
-  },
-  {
-    id: 'shanghai', n: 8, type: 'destino', name: 'Shanghái', short: 'Shanghái',
-    coords: [31.2304, 121.4737],
-    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
-    imgs: [
-      'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
-      'https://commons.wikimedia.org/wiki/Special:FilePath/Shanghai_-_Yu_Garden_-_0035.jpg?width=600',
-      'https://commons.wikimedia.org/wiki/Special:FilePath/20191114_Shanghai_Tower_%282%29.jpg?width=600'
-    ],
-    dates: '29 oct-1 nov', nights: 3,
-    arrival: '29 oct · desde Guilin en vuelo doméstico', departure: '1 nov · tren bala hacia Hangzhou',
-    leg: { mode: '✈️', time: '~2 h 20', dist: '1.350 km', detail: 'Vuelo doméstico Guilin (KWL) → Shanghái (SHA/PVG)', dirLabel: 'ver en Maps ↗', segments: [
-      { route: 'Guilin Liangjiang → Shanghái Hongqiao', no: 'vuelo doméstico', when: '~2 h 20 de vuelo', aircraft: 'El tren bala tardaría ~9 h; acá conviene volar' }
-    ] },
-    lodging: {
-      name: 'Hotel cerca del Bund', type: 'Hotel · sugerencia (sin reserva)',
-      area: 'Entre el Bund y Nanjing Road: vistas al skyline de Pudong y caminable a Yu Garden y la Concesión Francesa.',
-      coords: [31.2340, 121.4900],
-      checkIn: '29 oct', checkOut: '1 nov', nights: 3, booked: false,
-      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Bund%20Shanghai%20hotels'
-    },
-    tempMax: '20-28', tempMin: '12-18', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'La metrópoli de la costa: el malecón del Bund frente a los rascacielos de Pudong, jardines clásicos y la Concesión Francesa. 3 noches y base para day trips a los pueblos de agua.',
-    activities: [
-      { text: 'El Bund (malecón histórico)', cat: 'miradores', coords: [31.2400, 121.4900] },
-      { text: 'Jardín Yu (Yuyuan)', cat: 'parques', coords: [31.2270, 121.4920] },
-      { text: 'Shanghai Tower (mirador, 2º edificio más alto)', cat: 'miradores', coords: [31.2336, 121.5058] },
-      { text: 'Concesión Francesa + Tianzifang', cat: 'barrios', coords: [31.2100, 121.4680] },
-      { text: 'Xintiandi', cat: 'barrios', coords: [31.2200, 121.4750] },
-      { text: 'Nanjing Road (compras)', cat: 'compras', coords: [31.2350, 121.4750] },
-      { text: 'Museo de Shanghái', cat: 'museos', coords: [31.2290, 121.4760] }
-    ],
-    daytrips: [
-      { id: 'zhujiajiao', name: 'Pueblo de agua de Zhujiajiao', coords: [31.1120, 121.0530], time: '~1 h desde Shanghái', desc: 'Canales, puentes de piedra Ming y barcas en las afueras de Shanghái. El pueblo de agua más accesible de la ciudad.' }
-    ]
-  },
-  {
-    id: 'hangzhou', n: 9, type: 'destino', name: 'Hangzhou', short: 'Hangzhou',
+    id: 'hangzhou', n: 10, type: 'destino', name: 'Hangzhou', short: 'Hangzhou',
     coords: [30.2741, 120.1551],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/West_Lake%2C_Hangzhou_2025.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/West_Lake%2C_Hangzhou_2025.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/Lingyin_Temple%2C_Hangzhou_20161003.jpg?width=600'
     ],
-    dates: '1-3 nov', nights: 2,
-    arrival: '1 nov · desde Shanghái en tren bala', departure: '3 nov · tren bala hacia Suzhou',
-    leg: { mode: '🚄', time: '~1 h 00', dist: '170 km', detail: 'Tren de alta velocidad Shanghái → Hangzhou', dirLabel: 'ver en Maps ↗', segments: [
-      { route: 'Shanghái Hongqiao → Hangzhou Este', when: '170 km · ~1 h 00 en tren bala', road: 'Línea de alta velocidad Shanghái–Hangzhou' }
+    dates: '7-10 nov', nights: 3,
+    arrival: '7 nov · desde Huangshan en tren bala', departure: '10 nov · tren bala hacia Suzhou',
+    leg: { mode: '🚄', time: '~1 h 30', dist: '265 km', detail: 'Tren de alta velocidad Huangshan Norte → Hangzhou Este', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Huangshan Norte → Hangzhou Este', when: '265 km · ~1 h 30 en tren bala', road: 'Línea de alta velocidad Hangzhou–Huangshan (Hanghuang)' }
     ] },
     lodging: {
       name: 'Hotel junto al Lago del Oeste', type: 'Hotel · sugerencia (sin reserva)',
       area: 'Orilla del Lago del Oeste (Xihu): caminatas al atardecer, pagodas y casas de té. Base tranquila y muy verde.',
       coords: [30.2450, 120.1490],
-      checkIn: '1 nov', checkOut: '3 nov', nights: 2, booked: false,
+      checkIn: '7 nov', checkOut: '10 nov', nights: 3, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=West%20Lake%20Hangzhou%20hotels'
     },
-    tempMax: '17-28', tempMin: '11-16', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'La ciudad del Lago del Oeste, clásico de la pintura china: pagodas, sauces y plantaciones de té Longjing en las colinas. 2 noches de ritmo más lento antes de Suzhou.',
+    tempMax: '10-27', tempMin: '2-17', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La ciudad del Lago del Oeste, clásico de la pintura china: pagodas, sauces y plantaciones de té Longjing en las colinas. 3 noches de ritmo más lento, con el lago en su semana de arces rojos.',
     activities: [
       { text: 'Lago del Oeste (Xihu) en barca', cat: 'parques', coords: [30.2450, 120.1490] },
       { text: 'Templo Lingyin (Retiro del Alma)', cat: 'museos', coords: [30.2410, 120.1010] },
@@ -632,15 +666,15 @@ const destinations = [
     ]
   },
   {
-    id: 'suzhou', n: 10, type: 'destino', name: 'Suzhou', short: 'Suzhou',
+    id: 'suzhou', n: 11, type: 'destino', name: 'Suzhou', short: 'Suzhou',
     coords: [31.2990, 120.5853],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Zhuozheng_Yuan_2015.04.23_08-13-49.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Zhuozheng_Yuan_2015.04.23_08-13-49.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/Suzhou_Pingjiang_Road.jpg?width=600'
     ],
-    dates: '3-5 nov', nights: 2,
-    arrival: '3 nov · desde Hangzhou en tren bala', departure: '5 nov · vuelo a Hong Kong (vía Shanghái)',
+    dates: '10-12 nov', nights: 2,
+    arrival: '10 nov · desde Hangzhou en tren bala', departure: '12 nov · tren bala hacia Shanghái',
     leg: { mode: '🚄', time: '~1 h 30', dist: '200 km', detail: 'Tren de alta velocidad Hangzhou → Suzhou', dirLabel: 'ver en Maps ↗', segments: [
       { route: 'Hangzhou Este → Suzhou Norte', when: '200 km · ~1 h 30 en tren bala', road: 'Línea de alta velocidad Shanghái–Hangzhou / Beijing–Shanghái' }
     ] },
@@ -648,10 +682,10 @@ const destinations = [
       name: 'Hotel cerca de Pingjiang Road', type: 'Hotel · sugerencia (sin reserva)',
       area: 'Casco antiguo junto a Pingjiang Road: canales, jardines clásicos y todo caminable. La "Venecia de Oriente".',
       coords: [31.3200, 120.6280],
-      checkIn: '3 nov', checkOut: '5 nov', nights: 2, booked: false,
+      checkIn: '10 nov', checkOut: '12 nov', nights: 2, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Pingjiang%20Road%20Suzhou%20hotels'
     },
-    tempMax: '16-30', tempMin: '8-19', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
+    tempMax: '12-28', tempMin: '6-19', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
     intro: 'La ciudad de los jardines clásicos y los canales, a media hora de Shanghái en tren bala. 2 noches para los jardines Patrimonio de la Humanidad, Pingjiang Road y una escapada a un pueblo de agua.',
     activities: [
       { text: 'Jardín del Administrador Humilde (Zhuozheng Yuan)', cat: 'parques', coords: [31.3250, 120.6290] },
@@ -666,30 +700,276 @@ const destinations = [
     ]
   },
   {
-    id: 'hongkong', n: 11, type: 'destino', name: 'Hong Kong', short: 'Hong Kong',
+    id: 'shanghai', n: 12, type: 'destino', name: 'Shanghái', short: 'Shanghái',
+    coords: [31.2304, 121.4737],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/The_Bund_2.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Shanghai_-_Yu_Garden_-_0035.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/20191114_Shanghai_Tower_%282%29.jpg?width=600'
+    ],
+    dates: '12-16 nov', nights: 4,
+    arrival: '12 nov · desde Suzhou en tren bala', departure: '16 nov · tren bala costero hacia Xiamen',
+    leg: { mode: '🚄', time: '~30 min', dist: '100 km', detail: 'Tren de alta velocidad Suzhou → Shanghái Hongqiao', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Suzhou Norte → Shanghái Hongqiao', when: '100 km · ~30 min en tren bala', road: 'Línea de alta velocidad Beijing–Shanghái' }
+    ] },
+    lodging: {
+      name: 'Hotel cerca del Bund', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Entre el Bund y Nanjing Road: vistas al skyline de Pudong y caminable a Yu Garden y la Concesión Francesa.',
+      coords: [31.2340, 121.4900],
+      checkIn: '12 nov', checkOut: '16 nov', nights: 4, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=The%20Bund%20Shanghai%20hotels'
+    },
+    tempMax: '12-28', tempMin: '4-19', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La metrópoli de la costa: el malecón del Bund frente a los rascacielos de Pudong, jardines clásicos y la Concesión Francesa. 4 noches para la ciudad y un day trip a los pueblos de agua.',
+    activities: [
+      { text: 'El Bund (malecón histórico)', cat: 'miradores', coords: [31.2400, 121.4900] },
+      { text: 'Jardín Yu (Yuyuan)', cat: 'parques', coords: [31.2270, 121.4920] },
+      { text: 'Shanghai Tower (mirador, 2º edificio más alto)', cat: 'miradores', coords: [31.2336, 121.5058] },
+      { text: 'Concesión Francesa + Tianzifang', cat: 'barrios', coords: [31.2100, 121.4680] },
+      { text: 'Xintiandi', cat: 'barrios', coords: [31.2200, 121.4750] },
+      { text: 'Nanjing Road (compras)', cat: 'compras', coords: [31.2350, 121.4750] },
+      { text: 'Museo de Shanghái', cat: 'museos', coords: [31.2290, 121.4760] }
+    ],
+    daytrips: [
+      { id: 'zhujiajiao', name: 'Pueblo de agua de Zhujiajiao', coords: [31.1120, 121.0530], time: '~1 h desde Shanghái', desc: 'Canales, puentes de piedra Ming y barcas en las afueras de Shanghái. El pueblo de agua más accesible de la ciudad.' }
+    ]
+  },
+  {
+    id: 'xiamen', n: 13, type: 'destino', name: 'Xiamen', short: 'Xiamen',
+    coords: [24.4798, 118.0894],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Gulangyu%20Island%20from%20Zhongshan%20Road%2C%20Xiamen.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Gulangyu%20Island%20from%20Zhongshan%20Road%2C%20Xiamen.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Tulou%20from%20Fujian%20-%20Aug%202022.jpg?width=600'
+    ],
+    dates: '16-20 nov', nights: 4,
+    arrival: '16 nov · desde Shanghái en tren bala costero', departure: '20 nov · vuelo doméstico a Zhangjiajie',
+    leg: { mode: '🚄', time: '~5 h 30', dist: '1.000 km', detail: 'Tren de alta velocidad Shanghái Hongqiao → Xiamen Norte, bajando la costa', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Shanghái Hongqiao → Xiamen Norte', when: '1.000 km · ~5 h 30 en tren bala', road: 'Costera vía Hangzhou–Ningbo–Wenzhou–Fuzhou (tramo Fuzhou–Xiamen a 350 km/h)' }
+    ] },
+    lodging: {
+      name: 'Hotel cerca del ferry a Gulangyu', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Zona de Zhongshan Road y el muelle: la peatonal, el mar y el ferry a Gulangyu a pasos. Clima templado de sur incluso en noviembre.',
+      coords: [24.4550, 118.0790],
+      checkIn: '16 nov', checkOut: '20 nov', nights: 4, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Zhongshan%20Road%20Xiamen%20hotels'
+    },
+    tempMax: '18-32', tempMin: '10-23', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'El respiro de mar del viaje: una ciudad porteña de clima amable, café y arquitectura colonial. 4 noches para la isla peatonal de Gulangyu, la costanera en bici y una excursión larga a los tulou, las fortalezas circulares de tierra de los hakka.',
+    activities: [
+      { text: 'Isla Gulangyu (ferry, sin autos, villas coloniales)', cat: 'barrios', coords: [24.4448, 118.0655] },
+      { text: 'Roca del Sol (Sunlight Rock, mirador de Gulangyu)', cat: 'miradores', coords: [24.4440, 118.0630] },
+      { text: 'Peatonal Zhongshan Road', cat: 'compras', coords: [24.4560, 118.0800] },
+      { text: 'Templo Nanputuo', cat: 'museos', coords: [24.4413, 118.0897] },
+      { text: 'Campus de la Universidad de Xiamen', cat: 'parques', coords: [24.4370, 118.0955] },
+      { text: 'Shapowei (puerto viejo, arte y café)', cat: 'barrios', coords: [24.4400, 118.0930] },
+      { text: 'Costanera Huandao Road en bici', cat: 'parques', coords: [24.4310, 118.1050] },
+      { text: 'Mariscos y té de Fujian', cat: 'comida', coords: [24.4560, 118.0790] }
+    ],
+    daytrips: [
+      { id: 'tulou', name: 'Tulou de Fujian (Tianluokeng)', coords: [24.5850, 117.0630], time: '~3 h por ruta (día completo)', desc: 'Las casas-fortaleza circulares de tierra apisonada de los hakka, Patrimonio de la Humanidad. El cluster de Tianluokeng — "cuatro platos y una sopa" — es el clásico.' },
+      { id: 'quanzhou', name: 'Quanzhou', coords: [24.9080, 118.5860], time: '~30 min en tren bala', desc: 'El gran puerto medieval de la Ruta de la Seda marítima (el Zaitún de Marco Polo): mezquita Song, templos y comida callejera con menos vitrina que Xiamen.' }
+    ]
+  },
+  {
+    id: 'zhangjiajie', n: 14, type: 'destino', name: 'Zhangjiajie', short: 'Zhangjiajie',
+    coords: [29.1170, 110.4790],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1_tianzishan_wulingyuan_zhangjiajie_2012.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Tianmen_38330-Zhangjiajie_%2849047525877%29.jpg?width=600'
+    ],
+    dates: '20-23 nov', nights: 3,
+    arrival: '20 nov · desde Xiamen en vuelo doméstico', departure: '23 nov · tren bala hacia Fenghuang',
+    leg: { mode: '✈️', time: '~2 h 00', dist: '1.100 km', detail: 'Vuelo doméstico Xiamen (XMN) → Zhangjiajie Hehua (DYG)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Xiamen Gaoqi → Zhangjiajie Hehua', no: 'vuelo doméstico', when: '~2 h de vuelo', aircraft: 'En tren serían 10+ h con transbordo; acá conviene volar' }
+    ] },
+    lodging: {
+      name: 'Hotel en Wulingyuan', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Wulingyuan, en la puerta del parque forestal: cómodo para madrugar y subir a los pilares antes de las multitudes.',
+      coords: [29.3450, 110.5490],
+      checkIn: '20 nov', checkOut: '23 nov', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Wulingyuan%20Zhangjiajie%20hotels'
+    },
+    tempMax: '7-23', tempMin: '5-15', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Los pilares de arenisca que inspiraron las montañas flotantes de Avatar, a fines de noviembre con niebla frecuente y mucha menos gente. 3 noches para el parque forestal de Wulingyuan, el ascensor de Bailong y la montaña Tianmen con su sendero de cristal.',
+    activities: [
+      { text: 'Parque forestal de Wulingyuan (pilares de Avatar)', cat: 'parques', coords: [29.3150, 110.4340] },
+      { text: 'Montaña Tianzi (Tianzishan)', cat: 'miradores', coords: [29.3480, 110.4820] },
+      { text: 'Ascensor de Bailong (glass elevator)', cat: 'otros', coords: [29.3220, 110.4380] },
+      { text: 'Montaña Tianmen + sendero de cristal', cat: 'miradores', coords: [29.0510, 110.4790] },
+      { text: 'Teleférico de Tianmen (uno de los más largos)', cat: 'otros', coords: [29.1130, 110.4790] },
+      { text: 'Arroyo del Látigo Dorado (Golden Whip)', cat: 'parques', coords: [29.3200, 110.4400] }
+    ],
+    daytrips: [
+      { id: 'glassbridge', name: 'Gran Cañón + puente de cristal', coords: [29.3860, 110.5540], time: '~40 min desde Wulingyuan', desc: 'El puente de vidrio más alto y largo del mundo cuando abrió: 300 m sobre el cañón de Zhangjiajie.' }
+    ]
+  },
+  {
+    id: 'fenghuang', n: 15, type: 'destino', name: 'Fenghuang', short: 'Fenghuang',
+    coords: [27.9482, 109.5996],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/1%20fenghuang%20ancient%20town%20hunan%20china.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1%20fenghuang%20ancient%20town%20hunan%20china.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Fenghuang%20hunan.jpg?width=600'
+    ],
+    dates: '23-24 nov', nights: 1,
+    arrival: '23 nov · desde Zhangjiajie en tren bala', departure: '24 nov · tren bala hacia Guilin',
+    leg: { mode: '🚄', time: '~40 min', dist: '100 km', detail: 'Tren de alta velocidad Zhangjiajie Oeste → Fenghuang Gucheng + traslado de ~20 min al casco antiguo', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Zhangjiajie Oeste → Fenghuang Gucheng', when: '100 km · ~40 min en tren bala', road: 'Línea de alta velocidad Zhangjiajie–Jishou–Huaihua' }
+    ] },
+    lodging: {
+      name: 'Posada sobre el río Tuo', type: 'Guesthouse · sugerencia (sin reserva)',
+      area: 'Casa colgante (diaojiaolou) con balcón al río, dentro del casco antiguo: la gracia es dormir con vista al agua y las luces.',
+      coords: [27.9484, 109.5990],
+      checkIn: '23 nov', checkOut: '24 nov', nights: 1, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Fenghuang%20ancient%20town%20riverside%20inn'
+    },
+    tempMax: '11-20', tempMin: '6-13', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'El pueblo ribereño de las casas colgantes sobre el río Tuo, en territorio miao. Una sola noche, que es justo lo que pide: llegar con luz, cruzar los puentes de piedra al atardecer y ver el pueblo encendido de noche desde un balcón.',
+    activities: [
+      { text: 'Casas colgantes (diaojiaolou) sobre el Tuo', cat: 'miradores', coords: [27.9484, 109.5990] },
+      { text: 'Puente Hong (Hongqiao)', cat: 'barrios', coords: [27.9482, 109.6003] },
+      { text: 'Puerta Norte y muralla Qing', cat: 'museos', coords: [27.9492, 109.5985] },
+      { text: 'Paseo en barca por el río Tuo', cat: 'parques', coords: [27.9490, 109.5975] },
+      { text: 'Vista nocturna iluminada desde la orilla', cat: 'miradores', coords: [27.9478, 109.6010] },
+      { text: 'Plata y batik miao (artesanía local)', cat: 'compras', coords: [27.9480, 109.5995] }
+    ],
+    daytrips: []
+  },
+  {
+    id: 'guilin', n: 16, type: 'destino', name: 'Guilin y Yangshuo', short: 'Guilin',
+    coords: [25.2740, 110.2900],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/87318-Li-River.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/1_guilin_yangshuo_2017.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/LongshengRiceTerrace.jpg?width=600'
+    ],
+    dates: '24-28 nov', nights: 4,
+    arrival: '24 nov · desde Fenghuang en tren bala', departure: '28 nov · tren bala hacia Guangzhou',
+    leg: { mode: '🚄', time: '~2 h 20', dist: '360 km', detail: 'Tren de alta velocidad Fenghuang Gucheng → Guilin (vía Huaihua)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Fenghuang Gucheng → Guilin Norte', when: '360 km · ~2 h 20 en tren bala', road: 'Línea Zhangjiajie–Jishou–Huaihua + Huaihua–Guilin' }
+    ] },
+    lodging: {
+      name: 'Hotel en Yangshuo (West Street)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Yangshuo, entre picos kársticos y el río Yulong: más lindo para dormir que Guilin ciudad. West Street a pasos.',
+      coords: [24.7784, 110.4960],
+      checkIn: '24 nov', checkOut: '28 nov', nights: 4, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yangshuo%20West%20Street%20hotels'
+    },
+    tempMax: '12-27', tempMin: '6-22', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'El paisaje kárstico de postal: picos de piedra caliza sobre el río Li. 4 noches para el crucero fluvial Guilin–Yangshuo, las balsas de bambú del Yulong, un día de bici entre arrozales y la excursión a las terrazas de Longji.',
+    activities: [
+      { text: 'Crucero por el río Li (Guilin → Yangshuo)', cat: 'miradores', coords: [25.0000, 110.4000] },
+      { text: 'Xingping (el paisaje del billete de 20 yuanes)', cat: 'miradores', coords: [24.9330, 110.6660] },
+      { text: 'West Street de Yangshuo', cat: 'barrios', coords: [24.7784, 110.4960] },
+      { text: 'Balsas de bambú por el río Yulong', cat: 'parques', coords: [24.7500, 110.4200] },
+      { text: 'Colina de la Luna (Moon Hill)', cat: 'miradores', coords: [24.7300, 110.4600] },
+      { text: 'Cueva de la Flauta de Caña (Guilin)', cat: 'parques', coords: [25.3060, 110.2820] }
+    ],
+    daytrips: [
+      { id: 'longji', name: 'Terrazas de arroz de Longji (Longsheng)', coords: [25.7560, 110.1290], time: '~2 h desde Guilin', desc: 'La "espina dorsal del dragón": laderas enteras esculpidas en terrazas de arroz por las minorías zhuang y yao.' }
+    ]
+  },
+  {
+    id: 'guangzhou', n: 17, type: 'destino', name: 'Guangzhou', short: 'Guangzhou',
+    coords: [23.1291, 113.2644],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Canton%20Tower%2020220626%20%28cropped%29.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Canton%20Tower%2020220626%20%28cropped%29.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Guangzhou%20Skyline%2020210522-01.jpg?width=600'
+    ],
+    dates: '28 nov-1 dic', nights: 3,
+    arrival: '28 nov · desde Yangshuo en tren bala', departure: '1 dic · tren bala hacia Shenzhen',
+    leg: { mode: '🚄', time: '~2 h 10', dist: '430 km', detail: 'Tren de alta velocidad Yangshuo → Guangzhou Sur', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Yangshuo → Guangzhou Sur', when: '430 km · ~2 h 10 en tren bala', road: 'Línea de alta velocidad Guiyang–Guangzhou' }
+    ] },
+    lodging: {
+      name: 'Hotel en Zhujiang New Town', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'El CBD junto al río Perla: la Canton Tower enfrente, metro a todo y buenos restaurantes. Base moderna para una ciudad que se come.',
+      coords: [23.1180, 113.3230],
+      checkIn: '28 nov', checkOut: '1 dic', nights: 3, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Zhujiang%20New%20Town%20Guangzhou%20hotels'
+    },
+    tempMax: '12-29', tempMin: '9-23', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'La capital del Cantón histórico y de la mejor mesa de China: acá el dim sum es desayuno de todos los días. 3 noches entre las casas de té centenarias, la isla colonial de Shamian y el skyline del río Perla — con clima templado de pleno sur a fin de noviembre.',
+    activities: [
+      { text: 'Yum cha: dim sum en una casa de té centenaria', cat: 'comida', coords: [23.1163, 113.2525] },
+      { text: 'Canton Tower (mirador, 600 m)', cat: 'miradores', coords: [23.1066, 113.3214] },
+      { text: 'Isla de Shamian (concesiones coloniales)', cat: 'barrios', coords: [23.1077, 113.2415] },
+      { text: 'Academia del clan Chen (Chenjia Ci)', cat: 'museos', coords: [23.1257, 113.2467] },
+      { text: 'Yongqing Fang y Enning Road (casco cantonés restaurado)', cat: 'barrios', coords: [23.1135, 113.2394] },
+      { text: 'Crucero nocturno por el río Perla', cat: 'miradores', coords: [23.1110, 113.2870] },
+      { text: 'Peatonal Beijing Road', cat: 'compras', coords: [23.1249, 113.2668] },
+      { text: 'Catedral del Sagrado Corazón (Shishi)', cat: 'museos', coords: [23.1136, 113.2563] }
+    ],
+    daytrips: [
+      { id: 'foshan', name: 'Foshan (templo Zumiao + wing chun)', coords: [23.0292, 113.1130], time: '~40 min en metro/tren', desc: 'La cuna de las artes marciales del sur — Ip Man y Wong Fei-hung — alrededor del Templo Ancestral y sus tejados de cerámica shiwan.' }
+    ]
+  },
+  {
+    id: 'shenzhen', n: 18, type: 'destino', name: 'Shenzhen', short: 'Shenzhen',
+    coords: [22.5431, 114.0579],
+    img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Skyline%20in%20Shenzhen%20%2820250327%29.jpg?width=600',
+    imgs: [
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Skyline%20in%20Shenzhen%20%2820250327%29.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Huaqiangbei%26Shennan%20Cross2021.jpg?width=600',
+      'https://commons.wikimedia.org/wiki/Special:FilePath/Pingan%20International%20Finance%20Center2020.jpg?width=600'
+    ],
+    dates: '1-5 dic', nights: 4,
+    arrival: '1 dic · desde Guangzhou en tren bala', departure: '5 dic · tren bala a Hong Kong West Kowloon',
+    leg: { mode: '🚄', time: '~35 min', dist: '100 km', detail: 'Tren de alta velocidad Guangzhou Sur → Shenzhen Futian', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Guangzhou Sur → Futian', when: '100 km · ~35 min en tren bala', road: 'Línea de alta velocidad Guangzhou–Shenzhen–Hong Kong (XRL)' }
+    ] },
+    lodging: {
+      name: 'Hotel en Futian (Coco Park)', type: 'Hotel · sugerencia (sin reserva)',
+      area: 'Futian, entre Coco Park y el Civic Center: a metro de Huaqiangbei, del PAFC y de la estación de tren a Hong Kong.',
+      coords: [22.5340, 114.0550],
+      checkIn: '1 dic', checkOut: '5 dic', nights: 4, booked: false,
+      mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Coco%20Park%20Futian%20Shenzhen%20hotels'
+    },
+    tempMax: '14-27', tempMin: '8-19', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'De aldea de pescadores a capital mundial del hardware en cuarenta años. 4 noches para los mercados de electrónica de Huaqiangbei, los ex-polígonos fabriles hechos barrios de arte, la ciudad amurallada que ya estaba acá antes que todo — y un diciembre de 20 grados frente a la bahía.',
+    activities: [
+      { text: 'Huaqiangbei (los mercados de electrónica)', cat: 'compras', coords: [22.5461, 114.0887] },
+      { text: 'OCT-LOFT (fábricas recicladas: arte, café, librerías)', cat: 'barrios', coords: [22.5405, 113.9848] },
+      { text: 'Dafen (la aldea de los pintores de óleo)', cat: 'barrios', coords: [22.6155, 114.1394] },
+      { text: 'Nantou Ancient Town (1.700 años antes de la zona económica)', cat: 'barrios', coords: [22.5316, 113.9179] },
+      { text: 'Talent Park y costanera de Shenzhen Bay', cat: 'parques', coords: [22.5163, 113.9530] },
+      { text: 'Sea World de Shekou (el barco-plaza, cena y bares)', cat: 'ocio', coords: [22.4866, 113.9161] },
+      { text: 'Ping An Finance Centre · Free Sky (mirador, piso 116)', cat: 'miradores', coords: [22.5367, 114.0503] },
+      { text: 'Parque Lianhuashan (el CBD desde arriba, estatua de Deng)', cat: 'miradores', coords: [22.5567, 114.0603] },
+      { text: 'Dongmen (peatonal y street food)', cat: 'comida', coords: [22.5470, 114.1170] }
+    ],
+    daytrips: [
+      { id: 'dapeng', name: 'Fortaleza de Dapeng', coords: [22.5945, 114.5385], time: '~1 h 30 desde Futian', desc: 'La ciudad amurallada Ming que le da el nombre oficial a Shenzhen ("Pengcheng"): murallas, casas de generales y un pueblo costero sin rascacielos.' },
+      { id: 'xichong', name: 'Playa de Xichong (Dapeng)', coords: [22.4805, 114.5601], time: '~2 h desde Futian', desc: 'La mejor playa de Shenzhen, en la punta de la península de Dapeng: arena larga, surf y cielo oscuro para ver estrellas. Combinable con la fortaleza.' }
+    ]
+  },
+  {
+    id: 'hongkong', n: 19, type: 'destino', name: 'Hong Kong', short: 'Hong Kong',
     coords: [22.3193, 114.1694],
     img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Hong_Kong_Skyline_viewed_from_Victoria_Peak.jpg?width=600',
     imgs: [
       'https://commons.wikimedia.org/wiki/Special:FilePath/Hong_Kong_Skyline_viewed_from_Victoria_Peak.jpg?width=600',
       'https://commons.wikimedia.org/wiki/Special:FilePath/Tsim_Sha_Tsui_Ferry_Pier.jpg?width=600'
     ],
-    dates: '5-8 nov', nights: 3,
-    arrival: '5 nov · desde Suzhou/Shanghái en vuelo', departure: '8 nov · fin del viaje',
-    leg: { mode: '✈️', time: '~2 h 30', dist: '1.500 km', detail: 'Tren corto Suzhou → Shanghái + vuelo Shanghái (PVG) → Hong Kong (HKG)', dirLabel: 'ver en Maps ↗',
-      via: [[31.2304, 121.4737]],
-      segments: [
-        { route: 'Suzhou → Shanghái', when: '~30 min en tren bala', road: 'Enlace al aeropuerto de Pudong' },
-        { route: 'Shanghái Pudong → Hong Kong', no: 'vuelo', when: '~2 h 30 de vuelo', aircraft: 'Alternativa: tren bala directo Shanghái–Hong Kong Oeste (~8 h)' }
-      ] },
+    dates: '5-9 dic', nights: 4,
+    arrival: '5 dic · desde Shenzhen en tren bala', departure: '9 dic · fin del viaje',
+    leg: { mode: '🚄', time: '~15 min', dist: '30 km', detail: 'Tren de alta velocidad Futian → Hong Kong West Kowloon (con control fronterizo en West Kowloon)', dirLabel: 'ver en Maps ↗', segments: [
+      { route: 'Futian → Hong Kong West Kowloon', when: '30 km · ~15 min en tren bala', road: 'XRL Guangzhou–Shenzhen–Hong Kong · alternativa: metro + cruce a pie por Futian Checkpoint' }
+    ] },
     lodging: {
       name: 'Hotel en Tsim Sha Tsui (Kowloon)', type: 'Hotel · sugerencia (sin reserva)',
       area: 'Tsim Sha Tsui, sobre el puerto: vistas al skyline de la isla, el Star Ferry a pasos y bien conectado por MTR.',
       coords: [22.2980, 114.1720],
-      checkIn: '5 nov', checkOut: '8 nov', nights: 3, booked: false,
+      checkIn: '5 dic', checkOut: '9 dic', nights: 4, booked: false,
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Tsim%20Sha%20Tsui%20Hong%20Kong%20hotels'
     },
-    tempMax: '20-29', tempMin: '14-23', weatherUpdated: '2026-07-03', weatherMode: 'climatología',
-    intro: 'Cierre del viaje en la ciudad vertical: el Pico Victoria sobre la bahía, el Star Ferry, los mercados nocturnos y el dim sum. 3 noches con contraste total respecto del interior del país.',
+    tempMax: '16-26', tempMin: '10-20', weatherUpdated: '2026-09-21', weatherMode: 'climatología',
+    intro: 'Cierre del viaje en la ciudad vertical: el Pico Victoria sobre la bahía, el Star Ferry, los mercados nocturnos y el dim sum. 4 noches — diciembre es el mejor mes de Hong Kong, seco y de cielos limpios — con margen para un día en Macao.',
     activities: [
       { text: 'Pico Victoria (mirador sobre la bahía)', cat: 'miradores', coords: [22.2758, 114.1455] },
       { text: 'Star Ferry (Kowloon → Central)', cat: 'otros', coords: [22.2940, 114.1690] },
@@ -700,18 +980,21 @@ const destinations = [
       { text: 'Central + SoHo (escaleras mecánicas)', cat: 'barrios', coords: [22.2820, 114.1550] },
       { text: 'Dim sum clásico', cat: 'comida', coords: [22.2810, 114.1580] }
     ],
-    daytrips: [],
+    daytrips: [
+      { id: 'macao', name: 'Macao', coords: [22.1975, 113.5410], time: '~1 h en ferry o bus (puente HZMB)', desc: 'Las ruinas de San Pablo, el casco portugués de calçada y pastel de nata, y los casinos de Cotai. Se hace cómodo en el día desde Hong Kong.' }
+    ],
     departureLeg: { mode: '✈️', time: 'vuelo de regreso', detail: 'Vuelo internacional desde Hong Kong (HKG)', dirLabel: '', segments: [
-      { route: 'Hong Kong (HKG) → vuelo de regreso', when: 'fin del viaje · 8 nov', aircraft: '30 días · 11 paradas · Beijing → Hong Kong' }
+      { route: 'Hong Kong (HKG) → vuelo de regreso', when: 'fin del viaje · 9 dic', aircraft: '60 noches · 19 paradas · Beijing → Hong Kong' }
     ] }
   }
 ];
 
 // Lugares guardados sueltos: desvíos y clásicos de la ruta que no caen dentro de una parada base.
 const orphanPlaces = [
-  { name: "Monte Emei (Sichuan)", lat: 29.5990, lon: 103.4840, url: "https://www.google.com/maps/search/?api=1&query=Mount%20Emei%20Sichuan" },
   { name: "Templo Shaolin (Dengfeng)", lat: 34.5075, lon: 112.9350, url: "https://www.google.com/maps/search/?api=1&query=Shaolin%20Temple%20Dengfeng" },
-  { name: "Pueblo de agua de Zhouzhuang", lat: 31.1160, lon: 120.8510, url: "https://www.google.com/maps/search/?api=1&query=Zhouzhuang%20water%20town" }
+  { name: "Pueblo de agua de Zhouzhuang", lat: 31.1160, lon: 120.8510, url: "https://www.google.com/maps/search/?api=1&query=Zhouzhuang%20water%20town" },
+  { name: "Monte Wuyi (Fujian)", lat: 27.6560, lon: 117.9970, url: "https://www.google.com/maps/search/?api=1&query=Wuyishan%20scenic%20area" },
+  { name: "Diaolou de Kaiping", lat: 22.4158, lon: 112.5540, url: "https://www.google.com/maps/search/?api=1&query=Kaiping%20Diaolou" }
 ];
 const map = L.map('map', { zoomControl: true, scrollWheelZoom: true }).setView([32.5, 112.0], 4);
 
