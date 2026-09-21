@@ -17,16 +17,20 @@ antes de cerrar en Hong Kong. ~60 días.
 
 (o abrir [`index.html`](./index.html) directamente)
 
-Dashboard único con 3 secciones:
+La app usa el molde actual de `../japon/` (ver [`CLAUDE.md`](./CLAUDE.md)): mapa
+fijo a la izquierda y, a la derecha, cuatro cortes del mismo itinerario:
 
-- **Mapa** (izquierda) — 19 paradas numeradas sobre tiles reales, con las líneas de
-  transporte coloreadas por modo (tren bala, vuelo, crucero), hospedajes sugeridos,
-  day trips y lugares guardados. Hover/click bidireccional con las cards.
-- **Curva climática** (arriba a la derecha, colapsable) — máxima y mínima por parada.
-  Click en un punto enfoca esa parada.
-- **Cards de paradas** (abajo a la derecha) — tarjeta por parada con fechas, noches,
-  clima, qué hacer y day trips. Entre cada card, el **módulo de transporte**: modo,
-  tiempo, distancia y la línea/ruta concreta.
+- **Resumen** — el itinerario colapsable: tarjeta por parada (fechas, noches,
+  clima, "qué hacer" agrupado por categoría, day trips) con el **módulo de
+  transporte** entre paradas, y la curva de temperatura arriba.
+- **Hospedajes** — las 19 paradas con su zona sugerida (nada reservado todavía).
+- **Transportes** — los 19 saltos, con duración y "a definir" donde no hay horario.
+- **Días** — las 61 jornadas; cada una con vista propia a pantalla completa y URL
+  compartible (`?jornada=2027-10-19`, páginas estáticas en `dia/`).
+
+En el mapa: pines con emoji por categoría según densidad, chips-filtro que son a
+la vez la leyenda, capas por familia (destinos / actividades / hospedaje /
+transporte) y foco de día.
 
 ## Itinerario (10 oct – 9 dic 2027, 60 noches)
 

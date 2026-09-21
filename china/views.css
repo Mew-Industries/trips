@@ -1,0 +1,471 @@
+/* views.css — las cuatro vistas laterales del itinerario (task 499).
+   Todo lo nuevo vive acá: sacar el <link> devuelve el site al estado anterior.
+   Paleta y tipografías son las del site (crema #f5f4f0, tarjeta blanca, verde
+   #0F6E56, ámbar #B87814 para los nodos de paso). */
+
+/* --------------------------------------------------- la escala de la vista de día
+   Ronda 4 (18/9 — Martín, con el screenshot del 14/10: «la font la veo irregular… en
+   este screen hay muchas fonts con distintos tamaños, widths, weights, colores»). La
+   card tenía 15 tamaños, 3 pesos, 10 colores de texto y tres familias. Toda la jornada
+   —tarjeta de la tab, vista a pantalla completa y el mapa del día— se mapea a ESTOS
+   cuatro escalones, tres pesos y tres colores, y nada más:
+
+     10px   rótulo en mayúsculas (`.pl-k`, `.sg-title`, `.dy-role`)
+     11.5px secundario: logística, metadatos, links
+     13.5px cuerpo y título de ítem
+     21px   la fecha de la jornada, y nada más
+
+   Pesos: 400 cuerpo · 600 énfasis · 700 sólo la fecha del día.
+   Colores de TEXTO: tinta · apagado · acento. Lo que antes distinguía por color
+   (el ámbar de "a definir", el rojo del botón de quitar, el color del medio de
+   transporte) se distingue ahora por fondo o por su emoji — el color del modo sigue
+   donde sirve, que es la línea del mapa.
+
+   Guarda: `node scripts/check_plan_round.mjs` (vive en el viaje dueño del molde) recorre
+   los computed styles de una card de jornada y falla si aparece un tamaño, un peso, un color o una familia fuera
+   de esta lista. */
+:root {
+  --fs-lbl: 10px;
+  --fs-meta: 11.5px;
+  --fs-body: 13.5px;
+  --fs-day: 21px;
+  --ink: #1a1a1a;
+  --muted: #8d8878;
+  --accent: #0F6E56;
+  /* Fondos, no texto: siguen diciendo "esto falta" / "esto se saca" sin sumar color de
+     tinta. */
+  --tbd-bg: rgba(184,120,20,0.14);
+  --off-bg: rgba(155,61,61,0.07);
+  --late-bg: rgba(155,61,61,0.16);
+}
+
+/* Dos columnas: el mapa a la izquierda —siempre visible, fuera de las tabs— y a la
+   derecha el sidebar, que es lo único que cambia al tocar una tab. */
+.shell { flex: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); min-height: 0; overflow: hidden; }
+.side-pane { min-width: 0; display: flex; flex-direction: column; overflow: hidden; background: #f5f4f0; }
+.views { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+/* Riel de tabs — barra horizontal arriba del sidebar, del ancho de la columna. */
+.tab-rail {
+  flex: none; display: flex; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08);
+  overflow-x: auto; scrollbar-width: none; z-index: 20;
+}
+.tab-rail::-webkit-scrollbar { display: none; }
+.tab-rail[hidden] { display: none; }
+.tab-btn {
+  flex: 1 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px 12px; border: 0; border-bottom: 3px solid transparent; background: none;
+  cursor: pointer; font: inherit; font-size: 12px; font-weight: 600; color: #8d8878;
+  white-space: nowrap; transition: color 0.12s, background 0.12s, border-color 0.12s;
+}
+.tab-btn:hover { color: #1a1a1a; background: rgba(0,0,0,0.03); }
+.tab-btn.on { color: #0F6E56; border-bottom-color: #0F6E56; background: rgba(15,110,86,0.06); }
+.tab-ic { font-size: 14px; line-height: 1; flex: none; }
+.tab-btn:focus-visible { outline: 2px solid #0F6E56; outline-offset: -2px; }
+/* Columna angosta: los cuatro rótulos entran, los íconos no. Gana el texto. */
+@media (max-width: 1100px) { .tab-ic { display: none; } }
+
+.view-pane, #view-resumen { flex: 1; min-height: 0; }
+.view-pane { overflow-y: auto; padding: 16px 18px 40px; }
+/* `display: grid/flex` de las reglas de arriba le gana a [hidden]: hay que decirlo. */
+.view-pane[hidden], #view-resumen[hidden] { display: none; }
+.view-inner { max-width: 900px; margin: 0 auto; }
+
+/* Encabezado de sección: el mismo rótulo chico y espaciado del resto del site. */
+.v-title { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 0 2px 12px; display: flex; gap: 10px; align-items: baseline; }
+.v-title span { letter-spacing: 0; text-transform: none; color: #b3aea0; font-weight: 500; }
+
+.v-card { background: #fff; border-radius: 10px; border: 1px solid rgba(0,0,0,0.06); margin-bottom: 8px; }
+/* Tramo compartido: el mismo acento violeta del resumen. En transportes el borde
+   izquierdo ya es el color del modo, así que ahí sólo va el badge. */
+.v-card.shared { border-left: 3px solid #6C4BB6; }
+.v-empty { font-size: 12px; color: #a8a397; }
+.v-goto { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.v-goto:hover { color: #1D9E75; }
+.v-tbd { color: #b0aa9c; font-style: italic; }
+
+/* Leaflet trae tipografía propia: `Helvetica Neue` en el contenedor —que heredan los
+   pines del día— y `Lucida Console` a 22px en los botones de zoom. En la card del 14/10
+   eso eran dos familias y un tamaño de más, sin que nadie los hubiera elegido. */
+.leaflet-container { font-family: inherit; }
+.leaflet-control-zoom-in, .leaflet-control-zoom-out,
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out {
+  font-family: inherit; font-size: var(--fs-day); font-weight: 600; color: var(--ink);
+}
+
+/* --------------------------------------------------------------- hospedajes */
+
+.lg-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 11px 13px; }
+.lg-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.lg-dates { font-size: 13px; font-weight: 700; color: #1a1a1a; line-height: 1.25; }
+.lg-nights { font-size: 11px; color: #8d8878; margin-top: 2px; }
+.lg-city { font-size: 10px; color: #0F6E56; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+/* Carrusel arriba a lo ancho —la única banda de fotos de la tarjeta— y ficha debajo
+   ocupando toda la columna. El estilo del carrusel es el mismo del resumen (`.lgc` en
+   index.html): acá sólo se le dan los bordes redondeados y la altura de esta vista. */
+.lg-main { min-width: 0; }
+.lg-shots { border-radius: 7px; overflow: hidden; margin-bottom: 8px; }
+.lg-shots .lgc-track img { height: 124px; }
+.lg-body { min-width: 0; }
+.lg-name { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.lg-sub { font-size: 11px; color: #777; margin-top: 1px; }
+.lg-area { font-size: 11px; color: #8d8878; line-height: 1.4; margin-top: 3px; }
+.lg-hours { font-size: 11px; font-weight: 600; color: #0F6E56; margin-top: 4px; line-height: 1.45; }
+.lg-links { margin-top: 3px; font-size: 11px; display: flex; flex-wrap: wrap; gap: 10px; }
+.lg-links a { color: #1D9E75; text-decoration: underline; }
+.lg-links a:hover { color: #0F6E56; }
+.lg-pending { border-style: dashed; border-color: rgba(184,120,20,0.45); background: rgba(240,184,74,0.06); }
+.lg-pending .lg-name { color: #8A5A0E; }
+/* Lo que falta hacerle a una reserva (rebookear, ajustar fechas, ampliar a 4 personas)
+   y la parada que todavía no tiene fecha: mismo amarillo que la tarjeta sin reservar. */
+.lg-warn { font-size: 11px; font-weight: 600; color: #8A5A0E; background: rgba(240,184,74,0.18); border-radius: 5px; padding: 4px 7px; margin: 5px 0; line-height: 1.35; }
+.lg-nights.tbd { color: #8A5A0E; font-weight: 600; }
+
+/* -------------------------------------------------------------- transportes */
+
+.tr-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 12px 14px; border-left: 3px solid #d3cdbf; border-radius: 10px; }
+.tr-air { border-left-color: #2563EB; } .tr-ferry { border-left-color: #15A6C9; }
+.tr-train { border-left-color: #0F8A5F; } .tr-bus { border-left-color: #E08A1E; }
+.tr-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.tr-date { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.tr-wd { font-size: 11px; color: #8d8878; text-transform: capitalize; }
+.tr-mode { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; }
+.tr-main { min-width: 0; }
+.tr-route { font-size: 14px; font-weight: 600; line-height: 1.3; }
+.tr-arrow { color: var(--muted); margin: 0 5px; font-weight: 400; }
+.tr-detail { font-size: 11.5px; color: #777; line-height: 1.45; margin-top: 2px; }
+.tr-times { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; align-items: center; }
+.tr-t { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 11px; background: rgba(0,0,0,0.045); color: #444; white-space: nowrap; }
+.tr-t b { font-variant-numeric: tabular-nums; font-size: 12.5px; }
+.tr-t.go { background: rgba(15,110,86,0.1); color: #0F6E56; }
+.tr-t.tbd { color: #b0aa9c; font-weight: 500; font-style: italic; }
+.tr-t.dur { background: none; color: #999; padding-left: 2px; }
+.tr-dl { margin-top: 8px; padding: 7px 10px; border-radius: 8px; background: rgba(216,90,48,0.07); border: 1px solid rgba(216,90,48,0.18); font-size: 11.5px; line-height: 1.45; color: #93381B; }
+.tr-dl b { font-variant-numeric: tabular-nums; }
+.tr-why { margin: 8px 0 0; padding: 0 0 0 15px; }
+.tr-why li { font-size: 11.5px; line-height: 1.5; color: #6e6a5f; margin-bottom: 1px; }
+.tr-why li::marker { color: #cfc9bb; }
+.tr-segs { margin-top: 8px; padding: 6px 9px; background: rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; }
+.tr-seg { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; text-decoration: none; color: #555; padding: 4px 5px; border-radius: 5px; }
+.tr-seg:hover { background: rgba(15,110,86,0.07); }
+.tr-seg .s-route { font-size: 12.5px; font-weight: 600; color: #1a1a1a; }
+.tr-seg .s-no { font-size: 10px; font-weight: 600; color: #0F6E56; margin-left: 6px; }
+.tr-seg .s-time { font-size: 11px; color: #666; text-align: right; font-variant-numeric: tabular-nums; }
+.tr-seg .s-ac { font-size: 10px; color: #a8a397; display: block; }
+.tr-lay { display: flex; align-items: center; gap: 7px; font-size: 9.5px; color: #b3aea0; margin: 2px 0; }
+.tr-lay::before, .tr-lay::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+.tr-dir { display: inline-block; margin-top: 8px; font-size: 11px; color: #0F6E56; text-decoration: none; border-bottom: 1px dotted rgba(15,110,86,0.45); }
+.tr-dir:hover { color: #1D9E75; }
+.tr-lodge { font-size: 11.5px; color: #6e6a5f; margin-top: 8px; line-height: 1.45; }
+.tr-lodge b { color: #1a1a1a; font-weight: 600; }
+/* La ficha y su línea en el mapa son el mismo tramo: tocar una marca la otra. La
+   seleccionada se queda con el anillo verde mientras dure la selección (el flash de
+   `.flash` avisa cuál acaba de llegar); el resto sólo insinúa que es tocable.
+   Lo mismo vale para la ficha del hospedaje y su pin de cama (task 544). */
+.v-card[data-leg], .v-card[data-hosp] { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s; }
+.v-card[data-leg]:hover, .v-card[data-hosp]:hover { border-color: rgba(15,110,86,0.25); }
+.v-card[data-leg].on, .v-card[data-hosp].on { border-color: rgba(15,110,86,0.55); box-shadow: 0 0 0 2px rgba(15,110,86,0.13); }
+@media (prefers-reduced-motion: reduce) { .v-card[data-leg], .v-card[data-hosp] { transition: none; } }
+
+/* --------------------------------------------------------------------- días */
+
+.dy-row { display: grid; grid-template-columns: 104px 1fr; gap: 14px; padding: 11px 14px; }
+.dy-when { border-right: 1px solid rgba(0,0,0,0.07); padding-right: 12px; }
+.dy-num { font-size: var(--fs-lbl); color: var(--muted); font-weight: 600; letter-spacing: 0.06em; }
+.dy-date { font-size: var(--fs-body); font-weight: 600; color: var(--ink); line-height: 1.25; }
+.dy-wd { font-size: var(--fs-meta); color: var(--muted); text-transform: capitalize; }
+.dy-card { cursor: pointer; transition: box-shadow 0.12s, border-color 0.12s, transform 0.12s; }
+.dy-card:hover { border-color: rgba(15,110,86,0.3); box-shadow: 0 3px 12px rgba(15,110,86,0.09); transform: translateY(-1px); }
+.dy-day-link { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.dy-day-link > span { display: block; }
+.dy-day-link:hover .dy-date { color: #0F6E56; text-decoration: underline; text-underline-offset: 2px; }
+.dy-day-link:focus-visible { outline: 2px solid #0F6E56; outline-offset: 4px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { .dy-card { transition: none; } .dy-card:hover { transform: none; } }
+/* "ver en mapa": manda la jornada al mapa (foco de día). En reposo es un link
+   discreto en la columna de la fecha; enfocado, el verde del chip del mapa. */
+.dy-map { font-family: inherit; font-size: var(--fs-meta); font-weight: 600; white-space: nowrap; margin-top: 6px; padding: 3px 6px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.12); background: #fff; color: var(--muted); cursor: pointer; transition: color 0.12s, border-color 0.12s, background 0.12s; }
+.dy-map:hover { color: #0F6E56; border-color: rgba(15,110,86,0.4); }
+.dy-map.on { background: #0F6E56; border-color: #0F6E56; color: #fff; }
+.dy-main { min-width: 0; }
+.dy-where { font-size: var(--fs-body); font-weight: 600; color: var(--ink); line-height: 1.3; }
+.dy-role { font-size: var(--fs-lbl); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-left: 5px; }
+/* "de paso" no es un dato neutro, pero tampoco un color de tinta nuevo: lo dice el fondo. */
+.dy-role.paso { background: var(--tbd-bg); border-radius: 4px; padding: 1px 4px; }
+.dy-sleep { font-size: var(--fs-meta); color: var(--muted); margin-top: 2px; }
+.dy-sleep b { color: var(--accent); font-weight: 600; }
+.dy-hosp { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+/* `font: inherit` del botón le gana por orden al tamaño de `.dy-sleep` y lo devolvía a
+   los 16px del navegador: acá se lo vuelve a fijar con la especificidad de las dos. */
+.dy-sleep.dy-hosp { font-size: var(--fs-meta); }
+.dy-hosp:hover, .dy-hosp:focus-visible { color: #0F6E56; text-decoration: underline; outline: none; }
+.dy-ev { margin-top: 9px; }
+/* Las sugerencias van en su propia caja —crema, borde punteado— y el plan fijo sobre
+   el blanco de la tarjeta: la diferencia entre "esto pasa" y "esto se puede elegir"
+   se ve antes de leer una palabra, sin ninguna leyenda que la explique. */
+.dy-sug { margin-top: 10px; padding: 9px 10px; border-radius: 8px; background: rgba(0,0,0,0.025); border: 1px dashed rgba(0,0,0,0.11); }
+.plan-readonly-note { margin: 4px 0 10px; font-size: var(--fs-meta); color: var(--muted); }
+
+/* El rótulo de cada mitad. El del plan fijo va en verde y el de las sugerencias en
+   gris: es el único lugar donde hace falta nombrarlas. */
+.sg-title { font-size: var(--fs-lbl); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 5px; }
+.sg-title span { font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.dv-fijo .sg-title, .dy-ev .sg-title { color: var(--accent); }
+
+.pl-list { list-style: none; margin: 0; padding: 0 0 0 9px; border-left: 2px solid rgba(15,110,86,0.3); display: grid; gap: 7px; }
+.pl-it { display: grid; grid-template-columns: 56px 1fr; gap: 9px; align-items: baseline; }
+.pl-t { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--accent); font-size: var(--fs-body); }
+/* Un tramo terrestre tiene duración pero NO hora de salida: eso se dice, no se
+   estima. "a definir" en ámbar se lee como un hueco por llenar, que es lo que es;
+   un guión se leía como un dato que se perdió. */
+.pl-t.tbd { font-size: var(--fs-meta); font-weight: 600; color: var(--muted); background: var(--tbd-bg); border-radius: 4px; padding: 1px 4px; line-height: 1.25; white-space: nowrap; }
+.pl-b { min-width: 0; }
+.pl-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; line-height: 1.3; }
+.pl-k { font-size: var(--fs-lbl); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.pl-mode, .pl-dur, .pl-ac { font-size: var(--fs-lbl); font-weight: 600; color: var(--muted); }
+.pl-dur { font-variant-numeric: tabular-nums; }
+.pl-w { font-size: var(--fs-body); font-weight: 600; color: var(--ink); line-height: 1.35; margin-top: 1px; }
+.pl-reserva .pl-w, .pl-vuelo .pl-w { color: var(--accent); }
+/* La línea derivada del tramo de ida ("Salir 08:45 · JR Ofunato Line…") estaba en 16px:
+   era el texto MÁS grande de la card, más que el nombre de la actividad. Una deducción
+   no puede gritar más fuerte que el hecho del que sale (ronda 4). */
+.pl-depart { font-size: var(--fs-body); font-weight: 400; color: var(--muted); line-height: 1.4; margin-top: 2px; }
+.pl-depart b { font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pl-term { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; margin-top: 1px; }
+.pl-win { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; margin-top: 1px; }
+.pl-win .lg-hh { font-weight: 600; color: var(--accent); white-space: nowrap; }
+.pl-win.tbd .lg-hh { color: var(--muted); background: var(--tbd-bg); border-radius: 4px; padding: 1px 4px; }
+.pl-d { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; margin-top: 1px; }
+.pl-d b { font-weight: 600; }
+/* El renglón del check-in ya no repite la hora límite: dice el margen y nada más. Los
+   dos estados que el rango de arriba NO deja ver se marcan como se marca todo lo demás
+   en esta card — con fondo, no con un color de tinta nuevo (ronda 4): ámbar para el dato
+   que falta, el rojo de "esto se saca" para la llegada que cae después del límite. */
+.pl-limit.is-tbd b, .pl-limit.is-late b { border-radius: 4px; padding: 1px 4px; }
+.pl-limit.is-tbd b { background: var(--tbd-bg); }
+.pl-limit.is-late b { background: var(--late-bg); }
+.pl-ref { font-size: var(--fs-meta); color: var(--muted); margin-top: 2px; }
+.pl-ref b { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 600; color: var(--ink); }
+.pl-lk { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }
+.pl-a { font-size: var(--fs-meta); font-weight: 600; color: var(--accent); text-decoration: none; }
+.pl-a:hover { text-decoration: underline; }
+.pl-map-local { border: 0; padding: 0; background: none; font-family: inherit; cursor: pointer; }
+
+/* Sugerencias por categoría: la barra de color es la de los pines del mapa. */
+.sg-node { font-size: var(--fs-lbl); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 4px 0 3px; }
+.sg-cat { border-left: 2px solid var(--c); padding-left: 8px; margin-bottom: 7px; }
+.sg-cat:last-child { margin-bottom: 0; }
+.sg-head { font-size: var(--fs-lbl); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--c); }
+.sg-list { list-style: none; margin: 2px 0 0; padding: 0; }
+.sg-list.in-grp { margin-top: 0; padding-left: 9px; }
+.sg-grp { font-size: var(--fs-meta); font-weight: 600; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+.sg-item { font: inherit; font-size: var(--fs-body); line-height: 1.45; color: var(--ink); display: block; width: 100%; text-align: left; padding: 1px 0; border: 0; background: none; }
+button.sg-item { cursor: pointer; }
+button.sg-item:hover { color: var(--accent); }
+button.sg-item:focus-visible { outline: 2px solid #0F6E56; outline-offset: 1px; border-radius: 3px; }
+.sg-item.plain { color: var(--muted); }
+
+/* El recorrido del día: una sola secuencia numerada, en el orden en que se camina.
+   El número y el color son los mismos que los del mapa — sin eso, seguir la línea
+   caminando obliga a volver a leer toda la lista. */
+.rt-list { list-style: none; margin: 0; padding: 0; }
+.rt-node { font-size: var(--fs-lbl); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 6px 0 2px; }
+.rt-node:first-child { margin-top: 0; }
+.rt-grp { font-size: var(--fs-meta); font-weight: 600; color: var(--muted); line-height: 1.4; margin: 4px 0 1px; }
+/* La fila es el ítem del recorrido MÁS su ↗ a Maps: el botón se lleva el ancho que
+   sobra y el link queda pegado al borde, siempre en el mismo lugar. */
+.rt-item { display: flex; align-items: center; gap: 4px; }
+.rt-item.in-grp { padding-left: 9px; }
+.rt-item .sg-item { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.rt-item .sg-item::before { content: ''; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 9px; height: 9px; border-radius: 50%; background: var(--c); color: #fff; font-size: 9px; line-height: 1; font-weight: 700; }
+.sg-name { min-width: 0; }
+.sg-kind { flex: none; font-size: var(--fs-lbl); color: var(--muted); text-transform: lowercase; }
+.rt-ic { flex: none; font-size: var(--fs-meta); color: var(--muted); }
+.rt-t { flex: none; font-size: var(--fs-lbl); font-weight: 600; color: var(--accent); }
+/* Sin coordenadas no hay lugar en la línea: van al final, sin número. */
+.rt-rest { margin-top: 4px; }
+.rt-item.plain { padding-left: 19px; font-size: var(--fs-body); line-height: 1.45; color: var(--muted); }
+/* El ítem vuela al punto del mapa; el ↗ abre Maps. Parado en la calle lo que sirve es
+   lo segundo, así que va siempre visible y con su propia área táctil. */
+.rt-mp { flex: none; margin-left: auto; font-size: var(--fs-meta); font-weight: 600; color: var(--muted); text-decoration: none; padding: 2px 5px; border-radius: 4px; line-height: 1; }
+.rt-mp:hover, .rt-mp:focus-visible { color: var(--accent); background: rgba(15,110,86,0.08); outline: none; }
+.pl-toggle { flex: none; width: 28px; height: 28px; border: 1px solid rgba(15,110,86,.28); border-radius: 50%; background: rgba(15,110,86,.06); color: var(--accent); font-family: inherit; font-size: var(--fs-body); font-weight: 600; line-height: 1; cursor: pointer; }
+.pl-toggle:hover, .pl-toggle:focus-visible { background: rgba(15,110,86,.15); outline: 2px solid #0F6E56; outline-offset: 1px; }
+.pl-drop { min-height: 0; }
+.pl-drop.is-drag-reveal { min-height: 48px; padding: 7px; border: 1.5px dashed rgba(15,110,86,.28); border-radius: 9px; background: rgba(15,110,86,.025); opacity: 0; transform: scaleY(.92); transform-origin: top; transition: opacity 120ms ease, transform 120ms ease; }
+.pl-drop.is-drag-reveal.is-visible { opacity: 1; transform: none; }
+.pl-drop:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+.pl-empty { padding: 8px; text-align: center; color: var(--muted); font-size: var(--fs-meta); }
+.pl-promoted { min-height: 36px; padding: 3px 0; border-radius: 7px; row-gap: 0; }
+/* El rótulo de categoría abre el grupo y cruza las dos columnas: es un encabezado de
+   lo que viene, no un dato del renglón (task 686). Los que siguen dentro de la misma
+   categoría no lo tienen, así que el número queda a la altura de su nombre. */
+.pl-promoted > .pl-cat { grid-column: 1 / -1; line-height: 1.3; margin-bottom: 1px; }
+/* El renglón del ítem: nombre + lo que lo acompaña (el círculo de checklist que le
+   cuelga `wireChecklist`, el botón de quitar). Vale para lo promovido y para una
+   reserva, que es una actividad igual. */
+.pl-mainrow { display: flex; align-items: center; gap: 8px; }
+.pl-mainrow > .pl-w { flex: 1; min-width: 0; }
+/* El círculo lo inyecta `wireChecklist` con su ancho de la vista de cosas (28 px, pensado
+   para una fila suelta). Acá entra adentro de un renglón que ya está indentado por la
+   columna de la hora: un poco más angosto y el título no se va de viaje. */
+.pl-mainrow > .activity-check { width: 22px; min-height: 24px; }
+.pl-grip { flex: none; color: var(--muted); font-size: var(--fs-body); line-height: 1; cursor: grab; touch-action: none; }
+.rt-item.plan-move { cursor: grab; }
+.rt-item.plan-move:active, .plan-move.is-dragging, .plan-move.is-dragging .pl-grip { cursor: grabbing; }
+.pl-name { flex: 1; min-width: 0; font-size: var(--fs-body); line-height: 1.3; }
+.pl-order { display: flex; gap: 2px; }
+.pl-order button { width: 28px; height: 28px; border: 0; border-radius: 5px; background: #f4f2ed; color: #5f5a50; cursor: pointer; }
+.pl-order button:disabled { opacity: .3; cursor: default; }
+/* Quitar del itinerario: lo dice el fondo, no un rojo de tinta nuevo. */
+.pl-toggle.remove { color: var(--muted); border-color: rgba(155,61,61,.24); background: var(--off-bg); }
+.plan-move { user-select: none; -webkit-user-select: none; }
+.plan-move:not(.pl-promoted) { touch-action: pan-y; }
+.pl-promoted { touch-action: none; }
+.plan-move { transition: transform 160ms ease; }
+.plan-move.is-drag-armed { -webkit-tap-highlight-color: transparent; }
+.plan-move.is-dragging { position: relative; z-index: 20; cursor: grabbing; box-shadow: 0 7px 20px rgba(0,0,0,.18); transition: none; }
+body.plan-dragging .pl-drop.is-drag-reveal { border-color: #0F6E56; background: rgba(15,110,86,.1); }
+@media (pointer: coarse) {
+  .pl-grip { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin: -8px -7px -8px 0; }
+  .plan-move.is-dragging { transform-origin: center; }
+  .plan-move.is-dragging:not([style*="translate3d"]) { transform: scale(1.015); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plan-move, .pl-drop.is-drag-reveal { transition: none !important; }
+  .plan-move.is-dragging:not([style*="translate3d"]) { transform: none; }
+}
+
+/* El tope de la tarjeta: lo que pasa se esconde, pero el botón lo abre ACÁ MISMO
+   (task 660 — antes las sugerencias del día quedaban detrás de un contador). */
+.sg-wrap:not(.open) .over { display: none; }
+.sg-more { font-family: inherit; font-size: var(--fs-meta); font-weight: 600; color: var(--accent); background: none; border: 0; padding: 4px 0 0; cursor: pointer; letter-spacing: 0.02em; }
+.sg-more:hover { text-decoration: underline; }
+.sg-more:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; border-radius: 3px; }
+
+/* "todo lo de <ciudad>": el catálogo completo del nodo, plegado. */
+.sg-all { margin-top: 8px; }
+.sg-all > summary { display: inline-flex; align-items: baseline; gap: 5px; font-size: var(--fs-meta); font-weight: 600; color: var(--muted); cursor: pointer; list-style: none; }
+.sg-all > summary::-webkit-details-marker { display: none; }
+.sg-all > summary::before { content: '▸'; color: var(--muted); font-size: var(--fs-lbl); display: inline-block; transition: transform 0.15s; }
+.sg-all[open] > summary::before { transform: rotate(90deg); }
+.sg-all > summary:hover { color: var(--accent); }
+.sg-all > summary:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; border-radius: 3px; }
+.sg-all > summary b { font-weight: 600; color: var(--muted); }
+.sg-all-body { margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .sg-all > summary::before { transition: none; } }
+
+.dy-free { font-size: var(--fs-meta); color: var(--muted); font-style: italic; margin-top: 8px; }
+.dy-flight { background: linear-gradient(90deg, rgba(37,99,235,0.05), transparent 60%); }
+.dy-flight .dy-date { color: #2563EB; }
+
+/* -------------------------------------------------- vista de día (task 660) */
+/* La jornada a pantalla completa: una capa POR ENCIMA de todo (header, mapa, tabs),
+   no una tab más. Cerrarla devuelve el site tal como estaba. Es la vista que se abre
+   parado en una estación, así que manda el teléfono: una sola columna, targets
+   grandes y nada que se salga de ancho. */
+.day-view {
+  position: fixed; inset: 0; z-index: 2000; background: #f5f4f0;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column;
+}
+.day-view[hidden] { display: none; }
+body.day-open { overflow: hidden; }
+.dv-inner { display: contents; }
+
+/* La barra de arriba queda pegada: salir y cambiar de día son lo que más se usa. */
+.dv-bar {
+  position: sticky; top: 0; z-index: 1; flex: none;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; background: #fff; border-bottom: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.dv-close { font-family: inherit; font-size: var(--fs-body); font-weight: 600; color: var(--accent); background: none; border: 0; padding: 6px 4px; cursor: pointer; min-height: 34px; }
+.dv-close:hover { text-decoration: underline; }
+.dv-nav-group { display: flex; align-items: center; gap: 4px; }
+.dv-count { font-size: var(--fs-meta); font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 52px; text-align: center; }
+.dv-nav {
+  font-family: inherit; font-size: var(--fs-body); line-height: 1; font-weight: 600;
+  width: 34px; height: 34px; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12); background: #fff; color: var(--accent); cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.dv-nav:hover:not(:disabled) { background: rgba(15,110,86,0.1); border-color: rgba(15,110,86,0.4); }
+/* En los bordes del viaje no hay adónde ir: el botón se apaga, no envuelve. */
+.dv-nav:disabled { color: var(--muted); opacity: .38; cursor: default; }
+.dv-close:focus-visible, .dv-nav:focus-visible, .dv-share:focus-visible { outline: 2px solid #0F6E56; outline-offset: 2px; }
+
+.dv-body { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; padding: 16px 16px 48px; }
+.dv-head { padding-bottom: 14px; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 16px; }
+.dv-num { font-size: var(--fs-lbl); color: var(--muted); font-weight: 600; letter-spacing: 0.1em; }
+/* "lun 19 oct", con la inicial en mayúscula y nada más: `capitalize` le ponía
+   mayúscula también al mes ("Lun 19 Oct"), que en castellano no va. */
+.dv-date { font-size: var(--fs-day); font-weight: 700; color: var(--ink); line-height: 1.15; margin: 2px 0 7px; letter-spacing: -0.01em; }
+.dv-date::first-letter { text-transform: uppercase; }
+.dv-body .dy-sleep { margin-top: 4px; }
+.dv-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.dv-acts .dy-map, .dv-share { margin-top: 0; min-height: 32px; padding: 6px 12px; font-size: var(--fs-meta); }
+.dv-share { font-family: inherit; font-weight: 600; white-space: nowrap; border-radius: 12px; border: 1px solid rgba(15,110,86,0.3); background: rgba(15,110,86,0.06); color: var(--accent); cursor: pointer; }
+.dv-share:hover { background: rgba(15,110,86,0.14); }
+
+/* Las dos mitades del día, cada una en su caja: arriba lo confirmado, abajo lo
+   opcional. La caja de las sugerencias no es blanca — eso solo ya dice que es otra
+   cosa, sin ninguna leyenda que lo aclare. */
+.dv-fijo { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 10px; padding: 13px 14px; margin-bottom: 12px; }
+/* En la vista de día la caja de las sugerencias ya la pone `.dy-sug`: la sección es
+   sólo el hueco donde va. Una caja adentro de otra igual se leía como un error. */
+.dv-sug { margin-bottom: 12px; }
+.dv-sug .dy-sug { margin-top: 0; padding: 13px 14px; border-radius: 10px; }
+.dv-sec .sg-title { margin-bottom: 8px; }
+/* A pantalla completa cambia el AIRE, no el tamaño: la escala es la misma que en la
+   tarjeta de la tab (ronda 4). Antes cada surface tenía su propio juego de tamaños y
+   eso solo ya duplicaba el muestrario. */
+.dv-body .pl-it { grid-template-columns: 62px 1fr; }
+.dv-body .pl-list { gap: 11px; }
+.dv-body .rt-mp { padding: 4px 7px; }
+
+/* Modo discreto: el mismo criterio que el itinerario de siempre, que pasa a mostrar
+   una cantidad de noches. Se cae toda la capa de fechas y horas, y en
+   hospedajes además la dirección, las fotos y los links (nombre y número de reserva ya
+   se ocultan solos por los pares .dx/.dm del site). Queda la forma del viaje, no el
+   cuándo ni el dónde. */
+body.discrete .lg-shots, body.discrete .lg-area, body.discrete .lg-links,
+body.discrete .lg-dates, body.discrete .lg-hours, body.discrete .lg-body > .lodging-more,
+body.discrete .tr-date, body.discrete .tr-wd, body.discrete .tr-times,
+body.discrete .tr-segs, body.discrete .tr-dl, body.discrete .tr-lodge,
+body.discrete .dy-date, body.discrete .dy-wd, body.discrete .dy-ev,
+body.discrete .dv-date, body.discrete .dv-num, body.discrete .dv-count,
+body.discrete .dv-fijo { display: none; }
+body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display: flex; align-items: baseline; gap: 8px; }
+
+@media (max-width: 900px) {
+  /* El mapa arriba (50vh, en index.html) y debajo las tabs con su contenido. */
+  .shell { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
+  .side-pane { overflow: visible; }
+  .tab-rail { position: sticky; top: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .tab-btn { padding: 11px 10px; }
+  .views { overflow: visible; }
+  .view-pane, #view-resumen { overflow: visible; }
+  .view-pane { padding: 12px 10px 32px; }
+  .lg-row, .tr-row, .dy-row { grid-template-columns: 1fr; gap: 8px; }
+  .lg-when, .tr-when, .dy-when { border-right: 0; border-bottom: 1px solid rgba(0,0,0,0.07); padding: 0 0 7px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .lg-city, .tr-mode, .dy-num { margin-top: 0; }
+  .lg-shots .lgc-track img { height: 110px; }
+  .pl-it { grid-template-columns: 46px 1fr; gap: 8px; }
+  /* Targets táctiles: el mismo mínimo que ya lleva `.source-link` en el resto del
+     site. Esto se lee parado en una estación y con una mano. */
+  .rt-mp, .pl-a { min-height: 28px; display: inline-flex; align-items: center; }
+  .dv-body .pl-a, .dv-body .rt-mp, .dv-body .sg-more { min-height: 30px; display: inline-flex; align-items: center; }
+  /* Acá va `inline-block` y no `inline-flex`: estos botones tienen texto Y un `<b>`
+     adentro ("Dormís en <b>Kyotofish</b>"), y flex se come el espacio del medio. */
+  .dv-body .dy-hosp, .dv-body .v-goto { display: inline-block; padding: 5px 0; }
+  .dv-body .sg-item, .dv-body .rt-item.plain { min-height: 30px; }
+  /* En la columna de la fecha ya apilada, los dos botones del día van uno al lado
+     del otro en vez de empujar la fila hacia abajo. */
+  /* Vista de día: una sola columna al ancho de la pantalla, sin scroll horizontal. */
+  .dv-body { padding: 14px 12px 44px; }
+  .dv-date { font-size: 21px; }
+  .dv-sec { padding: 12px; }
+  .dv-body .pl-it { grid-template-columns: 52px 1fr; }
+  .dv-close, .dv-nav { min-height: 38px; }
+  .dv-nav { width: 38px; height: 38px; }
+}
