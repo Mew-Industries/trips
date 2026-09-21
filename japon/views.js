@@ -580,6 +580,15 @@ const dayHasMap = spec => confirmedDayLine(spec).length > 0 || (spec.stops || []
 // `over` y el botón de abajo la abre AHÍ MISMO (task 660). Un rótulo hereda el
 // estado del primer ítem que cuelga de él, si no queda un título suelto arriba de
 // nada. Sin `cap` la lista sale entera, que es como salía antes.
+// Una actividad tachada dejó de ser candidata: el estado vive en la app
+// (`checkedActivities`) y entra como función para que cada render lea el valor
+// vigente — un Set copiado acá quedaría viejo al primer destachado.
+const doneInPlan = (p, ctx) => !!(ctx.isActivityDone && ctx.isActivityDone(p.key));
+// La firma de tachado de un día: qué keys de su pool están hechas. Viaja en el HTML
+// de la sección (data-done-sig) y decide si el repintado reactivo tiene algo que hacer.
+const sugDoneSig = (spec, ctx) =>
+  spec.route.concat(spec.loose).filter(p => doneInPlan(p, ctx)).map(p => p.key).sort().join('|');
+
 function routeListHtml(spec, ctx, day, cap) {
   const esc = ctx.escHtml;
   const editable = !!(ctx.plan && ctx.plan.canEdit());
@@ -604,7 +613,10 @@ function routeListHtml(spec, ctx, day, cap) {
   // Los `group` de los datos ("Asakusa + Sumida River + Skytree" = una salida) siguen
   // apareciendo, pero como lo que son ahora: un tramo del recorrido. Si la geografía
   // parte una salida en dos, el rótulo aparece dos veces — que es la verdad.
-  const available = spec.route.filter(p => !p.anchor && !p.promoted);
+  // Lo tachado tampoco se ofrece (task 700): "ya está hecho" no es candidato de ningún
+  // día. Sigue en el catálogo de la ciudad (bajo "✓ hechas"), que es de donde se
+  // destacha; si además estaba promovido, se queda en el itinerario, tachado.
+  const available = spec.route.filter(p => !p.anchor && !p.promoted && !doneInPlan(p, ctx));
   const items = available.map(p => {
     const row = '<li class="rt-item' + moveClass + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" data-plan-number="' + routeNumber(p) + '" style="--c:' + color(p) + '">' +
       grip + '<span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
@@ -613,7 +625,7 @@ function routeListHtml(spec, ctx, day, cap) {
   }).join('');
 
   // Sin coordenadas no hay lugar en la línea, pero la idea sigue siendo parte del día.
-  const rest = spec.loose.filter(p => !p.promoted).map(p => {
+  const rest = spec.loose.filter(p => !p.promoted && !doneInPlan(p, ctx)).map(p => {
     const row = '<li class="rt-item plain' + moveClass + over() + '" data-plan-key="' + p.key + '" data-plan-date="' + day.date + '" data-plan-name="' + esc(p.act.text) + '" data-plan-cat="' + esc(category(p)) + '" data-plan-icon="' + esc((ctx.CAT_META[p.cat] || ctx.CAT_META.otro).icon) + '" style="--c:' + color(p) + '">' + grip + '<span class="sg-item">' + icon(p) + '<span class="sg-name">' + label(p.act) + '</span><span class="sg-kind">' + esc(category(p)) + '</span></span></li>';
     k++;
     return row;
@@ -854,13 +866,14 @@ function cityCatalogHtml(day, ctx) {
 // sigue plegado abajo, que es otra cosa: no es lo que toca hoy.
 function sugSectionHtml(day, ctx, cap) {
   const spec = routeOf(day, ctx);
-  const total = spec.route.filter(p => !p.anchor && !p.promoted).length + spec.loose.filter(p => !p.promoted).length;
+  const total = spec.route.filter(p => !p.anchor && !p.promoted && !doneInPlan(p, ctx)).length +
+    spec.loose.filter(p => !p.promoted && !doneInPlan(p, ctx)).length;
   const list = routeListHtml(spec, ctx, day, cap);
   const all = cityCatalogHtml(day, ctx);
   if (!list && !all) return '';
   const more = (cap && total > cap)
     ? '<button type="button" class="sg-more" data-shown="' + cap + '" data-total="' + total + '">ver las ' + total + '</button>' : '';
-  return '<div class="dy-sug">' +
+  return '<div class="dy-sug" data-done-sig="' + ctx.escHtml(sugDoneSig(spec, ctx)) + '">' +
     '<div class="sg-title">Sugerencias' + (total ? ' <span>' + total + '</span>' : '') + '</div>' +
     (list ? '<div class="sg-wrap">' + list + '</div>' + more : '') + all +
   '</div>';
@@ -1878,6 +1891,50 @@ export function mountViews(destinations, ctx) {
       }
     });
     ctx.plan.load().catch(err => window.alert(err.message || 'No se pudo cargar el plan.'));
+  }
+  // Tachar/destachar cambia qué es sugerencia: se rehacen SOLO el título y la lista
+  // de cada sección (tarjetas de Días y vista de día). El catálogo de la ciudad no se
+  // toca — sus filas las mueve arrangeChecklistCatalogs y reconstruirlo cerraría el
+  // details desde el que se está tachando en serie. El itinerario tampoco: una
+  // promovida tachada se queda donde está, tachada.
+  if (ctx.onChecklistChange) ctx.onChecklistChange(repaintSuggestions);
+
+  function morphSugSection(section, day, cap) {
+    // Si lo tachado de ESTE día no cambió, no se toca nada: el hydrate del server
+    // puede llegar con un drag en curso, y reconstruir la fila agarrada lo mataría.
+    const sig = sugDoneSig(routeOf(day, ctx), ctx);
+    if (section.dataset.doneSig === sig) return;
+    const tpl = document.createElement('template');
+    tpl.innerHTML = sugSectionHtml(day, ctx, cap) || '';
+    const next = tpl.content.firstElementChild;
+    if (!next) return;
+    section.dataset.doneSig = sig;
+    const wasOpen = !!section.querySelector(':scope > .sg-wrap.open');
+    section.querySelectorAll(':scope > .sg-title, :scope > .sg-wrap, :scope > .sg-more').forEach(el => el.remove());
+    [...next.children].filter(el => !el.classList.contains('sg-all'))
+      .reverse().forEach(el => section.prepend(el));
+    // "Ver las N" estaba abierto: el destape sobrevive al repintado, con su botón.
+    if (wasOpen) {
+      const wrap = section.querySelector(':scope > .sg-wrap');
+      const more = section.querySelector(':scope > .sg-more');
+      if (wrap) wrap.classList.add('open');
+      if (more) more.textContent = 'ver menos';
+    }
+  }
+
+  function repaintSuggestions() {
+    if (panes.dias && done.dias) {
+      panes.dias.querySelectorAll('[data-jornada-card]').forEach(card => {
+        const day = dayByDate[card.dataset.jornadaCard];
+        const section = card.querySelector('.dy-sug');
+        if (day && section) morphSugSection(section, day, CARD_SUG_CAP);
+      });
+    }
+    if (shownJornada) {
+      const day = dayByDate[shownJornada];
+      const section = dayView.querySelector('.dv-sec.dv-sug .dy-sug');
+      if (day && section) morphSugSection(section, day);
+    }
   }
 
   // Volver a pintar lo que depende del plan. Sin plan cargado no hay nada que rehacer:

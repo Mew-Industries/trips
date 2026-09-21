@@ -144,8 +144,10 @@ const check = (name, ok, extra = '') => {
     // agrega al mapa sólo los de categorías activas, para que los chips refiltren en vivo.
     /\(spec\.route \|\| \[\]\)\.forEach/.test(html) && /if \(activeCats\.has\(p\.cat\)\) marker\.addTo\(_dayViewMap\)/.test(html) &&
       /zIndexOffset: -1000/.test(html) && /miniPopup\(p\.act && p\.act\.img/.test(html));
+  // Desde la task 700 ordIcon lleva un 4º argumento (la clase de tachada): se ancla
+  // el prefijo de la llamada, no la aridad.
   check('el pin numerado combina número y emoji de categoría a 30 px',
-    /ordIcon\(p\.planNumber, cat\.color, cat\.icon\)/.test(html) &&
+    /ordIcon\(p\.planNumber, cat\.color, cat\.icon/.test(html) &&
       /class="rt-ord-cat"/.test(html) && /iconSize: \[30, 30\]/.test(html));
 
   // 5 · una key promovida se suma y una key vieja/desaparecida se ignora.

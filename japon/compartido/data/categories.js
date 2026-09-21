@@ -7,11 +7,13 @@ window.PLACE_TAXONOMY = {
     "templo-museo",
     "arte",
     "arquitectura",
+    "landmark",
     "actividad",
     "taller",
     "compras",
     "barrio",
-    "otro"
+    "otro",
+    "sin-identificar"
   ],
   "meta": {
     "comida": {
@@ -44,6 +46,11 @@ window.PLACE_TAXONOMY = {
       "icon": "🏛️",
       "color": "#237C78"
     },
+    "landmark": {
+      "label": "Landmarks",
+      "icon": "🗼",
+      "color": "#7A4A21"
+    },
     "actividad": {
       "label": "Actividades",
       "icon": "🎢",
@@ -69,6 +76,11 @@ window.PLACE_TAXONOMY = {
       "icon": "✨",
       "color": "#8C8C8C"
     },
+    "sin-identificar": {
+      "label": "Sin identificar",
+      "icon": "❓",
+      "color": "#C4C4C4"
+    },
     "tips": {
       "label": "Tips",
       "icon": "💡",
@@ -81,7 +93,7 @@ window.PLACE_CAT_LEGACY = {
   "templos": "templo-museo",
   "museos": "templo-museo",
   "arquitectura": "arquitectura",
-  "miradores": "templo-museo",
+  "miradores": "landmark",
   "parques": "parque",
   "barrios": "barrio",
   "compras": "compras",

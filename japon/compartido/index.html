@@ -62,8 +62,9 @@
 
   /* Foco de día: el mapa queda mostrando una sola jornada. Mientras dura, los
      controles que el foco pisa no se muestran — decir dos cosas distintas sobre lo
-     mismo confunde más que ayudar. El chip es la única salida. */
-  #map.day-focus .map-bars, #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
+     mismo confunde más que ayudar. El chip es la única salida. Los chips de
+     categoría (.map-bars) sí se quedan: filtran los pines de la jornada (task 697). */
+  #map.day-focus .map-toggles, #map.day-focus .route-legend { display: none; }
   /* La leyenda de modos explica las líneas de transporte: sin ellas dibujadas, sobra. */
   #map.no-legs .route-legend { display: none; }
   .day-chip { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1001; display: none; }
@@ -71,7 +72,8 @@
   .day-chip button { font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.01em; padding: 7px 14px; border-radius: 16px; border: 0; background: #0F6E56; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
   .day-chip button:hover { background: #0c5a46; }
   /* El número de orden del recorrido, arriba a la derecha de su punto. */
-  .rt-ord { width: 16px; height: 16px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  .rt-ord { position: relative; width: 30px; height: 30px; border-radius: 50%; background: #0F6E56; color: #fff; font-size: 13px; line-height: 1; font-weight: 750; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.96); box-shadow: 0 2px 5px rgba(0,0,0,0.32); box-sizing: border-box; }
+  .rt-ord-cat { position: absolute; right: -5px; bottom: -5px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #fff; border: 1.5px solid var(--c); font-size: 10px; line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
 
   /* Chips de categoría: filtran los pines y hacen de leyenda de color a la vez. */
   .map-cats { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
@@ -370,6 +372,13 @@
   .sm-map { width: 100%; height: 220px; border-radius: 10px; margin-bottom: 12px; background: #ece9e2; }
   .dv-day-map { height: 300px; overflow: hidden; border: 1px solid rgba(0,0,0,0.06); }
   @media (max-width: 600px) { .dv-day-map { height: 230px; } }
+  /* Chips de categoría sobre el mapita de la jornada: la misma barra de la portada,
+     abajo. En 230-300 px de alto la fila entera no entra plegada: va en una sola
+     línea scrolleable, el mismo trato que la portada le da al mobile. */
+  .dv-day-map .map-bars { left: 0; right: 0; bottom: 8px; }
+  .dv-day-map .map-cats { width: 100%; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; padding: 2px 8px 3px; scrollbar-width: none; }
+  .dv-day-map .map-cats::-webkit-scrollbar { display: none; }
+  .dv-day-map .map-cats .mc { flex: none; font-size: 10px; padding: 4px 8px; }
   .sm-intro { font-size: 13.5px; line-height: 1.5; color: #3a372f; margin: 0 0 12px; }
   .sm-sec { margin-bottom: 12px; }
   .sm-leg { font-size: 13px; line-height: 1.45; color: #3a372f; }
@@ -438,21 +447,38 @@
   .marker-num.shared { box-shadow: 0 0 0 3px rgba(108, 75, 182, 0.75), 0 2px 4px rgba(0,0,0,0.2); }
   .marker-num.active { transform: scale(1.45); background: #1D9E75; color: white; box-shadow: 0 4px 10px rgba(15, 110, 86, 0.45); z-index: 1000 !important; }
   /* Todo lugar usa el mismo pin: la categoría —no la fuente— es el eje visual.
-     De cerca el pin muestra el emoji de su categoría (el mismo que la lista) sobre
+     Cuando tiene aire alrededor, el pin muestra el emoji de su categoría (el mismo que la lista) sobre
      un disco blanco con el aro del color: el color sigue siendo lo que agrupa de un
      vistazo y lo que prenden los filtros, el emoji dice de qué se trata sin abrir el
-     popup. Lejos vuelve al punto de 12px — el mapa llega a ~300 lugares y a zoom de
-     ciudad entera 22px por pin taparían las calles. El cambio es CSS sobre el
-     contenedor del mapa (`.pins-emoji`), así que no hay que rehacer 300 íconos en
-     cada zoom.
+     popup. La decisión es POR PIN: `syncPinEmojis()` marca `.pp-dot` a los que tienen
+     otro pin encima en pantalla y esos vuelven al punto de 12px — así un cluster en
+     Shibuya no le apaga el emoji a un templo aislado en el mismo viewport. `.pins-emoji`
+     en el contenedor habilita el modo (el mapa de la jornada lo prende sin marcar
+     ningún `.pp-dot`: ahí el emoji va siempre).
      La caja del divIcon es transparente al mouse y sólo el pin recibe el click: si no,
      el cuadrado de 24px se comería los clicks de sus vecinos en las zonas densas. */
   .leaflet-marker-icon.pp-icon { pointer-events: none; }
   .pp { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: var(--c); border: 1.5px solid rgba(255,255,255,0.94); box-shadow: 0 1px 3px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; transform: translate(-50%, -50%); transition: transform 0.15s; }
   .pp-emoji { display: none; font-size: 12.5px; line-height: 1; }
   .pp:hover, .pp.active { transform: translate(-50%, -50%) scale(1.45); }
-  .pins-emoji .pp { width: 22px; height: 22px; background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
-  .pins-emoji .pp-emoji { display: block; }
+  .pins-emoji .pp:not(.pp-dot) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); box-shadow: 0 1px 3px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.75); }
+  .pins-emoji .pp:not(.pp-dot) .pp-emoji { display: block; }
+  /* Sugerencia candidata del mapa de la jornada: el recorrido numerado es lo único
+     nítido; la candidata queda como punto apagado con el tinte de su categoría, sin
+     emoji ni disco blanco. Hover o popup abierto (tap) la traen a plena opacidad con
+     su emoji y la escala de siempre. Sólo en la vista de jornada (.dv-day-map): la
+     portada y el foco de día no cambian. */
+  .dv-day-map .pp.pp-sug { transition: transform 0.15s, opacity 0.15s; }
+  .dv-day-map .pp.pp-sug:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
+  .dv-day-map .pp.pp-sug:not(:hover):not(.active) .pp-emoji { display: none; }
+  /* Actividad tachada (task 700): mismo reposo apagado que la candidata de arriba,
+     pero en TODOS los mapas — ya está hecha, descansa también en la portada. Hover o
+     popup abierto la traen nítida: destachar desde el popup tiene que ser posible. */
+  .pp.pp-done { transition: transform 0.15s, opacity 0.15s; }
+  .pp.pp-done:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
+  .pp.pp-done:not(:hover):not(.active) .pp-emoji { display: none; }
+  /* La parada numerada tachada (promovida y hecha) también descansa, sin perder el número. */
+  .rt-ord.pp-done:not(:hover):not(.active) { opacity: 0.35; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -497,6 +523,12 @@
      (`.pl-mainrow[data-check]`, que ya es flex). En las sugerencias no va: todavía no
      son plan, no hay nada que dar por hecho (Martín, 18/9). */
   .thing-row[data-check] { display: flex; align-items: center; }
+  /* El mismo círculo dentro del popup del pin (task 700): tachar y destachar sin
+     salir del mapa. */
+  .pop-check { display: flex; align-items: center; margin-top: 4px; }
+  .pop-check .activity-check { width: 22px; min-height: 24px; }
+  .pop-check-word { font-size: 11px; color: #666; }
+  .pop-check.is-done .pop-check-word { text-decoration: line-through; color: #8d8878; }
 
   .leaflet-popup-content { font-family: -apple-system, sans-serif; margin: 10px 12px; }
   .popup-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
@@ -659,7 +691,7 @@ const destinations = [
     },
     "tempMax": "14-25",
     "tempMin": "5-20",
-    "weatherUpdated": "2026-09-18",
+    "weatherUpdated": "2026-09-20",
     "weatherMode": "climatología",
     "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
@@ -1023,7 +1055,7 @@ const destinations = [
     },
     "tempMax": "16-25",
     "tempMin": "7-18",
-    "weatherUpdated": "2026-09-18",
+    "weatherUpdated": "2026-09-20",
     "weatherMode": "climatología",
     "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cuatro. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
@@ -1287,7 +1319,7 @@ const destinations = [
     },
     "tempMax": "16-24",
     "tempMin": "6-18",
-    "weatherUpdated": "2026-09-18",
+    "weatherUpdated": "2026-09-20",
     "weatherMode": "climatología",
     "intro": "Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.",
     "activities": [
@@ -1996,6 +2028,7 @@ async function hydrateChecklist() {
     pendingChecklistChanges.forEach((done, id) => done ? checkedActivities.add(id) : checkedActivities.delete(id));
     persistChecklistLocal();
     wireChecklist(document); arrangeChecklistCatalogs(); applyActivityFilters();
+    checklistChanged();   // lo que el server trae distinto también filtra y atenúa
     await pushChecklist();
   } catch (e) { checklistRetry = setTimeout(hydrateChecklist, 12000); }
 }
@@ -2035,18 +2068,52 @@ function arrangeChecklistCatalogs() {
   });
 }
 
-document.addEventListener('click', (e) => {
-  const button = e.target.closest('.activity-check');
-  if (!button) return;
-  e.preventDefault(); e.stopPropagation();
-  const item = button.closest('[data-check]');
-  const key = item.dataset.check;
+function toggleCheck(key) {
   if (checkedActivities.has(key)) checkedActivities.delete(key); else checkedActivities.add(key);
   persistChecklistLocal();
   document.querySelectorAll('[data-check="' + CSS.escape(key) + '"]').forEach(syncCheckItem);
   arrangeChecklistCatalogs();
   queueChecklistChange(key, checkedActivities.has(key));
-});
+  checklistChanged();
+}
+
+// Tachar no es sólo tachar (task 700): la actividad deja de ofrecerse como sugerencia
+// y su pin descansa atenuado, en el acto. Las vistas se enganchan acá (onChecklistChange
+// del ctx) y los pines se sincronizan abajo — el modelo de persistencia no cambia.
+let checklistViewsHandler = null;
+function checklistChanged() {
+  syncDonePins();
+  syncDayMapDone();
+  syncDayFocusDone();
+  if (checklistViewsHandler) checklistViewsHandler();
+}
+
+// En fase CAPTURA: los popups de Leaflet cortan el bubbling (disableClickPropagation),
+// así que un listener normal de `document` no vería el círculo dentro de un popup.
+// Capturando, este es EL camino del toggle esté donde esté el círculo, y su
+// stopPropagation deja el click sin efectos colaterales (ni fila, ni mapa).
+document.addEventListener('click', (e) => {
+  const button = e.target.closest('.activity-check');
+  if (!button) return;
+  e.preventDefault(); e.stopPropagation();
+  const item = button.closest('[data-check]');
+  toggleCheck(item.dataset.check);
+}, true);
+
+// Al abrir un popup su contenido nace del HTML original del pin: pintarle el estado
+// vigente del círculo (✓ o vacío) es de acá.
+function wirePopupChecks(mapObj) {
+  mapObj.on('popupopen', (e) => {
+    const el = e.popup.getElement();
+    if (el) wireChecklist(el);
+  });
+}
+wirePopupChecks(map);
+const popCheckHtml = key => '<div class="pop-check" data-check="' + escHtml(key) +
+  '"><button type="button" class="activity-check"></button><span class="pop-check-word">hecha</span></div>';
+// Meterle el círculo a un popup ya armado por miniPopup(): entra antes del cierre
+// del contenedor (el ÚLTIMO </div> — el primero cierra el título).
+const withPopCheck = (popup, key) => popup.replace(/<\/div>$/, popCheckHtml(key) + '</div>');
 
 // Pins de lugares: el color y el emoji dicen la categoría y todos comparten la misma
 // forma. La fuente sólo vive en el popup. Cada pin queda
@@ -2081,38 +2148,84 @@ function focusMarker(m) {
   // es de ese día, se suma al foco en vez de dejar el click muerto.
   showFocused(m);
   map.flyTo(m.getLatLng(), 14, { duration: 0.8 });
-  m.openPopup();
+  // Sólo si no está ya abierto: el click de un catálogo llega por DOS listeners
+  // (el del box lazy y el del cuerpo de la vista) y el segundo openPopup re-arma el
+  // contenido SIN disparar popupopen — se llevaba puesto el estado del círculo.
+  if (!m.isPopupOpen()) m.openPopup();
 }
 // El pin de un lugar lleva el emoji de su categoría —el mismo de `data/categories.js`
 // que muestra la lista— adentro del disco con el aro del color. Siempre va en el HTML:
 // quién lo muestra y quién se queda en el punto lo decide el CSS del contenedor
 // (`.pins-emoji`), abajo.
-function placeIcon(cat, kind, id) {
+function placeIcon(cat, kind, id, cls) {
   const size = 24;
   const meta = CAT_META[cat] || CAT_META.otro;
   return L.divIcon({
-    html: '<div class="pp" style="--c:' + meta.color + '"' + (id ? ' data-id="' + id + '"' : '') + '>' +
+    html: '<div class="pp' + (cls ? ' ' + cls : '') + '" style="--c:' + meta.color + '"' + (id ? ' data-id="' + id + '"' : '') + '>' +
       '<span class="pp-emoji">' + meta.icon + '</span></div>',
     className: 'pp-icon', iconSize: [size, size], iconAnchor: [size / 2, size / 2],
   });
 }
-function placePin(coords, cat, kind, layer, id) {
+function placePin(coords, cat, kind, layer, id, cls) {
   // Guardados y reels quedan por debajo de los marcadores de parada / cama
   // (antes eran circleMarkers, que viven en un panel inferior al de markers).
-  const m = L.marker(coords, { icon: placeIcon(cat, kind, id), zIndexOffset: -1000 }).addTo(layer);
+  const m = L.marker(coords, { icon: placeIcon(cat, kind, id, cls), zIndexOffset: -1000 }).addTo(layer);
   placePins.push({ m: m, layer: layer, cat: cat });
   return m;
 }
-// A partir de acá el pin se abre en emoji. Por debajo —Japón entero, una región, una
-// ciudad completa— se queda en el punto de color: con ~300 lugares prendidos, los
-// emojis a esa escala se pisan entre ellos y tapan el mapa. 13 es el primer nivel en
-// el que un barrio ocupa la pantalla, que es cuando el emoji sirve para algo.
-const PIN_EMOJI_ZOOM = 13;
-function syncPinZoom() {
-  map.getContainer().classList.toggle('pins-emoji', map.getZoom() >= PIN_EMOJI_ZOOM);
+// El emoji se decide POR PIN y por solape en pantalla, no por conteo global: contar
+// visibles apagaba el emoji de un templo aislado porque Shibuya metía 60 puntos en el
+// mismo viewport. Un pin lo muestra si ningún otro pin visible cae a menos de
+// PIN_EMOJI_CLEARANCE_PX de su centro en el contenedor — el diámetro del disco con
+// emoji (22px + aro): a esa distancia dos discos ya se tocan. Con vecino más cerca,
+// los dos quedan en punto (`.pp-dot`).
+const PIN_EMOJI_CLEARANCE_PX = 24;
+function syncPinEmojis() {
+  const container = map.getContainer();
+  // El contenedor queda siempre en modo emoji; quién se ve como punto lo dice
+  // `.pp-dot`, pin por pin. Es la misma clase que el mapa de la jornada prende
+  // para su catálogo acotado (ahí nunca hay `.pp-dot`: emoji siempre).
+  container.classList.add('pins-emoji');
+  // A media distancia el disco más chico reduce solapes; de cerca llega a los 22px.
+  container.style.setProperty('--pin-emoji-size', Math.max(18, Math.min(22, 18 + (map.getZoom() - 10) * 2)) + 'px');
+  // El barrido es O(n): grilla de celdas de R px sobre coordenadas de pantalla y cada
+  // pin mira sólo su celda y las 8 vecinas. Entran también los pines de justo afuera
+  // del borde (pad 20%): uno a 10px del margen empuja igual que uno adentro.
+  const R = PIN_EMOJI_CLEARANCE_PX;
+  const bounds = map.getBounds().pad(0.2);
+  const grid = new Map();
+  const vis = [];
+  placePins.forEach(p => {
+    if (!map.hasLayer(p.m) || !bounds.contains(p.m.getLatLng())) return;
+    const icon = p.m.getElement();
+    if (!icon) return;
+    const pt = map.latLngToContainerPoint(p.m.getLatLng());
+    const e = { el: icon.firstChild, x: pt.x, y: pt.y,
+      gx: Math.floor(pt.x / R), gy: Math.floor(pt.y / R), dot: false };
+    vis.push(e);
+    const k = e.gx + ':' + e.gy;
+    const cell = grid.get(k);
+    if (cell) cell.push(e); else grid.set(k, [e]);
+  });
+  vis.forEach(e => {
+    for (let dx = -1; dx <= 1 && !e.dot; dx++) for (let dy = -1; dy <= 1 && !e.dot; dy++) {
+      const cell = grid.get((e.gx + dx) + ':' + (e.gy + dy));
+      if (!cell) continue;
+      for (const o of cell) {
+        // Un vecino a <1px es el mismo lugar dos veces (daytrip + guardado comparten
+        // coords exactas, hay ~20 pares así): no cuenta como solape — los discos quedan
+        // perfectamente apilados y se ven como un solo pin. Si contara, esos lugares no
+        // tendrían emoji nunca, ni aislados a zoom de manzana.
+        const d2 = (o.x - e.x) * (o.x - e.x) + (o.y - e.y) * (o.y - e.y);
+        if (o !== e && d2 >= 1 && d2 < R * R) { e.dot = true; break; }
+      }
+    }
+  });
+  vis.forEach(e => { if (e.el) e.el.classList.toggle('pp-dot', e.dot); });
+  container.dataset.visiblePlacePins = vis.length;
 }
-map.on('zoomend', syncPinZoom);
-syncPinZoom();
+map.on('zoomend moveend', syncPinEmojis);
+syncPinEmojis();
 
 const markers = {};
 const destLayer = L.layerGroup().addTo(map);
@@ -2173,6 +2286,7 @@ function placePopup(p, sub) {
 // Un marcador con nombre por cada actividad geolocalizada. El link a Google Maps
 // vive en el popup del punto; la lista "Qué hacer" linkea a este punto.
 const actMarkers = {};
+const actPinCats = {};   // key → categoría, para re-armar el ícono al tachar/destachar
 const thingMarkers = new Map();
 const savedPlaceLayer = L.layerGroup().addTo(map);
 destinations.forEach(d => {
@@ -2181,7 +2295,10 @@ destinations.forEach(d => {
     const key = activityId(a, d);
     if (actMarkers[key]) return;
     const cat = catOfAct(a);
-    const m = placePin(a.coords, cat, 'save', savedPlaceLayer);
+    // La clase de tachada va EN el html del ícono (no en el elemento): así sobrevive
+    // a que el filtro de categorías saque y vuelva a meter el marker en su capa.
+    const m = placePin(a.coords, cat, 'save', savedPlaceLayer, key, checkedActivities.has(key) ? 'pp-done' : '');
+    m._ppDone = checkedActivities.has(key);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
       (s.owner ? ' · @' + escHtml(s.owner) : '') +
@@ -2190,12 +2307,39 @@ destinations.forEach(d => {
     m.bindPopup('<div class="mini-pop"><div class="popup-title">' + DX(escHtml(a.text), escHtml(maskLodging(a.text))) +
       '</div><div class="popup-dates">' + escHtml(d.short) + ' · ' + CAT_LABELS[cat] +
       (addedBy ? ' · <span class="via">vía ' + escHtml(addedBy) + '</span>' : '') + '</div>' +
-      (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + '</div>');
+      (a.note ? '<div class="popup-dates">' + escHtml(a.note) + '</div>' : '') + evidence + popCheckHtml(key) + '</div>');
+    // Con el popup abierto el pin tachado se sostiene nítido (`.active`, igual que la
+    // candidata del mapita de la jornada): si no, en un tap no hay hover que lo muestre.
+    m.on('popupopen', () => { const el = m.getElement(); if (el) { const pp = el.querySelector('.pp'); if (pp) pp.classList.add('active'); } });
+    m.on('popupclose', () => { const el = m.getElement(); if (el) { const pp = el.querySelector('.pp'); if (pp) pp.classList.remove('active'); } });
     actMarkers[key] = m;
+    actPinCats[key] = cat;
     thingMarkers.set(a, m);
     nearAdd(m, a.text, catColor(cat), maskLodging(a.text));
   });
 });
+
+// Sincronizar el atenuado de los pines de actividad de la portada con el checklist.
+// `setIcon` re-arma el html del divIcon: la clase queda persistida en el ícono y no
+// se pierde cuando applyCatFilter saca y devuelve el marker a su capa.
+function syncDonePins() {
+  Object.keys(actMarkers).forEach(key => {
+    const done = checkedActivities.has(key);
+    const m = actMarkers[key];
+    if (m._ppDone === done) return;
+    m._ppDone = done;
+    m.setIcon(placeIcon(actPinCats[key], 'save', key, done ? 'pp-done' : ''));
+    keepActive(m);
+  });
+}
+// setIcon re-crea el elemento del pin: si justo tenía el popup abierto (se tachó
+// DESDE el popup), el `.active` que lo sostenía nítido se re-pone sobre el nuevo.
+function keepActive(m) {
+  if (!m.isPopupOpen || !m.isPopupOpen()) return;
+  const el = m.getElement();
+  const pin = el && el.querySelector('.pp, .rt-ord');
+  if (pin) pin.classList.add('active');
+}
 
 // Hospedajes: pin propio (cama) por destino que tenga lodging con coords.
 // En modo discreto el pin se corre al centro de la parada y el popup solo dice "Reservado".
@@ -2808,11 +2952,12 @@ const TOGGLES = [
 // "escondé los saltos" y ahora eso es `transporte`. Se traduce en vez de ignorarse,
 // para que el link compartido siga aterrizando con el mapa como quien lo mandó lo vio.
 const LEGACY_LAYER_KEYS = { vuelos: 'transporte' };
-// Sin estado en la URL el mapa aterriza con Actividades + Hospedajes solamente:
-// las cuatro familias juntas lo saturaban (Martín, 2026-09-03). Un `layersOff`
-// presente —aunque venga vacío, que significa "todo prendido"— es intención
-// explícita de quien armó el link y manda sobre este default.
-const DEFAULT_LAYERS_OFF = 'destinos,transporte';
+// Sin estado en la URL el mapa aterriza SOLO con Actividades: las cuatro familias
+// juntas lo saturaban (Martín, 2026-09-03) y los hospedajes también sobraban en el
+// primer vistazo (Martín, 2026-09-19). Un `layersOff` presente —aunque venga vacío,
+// que significa "todo prendido"— es intención explícita de quien armó el link y
+// manda sobre este default.
+const DEFAULT_LAYERS_OFF = 'destinos,hospedaje,transporte';
 const savedLayersOff = new URLSearchParams(location.search).get('layersOff');
 const inactiveLayers = new Set((savedLayersOff === null ? DEFAULT_LAYERS_OFF : savedLayersOff).split(',')
   .map(k => LEGACY_LAYER_KEYS[k] || k)
@@ -2849,6 +2994,7 @@ function setLayer(key, on) {
     allLayersBtn.classList.toggle('active', allLayersOn());
     allLayersBtn.setAttribute('aria-pressed', String(allLayersOn()));
   }
+  syncPinEmojis();
 }
 
 // Ir a un punto cuya familia está apagada dejaba el mapa encuadrado y sin pin (el
@@ -2913,9 +3059,10 @@ L.DomEvent.disableClickPropagation(dayChip);
 
 // El número del recorrido, pintado con el color de la categoría del punto: es el
 // mismo círculo que la lista de la jornada pone delante del ítem.
-const ordIcon = (n, color) => L.divIcon({
-  html: '<div class="rt-ord" style="background:' + color + '">' + n + '</div>',
-  className: '', iconSize: [16, 16], iconAnchor: [-5, 15],
+const ordIcon = (n, color, emoji, cls) => L.divIcon({
+  html: '<div class="rt-ord' + (cls ? ' ' + cls : '') + '" style="background:' + color + ';--c:' + color + '">' + n +
+    (emoji ? '<span class="rt-ord-cat" aria-hidden="true">' + emoji + '</span>' : '') + '</div>',
+  className: '', iconSize: [30, 30], iconAnchor: [15, 15],
 });
 
 // Un punto que el foco muestra directo sobre el mapa (su layerGroup está apagado).
@@ -2953,11 +3100,13 @@ function enterDayFocus(spec) {
   // Cambiar de día no re-guarda el encuadre: el "volver" es al mapa previo al foco.
   const prev = dayFocus ? dayFocus.prev : { center: map.getCenter(), zoom: map.getZoom() };
   clearDayFocusLayers();
-  dayFocus = { date: spec.date, prev, shown: [] };
+  dayFocus = { date: spec.date, prev, shown: [], catMarkers: [], ordMarkers: [] };
   TOGGLES.forEach(t => t.layers.forEach(l => map.removeLayer(l)));
   // El foco apaga el transporte del viaje entero, pero el salto de ESE día es parte de
-  // la jornada: su línea se queda —y con ella el click a su ficha—. Mismo criterio que
-  // los pines del día, que también entran sin importar los filtros de afuera.
+  // la jornada: su línea se queda —y con ella el click a su ficha—. Los pines del día
+  // entran sin importar los toggles de familia, pero los chips de categoría sí les
+  // hablan (task 697): cada uno queda anotado en `catMarkers` con su categoría para
+  // que `applyCatFilter` los prenda y apague también durante el foco.
   (spec.legs || []).forEach(id => (legSegments[id] || []).forEach(s => { showFocused(s.pl); showFocused(s.hit); }));
 
   const line = [], ord = [];
@@ -2965,8 +3114,12 @@ function enterDayFocus(spec) {
   (spec.line || []).forEach(p => {
     if (p.bed) { step(lodgingMarkers[p.bed]); return; }
     if (p.terminal) { terminalMarker(p.terminal).addTo(focusLayer); line.push(L.latLng(p.terminal.coords)); return; }
-    const ll = step(actMarkers[p.key]);
-    if (ll) ord.push({ ll, color: catColor(p.cat), number: p.planNumber });
+    const m = actMarkers[p.key];
+    const ll = step(m);
+    if (ll) {
+      ord.push({ ll, cat: p.cat, color: catColor(p.cat), emoji: (CAT_META[p.cat] || CAT_META.otro).icon, number: p.planNumber, key: p.key });
+      dayFocus.catMarkers.push({ m, cat: p.cat, holder: map });
+    }
   });
   // La parada del día entra SÓLO si el día no tiene paradas propias (traslado, llegada
   // sin nada cargado): si no, su número compite con el del recorrido y el centroide de
@@ -2987,7 +3140,14 @@ function enterDayFocus(spec) {
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
-  ord.forEach((p, i) => L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer));
+  // El número filtra junto con su pin: apagar la categoría apaga el círculo también.
+  ord.forEach((p, i) => {
+    // El número de una parada ya tachada nace atenuado; el pin de abajo (actMarkers)
+    // trae su propio atenuado, así el par entero descansa.
+    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji, checkedActivities.has(p.key) ? 'pp-done' : ''), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
+    dayFocus.catMarkers.push({ m, cat: p.cat, holder: focusLayer });
+    dayFocus.ordMarkers.push({ m, key: p.key, n: p.number || i + 1, color: p.color, emoji: p.emoji, done: checkedActivities.has(p.key) });
+  });
   focusLayer.addTo(map);
 
   dayChipBtn.innerHTML = '✕ ' + spec.label;   // `label` trae el DX de la fecha
@@ -3003,6 +3163,21 @@ function enterDayFocus(spec) {
   const fit = line.concat(ctxPts);
   if (fit.length === 1) map.flyTo(fit[0], 14, { duration: 0.7 });
   else if (fit.length) map.flyToBounds(L.latLngBounds(fit), { padding: [70, 70], maxZoom: 15, duration: 0.7 });
+  // El filtro es uno solo: entrar al foco con una categoría apagada la respeta acá
+  // también (el encuadre no — sigue mostrando el recorrido entero, que no baila).
+  applyCatFilter(true);
+}
+
+// Tachar con el foco de día puesto: el número de la parada se re-arma con (o sin) su
+// clase de tachado. El pin de la actividad lo cubre syncDonePins, que es el mismo marker.
+function syncDayFocusDone() {
+  if (!dayFocus) return;
+  dayFocus.ordMarkers.forEach(o => {
+    const done = checkedActivities.has(o.key);
+    if (o.done === done) return;
+    o.done = done;
+    o.m.setIcon(ordIcon(o.n, o.color, o.emoji, done ? 'pp-done' : ''));
+  });
 }
 
 function clearDayFocusLayers() {
@@ -3033,31 +3208,50 @@ L.DomEvent.disableScrollPropagation(barsWrap);
 // Filtro por categoría — los chips son a la vez la leyenda de color de los pines.
 // Con todo prendido, un click aísla esa categoría; después cada click suma o saca.
 // El estado va a la URL (?cat=comida,bar-noche) para poder compartir la vista.
+//
+// El estado es UNO SOLO (task 697): la barra de la portada y la del mapita de la
+// jornada leen y escriben el mismo `activeCats` — filtrar en una y mirar la otra
+// muestra lo mismo. Por eso las barras se fabrican acá (`buildCatBar`) y se anotan
+// en `catBars`, para que `applyCatFilter` les sincronice el estado a todas.
 const activeCats = new Set(CAT_ORDER);
-const catBar = document.createElement('div');
-catBar.className = 'map-cats';
-const catBtns = {};
-CAT_ORDER.forEach(c => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'mc';
-  btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
-  btn.addEventListener('click', () => {
-    if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
-    else if (activeCats.has(c)) activeCats.delete(c);
-    else activeCats.add(c);
-    applyCatFilter();
+const catBars = [];
+function buildCatBar() {
+  const bar = document.createElement('div');
+  bar.className = 'map-cats';
+  const btns = {};
+  CAT_ORDER.forEach(c => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'mc';
+    btn.innerHTML = '<span class="mc-dot" style="--c:' + catColor(c) + '"></span>' + CAT_META[c].label;
+    btn.addEventListener('click', () => {
+      if (activeCats.size === CAT_ORDER.length) { activeCats.clear(); activeCats.add(c); }
+      else if (activeCats.has(c)) activeCats.delete(c);
+      else activeCats.add(c);
+      applyCatFilter();
+    });
+    btns[c] = btn;
+    bar.appendChild(btn);
   });
-  catBtns[c] = btn;
-  catBar.appendChild(btn);
-});
-const allCatsBtn = document.createElement('button');
-allCatsBtn.type = 'button';
-allCatsBtn.className = 'mc mc-all';
-allCatsBtn.textContent = 'Todo';
-allCatsBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
-catBar.appendChild(allCatsBtn);
-barsWrap.appendChild(catBar);
+  const allBtn = document.createElement('button');
+  allBtn.type = 'button';
+  allBtn.className = 'mc mc-all';
+  allBtn.textContent = 'Todo';
+  allBtn.addEventListener('click', () => { CAT_ORDER.forEach(c => activeCats.add(c)); applyCatFilter(); });
+  bar.appendChild(allBtn);
+  const entry = { bar, btns, allBtn };
+  catBars.push(entry);
+  return entry;
+}
+barsWrap.appendChild(buildCatBar().bar);
+
+// El mapa embebido de la jornada y sus piezas viven declarados acá arriba porque
+// `applyCatFilter` los toca y corre antes de que `renderDayMap` exista siquiera
+// (el deep-link de ?cat= la llama al cargar la página).
+let _dayViewMap = null;
+let _dayViewMarkers = {};
+let _dayViewSuggestions = [];   // { m, cat } — sólo candidatas; el plan no filtra
+let _dayViewCatBar = null;
 
 function applyCatFilter(skipUrl) {
   placePins.forEach(p => {
@@ -3065,8 +3259,26 @@ function applyCatFilter(skipUrl) {
     if (on && !p.layer.hasLayer(p.m)) p.layer.addLayer(p.m);
     else if (!on && p.layer.hasLayer(p.m)) p.layer.removeLayer(p.m);
   });
-  CAT_ORDER.forEach(c => catBtns[c].classList.toggle('off', !activeCats.has(c)));
-  allCatsBtn.hidden = activeCats.size === CAT_ORDER.length;
+  // En foco de día los pines de la jornada están sueltos sobre el mapa (sus
+  // layerGroups quedaron apagados), así que se prenden/apagan uno por uno. Camas,
+  // terminales y tramos no tienen categoría: quedan siempre.
+  if (dayFocus) dayFocus.catMarkers.forEach(e => {
+    const on = activeCats.has(e.cat);
+    if (on && !e.holder.hasLayer(e.m)) e.holder.addLayer(e.m);
+    else if (!on && e.holder.hasLayer(e.m)) e.holder.removeLayer(e.m);
+  });
+  // En el mapita de la jornada filtran SOLO las sugerencias: los promovidos y las
+  // anclas son plan, no candidatas, y se dibujan siempre.
+  if (_dayViewMap) _dayViewSuggestions.forEach(s => {
+    const on = activeCats.has(s.cat);
+    if (on && !_dayViewMap.hasLayer(s.m)) s.m.addTo(_dayViewMap);
+    else if (!on && _dayViewMap.hasLayer(s.m)) _dayViewMap.removeLayer(s.m);
+  });
+  catBars.forEach(b => {
+    CAT_ORDER.forEach(c => b.btns[c].classList.toggle('off', !activeCats.has(c)));
+    b.allBtn.hidden = activeCats.size === CAT_ORDER.length;
+  });
+  syncPinEmojis();
   if (skipUrl) return;
   const u = new URL(location.href);
   if (activeCats.size === CAT_ORDER.length) u.searchParams.delete('cat');
@@ -3486,11 +3698,13 @@ const weatherChart = new Chart(ctx, {
 // Mapa embebido de la vista individual de día. Consume el mismo `dayRoute()` que el
 // foco del mapa principal: no vuelve a calcular orden ni coordenadas. Las únicas
 // resoluciones que hace son cama → coords del hospedaje y parada → coords del nodo.
-let _dayViewMap = null;
-let _dayViewMarkers = {};
+// (Su estado —`_dayViewMap` y compañía— está declarado junto a `activeCats`, arriba:
+// `applyCatFilter` lo toca y corre antes de que este bloque exista.)
 function renderDayMap(container, spec) {
   if (_dayViewMap) { _dayViewMap.remove(); _dayViewMap = null; }
+  if (_dayViewCatBar) { catBars.splice(catBars.indexOf(_dayViewCatBar), 1); _dayViewCatBar = null; }
   _dayViewMarkers = {};
+  _dayViewSuggestions = [];
   if (!container || !spec) return;
 
   const coordsOf = p => {
@@ -3518,9 +3732,9 @@ function renderDayMap(container, spec) {
   _dayViewMap = L.map(container, {
     zoomControl: true, attributionControl: false, scrollWheelZoom: false,
   });
-  // Acá el emoji va siempre, sin corte de zoom: el mapa de la jornada dibuja el
-  // recorrido de UN día (un puñado de puntos), así que no hay densidad que cuidar
-  // ni aunque el día se abra a dos ciudades.
+  wirePopupChecks(_dayViewMap);
+  // Acá el emoji va siempre: las sugerencias son el catálogo acotado de esta jornada,
+  // no los ~300 lugares de la portada. Su z-index las deja debajo del plan confirmado.
   container.classList.add('pins-emoji');
   L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_dayViewMap);
   if (pts.length > 1) L.polyline(pts, {
@@ -3557,10 +3771,44 @@ function renderDayMap(container, spec) {
     const name = p.act && p.act.text ? p.act.text : 'Parada';
     const cat = CAT_META[p.cat] || CAT_META.otro;
     const sub = p.time || (cat.icon + ' ' + cat.label);
-    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color) : placeIcon(p.cat, 'save', p.key);
+    // Una parada del plan ya tachada sigue en el recorrido (promoverla fue una
+    // decisión), pero su pin descansa: `pp-done` sobre el número o sobre el disco.
+    const done = checkedActivities.has(p.key);
+    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon, done ? 'pp-done' : '')
+      : placeIcon(p.cat, 'save', p.key, done ? 'pp-done' : '');
     const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
-      miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)));
+      withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), (p.act && p.act.url) || gmapsFromName(name)), p.key));
+    marker.on('popupopen', () => marker.getElement()?.querySelector('.pp, .rt-ord')?.classList.add('active'));
+    marker.on('popupclose', () => marker.getElement()?.querySelector('.pp, .rt-ord')?.classList.remove('active'));
+    marker._doneMeta = { done, ord: p.planNumber || 0, cat: p.cat, color: cat.color, emoji: cat.icon, cls: '' };
     _dayViewMarkers[p.key] = marker;
+  });
+  // Las sugerencias son la materia prima para decidir el día: se ven en el mapa pero
+  // no entran en la polilínea ni en su encuadre. Las ya promovidas/ancladas se dibujaron
+  // arriba con número; acá quedan sólo las candidatas y respetan el filtro global.
+  // Se crean TODAS y se agrega al mapa sólo lo activo: así los chips refiltran en vivo
+  // (applyCatFilter) sin volver a armar el mapa.
+  (spec.route || []).forEach(p => {
+    if (!p.ll || p.anchor || p.promoted || _dayViewMarkers[p.key]) return;
+    const name = p.act && p.act.text ? p.act.text : 'Sugerencia';
+    const cat = CAT_META[p.cat] || CAT_META.otro;
+    // `pp-sug`: candidata atenuada (task 698) — el CSS de .dv-day-map la deja como
+    // punto apagado y hover/popup la traen nítida. Con el popup abierto (tap, "ver
+    // en el mapa") se sostiene con `.active`, que en desktop no hay hover que dure.
+    // Una tachada ya no es candidata (salió de la lista) pero su punto se queda,
+    // igual de apagado: desde su popup se destacha.
+    const done = checkedActivities.has(p.key);
+    const marker = named(L.marker(p.ll, {
+      icon: placeIcon(p.cat, 'save', p.key, 'pp-sug' + (done ? ' pp-done' : '')), zIndexOffset: -1000,
+    }), name,
+      withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(cat.icon + ' ' + cat.label),
+        (p.act && p.act.url) || gmapsFromName(name)), p.key));
+    marker._doneMeta = { done, ord: 0, cat: p.cat, cls: 'pp-sug' };
+    marker.on('popupopen', () => marker.getElement()?.querySelector('.pp')?.classList.add('active'));
+    marker.on('popupclose', () => marker.getElement()?.querySelector('.pp')?.classList.remove('active'));
+    if (activeCats.has(p.cat)) marker.addTo(_dayViewMap);
+    _dayViewMarkers[p.key] = marker;
+    _dayViewSuggestions.push({ m: marker, cat: p.cat });
   });
   // Las paradas confirmadas del día son contexto del recorrido, no sugerencias. Van
   // como marcadores con el mismo popup de la portada, pero no alteran la polilínea:
@@ -3577,12 +3825,41 @@ function renderDayMap(container, spec) {
     named(L.marker(n.coords, { icon }).addTo(_dayViewMap), n.short,
       miniPopup(n.img, escHtml(title), n.type === 'fullday' ? 'Parada de día' : 'Destino', gmapsFromName(n.short)));
   });
+  // La misma barra de chips de la portada, abajo del mapita (task 697). Es otra
+  // instancia del MISMO estado: tocar acá filtra las sugerencias de arriba y deja
+  // el mapa principal (y ?cat=) igual de filtrado.
+  const dayBars = document.createElement('div');
+  dayBars.className = 'map-bars';
+  _dayViewCatBar = buildCatBar();
+  dayBars.appendChild(_dayViewCatBar.bar);
+  container.appendChild(dayBars);
+  L.DomEvent.disableClickPropagation(dayBars);
+  L.DomEvent.disableScrollPropagation(dayBars);
+  applyCatFilter(true);   // pinta el estado vigente en la barra recién montada
   setTimeout(() => {
     if (!_dayViewMap) return;
     _dayViewMap.invalidateSize();
     if (boundsPts.length === 1) _dayViewMap.setView(boundsPts[0], 13);
     else _dayViewMap.fitBounds(L.latLngBounds(boundsPts), { padding: [28, 28], maxZoom: 14 });
   }, 0);
+}
+
+// Tachar/destachar con el mapita de la jornada montado: cada marker guarda en
+// `_doneMeta` lo necesario para re-armar su ícono (setIcon persiste la clase en el
+// html del divIcon, así sobrevive a que los chips lo saquen y devuelvan a la capa).
+function syncDayMapDone() {
+  if (!_dayViewMap) return;
+  Object.keys(_dayViewMarkers).forEach(key => {
+    const m = _dayViewMarkers[key];
+    const meta = m._doneMeta;
+    if (!meta) return;
+    const done = checkedActivities.has(key);
+    if (meta.done === done) return;
+    meta.done = done;
+    const cls = (meta.cls + (done ? ' pp-done' : '')).trim();
+    m.setIcon(meta.ord ? ordIcon(meta.ord, meta.color, meta.emoji, cls) : placeIcon(meta.cat, 'save', key, cls));
+    keepActive(m);
+  });
 }
 
 // ---- Vistas laterales (task 499) -------------------------------------------
@@ -3623,6 +3900,10 @@ try {
     focusDayAct: (key) => {
       const marker = _dayViewMarkers[key];
       if (!marker || !_dayViewMap) return;
+      // "Ver en el mapa" con la categoría apagada: se la prende (chips incluidos),
+      // igual que revealPin en la portada — volar a un pin que no está no muestra nada.
+      const sug = _dayViewSuggestions.find(s => s.m === marker);
+      if (sug) revealCat(sug.cat);
       _dayViewMap.setView(marker.getLatLng(), Math.max(_dayViewMap.getZoom(), 14));
       marker.openPopup();
       document.querySelector('[data-day-map]')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -3633,8 +3914,16 @@ try {
     // cuando promueve un renglón al itinerario (ahí nace su `data-check`) y cuando el
     // plan llega tarde y hay que repintar sin volver a colgar los listeners del pane.
     wireChecks: (root) => wireChecklist(root),
+    // El estado del checklist entra como FUNCIÓN (no el Set): cada render pregunta por
+    // el valor vigente. Una tachada sale de las sugerencias (task 700); el aviso de
+    // vuelta (onChecklistChange) es lo que repinta las secciones sin recargar.
+    isActivityDone: (key) => checkedActivities.has(key),
+    onChecklistChange: (fn) => { checklistViewsHandler = fn; },
     wire: (pane) => {
       wireChecklist(pane);
+      // Un catálogo recién llenado (fillCatalog es lazy) también reparte sus hechas
+      // bajo "✓ n hechas": si no, llegan tachadas pero mezcladas con las vivas.
+      arrangeChecklistCatalogs();
       pane.addEventListener('click', (e) => {
         const act = e.target.closest('[data-act]');
         if (act) { focusMarker(actMarkers[act.dataset.act]); return; }
