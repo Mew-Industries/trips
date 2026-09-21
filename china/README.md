@@ -1,4 +1,4 @@
-# China · dos meses · Beijing a Hong Kong · 2026
+# China · dos meses · Beijing a Hong Kong · 2027
 
 Sitio de un viaje de dos meses por China, de norte a sur, con mapa interactivo,
 detalle por parada, tramos de transporte (tren bala / vuelo / crucero) y curva
@@ -28,7 +28,7 @@ Dashboard único con 3 secciones:
   clima, qué hacer y day trips. Entre cada card, el **módulo de transporte**: modo,
   tiempo, distancia y la línea/ruta concreta.
 
-## Itinerario (10 oct – 9 dic 2026, 60 noches)
+## Itinerario (10 oct – 9 dic 2027, 60 noches)
 
 | # | Parada | Noches | Tramo hasta acá |
 |---|--------|--------|-----------------|

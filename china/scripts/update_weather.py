@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """update_weather.py — keep per-stop temperatures in index.html fresh.
 
-The trip is Sept-Oct 2026. No service forecasts that far out, so "real-time"
+The trip is Oct-Dec 2027. No service forecasts that far out, so "real-time"
 means, honestly, two regimes picked automatically per stop:
 
   - date within OPEN-METEO forecast range (<=16 days from today)
@@ -30,7 +30,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 INDEX = REPO / "index.html"
-TRIP_YEAR = 2026
+TRIP_YEAR = 2027
 CLIMO_YEARS = 6           # how many past years to average for normals
 FORECAST_HORIZON_DAYS = 16
 
@@ -52,7 +52,7 @@ def _get(url: str, timeout: int = 25) -> dict:
 
 
 def parse_window(dates_str: str, stop_id: str) -> tuple[date, date] | None:
-    """Parse '10-13 sept' / '30 sept-5 oct' into (start,end) dates in 2026.
+    """Parse '10-13 sept' / '30 sept-5 oct' into (start,end) dates in 2027.
     Pending → fallback midpoint (3-day window)."""
     s = dates_str.strip().lower()
     if "confirmar" in s or not s:
