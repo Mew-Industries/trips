@@ -1851,8 +1851,16 @@ routeLegend.addTo(map);
 //    abre la ficha exacta — con coords en query no cae en un homónimo;
 //  · solo coords: búsqueda del nombre centrada en el punto;
 //  · solo nombre: la búsqueda de texto de siempre (puede abrir una lista).
+function nameForSearch(text) {
+  let q = String(text || '').split('(')[0].split('/')[0]
+    .split(/\s+(?:—|–|·|:)\s+|,/)[0].trim();
+  const vista = q.match(/^Vistas? del monte Fuji desde el (.+)$/i);
+  if (vista) q = vista[1];
+  q = q.replace(/^Torii del (santuario de Hakone) sobre el agua$/i, '$1');
+  return q.replace(/\s+(?:de noche|al amanecer|antes del amanecer|al atardecer|de barrio)\b.*$/i, '').trim();
+}
 function gmapsLink(name, coords, gpid) {
-  const q = String(name || '').split('(')[0].split('/')[0].trim();
+  const q = nameForSearch(name);
   if (gpid && /^\d+$/.test(String(gpid))) return 'https://maps.google.com/?cid=' + gpid;
   if (gpid) {
     const query = coords ? coords[0] + ',' + coords[1] : q;
@@ -2140,7 +2148,12 @@ sourceThings.forEach(p => { if (p.gpid) GPID[thingKey(p.name)] = p.gpid; });
 // geocodificado con validación ≤300 m contra las coords de la actividad — task
 // 705 addendum): va primero, es el id verificado contra ESTE punto del mapa.
 const ACTIVITY_GPIDS = window.ACTIVITY_GPIDS || {};
-const gpidOf = name => ACTIVITY_GPIDS[thingKey(name)] || GPID[thingKey(name)];
+const gpidOf = name => {
+  const exact = thingKey(name);
+  const clean = thingKey(nameForSearch(name));
+  return ACTIVITY_GPIDS[exact] || GPID[exact] ||
+    ACTIVITY_GPIDS[clean] || GPID[clean];
+};
 const CITY_ALIASES = [
   ['tokio', /^(tokio|tokyo)\b/], ['kioto', /^(kioto|kyoto)\b/],
   ['osaka', /^osaka\b/]
