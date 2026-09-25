@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 319 lugares + 26 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-21T08:22:36+00:00
+// 328 lugares + 29 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-25T22:42:44+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -705,6 +705,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "12480521953888272404"
+ },
+ {
+  "name": "Chubu Electric Power MIRAI TOWER (Nagoya TV Tower)",
+  "lat": 35.172345,
+  "lon": 136.908338,
+  "cat": "miradores",
+  "area": "Nagoya (Sakae / Hisaya Odori)",
+  "note": "Torre-mirador de Nagoya en el parque Hisaya Odori, mostrada en el reel.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbvSJ_5PoSb/",
+    "owner": "mionngg",
+    "caption": "Torre-mirador de Nagoya en el parque Hisaya Odori, mostrada en el reel.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJRQSoYtZwA2ARwpz475VYYeo"
  },
  {
   "name": "CIRCUS TOKYO",
@@ -1512,6 +1530,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJf9VsXiONGGARVyRmmgFdga0"
+ },
+ {
+  "name": "HAUS DOSAN (Gentle Monster)",
+  "lat": 37.525382,
+  "lon": 127.035695,
+  "cat": "compras",
+  "area": "Seúl (Sinsa-dong, Gangnam)",
+  "note": "Flagship de Gentle Monster con forma de nave espacial: 5 pisos abiertos al público con esculturas gigantes (verduras, robots), anteojos de sol, la fragancia de Tamburins, objetos de cocina y una tea room con tés exhibido",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbdX8xPN44s/",
+    "owner": "elliotpagesneakers",
+    "caption": "Flagship de Gentle Monster con forma de nave espacial: 5 pisos abiertos al público con esculturas gigantes (verduras, robots), anteojos de sol, la fragancia de Tamburins, objetos de cocina y una tea room con tés exhibido",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJhwsmIWSjfDUR2i2WRMv-RnE"
  },
  {
   "name": "Hekkerun",
@@ -2967,6 +3003,42 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJFxPjVyECHmARVRCaOksj68s"
  },
  {
+  "name": "Nagoya Castle",
+  "lat": 35.18475,
+  "lon": 136.899688,
+  "cat": "arquitectura",
+  "area": "Nagoya",
+  "note": "Castillo emblemático de Nagoya que aparece en el montaje de saltos del post.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbvSJ_5PoSb/",
+    "owner": "mionngg",
+    "caption": "Castillo emblemático de Nagoya que aparece en el montaje de saltos del post.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJse-wx8t2A2ARd6Z1knjp07k"
+ },
+ {
+  "name": "Nagoya City Science Museum",
+  "lat": 35.165077,
+  "lon": 136.899703,
+  "cat": "museos",
+  "area": "Nagoya",
+  "note": "Museo de ciencias con su enorme esfera plateada (planetario), que aparece de fondo en el video.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DbvSJ_5PoSb/",
+    "owner": "mionngg",
+    "caption": "Museo de ciencias con su enorme esfera plateada (planetario), que aparece de fondo en el video.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJNfP0RCx3A2ARE9dwKx_ZRzk"
+ },
+ {
   "name": "Nakameguro (segunda mano)",
   "lat": 35.638716,
   "lon": 139.702625,
@@ -3347,6 +3419,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJP9eKBdeMGGAR0zzBXJNVj5A"
  },
  {
+  "name": "Ona Spa",
+  "lat": 37.560144,
+  "lon": 126.995965,
+  "cat": "onsen",
+  "area": "Jung-gu, Seúl",
+  "note": "Spa solo para mujeres para hacerse un scrub corporal coreano tradicional; te dejan la piel suavísima.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dc75-IJA8kU/",
+    "owner": "itskimmysworld",
+    "caption": "Spa solo para mujeres para hacerse un scrub corporal coreano tradicional; te dejan la piel suavísima.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "6881030663602871831"
+ },
+ {
   "name": "Onigiri Gorichan",
   "lat": 34.695247,
   "lon": 135.501208,
@@ -3410,6 +3500,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJzakNjPToAGARzCwIriDFg28"
+ },
+ {
+  "name": "Osaka Castle",
+  "lat": 34.687257,
+  "lon": 135.525855,
+  "cat": "arquitectura",
+  "area": "Osaka",
+  "note": "Castillo histórico icónico de Osaka; aparecen bailando en la explanada frente a la torre principal.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdKLKQVB67W/",
+    "owner": "savannahmares",
+    "caption": "Castillo histórico icónico de Osaka; aparecen bailando en la explanada frente a la torre principal.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJ_TooXM3gAGARQR6hXH3QAQ8"
  },
  {
   "name": "Osaka Tonkatsu (Umeda)",
@@ -3601,6 +3709,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJZ_ig2JmLGGAR6sRAOBPaFLg"
  },
  {
+  "name": "Rettre Yeonmujang-gil",
+  "lat": 37.544577,
+  "lon": 127.055991,
+  "cat": "ocio",
+  "area": "Seongsu, Seúl",
+  "note": "Taller de perfumería en Seongsu: te hacen un perfume personalizado midiendo tu respuesta cerebral ante una foto memorable; unos 35.000 won por persona.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DZ31eDzPNce/",
+    "owner": "andyoleabeauty",
+    "caption": "Taller de perfumería en Seongsu: te hacen un perfume personalizado midiendo tu respuesta cerebral ante una foto memorable; unos 35.000 won por persona.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "420247100643917492"
+ },
+ {
   "name": "Reve Doux",
   "lat": 37.509766,
   "lon": 127.109302,
@@ -3726,6 +3852,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "12537058516644936695"
+ },
+ {
+  "name": "Sauna Mother",
+  "lat": 35.664319,
+  "lon": 139.728741,
+  "cat": "onsen",
+  "area": "Roppongi, Tokio",
+  "note": "Nueva sauna privada de 120 min que simula gestación, nacimiento y cuidado materno (sauna útero, baño frío 'recién nacido' y madre mecánica); abre en octubre 2026.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdQqZ0PEUBz/",
+    "owner": "tokyoweekender",
+    "caption": "Nueva sauna privada de 120 min que simula gestación, nacimiento y cuidado materno (sauna útero, baño frío 'recién nacido' y madre mecánica); abre en octubre 2026.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJuyqVh36LGGARxoYsw3Ib4uY"
  },
  {
   "name": "Seirinkan",
@@ -4873,9 +5017,9 @@ window.SOURCE_THINGS = [
   "name": "Tokyo Tower",
   "lat": 35.65858,
   "lon": 139.745433,
-  "cat": "miradores",
+  "cat": "arquitectura",
   "area": "Tokio",
-  "note": "Su lugar favorito de Japón; fue a ver el atardecer con la torre roja de fondo.",
+  "note": "Torre roja emblemática de Tokio iluminada de noche; sale como fondo del cierre del reel.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -4889,6 +5033,13 @@ window.SOURCE_THINGS = [
     "url": "https://www.instagram.com/p/Dc90SpNNTN6/",
     "owner": "alexissswgr",
     "caption": "Su lugar favorito de Japón; fue a ver el atardecer con la torre roja de fondo.",
+    "sharedBy": "Cata"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdKLKQVB67W/",
+    "owner": "savannahmares",
+    "caption": "Torre roja emblemática de Tokio iluminada de noche; sale como fondo del cierre del reel.",
     "sharedBy": "Cata"
    }
   ],
@@ -5629,6 +5780,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJH3nGVNyNGGAR2MpoFj9X4_0"
  },
  {
+  "name": "Zojoji Temple",
+  "lat": 35.657479,
+  "lon": 139.748293,
+  "cat": "templos",
+  "area": "Tokio (Minato)",
+  "note": "Templo budista con la Tokyo Tower detrás; clásico punto de foto donde graban las tomas nocturnas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdKLKQVB67W/",
+    "owner": "savannahmares",
+    "caption": "Templo budista con la Tokyo Tower detrás; clásico punto de foto donde graban las tomas nocturnas.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJC2xnkb6LGGARJL0d222opIg"
+ },
+ {
   "name": "Ōedo Antique Market",
   "lat": 35.677327,
   "lon": 139.764502,
@@ -5660,6 +5829,20 @@ window.SOURCE_TIPS = [
     "url": "https://www.instagram.com/p/DPB0R_GE6bC/",
     "owner": "hiromizunoc",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Analizá tu piel antes de comprar K-beauty",
+  "cat": "tips",
+  "area": "Seúl",
+  "note": "Antes de comprar, hacete un análisis de piel para saber qué necesitás: gratis en Olive Young, o más completo en una clínica especializada (el análisis va incluido si te hacés algún tratamiento).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdJ_3oDsl1o/",
+    "owner": "en_modoavionn",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -5873,6 +6056,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Llevá el pasaporte para el Tax Refund",
+  "cat": "tips",
+  "area": "Corea del Sur",
+  "note": "Comprá siempre con el pasaporte encima para pedir el Tax Refund y que te descuenten los impuestos en la compra.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdJ_3oDsl1o/",
+    "owner": "en_modoavionn",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Llevá siempre el pasaporte para el tax free",
   "cat": "tips",
   "area": "",
@@ -5909,6 +6106,20 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DcNFJ7EDbYD/",
     "owner": "ajaponmevoy",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Pedí asesoría gratis en farmacias coreanas",
+  "cat": "tips",
+  "area": "Seúl",
+  "note": "Mostrando tu análisis de piel, los farmacéuticos te asesoran gratis sobre qué productos te convienen; según el post, mejor que seguir listas de productos virales.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdJ_3oDsl1o/",
+    "owner": "en_modoavionn",
     "sharedBy": "Cata"
    }
   ]
@@ -7551,6 +7762,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DZ31eDzPNce",
+  "url": "https://www.instagram.com/p/DZ31eDzPNce/",
+  "owner": "andyoleabeauty",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-rettre-yeonmujang-gil"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DZD94DATUj4",
   "url": "https://www.instagram.com/p/DZD94DATUj4/",
   "owner": "deannawoo",
@@ -7867,6 +8089,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DbdX8xPN44s",
+  "url": "https://www.instagram.com/p/DbdX8xPN44s/",
+  "owner": "elliotpagesneakers",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-haus-dosan"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "Dbgc1DlOYtw",
   "url": "https://www.instagram.com/p/Dbgc1DlOYtw/",
   "owner": "nofar_moshe_",
@@ -7913,6 +8146,19 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DbvSJ_5PoSb",
+  "url": "https://www.instagram.com/p/DbvSJ_5PoSb/",
+  "owner": "mionngg",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-nagoya-castle",
+   "p-chubu-electric-power-mirai-tower",
+   "p-nagoya-city-science-museum"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "Dc0Xx-iAcE5",
   "url": "https://www.instagram.com/p/Dc0Xx-iAcE5/",
   "owner": "saliesitinerary",
@@ -7946,6 +8192,17 @@ window.SOURCE_REELS = [
    "p-murou-art-forest",
    "p-teshima-art-museum",
    "p-the-national-art-center"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "Dc75-IJA8kU",
+  "url": "https://www.instagram.com/p/Dc75-IJA8kU/",
+  "owner": "itskimmysworld",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-ona-spa"
   ],
   "showsEach": true
  },
@@ -8174,5 +8431,29 @@ window.SOURCE_REELS = [
    "p-studious-mens-lumine-est-shinjuku"
   ],
   "showsEach": false
+ },
+ {
+  "code": "DdKLKQVB67W",
+  "url": "https://www.instagram.com/p/DdKLKQVB67W/",
+  "owner": "savannahmares",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-osaka-castle",
+   "p-tokyo-tower",
+   "p-zojoji-temple"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdQqZ0PEUBz",
+  "url": "https://www.instagram.com/p/DdQqZ0PEUBz/",
+  "owner": "tokyoweekender",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-sauna-mother"
+  ],
+  "showsEach": true
  }
 ];
