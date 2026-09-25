@@ -10,7 +10,8 @@
  *
  * Lo que sí puede quedar es lo que cuesta algo ALLÁ y todavía hay que pagar en el
  * mostrador (accommodation tax del hotel, lockers de la estación, una entrada
- * orientativa): no es lo que gastamos, es lo que hay que tener a mano. Esos casos van
+ * orientativa), o un total pagado que sea parte del comprobante operativo pedido para
+ * una reserva: no es un desglose general del viaje. Esos casos van
  * en ALLOW, uno por uno y con su motivo — la lista es corta a propósito.
  */
 const fs = require('fs');
@@ -32,6 +33,8 @@ const MONEY = /(?:US\$|USD\s?|€|¥|\$)\s?\d[\d.,]*/gi;
 const ALLOW = [
   { text: '~¥700-1.000', why: 'lockers de la estación de Nikko: se paga allá, en el día' },
   { text: '¥500/noche', why: 'accommodation tax de Osaka y Fukuoka: la cobra el hotel al llegar' },
+  { text: 'Reserva 7MJsNSa3A · 2 personas · ¥7.000 pagados', why: 'comprobante operativo de G-Cans pedido explícitamente en el detalle' },
+  { text: "'$1'", why: 'referencia de reemplazo de regex en el código; no se renderiza' },
 ];
 
 let bad = 0;

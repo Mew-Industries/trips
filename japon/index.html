@@ -669,6 +669,9 @@ const destinations = [
       { text: 'teamLab Planets', cat: 'museos', coords: [35.648786, 139.790114], at: '2026-10-09T09:00', until: '2026-10-09T09:30',
         booked: '2 Entrance Pass · QR en My Tickets desde las 0:00 del día · cambiable hasta 2 h antes',
         bestTime: 'Slot de las 9:00: es el primero del día, sin multitud, y el jet lag de los primeros días juega a favor.' },
+      { text: 'Canal subterráneo de descarga (G-Cans)', cat: 'actividad', coords: [35.996667, 139.811389], at: '2026-10-09T15:00', until: '2026-10-09T16:50',
+        booked: 'Reserva 7MJsNSa3A · 2 personas · ¥7.000 pagados · recepción 14:30 en Ryu-Q-Kan (龍Q館) 2F · cancelación gratis hasta 5/10 23:59 JST',
+        note: '立坑体験コース (recorrido del pozo vertical) · Kamikanasaki 720, Kasukabe, Saitama · +81-48-747-0281' },
       { text: 'Tsukiji Outer Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.664848, 139.7702] },
       { text: 'Toyosu Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.644091, 139.784281] },
       { text: 'Ginza', group: 'Tsukiji + Toyosu + Ginza', cat: 'compras', coords: [35.669612, 139.764666] },
@@ -707,7 +710,7 @@ const destinations = [
       { id: 'kait', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Kanagawa_Institute_of_Technology.jpg/360px-Kanagawa_Institute_of_Technology.jpg', name: 'KAIT広場 + Kanagawa Inst. of Technology', coords: [35.486557, 139.343234], time: '1 h 15 a Atsugi', url: "https://www.google.com/maps/search/?api=1&query=%E7%A5%9E%E5%A5%88%E5%B7%9D%E5%B7%A5%E7%A7%91%E5%A4%A7%E5%AD%A6%20KAIT%E5%BA%83%E5%A0%B4", desc: 'Plaza KAIT de Junya Ishigami (arquitectura) en el campus de Atsugi, Kanagawa.' },
       { id: 'fukazawa-museum', name: 'Fukazawa Tiny Museum', coords: [35.747306, 139.208255], time: '1 h al oeste (Hachioji)', url: "https://www.google.com/maps/search/?api=1&query=Fukazawa%20Tiny%20Museum", desc: 'Micro-museo en el oeste de Tokio.' },
       { id: 'kazenooka', name: 'Kazenooka Jumokuso Cemetery', coords: [35.637556, 139.345684], time: '1 h a Fujisawa', url: "https://www.google.com/maps/search/?api=1&query=Kazenooka%20Jumokuso%20Cemetery", desc: 'Cementerio-bosque de Fumihiko Maki en Kanagawa.' },
-      { id: 'discharge-channel', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg/360px-Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg', name: 'Canal subterráneo de descarga (G-Cans)', coords: [35.996667, 139.811389], time: '1 h a Kasukabe, Saitama', url: "https://www.google.com/maps/search/?api=1&query=The%20Metropolitan%20Area%20Outer%20Underground%20Discharge%20Channel", desc: '"Catedral subterránea" anti-inundaciones. Tour con reserva previa.' }
+      { id: 'discharge-channel', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg/360px-Geofront_Temple%5E_%E9%A6%96%E9%83%BD%E5%9C%8F%E5%A4%96%E9%83%AD%E6%94%BE%E6%B0%B4%E8%B7%AF_-_panoramio.jpg', name: 'Canal subterráneo de descarga (G-Cans)', coords: [35.996667, 139.811389], time: '1 h a Kasukabe, Saitama', url: "https://www.google.com/maps/search/?api=1&query=The%20Metropolitan%20Area%20Outer%20Underground%20Discharge%20Channel", desc: '"Catedral subterránea" anti-inundaciones. Reservado para el viernes 9/10, 15:00-16:50.' }
     ]
   },
   {
@@ -2626,7 +2629,14 @@ destinations.forEach(d => {
     const cat = catOfAct(a);
     // La clase de tachada va EN el html del ícono (no en el elemento): así sobrevive
     // a que el filtro de categorías saque y vuelva a meter el marker en su capa.
-    const m = placePin(a.coords, cat, 'save', savedPlaceLayer, key, checkedActivities.has(key) ? 'pp-done' : '');
+    // Una actividad agendada puede seguir figurando como day trip en la card de la
+    // ciudad. Si comparten coordenadas, reutiliza ese marker: son dos superficies del
+    // mismo lugar, no dos lugares en el mapa.
+    const sameDaytrip = (d.daytrips || []).find(dt => dt.coords &&
+      dt.coords[0] === a.coords[0] && dt.coords[1] === a.coords[1]);
+    const m = sameDaytrip && dtMarkers[sameDaytrip.id]
+      ? dtMarkers[sameDaytrip.id]
+      : placePin(a.coords, cat, 'save', savedPlaceLayer, key, checkedActivities.has(key) ? 'pp-done' : '');
     m._ppDone = checkedActivities.has(key);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +

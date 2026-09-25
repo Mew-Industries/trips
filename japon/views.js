@@ -741,7 +741,10 @@ function planItemHtml(e, ctx, planNumber) {
     ctx.lodgingLinks(L, 'pl-a').forEach(a => links.push('<span class="dx">' + a + '</span>'));
   } else if (e.kind === 'reserva') {
     const a = e.act || {};
-    if (planNumber && e.time) meta.unshift('<span class="pl-dur">' + esc(e.time) + '</span>');
+    if (planNumber && e.time) {
+      const until = a.until && a.until.slice(11, 16);
+      meta.unshift('<span class="pl-dur">' + esc(e.time + (until ? '–' + until : '')) + '</span>');
+    }
     // Una reserva ES una actividad del día (Geibikei, teamLab): lleva el mismo círculo
     // de checklist que una actividad promovida, con la misma clave.
     if (ctx.activityId && e.node) check = ctx.activityId(a, e.node);
