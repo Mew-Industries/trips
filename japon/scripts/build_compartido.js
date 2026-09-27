@@ -67,6 +67,43 @@ function rebaseLocalImages(value) {
   return value;
 }
 
+// Mismo criterio que `thingKey` en index.html (nombre sin paréntesis, sin acentos,
+// minúsculas, solo letras/números): el dedupe del pool tiene que fundir lo mismo
+// que funde el render de la app principal.
+function thingKey(name) {
+  return String(name || '').split('(')[0]
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+}
+
+// En la app principal Tokio muestra el pool de la CIUDAD (las tres paradas, task 552),
+// pero la compartida solo entrega `tokio-medio`: sin esto, el mapa y el "qué hacer" de
+// Tokio salían con un tercio de los pines. Se fusionan acá las actividades de las tres
+// paradas — primero las propias del nodo compartido, después las demás en orden de
+// itinerario. Solo actividades: fechas, hospedajes y reservas de las otras dos visitas
+// siguen sin viajar, y a lo que viene de afuera se le borra el rastro de reserva
+// (`at`/`until`/`booked` y el `bestTime` que habla de ese slot comprado).
+const TOKYO_IDS = ['tokio-medio', 'tokio-llegada', 'tokio-final'];
+function tokyoActivities(all) {
+  const seen = new Set();
+  const pool = [];
+  for (const id of TOKYO_IDS) {
+    const source = all.find(node => node.id === id);
+    if (!source) throw new Error(`el nodo "${id}" ya no está en destinations`);
+    for (const act of source.activities || []) {
+      const key = thingKey(act.text);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const copy = structuredClone(act);
+      if (id !== 'tokio-medio' && copy.at) {
+        for (const field of ['at', 'until', 'booked', 'bestTime']) delete copy[field];
+      }
+      pool.push(copy);
+    }
+  }
+  return pool;
+}
+
 function buildData(all) {
   return SHARED_IDS.map((id, index) => {
     const source = all.find(node => node.id === id);
@@ -86,7 +123,7 @@ function buildData(all) {
     if (id === 'kioto') {
       node.arrival = '19 oct · llegada a KIX y primera noche en Kioto';
       node.departure = '24 oct · sigue Osaka';
-      node.intro = 'Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cuatro en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.';
+      node.intro = 'Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cinco en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.';
       node.leg = {
         mode: '✈️', time: 'a definir', detail: 'Llegada a Kansai (KIX) → Kioto.',
         fromName: 'Origen a definir', toName: 'Kioto',
@@ -96,12 +133,15 @@ function buildData(all) {
     } else if (id === 'osaka') {
       node.arrival = '24 oct · se llega de Kioto en tren (~1 h)';
       node.departure = '27 oct · sigue Tokio en Shinkansen';
+      // El intro de la app principal se escribió cuando el tramo era de cuatro.
+      node.intro = String(node.intro || '').replace('siempre los cuatro', 'siempre los cinco');
     } else {
       node.name = 'Tokio';
       node.short = 'Tokio';
       node.arrival = '27 oct · se llega de Osaka en Shinkansen (~2 h 30)';
       node.departure = '31 oct · los amigos se quedan una noche más y vuelan el 1/11';
-      node.intro = 'Cuatro noches en Tokio. El alojamiento todavía no está reservado: se busca para cuatro personas. Los amigos se quedan hasta el 1 de noviembre.';
+      node.intro = 'Cuatro noches en Tokio, los cinco juntos. Los amigos se quedan hasta el 1 de noviembre.';
+      node.activities = rebaseLocalImages(tokyoActivities(all));
     }
     return node;
   });
@@ -111,7 +151,11 @@ function activityNames(nodes) {
   const names = new Set();
   const visit = value => {
     if (!value || typeof value !== 'object') return;
+    // Una actividad nombra su lugar en `text`; los objetos anidados (terminales,
+    // day trips) usan `name`. Sin el `text` acá el filtro de overrides no veía
+    // NINGUNA actividad y `compartido/data/categories.js` salía sin lugares.
     if (typeof value.name === 'string') names.add(value.name);
+    if (typeof value.text === 'string') names.add(value.text);
     if (Array.isArray(value)) value.forEach(visit);
     else Object.values(value).forEach(visit);
   };
@@ -196,6 +240,12 @@ function render() {
     "  .bindPopup('<div class=\"popup-title\">✈ Llegada · KIX → Kioto</div>');",
     "registerLeg(chain[0].id, [{ pts: _kixPts, pl: _arrival, style: _arrivalStyle, layer: flightLayer }]);",
   ].join('\n'));
+
+  // `nameForSearch()` trae una regla para una actividad de una parada que la compartida
+  // no sirve, y la regla nombra esa parada: la línea se omite del HTML compartido. Si la
+  // línea cambia en index.html este replace no encuentra nada y el chequeo de
+  // FORBIDDEN de abajo corta el build — no falla en silencio.
+  out = out.replace("  q = q.replace(/^Torii del (santuario de Hakone) sobre el agua$/i, '$1');\n", '');
 
   // La app principal tiene comentarios técnicos con ejemplos de otros nodos. Aunque
   // no son datos ejecutables, tampoco tienen por qué viajar en el HTML compartido.

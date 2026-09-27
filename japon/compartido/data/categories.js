@@ -102,4 +102,25 @@ window.PLACE_CAT_LEGACY = {
   "otros": "otro",
   "tips": "tips"
 };
-window.PLACE_CAT_OVERRIDES = {};
+window.PLACE_CAT_OVERRIDES = {
+  "Golden Gai": "bar-noche",
+  "Ohjo Building": "bar-noche",
+  "Omoide Yokocho": "bar-noche",
+  "Shibuya Scramble": "landmark",
+  "teamLab Planets": "arte",
+  "teamLab Borderless": "arte",
+  "Museo Ghibli si conseguís entrada": "arte",
+  "SCAI The Bathhouse (galería)": "arte",
+  "21_21 Design Sight": "arte",
+  "Garden of Fine Arts Kyoto (Tadao Ando)": "arte",
+  "Chichu Art Museum": "arte",
+  "Benesse House Museum": "arte",
+  "Minamidera (Art House Project, James Turrell)": "arte",
+  "国境を越えて・祈り": "arte",
+  "1-15 Udagawacho (Shibuya)": "sin-identificar",
+  "stoop": "sin-identificar",
+  "2 Chome-13-4 Uenosakuragi (Yanaka)": "sin-identificar",
+  "Dotonbori (luces, takoyaki, kushikatsu)": "barrio",
+  "Harajuku": "barrio",
+  "Canal subterráneo de descarga (G-Cans)": "actividad"
+};

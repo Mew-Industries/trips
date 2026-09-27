@@ -58,7 +58,7 @@ Lo que se plegó y por qué (557 ronda 2 — Martín: «sigue tomando bastante r
 - **Cada ítem del pool viaja con la clave de su parada dueña** (`{ act, key: '<nodo>:<i>' }`). Esa clave es la del pin en `actMarkers`, la del tachado (`data-check`) y la del índice de búsqueda: por eso el pool no duplica pines ni resetea el checklist. `categoryGroupsHtml()` y `catListHtml()` (views.js) reciben esos entries, no actividades sueltas.
 - Una ciudad de una sola parada (Kioto, Osaka, Sendai…) recorre el mismo camino y queda igual — salvo que tuviera el MISMO lugar cargado dos veces, que ahora se muestra una sola vez (pasaba en Kanazawa, Kioto y Seúl).
 - La ficha repetida avisa con `.qh-shared` ("Tokio · las 3 visitas"); una ciudad de una sola parada no muestra nada.
-- En `compartido/` sólo viven los nodos de la allowlist (`kioto`, `osaka`, `tokio-medio`), así que ahí Tokio queda solo en su grupo y **no se filtra** el catálogo de las otras dos paradas. Es lo correcto: el pool se arma sobre el dataset que el navegador efectivamente recibió.
+- En `compartido/` sólo viven los nodos de la allowlist (`kioto`, `osaka`, `tokio-medio`), y el pool se arma sobre el dataset que el navegador efectivamente recibió. Para que Tokio no muestre un tercio de los pines, `build_compartido.js` fusiona en el nodo compartido las `activities` de las tres paradas de la ciudad (`tokyoActivities()`, task 714) — ver § "Tramo compartido".
 - Guarda de regresión: `scripts/check_things_ui.js` falla si la lista vuelve a salir de `d.activities`.
 
 **Modelo de tiempo** (2026-08-07 · task 499): el itinerario dejó de tener las fechas solo en prosa. Cada nodo lleva ahora **`start`/`end` en ISO** (`'2026-10-08'` / `'2026-10-13'`) — `start` = día de llegada, `end` = día de salida, un `fullday` tiene `start === end`, y las noches de un `destino` son el intervalo `[start, end)`. Los strings `dates`/`arrival`/`departure` quedan como estaban (son la prosa que se lee en la tarjeta); `start`/`end` son lo que se computa. **Si cambiás fechas, cambiá los dos** — y verificá el invariante de abajo.
@@ -271,6 +271,13 @@ verdes.
   compartida no carga ese archivo —sus overrides nombran lugares de todo el viaje—.
   `--check` además falla si aparece cualquier palabra de `FORBIDDEN` (las otras paradas,
   los otros hospedajes, los códigos de reserva) en `compartido/`.
+- **El Tokio de la compartida lleva el pool de las TRES paradas** (2026-09-27 · task 714):
+  como las actividades son de la CIUDAD y la compartida solo entrega `tokio-medio`,
+  `tokyoActivities()` en el generador fusiona en ese nodo las `activities` de
+  `tokio-llegada` + `tokio-medio` + `tokio-final` (dedupe con el mismo criterio de
+  `thingKey`; las propias del nodo compartido primero). Solo actividades/pines: fechas,
+  hospedajes, reservas y días de las otras dos visitas siguen sin viajar, y a lo que
+  viene de afuera se le borra el rastro de reserva (`at`/`until`/`booked`/`bestTime`).
 
 Verificación (browser de verdad, las tres marcas + la vista filtrada + su HTML servido):
 `node evidence/545/tooling/check-r2.mjs <base> <shots>` en el workspace de Mew.
