@@ -792,9 +792,97 @@ function readOrder(day) {
     .map(r => r.e);
 }
 
+// ------------------------------------------- traslados entre eventos (task 719)
+// `hop` (en el dato de la actividad con `at`) es cómo llegar A ese evento desde el
+// punto anterior del día — el alojamiento donde se durmió, o el evento fijo previo —
+// y `hopBack`, sólo en el último evento de la jornada, la vuelta al alojamiento.
+// `time` es DURACIÓN puerta a puerta, no hora de reloj: lo único con forma de hora
+// es la sugerencia de salida, derivada como (arriveBy || hora del evento) − time,
+// en cursiva y con «~» — ningún horario inventado. `arriveBy` existe porque a veces
+// la hora dura no es el `at`: a G-Cans se llega para la recepción de las 14:30,
+// no para el tour de las 15:00.
+//
+// Una reserva sin `hop` muestra la fila en ámbar («a definir»), igual que los legs
+// terrestres sin hora. La excepción es la que ya declara su ida en el propio dato
+// (`travelMinutes`/`outboundLabel`, el bote de Geibikei): esa línea manda y no se
+// le suma una fila que la contradiga.
+const hopMins = t => {
+  const hm = /(\d+)\s*h(?:\s*(\d+))?/.exec(t || '');
+  if (hm) return +hm[1] * 60 + (+hm[2] || 0);
+  const m = /(\d+)\s*min/.exec(t || '');
+  return m ? +m[1] : null;
+};
+const minusMins = (hhmm, mins) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  const t = (h * 60 + m - mins + 1440) % 1440;
+  return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
+};
+// El mismo fallback que `legDirUrl`: el link cargado o unas directions de Maps
+// entre las coords de las dos puntas.
+const hopDirUrl = (hop, from, to) => (hop && hop.dirUrl) ||
+  (from && to ? 'https://www.google.com/maps/dir/?api=1&origin=' + from.join(',') +
+    '&destination=' + to.join(',') + '&travelmode=transit' : null);
+
+// Dónde queda uno DESPUÉS de cada evento: es el origen del traslado siguiente.
+const eventPoint = e =>
+  e.kind === 'reserva' ? { label: e.act.text, coords: e.act.coords || null } :
+  e.kind === 'check-in' || e.kind === 'check-out'
+    ? { label: 'alojamiento', coords: (e.lodging && e.lodging.coords) || (e.node && e.node.coords) || null } :
+  e.transfer ? {
+    label: (e.transfer.leg.toTerminal && e.transfer.leg.toTerminal.name) || e.transfer.to,
+    coords: (e.transfer.leg.toTerminal && e.transfer.leg.toTerminal.coords) ||
+      (e.transfer.node && e.transfer.node.coords) || null
+  } : null;
+const bedPoint = node => node
+  ? { label: 'alojamiento', coords: (node.lodging && node.lodging.coords) || node.coords || null } : null;
+
+function hopRowHtml(ctx, hop, fromPt, toPt, target) {
+  const esc = ctx.escHtml;
+  const from = fromPt || { label: 'alojamiento', coords: null };
+  const ends = '<div class="pl-term">' + esc((hop && hop.from) || from.label) +
+    '<span class="tr-arrow">→</span>' + esc(toPt.label) + '</div>';
+  if (!hop) {
+    return '<li class="pl-it pl-hop"><span class="pl-t tbd">a definir</span><div class="pl-b">' +
+      '<div class="pl-top"><span class="pl-k">🚶 traslado</span></div>' +
+      '<div class="pl-mainrow"><div class="pl-w">Traslado a definir</div></div>' + ends +
+    '</div></li>';
+  }
+  const mins = hopMins(hop.time);
+  const salir = target && mins != null ? minusMins(target, mins) : null;
+  const dir = hopDirUrl(hop, from.coords, toPt.coords);
+  return '<li class="pl-it pl-hop"><span class="pl-t"></span><div class="pl-b">' +
+    '<div class="pl-top"><span class="pl-k">' + esc(hop.mode) + ' traslado</span>' +
+      '<span class="pl-dur">' + esc(hop.time) + '</span></div>' +
+    ends +
+    (hop.detail ? '<div class="pl-d">' + esc(hop.detail) + '</div>' : '') +
+    (salir ? '<div class="pl-depart pl-eta">salir <b>~' + salir + '</b></div>' : '') +
+    (dir ? '<div class="pl-lk">' + extLink(dir, 'cómo llegar', ctx) + '</div>' : '') +
+  '</div></li>';
+}
+
 export const fixedPlanHtml = (day, ctx) => {
+  const ordered = readOrder(day);
   let number = 0;
-  return readOrder(day).map(e => planItemHtml(e, ctx, e.kind === 'reserva' ? ++number : null)).join('');
+  let prev = bedPoint(day.wake);
+  const out = [];
+  for (const e of ordered) {
+    if (e.kind === 'reserva' && (e.act.hop || !e.departAt)) {
+      const target = (e.act.hop && e.act.hop.arriveBy) || e.time;
+      out.push(hopRowHtml(ctx, e.act.hop || null, prev,
+        { label: e.act.text, coords: e.act.coords || null }, target));
+    }
+    out.push(planItemHtml(e, ctx, e.kind === 'reserva' ? ++number : null));
+    prev = eventPoint(e) || prev;
+  }
+  // La vuelta al alojamiento: sólo cuando la jornada termina en un evento fijo y esa
+  // noche se duerme ahí mismo. Si después viene un leg (Geibikei → Shinkansen), la
+  // vuelta ES el leg y no hay nada que agregar.
+  const last = ordered[ordered.length - 1];
+  if (last && last.kind === 'reserva' && day.sleep) {
+    out.push(hopRowHtml(ctx, last.act.hopBack || null,
+      { label: last.act.text, coords: last.act.coords || null }, bedPoint(day.sleep), null));
+  }
+  return out.join('');
 };
 
 function promotedRowsHtml(day, ctx, spec) {

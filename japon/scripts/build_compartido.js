@@ -96,7 +96,8 @@ function tokyoActivities(all) {
       seen.add(key);
       const copy = structuredClone(act);
       if (id !== 'tokio-medio' && copy.at) {
-        for (const field of ['at', 'until', 'booked', 'bestTime']) delete copy[field];
+        // `hop`/`hopBack` (task 719) son la logística de ESA reserva: se van con ella.
+        for (const field of ['at', 'until', 'booked', 'bestTime', 'hop', 'hopBack']) delete copy[field];
       }
       pool.push(copy);
     }

@@ -122,6 +122,29 @@ Martín, 17/9 con el screenshot de la tarjeta del 19/10: «cada día debería te
   2. **Sugerencias** (`sugSectionHtml`): el recorrido de la jornada **como lista visible** —antes quedaba detrás de "todo lo de Kioto · 45" y por eso no se veía—, cada ítem con su ordinal, su botón al punto del mapa y un `↗` a Google Maps. En la tarjeta se recortan a 6 y el "ver las N" abre el resto **ahí mismo** (`.sg-wrap.open`, la clase `over` en lo que pasa del tope); en la vista de día no hay tope. El catálogo completo de la ciudad sigue plegado abajo: es otra cosa, no es lo que toca hoy.
   La diferencia entre lo fijo y lo opcional se ve **sin leyenda**: el plan fijo va sobre blanco con filete verde y la hora en tabular; las sugerencias, en una caja crema de borde punteado.
 - **⚠️ Ningún horario inventado.** De los 18 saltos, los 7 con `segments` (los vuelos) tienen horario real; los **11 terrestres tienen `leg.time`, que es DURACIÓN, no hora de reloj**. Esos salen con **"a definir" en ámbar** —no con un guión— porque "todavía no está decidido" y "falta el dato por error" se leen distinto. Lo mismo con "Horarios a definir" cuando el alojamiento no tiene ventana cargada. Si alguien carga un `departure`, la fila muestra la hora sola.
+- **Traslados entre los eventos del día: `hop` / `hopBack`** (2026-09-27 · task 719 —
+  Martín, revisando el 9/10: «faltan los detalles de transporte in between activities»).
+  Una actividad con `at` admite **`hop: { mode, time, detail, dirUrl?, from?, arriveBy? }`**
+  = cómo llegar A ese evento desde el punto anterior del día (el alojamiento de esa
+  noche, o el evento fijo previo), y la última del día admite **`hopBack`** (mismo
+  shape + `to: 'lodging'`) para la vuelta. `mode` usa los mismos emojis que `leg.mode`;
+  **`time` es DURACIÓN puerta a puerta**, nunca hora de reloj — lo único con forma de
+  hora es la sugerencia derivada «salir ~HH:MM» (`(arriveBy || at) − time`, en cursiva).
+  `arriveBy` es la hora dura de llegada cuando NO es el `at` (a G-Cans se llega para la
+  recepción de las 14:30, no para el tour de las 15:00). `dirUrl` opcional; si falta, la
+  fila arma directions de Maps entre las coords de las puntas (mismo criterio que
+  `legDirUrl`). La fila se renderiza en `fixedPlanHtml` (o sea en la tarjeta de la tab,
+  la vista de día y la compartida a la vez): un evento sin `hop` muestra **«traslado a
+  definir» en ámbar** — salvo que ya declare su ida en el dato con
+  `travelMinutes`/`outboundLabel` (el bote de Geibikei), que manda y no se duplica —,
+  y la vuelta sólo aparece si la jornada termina en un evento fijo y esa noche se
+  duerme ahí mismo (si después hay un `leg`, la vuelta ES el leg). En la compartida,
+  las actividades que se fusionan desde otras paradas de Tokio pierden `hop`/`hopBack`
+  junto con `at` (`build_compartido.js`). Guardas en `check_dia_view.js` §8: hop sin
+  `at` = error, `mode`/`time`/`detail` no vacíos, `arriveBy` HH:MM, y las salidas
+  derivadas del 9/10 (~08:20 / ~12:15). Fuentes de los datos cargados: 9/10 = Google
+  Maps directions del viernes (capturas en `evidence/719/` del monorepo); 22/10 =
+  logística Naoshima verificada 15/9 (ekitan + Shikoku Kisen, notes.md de japan-trip).
 - **El orden es de LECTURA, no de reloj** (`readOrder`). `itinerary.js` pone primero lo que tiene hora, y en un día de traslado eso dejaba el check-in de las 16:00 arriba de los dos buses que hay que tomar para llegar. Acá se reordena por lo único que se puede afirmar sin inventar un horario: **el check-out pasa antes de viajar y el check-in después de llegar** (un tramo sin hora toma como piso la del check-out del día). Los vuelos conservan su secuencia `ord` con una clave no-decreciente: sus puntas están en hora local y ordenarlas por reloj miente.
 - **Compartir de verdad → `dia/<fecha>.html`.** El site es estático y el crawler que arma el preview de WhatsApp/Telegram **no ejecuta JavaScript**, así que un `?jornada=` le muestra siempre la tarjeta del viaje entero. `scripts/build_dias.js` genera **una página por jornada** con el `<title>` y los `og:` de ese día, que redirige a la app; el botón "compartir" manda esa url (comprueba con un `HEAD` que exista y, si no, manda la de la app). Los títulos salen de `dayMeta()` en `views.js` —la misma función que reescribe el head al abrir la vista—, así que **no hay un segundo registro**. Si cambia el itinerario hay que correr `node japon/scripts/build_dias.js`; `check_dia_view.js` lo verifica y falla si quedó viejo.
 - **La app compartida usa el MISMO `views.js`**, así que la vista de día también vive ahí. Por eso `dayMeta()` no nombra el viaje (el nombre lo saca la app del `<title>` de su página y las páginas de `dia/` lo escriben ellas) y el share cae en la url de la app: `japon/compartido/` no tiene su propio `dia/`. El bloque de Open Graph lo reemplaza entero `build_compartido.js`, que es quien sabe qué se puede decir del tramo.

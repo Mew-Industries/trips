@@ -666,12 +666,25 @@ const destinations = [
     intro: 'Aterrizaje en Tokio (Haneda) el 8/10. 5 noches de aclimatación y jet lag para arrancar. Los clásicos de Tokio al empezar el viaje. Tokio se revisita al final (parada 17) como buffer pre-vuelo, así que los museos y el shopping pueden quedar para esa segunda tanda.',
     activities: [
       // Entrada comprada con slot fijo: por eso lleva `at` y aparece como evento del 9/10.
+      // Los `hop` del 9/10 (task 719): duraciones de Google Maps directions para el
+      // viernes 9/10/2026 (consultado 27/9): Shinjuku-sanchome → Shin-Toyosu 36-41 min
+      // (salida 8:08 → llega 8:44); teamLab → Ryu-Q-Kan 2 h 3 - 2 h 11 (salida 11:53 →
+      // llega 13:58-14:04; la última corrida que llega antes de la recepción sale 12:17
+      // y llega 14:18); vuelta 1 h 35 - 2 h. Capturas en evidence/719/ del monorepo.
       { text: 'teamLab Planets', cat: 'museos', coords: [35.648786, 139.790114], at: '2026-10-09T09:00', until: '2026-10-09T09:30',
         booked: '2 Entrance Pass · QR en My Tickets desde las 0:00 del día · cambiable hasta 2 h antes',
-        bestTime: 'Slot de las 9:00: es el primero del día, sin multitud, y el jet lag de los primeros días juega a favor.' },
+        bestTime: 'Slot de las 9:00: es el primero del día, sin multitud, y el jet lag de los primeros días juega a favor.',
+        hop: { mode: '🚆', time: '~40 min', from: 'Shinjuku-sanchome',
+          detail: 'Toei Shinjuku Line a Ichigaya → Yurakucho Line a Toyosu → Yurikamome a Shin-Toyosu (o 10 min a pie desde Toyosu). Trenes cada pocos minutos.' } },
       { text: 'Canal subterráneo de descarga (G-Cans)', cat: 'actividad', coords: [35.996667, 139.811389], at: '2026-10-09T15:00', until: '2026-10-09T16:50',
         booked: 'Reserva 7MJsNSa3A · 2 personas · ¥7.000 pagados · recepción 14:30 en Ryu-Q-Kan (龍Q館) 2F · cancelación gratis hasta 5/10 23:59 JST',
-        note: '立坑体験コース (recorrido del pozo vertical) · Kamikanasaki 720, Kasukabe, Saitama · +81-48-747-0281' },
+        note: '立坑体験コース (recorrido del pozo vertical) · Kamikanasaki 720, Kasukabe, Saitama · +81-48-747-0281',
+        // `arriveBy` = la recepción de las 14:30 (no el tour de las 15:00): de ahí sale
+        // el «salir ~12:15», que coincide con la última corrida viable de Google Maps.
+        hop: { mode: '🚆', time: '~2 h 15', arriveBy: '14:30', from: 'teamLab Planets',
+          detail: 'Metro desde Toyosu a la red Tobu (vía Kita-Senju u Oshiage) → Tobu Skytree Line a Kasukabe → Tobu Urban Park Line a Minami-Sakurai → taxi ~10 min (a pie son 40). Mejor almorzar rápido en Toyosu antes de salir.' },
+        hopBack: { mode: '🚆', time: '~1 h 50', to: 'lodging',
+          detail: 'Taxi o bus a Minami-Sakurai → Tobu Urban Park Line a Kasukabe → tren a Shinjuku vía Ōmiya (Shonan-Shinjuku Line) o vía Kita-Senju.' } },
       { text: 'Tsukiji Outer Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.664848, 139.7702] },
       { text: 'Toyosu Market', group: 'Tsukiji + Toyosu + Ginza', cat: 'comida', coords: [35.644091, 139.784281] },
       { text: 'Ginza', group: 'Tsukiji + Toyosu + Ginza', cat: 'compras', coords: [35.669612, 139.764666] },
@@ -1003,12 +1016,21 @@ const destinations = [
       // Day trip a Naoshima, jue 22/10 — entradas recompradas el 15/9 para el 22 (×4, con los amigos).
       // Van con `at` como teamLab: son eventos del 22 en la vista Días, no sugerencias
       // del reparto. La logística ida/vuelta vive en el day trip `naoshima` de abajo.
+      // El `hop` de Chichu y el `hopBack` de Minamidera (task 719) salen de la logística
+      // verificada el 15/9 (ekitan + Shikoku Kisen, horarios de semana; notes.md de
+      // japan-trip), corrida al jue 22/10 con el slot de Chichu a las 12:45. Los
+      // tramos internos de la isla (Chichu → Benesse → Minamidera, shuttle/bus) no
+      // están verificados y quedan «a definir».
       { text: 'Chichu Art Museum', cat: 'museos', coords: [34.447748, 133.984717], url: "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum", at: '2026-10-22T12:45', until: '2026-10-22T14:15',
-        booked: 'Entradas compradas ×4 · slot 12:45 (cancelable hasta 30 min antes, la hora no se cambia) · QR en eventos.tokyo → My Page → My Ticket' },
+        booked: 'Entradas compradas ×4 · slot 12:45 (cancelable hasta 30 min antes, la hora no se cambia) · QR en eventos.tokyo → My Page → My Ticket',
+        hop: { mode: '🚄', time: '~4 h', arriveBy: '11:55', from: 'Kioto',
+          detail: 'Nozomi 08:12 Kioto → Okayama 09:16 → Marine Liner 09:33 a Chayamachi → local 10:12 a Uno → ferry 11:00 → Miyanoura 11:20 → bus + shuttle Benesse → Chichu ~12:00. Perder el ferry de las 11:00 = llegar ~13:10 (el siguiente sale 12:15).' } },
       { text: 'Benesse House Museum', cat: 'museos', coords: [34.445228, 133.990658], url: "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum", at: '2026-10-22T14:30',
         booked: 'Entradas compradas ×4 (incluyen Valley Gallery) · sin hora fija, se entra al llegar · QR en eventos.tokyo' },
       { text: 'Minamidera (Art House Project, James Turrell)', cat: 'museos', coords: [34.4588511, 133.9968422], url: "https://www.google.com/maps/search/?api=1&query=Minamidera%20Naoshima", at: '2026-10-22T15:20',
-        booked: 'Entradas compradas ×4 · turno 15:20 (cupo por turno) · QR en eventos.tokyo · después, Art House/Honmura hasta ~16:30' },
+        booked: 'Entradas compradas ×4 · turno 15:20 (cupo por turno) · QR en eventos.tokyo · después, Art House/Honmura hasta ~16:30',
+        hopBack: { mode: '🚄', time: '~3 h', to: 'lodging',
+          detail: 'Bus de Honmura a Miyanoura → ferry 16:35 → Uno 16:55 → local 17:05 a Okayama (~18:00) → Nozomi ~18:15 → Kioto ~19:20. Hay ferry más tarde a las 17:35.' } },
       { text: 'Arashiyama Monkey Park Iwatayama', cat: 'parques', coords: [35.011395, 135.676625], url: "https://www.google.com/maps/search/?api=1&query=Arashiyama%20Monkey%20Park%20Iwatayama" },
       { text: 'Bosque de Bambú de Arashiyama', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" },
       { text: 'Bosque de bambú de Arashiyama', group: 'Arashiyama al amanecer', cat: 'parques', coords: [35.016492, 135.670337] },

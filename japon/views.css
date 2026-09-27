@@ -243,6 +243,13 @@
 .pl-limit.is-tbd b, .pl-limit.is-late b { border-radius: 4px; padding: 1px 4px; }
 .pl-limit.is-tbd b { background: var(--tbd-bg); }
 .pl-limit.is-late b { background: var(--late-bg); }
+/* Traslado entre eventos del día (task 719). La fila con dato no tiene hora fija:
+   su columna de hora queda vacía y la salida sugerida va abajo, derivada y en
+   cursiva («salir ~12:15») — una deducción no se viste de horario. La fila sin dato
+   lleva el mismo ámbar de "a definir" que los legs terrestres sin hora. */
+.pl-hop .pl-w { font-weight: 400; color: var(--muted); }
+.pl-eta, .pl-eta b { font-style: italic; }
+
 .pl-ref { font-size: var(--fs-meta); color: var(--muted); margin-top: 2px; }
 .pl-ref b { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 600; color: var(--ink); }
 .pl-lk { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }

@@ -230,6 +230,49 @@ const check = (name, ok, extra = '') => {
     kiotoTitles.length > 0 && kiotoTitles.every(t => !/^8\./.test(t)),
     kiotoTitles.join(' · '));
 
+  // 8 · traslados entre eventos (task 719). `hop`/`hopBack` cuelgan SOLO de una
+  // actividad con `at` (un hop sin hora comprada no es un evento del día: es error)
+  // y, si están, traen `mode`, `time` y `detail` no vacíos — media fila de traslado
+  // es peor que la fila en ámbar. `arriveBy` (la hora dura de llegada cuando no es
+  // el `at`, ej. la recepción de G-Cans) tiene que ser HH:MM parseable.
+  const malHop = [];
+  destinations.forEach(d => (d.activities || []).forEach(a => {
+    for (const [field, hop] of [['hop', a.hop], ['hopBack', a.hopBack]]) {
+      if (!hop) continue;
+      const tag = d.id + ' «' + a.text + '» ' + field;
+      if (!a.at) malHop.push(tag + ' sin `at`');
+      for (const k of ['mode', 'time', 'detail']) {
+        if (!hop[k] || !String(hop[k]).trim()) malHop.push(tag + ' sin `' + k + '`');
+      }
+      if (hop.arriveBy && !/^\d{2}:\d{2}$/.test(hop.arriveBy)) malHop.push(tag + ' arriveBy inválido');
+      if (field === 'hopBack' && hop.to !== 'lodging') malHop.push(tag + " sin to: 'lodging'");
+    }
+  }));
+  check('todo hop/hopBack cuelga de una actividad con `at` y trae mode/time/detail', malHop.length === 0,
+    malHop.slice(0, 5).join(' · '));
+
+  // El 9/10 rinde sus tres traslados con dato (ninguno en ámbar) y las salidas
+  // derivadas correctas: 9:00 − 40 min y recepción 14:30 − 2 h 15.
+  const hopHtml = date => fixedPlanHtml(it.days.find(d => d.date === date), renderCtx);
+  const d0910 = hopHtml('2026-10-09');
+  const hops0910 = (d0910.match(/pl-it pl-hop/g) || []).length;
+  check('el 9/10 muestra 3 traslados (ida a teamLab, teamLab → G-Cans, vuelta) sin ámbar',
+    hops0910 === 3 && !/pl-hop"><span class="pl-t tbd"/.test(d0910),
+    hops0910 + ' filas de traslado');
+  check('las salidas sugeridas del 9/10 se derivan de la duración (~08:20 y ~12:15)',
+    d0910.includes('salir <b>~08:20</b>') && d0910.includes('salir <b>~12:15</b>'));
+  // El 22/10: la ida a Chichu y la vuelta desde Minamidera con dato (notes.md 15/9),
+  // los tramos internos de la isla en ámbar.
+  const d2210 = hopHtml('2026-10-22');
+  check('el 22/10 muestra la ida Kioto → Chichu y la vuelta con dato, y 2 tramos en ámbar',
+    (d2210.match(/pl-it pl-hop/g) || []).length === 4 &&
+      (d2210.match(/pl-hop"><span class="pl-t tbd"/g) || []).length === 2 &&
+      d2210.includes('Nozomi 08:12') && d2210.includes('ferry 16:35'));
+  // Geibikei (14/10) ya declara su ida en el dato (`travelMinutes`/`outboundLabel`):
+  // no se le suma una fila que la contradiga, y la vuelta de ese día es el leg.
+  check('el 14/10 no gana filas de traslado (Geibikei tiene su "Salir 08:45" propio)',
+    !/pl-hop/.test(hopHtml('2026-10-14')));
+
   console.log(failed ? `\n✗ ${failed} check(s) fallaron` : '\n✓ todo ok');
   process.exit(failed ? 1 : 0);
 })();
