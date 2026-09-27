@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 328 lugares + 29 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-25T22:42:44+00:00
+// 367 lugares + 32 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-27T14:38:04+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -189,6 +189,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJNbVgPQAJAWARmfPku87RmXw"
  },
  {
+  "name": "Ame ha Yasashiku 2",
+  "lat": 43.069377,
+  "lon": 141.403663,
+  "cat": "comida",
+  "area": "Sapporo",
+  "note": "Ramen con manteca de vieira que se derrite a mitad del plato para un sabor extra cremoso y rico.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdnWhMCptf1/",
+    "owner": "yamatrips",
+    "caption": "Ramen con manteca de vieira que se derrite a mitad del plato para un sabor extra cremoso y rico.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJoxdq5FcpC18RT4odwhBx8jY"
+ },
+ {
   "name": "Ameya-Yokocho Market",
   "lat": 35.709003,
   "lon": 139.774626,
@@ -246,6 +264,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJay8Fp2Kfm18RQJejfgH_m9A"
+ },
+ {
+  "name": "Asakura Gallery",
+  "lat": 35.799472,
+  "lon": 139.80023,
+  "cat": "museos",
+  "area": "Japón",
+  "note": "Muestra de temática rosa, tierna y siniestra montada en una casa abandonada.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+    "owner": "bodhiandkai_",
+    "caption": "Muestra de temática rosa, tierna y siniestra montada en una casa abandonada.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJ9cGZWp-RGGAR39IF0oe-XrI"
  },
  {
   "name": "Asakusa",
@@ -501,6 +537,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJ57BjdkOLGGARoH7FMwqdS5Y"
  },
  {
+  "name": "Beyond Age",
+  "lat": 43.034644,
+  "lon": 141.350062,
+  "cat": "comida",
+  "area": "Sapporo",
+  "note": "Soup curry con base de caldo de pollo, 11 hierbas medicinales y 15 especias; enorme profundidad de sabor, desde 720 yen.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdnWhMCptf1/",
+    "owner": "yamatrips",
+    "caption": "Soup curry con base de caldo de pollo, 11 hierbas medicinales y 15 especias; enorme profundidad de sabor, desde 720 yen.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJOUYj2BAqC18RtQMo98O3ngU"
+ },
+ {
   "name": "BOOKOFF PLUS Sakai Shinkanaoka",
   "lat": 34.641331,
   "lon": 135.562939,
@@ -725,6 +779,42 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJRQSoYtZwA2ARwpz475VYYeo"
  },
  {
+  "name": "Church of the Light (Iglesia de la Luz)",
+  "lat": 34.818527,
+  "lon": 135.537026,
+  "cat": "arquitectura",
+  "area": "Ibaraki, Osaka",
+  "note": "Iglesia de hormigón de Tadao Ando (1989) con una cruz de luz recortada en la pared este detrás del altar; ícono de la arquitectura japonesa.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Ddtr_exF8Oq/",
+    "owner": "industrialkonzept",
+    "caption": "Iglesia de hormigón de Tadao Ando (1989) con una cruz de luz recortada en la pared este detrás del altar; ícono de la arquitectura japonesa.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJsSK_qrv8AGARQCMiPvHroOA"
+ },
+ {
+  "name": "Chureito Pagoda",
+  "lat": 35.501263,
+  "lon": 138.801385,
+  "cat": "miradores",
+  "area": "Fujiyoshida",
+  "note": "Vista icónica del Monte Fuji con la pagoda.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Vista icónica del Monte Fuji con la pagoda.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJc6BS_UxnGWARmeeuIEnjV9o"
+ },
+ {
   "name": "CIRCUS TOKYO",
   "lat": 35.65417,
   "lon": 139.705579,
@@ -800,6 +890,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJVVUBPKqMGGARiXgNlzpNTaU"
  },
  {
+  "name": "Coffee Shop Siphon",
+  "lat": 36.576182,
+  "lon": 136.661147,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Café decorado con memorabilia de cine.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Café decorado con memorabilia de cine.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "16214092490563048957"
+ },
+ {
   "name": "Coffee-ten Ishihara",
   "lat": 34.998802,
   "lon": 135.754597,
@@ -832,6 +940,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJrWv-cZmLGGARQ86sGR8gD0U"
+ },
+ {
+  "name": "D.T. Suzuki Museum",
+  "lat": 36.557663,
+  "lon": 136.660913,
+  "cat": "museos",
+  "area": "Kanazawa",
+  "note": "Museo de arquitectura impresionante.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Museo de arquitectura impresionante.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJBRk3CXg0-F8RYaKpk9GoiiE"
  },
  {
   "name": "Daikoku PA",
@@ -917,6 +1043,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJm-XCeftTFTURoZNmuA1IfSQ"
+ },
+ {
+  "name": "Doai Station",
+  "lat": 36.831377,
+  "lon": 138.967016,
+  "cat": "arquitectura",
+  "area": "Minakami, Gunma",
+  "note": "La estación de tren más profunda de Japón, decayendo bajo tierra.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+    "owner": "bodhiandkai_",
+    "caption": "La estación de tren más profunda de Japón, decayendo bajo tierra.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJZbtY3MkWHmARUiQgXF-VK98"
  },
  {
   "name": "DOG Harajuku",
@@ -1141,6 +1285,42 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJlyLt5PeNGGARGtlFvxkVMbk"
  },
  {
+  "name": "Fujiyoshida Retro Shopping Street",
+  "lat": 35.492429,
+  "lon": 138.803745,
+  "cat": "barrios",
+  "area": "Fujiyoshida",
+  "note": "Vista icónica del Monte Fuji; ir antes de las 8 AM.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Vista icónica del Monte Fuji; ir antes de las 8 AM.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJEd4YWuNnGWARBdT5k3fRmF0"
+ },
+ {
+  "name": "Fukuwauchi",
+  "lat": 36.57583,
+  "lon": 136.660926,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Probá el curry udon y el soba con salsa de maní.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Probá el curry udon y el soba con salsa de maní.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJjU8dSW0z-F8RIiGxkMR2Yc8"
+ },
+ {
   "name": "Fusion Museum (knit)",
   "lat": 34.234204,
   "lon": 135.174089,
@@ -1260,6 +1440,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJW7wcJggJAWARJOmYq3q49qY"
+ },
+ {
+  "name": "Gokayama",
+  "lat": 36.426103,
+  "lon": 136.935619,
+  "cat": "barrios",
+  "area": "Toyama",
+  "note": "Aldea gassho-zukuri más tranquila y pintoresca que Shirakawa-go.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Aldea gassho-zukuri más tranquila y pintoresca que Shirakawa-go.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJ2WkByg8W-F8RHIPaqKArths"
  },
  {
   "name": "Golden Gai",
@@ -1550,6 +1748,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJhwsmIWSjfDUR2i2WRMv-RnE"
  },
  {
+  "name": "Haus Nowhere Seongsu",
+  "lat": 37.540685,
+  "lon": 127.056632,
+  "cat": "arquitectura",
+  "area": "Seongsu, Seúl",
+  "note": "Edificio brutalista que alberga Gentle Monster, Tamburins y Nuflaat; vale por la arquitectura y las tiendas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdWZX-IGNLU/",
+    "owner": "veeceecheng",
+    "caption": "Edificio brutalista que alberga Gentle Monster, Tamburins y Nuflaat; vale por la arquitectura y las tiendas.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "15676028171231149545"
+ },
+ {
   "name": "Hekkerun",
   "lat": 35.667865,
   "lon": 139.752172,
@@ -1565,6 +1781,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJqb_xNZOLGGARx3L00SutCfw"
+ },
+ {
+  "name": "Higashi Chaya District",
+  "lat": 36.572582,
+  "lon": 136.66656,
+  "cat": "barrios",
+  "area": "Kanazawa",
+  "note": "Barrio histórico de casas de té de madera.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Barrio histórico de casas de té de madera.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJsfC6oXQz-F8RdA1qXiF6jLs"
  },
  {
   "name": "Hikiniku to Kome (Kyoto)",
@@ -2096,6 +2330,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJPVut7LyLGGAR6oqSfXnjuOQ"
  },
  {
+  "name": "Kanazawa Castle",
+  "lat": 36.565961,
+  "lon": 136.659608,
+  "cat": "arquitectura",
+  "area": "Kanazawa",
+  "note": "Castillo histórico de Kanazawa.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Castillo histórico de Kanazawa.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "13776365389350375793"
+ },
+ {
   "name": "Kanazawa Port Seafood Market",
   "lat": 36.559734,
   "lon": 136.652038,
@@ -2112,6 +2364,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "10228050530913903125"
+ },
+ {
+  "name": "Kania",
+  "lat": 44.199656,
+  "lon": 145.239675,
+  "cat": "comida",
+  "area": "Shiretoko",
+  "note": "Restaurante con vista al mar y mariscos frescos del lugar a precio accesible.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdnWhMCptf1/",
+    "owner": "yamatrips",
+    "caption": "Restaurante con vista al mar y mariscos frescos del lugar a precio accesible.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "1604868883241375978"
  },
  {
   "name": "Kappabashi",
@@ -2249,6 +2519,42 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJkV2pfAoRAWARfrI7oas8LwE"
+ },
+ {
+  "name": "Kenroku-en Garden",
+  "lat": 36.562128,
+  "lon": 136.662651,
+  "cat": "parques",
+  "area": "Kanazawa",
+  "note": "Jardín célebre; buscá la famosa linterna de piedra Kotoji.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Jardín célebre; buscá la famosa linterna de piedra Kotoji.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJBVmy-YMz-F8R5PID8D17Cpc"
+ },
+ {
+  "name": "Keta Wakamiya Shrine",
+  "lat": 36.23948,
+  "lon": 137.197827,
+  "cat": "templos",
+  "area": "Hida Furukawa",
+  "note": "Locación real de la película Your Name.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Locación real de la película Your Name.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJ_bxu79ygAmARZMuDzC9_KR8"
  },
  {
   "name": "Kibune (貴船)",
@@ -2419,6 +2725,24 @@ window.SOURCE_THINGS = [
   "gpid": "10510040219820797016"
  },
  {
+  "name": "Kyoto Bunzaburo",
+  "lat": 35.006163,
+  "lon": 135.758511,
+  "cat": "compras",
+  "area": "Kioto",
+  "note": "Tienda-galería de shibori (teñido anudado) en una casa tradicional; bolsos, ropa, geta y sandalias con textura anudada.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdSVD_wPjAv/",
+    "owner": "wingsofsoviets",
+    "caption": "Tienda-galería de shibori (teñido anudado) en una casa tradicional; bolsos, ropa, geta y sandalias con textura anudada.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJ9XpNMJsIAWAR7am1g5s5x5w"
+ },
+ {
   "name": "Kyoto Central Market",
   "lat": 34.99168,
   "lon": 135.741092,
@@ -2513,6 +2837,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJ92haAZx5AWAR0rtCXekZae4"
+ },
+ {
+  "name": "Lake Kawaguchiko",
+  "lat": 35.517095,
+  "lon": 138.751779,
+  "cat": "miradores",
+  "area": "Fujikawaguchiko",
+  "note": "Lago con vista al Fuji; hay botes cisne.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Lago con vista al Fuji; hay botes cisne.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJTz8EpbRfGWARR30zHkuyyyk"
  },
  {
   "name": "Lambert",
@@ -2616,6 +2958,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJT4YU9z3zGGARWc46mJHdxmk"
  },
  {
+  "name": "Maboroshi Hakurankai",
+  "lat": 34.922051,
+  "lon": 139.119805,
+  "cat": "museos",
+  "area": "Japón",
+  "note": "Museo montado en un invernadero por un anciano cross-dresser, como cementerio de recuerdos olvidados.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+    "owner": "bodhiandkai_",
+    "caption": "Museo montado en un invernadero por un anciano cross-dresser, como cementerio de recuerdos olvidados.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJ8WofWFjDGWARVVMnmrJ8oYQ"
+ },
+ {
   "name": "Maison Hermès Ginza",
   "lat": 35.671969,
   "lon": 139.763367,
@@ -2671,6 +3031,42 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJN8MYl2qLGGARJPiiu5FUtNg"
+ },
+ {
+  "name": "Matsumoto Castle",
+  "lat": 36.238653,
+  "lon": 137.968867,
+  "cat": "arquitectura",
+  "area": "Matsumoto",
+  "note": "Uno de los 12 torreones de castillo originales que quedan en Japón.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Uno de los 12 torreones de castillo originales que quedan en Japón.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJmVmaCoUOHWARVPa8-iAOLZA"
+ },
+ {
+  "name": "Matsumoto Jujo Bibliothèque",
+  "lat": 36.263488,
+  "lon": 137.991516,
+  "cat": "otros",
+  "area": "Matsumoto",
+  "note": "Antiguo onsen convertido en biblioteca.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Antiguo onsen convertido en biblioteca.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJ_58CxzgNHWARiPkJul18vnc"
  },
  {
   "name": "Mega Don Quijote Shibuya",
@@ -2917,6 +3313,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJX9MhjuaLGGARvoMvduRK-5E"
  },
  {
+  "name": "Miyoshian Suitei",
+  "lat": 36.562719,
+  "lon": 136.661328,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Casa de té con vista a una cascada.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Casa de té con vista a una cascada.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJVVWx54Mz-F8RnBuvEj1hrCA"
+ },
+ {
   "name": "Mod Tokyo",
   "lat": 35.692494,
   "lon": 139.773424,
@@ -2933,6 +3347,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJT_a58JyPGGARZpcm-nUVSyg"
+ },
+ {
+  "name": "Mount Osore",
+  "lat": 41.308333,
+  "lon": 141.088056,
+  "cat": "templos",
+  "area": "Mutsu, Aomori",
+  "note": "Templo considerado la entrada al inframundo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+    "owner": "bodhiandkai_",
+    "caption": "Templo considerado la entrada al inframundo.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJQZl8yAc-nF8RnwlXP2ULLj0"
  },
  {
   "name": "munimuni",
@@ -3289,6 +3721,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJpwDSAViLGGARVaJ_WUwQrt8"
  },
  {
+  "name": "Noto Beef Sushi",
+  "lat": 36.559734,
+  "lon": 136.652038,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Puesto de sushi de carne de Noto en el mercado Omicho.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Puesto de sushi de carne de Noto en el mercado Omicho.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "10228050530913903125"
+ },
+ {
   "name": "NUDE TRUMP",
   "lat": 35.662931,
   "lon": 139.70059,
@@ -3552,6 +4002,24 @@ window.SOURCE_THINGS = [
   "gpid": "3315038050925878153"
  },
  {
+  "name": "OYU TERRACE",
+  "lat": 35.663311,
+  "lon": 139.701884,
+  "cat": "ocio",
+  "area": "Shibuya, Tokio",
+  "note": "Night pool y rooftop bar de lujo en el piso 18 de sequence MIYASHITA PARK, con vistas a Shibuya; solo con reserva previa (temporada de verano).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DaKespmvqre/",
+    "owner": "oyu_terrace_official",
+    "caption": "Night pool y rooftop bar de lujo en el piso 18 de sequence MIYASHITA PARK, con vistas a Shibuya; solo con reserva previa (temporada de verano).",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "9510849312829855018"
+ },
+ {
   "name": "Ozeki Tokyo Gallery",
   "lat": 35.685332,
   "lon": 139.780677,
@@ -3566,6 +4034,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJG2-vqVGJGGARALeUcHOtY48"
+ },
+ {
+  "name": "Pino",
+  "lat": 36.559734,
+  "lon": 136.652038,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Parada linda para comer omurice.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Parada linda para comer omurice.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "10228050530913903125"
  },
  {
   "name": "PL Peace Tower",
@@ -3801,6 +4287,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJry9lZdaLGGARrSf5KFOaLqk"
  },
  {
+  "name": "Saiyoji Temple",
+  "lat": 36.559734,
+  "lon": 136.652038,
+  "cat": "templos",
+  "area": "Kanazawa",
+  "note": "Templo en el área de Utatsuyama.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Templo en el área de Utatsuyama.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "10228050530913903125"
+ },
+ {
   "name": "SALOON Daikanyama",
   "lat": 35.646992,
   "lon": 139.702425,
@@ -3834,6 +4338,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJ__-PU9iMGGAR6KHVhaRiqH8"
+ },
+ {
+  "name": "Sanmachi Suji",
+  "lat": 36.141316,
+  "lon": 137.259623,
+  "cat": "barrios",
+  "area": "Takayama",
+  "note": "Calles preservadas de la era Edo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Calles preservadas de la era Edo.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJczG1tNu6AmARjrgU-Yh3zH8"
  },
  {
   "name": "Sapporo Wholesale Curb Market",
@@ -3905,6 +4427,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJ8T1GpMGOGGARDYGSgpooDWw"
+ },
+ {
+  "name": "Setogawa and Shirakabe Dozo Street",
+  "lat": 36.238085,
+  "lon": 137.184838,
+  "cat": "barrios",
+  "area": "Hida Furukawa",
+  "note": "Canales con carpas koi, aún mejor de noche.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Canales con carpas koi, aún mejor de noche.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "8537817677788702515"
  },
  {
   "name": "Shibori shop Kyoto (@annabel_scanlen)",
@@ -4110,6 +4650,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "12168752546241493882"
+ },
+ {
+  "name": "Shirakawa-go",
+  "lat": 36.271029,
+  "lon": 136.898574,
+  "cat": "barrios",
+  "area": "Gifu",
+  "note": "Famosas granjas gassho-zukuri.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Famosas granjas gassho-zukuri.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJf8xDSH5w-F8Rc3Fh1EQ1BFY"
  },
  {
   "name": "Showa Kinen Park",
@@ -4408,6 +4966,42 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJHcI_OQruGGARM2ZKib1iU8s"
  },
  {
+  "name": "Sukiyaki Minoya",
+  "lat": 36.577874,
+  "lon": 136.651143,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Sukiyaki delicioso según el post.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Sukiyaki delicioso según el post.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJqeuMbtYz-F8ROr3WbnB4iAw"
+ },
+ {
+  "name": "Super 2nd Street",
+  "lat": 36.581172,
+  "lon": 136.615598,
+  "cat": "compras",
+  "area": "Kanazawa",
+  "note": "Tienda de segunda mano con muchas ofertas.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Tienda de segunda mano con muchas ofertas.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJAbW3zIUz-F8RcxN2O-hruPw"
+ },
+ {
   "name": "Super Nintendo World",
   "lat": 34.667966,
   "lon": 135.430323,
@@ -4492,6 +5086,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJewLRDPqLGGARR59x2-r2aUs"
  },
  {
+  "name": "Sushi Tora",
+  "lat": 36.575881,
+  "lon": 136.650781,
+  "cat": "comida",
+  "area": "Kanazawa",
+  "note": "Sushi atendido por el chef y su esposa (86 años) que quieren recibir 10.000 comensales.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Sushi atendido por el chef y su esposa (86 años) que quieren recibir 10.000 comensales.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJCTObamkz-F8R_YhdekaQfvA"
+ },
+ {
   "name": "T2 Tokyo",
   "lat": 35.694113,
   "lon": 139.699087,
@@ -4508,6 +5120,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJnRBchk-NGGARl4O6MNpXllM"
+ },
+ {
+  "name": "Takayama Jinya",
+  "lat": 36.139631,
+  "lon": 137.257604,
+  "cat": "otros",
+  "area": "Takayama",
+  "note": "Antigua sede de gobierno histórica para visitar cerca de Sanmachi.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Antigua sede de gobierno histórica para visitar cerca de Sanmachi.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJj29EXtm6AmAR4ZH1chH39Zg"
  },
  {
   "name": "Takenoya (baño privado)",
@@ -5211,6 +5841,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJC2oNCO-LGGARxV0IFmgNzJU"
  },
  {
+  "name": "Tsuki",
+  "lat": 44.000792,
+  "lon": 144.284354,
+  "cat": "comida",
+  "area": "Abashiri",
+  "note": "Sushi con relación precio-calidad increíble: ~3000 yen por lo que en Tokio costaría 10000; el nº1 unánime del grupo.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdnWhMCptf1/",
+    "owner": "yamatrips",
+    "caption": "Sushi con relación precio-calidad increíble: ~3000 yen por lo que en Tokio costaría 10000; el nº1 unánime del grupo.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJm8L_ZuYzbV8RoM_O4WZqRMc"
+ },
+ {
   "name": "Tsukiji Uogashi",
   "lat": 35.664271,
   "lon": 139.770418,
@@ -5227,6 +5875,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJW9hE2tiLGGAR8n7eT4TTvFA"
+ },
+ {
+  "name": "Ubuya",
+  "lat": 35.512822,
+  "lon": 138.768906,
+  "cat": "onsen",
+  "area": "Fujikawaguchiko",
+  "note": "Ryokan con onsen y vista al Fuji sobre el lago Kawaguchi.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Ryokan con onsen y vista al Fuji sobre el lago Kawaguchi.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJK4evUjdeGWARU3gkvo_nU_4"
  },
  {
   "name": "Ueno Park",
@@ -5763,6 +6429,42 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJMwpiebSMGGARPr_454zHvDQ"
  },
  {
+  "name": "Yumenoshima Tropical Greenhouse Dome",
+  "lat": 35.651256,
+  "lon": 139.82938,
+  "cat": "parques",
+  "area": "Koto, Tokio",
+  "note": "Invernadero alimentado por la quema de basura.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+    "owner": "bodhiandkai_",
+    "caption": "Invernadero alimentado por la quema de basura.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJp4YsATyIGGARYOiHh4_swns"
+ },
+ {
+  "name": "Yumoto Choza",
+  "lat": 36.225835,
+  "lon": 137.529255,
+  "cat": "onsen",
+  "area": "Fukuji Onsen",
+  "note": "Onsen recomendado en la zona de Fukuji.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+    "owner": "young_emperors",
+    "caption": "Onsen recomendado en la zona de Fukuji.",
+    "sharedBy": "Martín"
+   }
+  ],
+  "gpid": "ChIJw-KJMp1OHWARlj9nqufz31s"
+ },
+ {
   "name": "ZEROTOKYO",
   "lat": 35.695784,
   "lon": 139.700507,
@@ -5875,6 +6577,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Bebidas de konbini para la resaca",
+  "cat": "tips",
+  "area": "Japón",
+  "note": "Antes de salir de fiesta tomá una de kurkuma/ukon; si ya amaneciste con resaca, buscá la de extracto de hígado tipo Hepalyse para revivir.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdPDklGx30P/",
+    "owner": "kyomuchanslife",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Bebidas del konbini contra el cansancio del viaje",
   "cat": "tips",
   "area": "",
@@ -5898,6 +6614,34 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DYzYJ0lSM_m/",
     "owner": "hiromizunoc",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Bebidas para digestión, piel y descanso",
+  "cat": "tips",
+  "area": "Japón",
+  "note": "Para el estreñimiento del viaje hay bebidas con fibra; para la piel, colágeno tipo Sōkora; y jellies de aminoácidos según color (lila para la vista, naranja para la circulación, azul para el agotamiento general).",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdPDklGx30P/",
+    "owner": "kyomuchanslife",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Bebidas para el cansancio y el jet lag",
+  "cat": "tips",
+  "area": "Japón",
+  "note": "Para el jet lag y el sueño, Mega Shaki es un golpe fuerte de cafeína (pica un poco la garganta); para el agotamiento de caminar 25.000 pasos, la Chargin verde de limón (mucho ácido cítrico) o el clásico tónico Lipovitan.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdPDklGx30P/",
+    "owner": "kyomuchanslife",
     "sharedBy": "Cata"
    }
   ]
@@ -7959,6 +8703,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DaKespmvqre",
+  "url": "https://www.instagram.com/p/DaKespmvqre/",
+  "owner": "oyu_terrace_official",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-oyu-terrace"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DaKvDl_z60y",
   "url": "https://www.instagram.com/p/DaKvDl_z60y/",
   "owner": "coffeegomi",
@@ -8096,6 +8851,43 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-haus-dosan"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "Dbf5A9jyiOJ",
+  "url": "https://www.instagram.com/p/Dbf5A9jyiOJ/",
+  "owner": "young_emperors",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-higashi-chaya-district",
+   "p-kanazawa-castle",
+   "p-kenroku-en-garden",
+   "p-fukuwauchi",
+   "p-gokayama",
+   "p-sanmachi-suji",
+   "p-takayama-jinya",
+   "p-yumoto-choza",
+   "p-fujiyoshida-retro-shopping-street",
+   "p-noto-beef-sushi",
+   "p-sukiyaki-minoya",
+   "p-saiyoji-temple-viewpoint",
+   "p-saiyoji-temple",
+   "p-sushi-tora",
+   "p-keta-wakamiya-shrine",
+   "p-miyoshian-suitei",
+   "p-super-2nd-street",
+   "p-coffee-shop-siphon",
+   "p-chureito-pagoda",
+   "p-pino",
+   "p-d-t-suzuki-museum",
+   "p-shirakawa-go",
+   "p-setogawa-and-shirakabe-dozo-street",
+   "p-matsumoto-castle",
+   "p-matsumoto-jujo-bibliotheque",
+   "p-lake-kawaguchiko",
+   "p-ubuya"
   ],
   "showsEach": true
  },
@@ -8453,6 +9245,69 @@ window.SOURCE_REELS = [
   "kind": "carousel_container",
   "covers": [
    "p-sauna-mother"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdSVD_wPjAv",
+  "url": "https://www.instagram.com/p/DdSVD_wPjAv/",
+  "owner": "wingsofsoviets",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-kyoto-bunzaburo"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdWZX-IGNLU",
+  "url": "https://www.instagram.com/p/DdWZX-IGNLU/",
+  "owner": "veeceecheng",
+  "sharedBy": "Martín",
+  "kind": "carousel_container",
+  "covers": [
+   "p-haus-nowhere-seongsu",
+   "p-nudake"
+  ],
+  "showsEach": false
+ },
+ {
+  "code": "DdnWhMCptf1",
+  "url": "https://www.instagram.com/p/DdnWhMCptf1/",
+  "owner": "yamatrips",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-ame-ha-yasashiku-2",
+   "p-beyond-age",
+   "p-tsuki",
+   "p-kania"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdsXxLnAQ0x",
+  "url": "https://www.instagram.com/p/DdsXxLnAQ0x/",
+  "owner": "bodhiandkai_",
+  "sharedBy": "Martín",
+  "kind": "clips",
+  "covers": [
+   "p-maboroshi-hakurankai",
+   "p-asakura-gallery",
+   "p-doai-station",
+   "p-mount-osore",
+   "p-yumenoshima-tropical-greenhouse-dome"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "Ddtr_exF8Oq",
+  "url": "https://www.instagram.com/p/Ddtr_exF8Oq/",
+  "owner": "industrialkonzept",
+  "sharedBy": "Cata",
+  "kind": "carousel_container",
+  "covers": [
+   "p-church-of-the-light"
   ],
   "showsEach": true
  }
