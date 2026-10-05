@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 367 lugares + 32 tips de los DM de IG (japonn + grupo zava+ari) · 2026-09-27T14:38:04+00:00
+// 371 lugares + 34 tips de los DM de IG (japonn + grupo zava+ari) · 2026-10-05T00:38:02+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -1112,6 +1112,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJU_4FaxDnAGARQjomClhwatw"
+ },
+ {
+  "name": "Domicile Tokyo",
+  "lat": 35.669044,
+  "lon": 139.707032,
+  "cat": "compras",
+  "area": "Jingumae, Shibuya, Tokio",
+  "note": "Tienda de streetwear en Harajuku/Jingumae; aloja el pop-up de Coldfeet del 30/10 al 6/11/2026 con piezas 1/1, remeras y accesorios.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dd64AUqsRVf/",
+    "owner": "coldfeet4life",
+    "caption": "Tienda de streetwear en Harajuku/Jingumae; aloja el pop-up de Coldfeet del 30/10 al 6/11/2026 con piezas 1/1, remeras y accesorios.",
+    "sharedBy": "sofilisa"
+   }
+  ],
+  "gpid": "ChIJYWJOm6OMGGARTAZCeR_TrxY"
  },
  {
   "name": "Dontaku (okonomiyaki)",
@@ -2765,8 +2783,8 @@ window.SOURCE_THINGS = [
   "lat": 35.061491,
   "lon": 135.783294,
   "cat": "arquitectura",
-  "area": "Sakyo, Kioto",
-  "note": "Centro de convenciones de 1966 de Sachio Otani en hormigón visto, con formas trapezoidales que evocan las montañas y pagodas de Kioto, a orillas del lago Takaragaike.",
+  "area": "Kioto",
+  "note": "Obra maestra brutalista de Sachio Otani (1966) con formas trapezoidales de hormigón, alfombras doradas e interiores retrofuturistas; abre al público solo unos pocos días al mes.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -2785,6 +2803,13 @@ window.SOURCE_THINGS = [
     "owner": "tatlerasia",
     "caption": "Centro de convenciones de 1966 de Sachio Otani en hormigón visto, con formas trapezoidales que evocan las montañas y pagodas de Kioto, a orillas del lago Takaragaike.",
     "sharedBy": "Martín"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdZxyQdBdmr/",
+    "owner": "rukotryna",
+    "caption": "Obra maestra brutalista de Sachio Otani (1966) con formas trapezoidales de hormigón, alfombras doradas e interiores retrofuturistas; abre al público solo unos pocos días al mes.",
+    "sharedBy": "Cata"
    }
   ],
   "gpid": "ChIJj9oKtCkIAWAREyhhor42_1M"
@@ -4690,8 +4715,8 @@ window.SOURCE_THINGS = [
   "lat": 35.637923,
   "lon": 139.788356,
   "cat": "museos",
-  "area": "Tokyo (Ariake)",
-  "note": "Museo de miniaturas donde te escaneás en 3D y te hacés una figura personalizada para poner en una escena en miniatura de una calle de Tokio; buen souvenir distinto.",
+  "area": "Odaiba, Tokio",
+  "note": "Museo de mundos en miniatura, el más grande de Asia; recrea ciudades y escenas de ciencia ficción con gran detalle, tiene café y podés hacerte una figura 3D escaneada como souvenir.",
   "sources": [
    {
     "type": "instagram_reel",
@@ -4699,6 +4724,13 @@ window.SOURCE_THINGS = [
     "owner": "jungblut.travel",
     "caption": "Museo de miniaturas donde te escaneás en 3D y te hacés una figura personalizada para poner en una escena en miniatura de una calle de Tokio; buen souvenir distinto.",
     "sharedBy": "Zava"
+   },
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DAgO1s4Ob7b/",
+    "owner": "caminoideal",
+    "caption": "Museo de mundos en miniatura, el más grande de Asia; recrea ciudades y escenas de ciencia ficción con gran detalle, tiene café y podés hacerte una figura 3D escaneada como souvenir.",
+    "sharedBy": "sofilisa"
    }
   ],
   "gpid": "ChIJZRKFm-eJGGARglEoaF4NcC8"
@@ -5913,6 +5945,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJw2qQRZuOGGARWmROEiM2y7E"
  },
  {
+  "name": "Ueno Park Antique Market",
+  "lat": 35.712018,
+  "lon": 139.772848,
+  "cat": "compras",
+  "area": "Ueno, Tokio",
+  "note": "Mercado de antigüedades al aire libre en Ueno Park: vajilla, lacas, cajas de madera y estampitas vintage de cafés.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdyY6uAv4Q4/",
+    "owner": "pennymh_",
+    "caption": "Mercado de antigüedades al aire libre en Ueno Park: vajilla, lacas, cajas de madera y estampitas vintage de cafés.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "1562912282781454379"
+ },
+ {
   "name": "Ueno Toshogu Shrine",
   "lat": 35.715372,
   "lon": 139.770733,
@@ -5963,6 +6013,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "ChIJlwyrGNAIAWARNb5hUHdZruY"
+ },
+ {
+  "name": "Umeda Sky Building",
+  "lat": 34.705287,
+  "lon": 135.489653,
+  "cat": "arquitectura",
+  "area": "Osaka",
+  "note": "Rascacielos icónico de Osaka con pasarela/escalera mecánica suspendida y observatorio Floating Garden en la azotea con vistas 360°.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DdKUogDO96h/",
+    "owner": "its_tohah",
+    "caption": "Rascacielos icónico de Osaka con pasarela/escalera mecánica suspendida y observatorio Floating Garden en la azotea con vistas 360°.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJbyd0kIjmAGAR_crecCbjwlc"
  },
  {
   "name": "Underground Discharge Channel (G-Cans)",
@@ -6272,6 +6340,24 @@ window.SOURCE_THINGS = [
    }
   ],
   "gpid": "17374000821978228343"
+ },
+ {
+  "name": "Xenia Clinic",
+  "lat": 37.501749,
+  "lon": 127.025309,
+  "cat": "otros",
+  "area": "Corea (Seúl)",
+  "note": "Clínica dermatológica de skincare donde se hizo tratamientos: Ulthera (ultrasonido tipo lifting sin quirófano) e inyecciones de salmón (salmon DNA/PDRN) que dejan la piel divina; ~100 USD.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dd12lIDIdGq/",
+    "owner": "tupisaravia",
+    "caption": "Clínica dermatológica de skincare donde se hizo tratamientos: Ulthera (ultrasonido tipo lifting sin quirófano) e inyecciones de salmón (salmon DNA/PDRN) que dejan la piel divina; ~100 USD.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJM_th7GShfDURsOdyHYElkss"
  },
  {
   "name": "XU Osaka",
@@ -6855,6 +6941,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Nuevo Tax Free en Japón: te lo devuelven después",
+  "cat": "tips",
+  "area": "Japón",
+  "note": "Desde el nuevo sistema pagás el precio completo con impuestos y el reembolso se confirma al salir del país (hasta 90 días). Al comprar mostrá el pasaporte y registrá el método para recibir la devolución.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dd9Z60ZxusC/",
+    "owner": "viajeropeligro",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Pedí asesoría gratis en farmacias coreanas",
   "cat": "tips",
   "area": "Seúl",
@@ -6893,6 +6993,20 @@ window.SOURCE_TIPS = [
     "url": "https://www.instagram.com/p/Dcdevz7vSt4/",
     "owner": "momoncha_jp",
     "sharedBy": "Martín"
+   }
+  ]
+ },
+ {
+  "name": "Qué hacer en el aeropuerto para cobrar el Tax Free",
+  "cat": "tips",
+  "area": "Japón",
+  "note": "Llegá con anticipación: andá primero al módulo de tax refund con pasaporte, tickets de compra y los productos accesibles sin abrir ni usar, dejá que Aduanas los revise y recién después facturá la valija. Preguntá en cada comercio cómo procesan el reembolso.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/Dd9Z60ZxusC/",
+    "owner": "viajeropeligro",
+    "sharedBy": "Cata"
    }
   ]
  },
@@ -7173,6 +7287,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-unimocc-art-gallery-cafe"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DAgO1s4Ob7b",
+  "url": "https://www.instagram.com/p/DAgO1s4Ob7b/",
+  "owner": "caminoideal",
+  "sharedBy": "sofilisa",
+  "kind": "clips",
+  "covers": [
+   "p-small-worlds-tokyo"
   ],
   "showsEach": true
  },
@@ -9178,6 +9303,28 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "Dd12lIDIdGq",
+  "url": "https://www.instagram.com/p/Dd12lIDIdGq/",
+  "owner": "tupisaravia",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-xenia-clinic"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "Dd64AUqsRVf",
+  "url": "https://www.instagram.com/p/Dd64AUqsRVf/",
+  "owner": "coldfeet4life",
+  "sharedBy": "sofilisa",
+  "kind": "feed",
+  "covers": [
+   "p-domicile-tokyo"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DdDGCUGyA_o",
   "url": "https://www.instagram.com/p/DdDGCUGyA_o/",
   "owner": "_luvsae",
@@ -9238,6 +9385,17 @@ window.SOURCE_REELS = [
   "showsEach": true
  },
  {
+  "code": "DdKUogDO96h",
+  "url": "https://www.instagram.com/p/DdKUogDO96h/",
+  "owner": "its_tohah",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-umeda-sky-building"
+  ],
+  "showsEach": true
+ },
+ {
   "code": "DdQqZ0PEUBz",
   "url": "https://www.instagram.com/p/DdQqZ0PEUBz/",
   "owner": "tokyoweekender",
@@ -9270,6 +9428,17 @@ window.SOURCE_REELS = [
    "p-nudake"
   ],
   "showsEach": false
+ },
+ {
+  "code": "DdZxyQdBdmr",
+  "url": "https://www.instagram.com/p/DdZxyQdBdmr/",
+  "owner": "rukotryna",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-kyoto-international-conference-center"
+  ],
+  "showsEach": true
  },
  {
   "code": "DdnWhMCptf1",
@@ -9308,6 +9477,17 @@ window.SOURCE_REELS = [
   "kind": "carousel_container",
   "covers": [
    "p-church-of-the-light"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DdyY6uAv4Q4",
+  "url": "https://www.instagram.com/p/DdyY6uAv4Q4/",
+  "owner": "pennymh_",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-ueno-park-antique-market"
   ],
   "showsEach": true
  }
