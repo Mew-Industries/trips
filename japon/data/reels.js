@@ -1,5 +1,5 @@
 // Generado por projects/japan-trip/scripts/ig/build_reels_js.py — NO editar a mano.
-// 371 lugares + 34 tips de los DM de IG (japonn + grupo zava+ari) · 2026-10-05T00:38:02+00:00
+// 372 lugares + 37 tips de los DM de IG (japonn + grupo zava+ari) · 2026-10-06T16:40:40+00:00
 window.SOURCE_THINGS = [
  {
   "name": "& OIMO TOKYO CAFE",
@@ -4826,6 +4826,24 @@ window.SOURCE_THINGS = [
   "gpid": "ChIJn6EqSjPzGGAR-Nqam-3EXco"
  },
  {
+  "name": "Soreyuke! Tori Yaro! Umeda Chayamachi",
+  "lat": 34.706179,
+  "lon": 135.498941,
+  "cat": "comida",
+  "area": "Umeda / Chayamachi, Osaka",
+  "note": "Izakaya local barato (cerveza ¥299, whisky soda ¥99, brochetas ¥99); abierto 17-1h, ~¥1.500-3.000 por persona.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DaabeSvTxKG/",
+    "owner": "asukunavi.travel",
+    "caption": "Izakaya local barato (cerveza ¥299, whisky soda ¥99, brochetas ¥99); abierto 17-1h, ~¥1.500-3.000 por persona.",
+    "sharedBy": "Cata"
+   }
+  ],
+  "gpid": "ChIJFxPLmOLnAGARRVTSiWHJzYU"
+ },
+ {
   "name": "SPACE Tokyo",
   "lat": 35.691813,
   "lon": 139.710644,
@@ -6927,6 +6945,20 @@ window.SOURCE_TIPS = [
   ]
  },
  {
+  "name": "Min Min Daha: cafeína extra cuando el café no alcanza",
+  "cat": "tips",
+  "area": "",
+  "note": "Shot energético sabor café con cafeína y vitaminas B1, B2 y B6; útil contra el sueño/jet lag cuando el café ya no te hace efecto.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DeIlXcgiMZk/",
+    "owner": "nipponxjapon",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
   "name": "Máscara capilar Fino Premium Touch",
   "cat": "tips",
   "area": "",
@@ -6950,6 +6982,20 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/Dd9Z60ZxusC/",
     "owner": "viajeropeligro",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Oronamin C: energizante para el bajón de media tarde",
+  "cat": "tips",
+  "area": "",
+  "note": "Botellita efervescente con vitamina C, vitaminas B, aminoácidos y cafeína; buena para un impulso de energía a media jornada de caminata.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DeIlXcgiMZk/",
+    "owner": "nipponxjapon",
     "sharedBy": "Cata"
    }
   ]
@@ -7062,6 +7108,20 @@ window.SOURCE_TIPS = [
     "type": "instagram_reel",
     "url": "https://www.instagram.com/p/DcoeDJvBu5I/",
     "owner": "yonagunitours",
+    "sharedBy": "Cata"
+   }
+  ]
+ },
+ {
+  "name": "Ukon no Chikara: tomala antes de salir a tomar",
+  "cat": "tips",
+  "area": "",
+  "note": "Bebida de cúrcuma que se consigue en konbinis/farmacias de Japón; se toma antes de beber alcohol para aguantar mejor la noche de fiesta.",
+  "sources": [
+   {
+    "type": "instagram_reel",
+    "url": "https://www.instagram.com/p/DeIlXcgiMZk/",
+    "owner": "nipponxjapon",
     "sharedBy": "Cata"
    }
   ]
@@ -8857,6 +8917,17 @@ window.SOURCE_REELS = [
   "kind": "clips",
   "covers": [
    "p-dog-harajuku"
+  ],
+  "showsEach": true
+ },
+ {
+  "code": "DaabeSvTxKG",
+  "url": "https://www.instagram.com/p/DaabeSvTxKG/",
+  "owner": "asukunavi.travel",
+  "sharedBy": "Cata",
+  "kind": "clips",
+  "covers": [
+   "p-soreyuke-tori-yaro-umeda-chayamachi"
   ],
   "showsEach": true
  },
