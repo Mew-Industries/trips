@@ -1426,6 +1426,7 @@ const destinations = [
     // Kioto — Naoshima se hace como day trip el jue 22/10 desde Kioto, entradas ya
     // compradas (vive en `daytrips` de la parada 8). Esta es una noche de transición entre
     // Hakone y Koyasan, apuntada al pico de momiji y las iluminaciones nocturnas.
+    // 8/10: fechas 2026 verificadas en las webs oficiales — Eikan-dō ilumina 20/11-6/12 (no el 12/11); la noche es Kōdai-ji + Entoku-in (23/10→13/12).
     id: 'kioto-momiji', n: 15, type: 'destino', name: 'Kioto (momiji, 1 noche)', short: 'Kioto', flag: '🇯🇵',
     coords: [35.0116, 135.7681],
     img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zenrinji_Eikando_20161113-1.jpg/500px-Zenrinji_Eikando_20161113-1.jpg',
@@ -1459,10 +1460,11 @@ const destinations = [
         'Check-out de Yoshiike a las 10:00: se llega a Kioto con la tarde por delante.'
       ] },
     tempMax: '11-22', tempMin: '3-12', weatherUpdated: '2026-10-08', weatherMode: 'climatología',
-    intro: 'Una noche de vuelta en Kioto, justo en el pico del momiji: los templos del este abren de noche con los jardines iluminados (Eikan-dō, Kōdai-ji; Kiyomizu-dera solo ilumina del 21 al 30/11, fuera de fecha). Es la noche de transición del cierre — se llega de Hakone a media tarde, se duerme una, y el 13 a la mañana se sigue tranquilo hacia Koyasan.',
+    intro: 'Una noche de vuelta en Kioto, justo en el pico del momiji. La noche es Kōdai-ji (高台寺, Kōdaiji) y su subtemplo Entoku-in (圓徳院, Entoku-in), que iluminan los jardines hasta las 22:00 y quedan a ~15 min a pie del Airbnb. Eikan-dō (永観堂, Eikandō) NO ilumina el 12/11 — su iluminación 2026 es del 20/11 al 6/12 —, así que solo entra de día, si se llega de Hakone antes de las 16:00. Kiyomizu-dera ilumina del 21 al 30/11, fuera de fecha. Es la noche de transición del cierre — se llega de Hakone a media tarde, se duerme una, y el 13 a la mañana se sigue tranquilo hacia Koyasan.',
     activities: [
-      { text: 'Eikan-dō (iluminación 17:30–21:00, del 7/11 al 6/12; llegar 17:15 o después de las 20)', cat: 'templos', coords: [35.01446, 135.79364], url: "https://www.google.com/maps/search/?api=1&query=Eikando%20Zenrinji%20Kyoto" },
-      { text: 'Kōdai-ji (iluminación nocturna, hasta 22:00)', cat: 'templos', coords: [34.99998, 135.78130], url: "https://www.google.com/maps/search/?api=1&query=Kodaiji%20Temple%20Kyoto" },
+      { text: 'Eikan-dō (永観堂, Eikandō) — solo de día: exposición de otoño de tesoros (秋の寺宝展, aki no jihōten), 11/11→6/12, recepción 9:00-16:00, ¥1.500. Su iluminación nocturna es del 20/11 al 6/12: el 12/11 NO ilumina', cat: 'templos', coords: [35.01446, 135.79364], url: "https://www.google.com/maps/search/?api=1&query=Eikando%20Zenrinji%20Kyoto" },
+      { text: 'Kōdai-ji (高台寺, Kōdaiji) — visita nocturna especial de otoño (秋の夜間特別拝観, aki no yakan tokubetsu haikan), 23/10→13/12: luces desde 17:00, recepción hasta 21:30, cierre 22:00; mismo precio día/noche; sin reingreso una vez que salís. LA noche del 12/11', cat: 'templos', coords: [34.99998, 135.78130], url: "https://www.google.com/maps/search/?api=1&query=Kodaiji%20Temple%20Kyoto" },
+      { text: 'Entoku-in (圓徳院, Entoku-in) — subtemplo de Kōdai-ji enfrente, iluminación nocturna 23/10→10/12 (y 13/12): luces 17:00, recepción hasta 21:30, cierre 22:00; ¥500, o combinada con Kōdai-ji ¥1.200', cat: 'templos', url: "https://www.google.com/maps/search/?api=1&query=Entokuin%20Temple%20Kyoto" },
       { text: 'Tō-ji (pagoda iluminada, 18:00–21:30; a 15 min de la estación)', cat: 'templos', coords: [34.98060, 135.74760], url: "https://www.google.com/maps/search/?api=1&query=Toji%20Temple%20Kyoto" },
       { text: 'Tōfuku-ji (momiji, mejor temprano)', cat: 'templos', coords: [34.97641, 135.77393], url: "https://www.google.com/maps/search/?api=1&query=Tofuku-ji%20Kyoto" },
       { text: 'Arashiyama (opcional, si el día da)', cat: 'parques', coords: [35.016819, 135.671301], url: "https://www.google.com/maps/search/?api=1&query=Bosque%20de%20Bamb%C3%BA%20de%20Arashiyama" }
