@@ -2041,6 +2041,9 @@ function resvHtml(L) {
 // En modo discreto: solo "Reservado" + ciudad + noches (sin nombre/dirección/links/fotos/fechas).
 // Un nodo sin `lodging` pero con `lodgingTbd` muestra la tarjeta igual, vacía y
 // marcada: el hueco es información (Tokio del medio se busca para 4 y no está tomado).
+// Modelo de destinations: `lodging.booking.tentative` y `activities[].tentative`
+// son flags opcionales; `true` marca una reserva tentativa y habilita los avisos
+// de vencimiento de cancelación gratis en el briefing. Ausente/false = reserva firme.
 function lodgingTbdHtml(txt) {
   return '<div class="card-section-title">🛏️ Hospedaje</div>' +
     '<div class="lodging-card tbd"><div class="lodging-body">' +
