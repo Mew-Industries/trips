@@ -1314,15 +1314,19 @@ const destinations = [
       imgs: ['img/lodging/seul-hanok-1.jpg', 'img/lodging/seul-hanok-2.jpg', 'img/lodging/seul-hanok-3.jpg'],
       url: 'https://www.airbnb.com/rooms/22724133?check_in=2026-11-06&check_out=2026-11-10&adults=2',
       mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Bukchon-ro%2012-gil%2035-9%2C%20Gahoe-dong%2C%20Jongno-gu%2C%20Seoul%2003056',
-      // ref pendiente: el código de confirmación sale del mail de Airbnb, todavía sin cargar.
-      booking: { provider: 'airbnb', ref: null, checkIn: '6 nov', checkOut: '10 nov' }
+      booking: {
+        provider: 'airbnb', ref: 'HMS22JWZBZ',
+        checkIn: '6 nov · desde 16:00', checkOut: '10 nov · hasta 11:00',
+        cancel: 'Reembolso parcial hasta el 30/10 16:00 (hora Seúl)',
+        phone: '+82 10-5722-1200'
+      }
     },
     leg: { mode: '🚄', time: '~2 h 40', detail: 'KTX Busan → Seúl.',
-      fromTerminal: { name: 'Estación de Busan', coords: [35.11486, 129.04079], mode: 'train' }, toTerminal: { name: 'Estación de Seúl', coords: [37.55396, 126.97169], mode: 'train' },
+      fromTerminal: { name: 'Estación de Busan', coords: [35.11486, 129.04079], mode: 'train' }, toTerminal: { name: 'Estación de Suseo', coords: [37.4853, 127.1013], mode: 'train' },
       why: [
         'Check-out en Busan hasta las 11:00.',
         'El KTX todavía no está comprado: es lo que va a fijar la hora de salida.',
-        'Hay un bloque reservado en Seúl a las 13:00: el tren tiene que llegar a la Estación de Seúl antes de las 11:45.'
+        'Hay un bloque reservado en Seúl a las 13:00: el tren tiene que llegar a Suseo antes de las 11:30 (316 llega 11:24; de ahí a Trid en subte ~40 min).'
       ] },
     tempMax: '6-19', tempMin: '-1-10', weatherUpdated: '2026-10-09', weatherMode: 'climatología',
     intro: 'Tramo coreano. KTX desde Busan, ~2h40. Principios de noviembre = peak de otoño coreano. Después se vuela de vuelta a Japón, a Tokio (Air Premia YP731 a Narita), para el cierre: Hakone (parada 14, onsen + Fuji), una noche de momiji en Kioto (15) y Koyasan (16, shukubo) antes de terminar en Tokio para el vuelo del 17/11.',
