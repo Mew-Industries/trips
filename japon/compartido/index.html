@@ -474,6 +474,8 @@
   /* Actividad tachada (task 700): mismo reposo apagado que la candidata de arriba,
      pero en TODOS los mapas — ya está hecha, descansa también en la portada. Hover o
      popup abierto la traen nítida: destachar desde el popup tiene que ser posible. */
+  .pp.pp-logged::after, .rt-ord.pp-logged::after { content: '✓'; position: absolute; right: -5px; top: -7px; color: white; background: #0F6E56; border-radius: 50%; width: 16px; height: 16px; text-align: center; font: bold 12px/16px sans-serif; opacity: 1; }
+  .pp.pp-logged:not(:hover):not(.active) { opacity: .8; }
   .pp.pp-done { transition: transform 0.15s, opacity 0.15s; }
   .pp.pp-done:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
   .pp.pp-done:not(:hover):not(.active) .pp-emoji { display: none; }
@@ -2318,7 +2320,8 @@ const thingKey = name => catKey(String(name || '').split('(')[0]);
 // Quién agregó cada lugar a la lista de Maps (data/added_by.js, lo escribe el
 // sync del workspace keyed por este mismo thingKey).
 const ADDED_BY = window.PLACE_ADDED_BY || {};
-const sourceThings = window.SOURCE_THINGS || [];
+const savedDonePlaces = await fetch(new URL('../data/saved-places.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('saved places HTTP ' + r.status); return r.json(); });
+const sourceThings = [...(window.SOURCE_THINGS || []), ...savedDonePlaces];
 const sourceThingByIndex = [];
 // place_id de Google por thingKey (task 705): reels.js trae `gpid` (capturado por
 // el geocoder) y added_by.js puede traer PLACE_GPID (CID del sync de la lista de
@@ -2827,7 +2830,8 @@ destinations.forEach(d => {
       dt.coords[0] === a.coords[0] && dt.coords[1] === a.coords[1]);
     const m = sameDaytrip && dtMarkers[sameDaytrip.id]
       ? dtMarkers[sameDaytrip.id]
-      : placePin(a.coords, cat, 'save', savedPlaceLayer, key, activityIsDone(key) ? 'pp-done' : '');
+      : placePin(a.coords, cat, 'save', savedPlaceLayer, key, activityIsDone(key) ? 'pp-done pp-logged' : '');
+    if (loggedActivityIds.has(key)) m.setIcon(placeIcon(cat, 'save', key, 'pp-done pp-logged'));
     m._ppDone = activityIsDone(key);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
@@ -2858,7 +2862,7 @@ function syncDonePins() {
     const m = actMarkers[key];
     if (m._ppDone === done) return;
     m._ppDone = done;
-    m.setIcon(placeIcon(actPinCats[key], 'save', key, done ? 'pp-done' : ''));
+    m.setIcon(placeIcon(actPinCats[key], 'save', key, done ? 'pp-done pp-logged' : ''));
     keepActive(m);
   });
 }
@@ -3674,7 +3678,7 @@ function enterDayFocus(spec) {
   ord.forEach((p, i) => {
     // El número de una parada ya tachada nace atenuado; el pin de abajo (actMarkers)
     // trae su propio atenuado, así el par entero descansa.
-    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji, activityIsDone(p.key) ? 'pp-done' : ''), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
+    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji, activityIsDone(p.key) ? 'pp-done pp-logged' : ''), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
     dayFocus.catMarkers.push({ m, cat: p.cat, holder: focusLayer });
     dayFocus.ordMarkers.push({ m, key: p.key, n: p.number || i + 1, color: p.color, emoji: p.emoji, done: activityIsDone(p.key) });
   });
@@ -3706,7 +3710,7 @@ function syncDayFocusDone() {
     const done = activityIsDone(o.key);
     if (o.done === done) return;
     o.done = done;
-    o.m.setIcon(ordIcon(o.n, o.color, o.emoji, done ? 'pp-done' : ''));
+    o.m.setIcon(ordIcon(o.n, o.color, o.emoji, done ? 'pp-done pp-logged' : ''));
   });
 }
 
@@ -4249,7 +4253,7 @@ function renderDayMap(container, spec) {
   };
   // El mapa embebido es el plan confirmado. Las camas reservadas y las terminales son
   // puntas reales del recorrido; entre las actividades entran sólo las anclas con hora.
-  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
+  const line = (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted || p.done);
   const pts = line.map(coordsOf).filter(Boolean);
   const hasActivityStops = line.some(p => !p.bed && !p.terminal);
   const stopPts = (hasActivityStops ? [] : (spec.stops || [])).map(id => {
@@ -4304,8 +4308,8 @@ function renderDayMap(container, spec) {
     // Una parada del plan ya tachada sigue en el recorrido (promoverla fue una
     // decisión), pero su pin descansa: `pp-done` sobre el número o sobre el disco.
     const done = activityIsDone(p.key);
-    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon, done ? 'pp-done' : '')
-      : placeIcon(p.cat, 'save', p.key, done ? 'pp-done' : '');
+    const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon, done ? 'pp-done pp-logged' : '')
+      : placeIcon(p.cat, 'save', p.key, done ? 'pp-done pp-logged' : '');
     const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
       withPopCheck(miniPopup(p.act && p.act.img, escHtml(name), escHtml(sub), gmapsLink(name, ll, gpidOf(name))), p.key));
     marker.on('popupopen', () => marker.getElement()?.querySelector('.pp, .rt-ord')?.classList.add('active'));
@@ -4448,6 +4452,7 @@ try {
     // el valor vigente. Una tachada sale de las sugerencias (task 700); el aviso de
     // vuelta (onChecklistChange) es lo que repinta las secciones sin recargar.
     doneLog,
+    resolveDone: item => matchDoneItem(item, destinations),
     isActivityDone: (key) => activityIsDone(key),
     onChecklistChange: (fn) => { checklistViewsHandler = fn; },
     wire: (pane) => {

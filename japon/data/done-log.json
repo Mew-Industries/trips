@@ -18,13 +18,16 @@
     "date": "2026-10-10",
     "items": [
       {
-        "text": "Open-air museo de arquitectura (Edo-Tokyo Open Air Architectural Museum)"
+        "text": "Open-air museo de arquitectura (Edo-Tokyo Open Air Architectural Museum)",
+        "match_name": "Edo-Tokyo Open Air Architectural Museum"
       },
       {
-        "text": "Tokyo Metropolitan Government Building (no entraron)"
+        "text": "Tokyo Metropolitan Government Building (no entraron)",
+        "match_name": "Tokyo Metropolitan Government Building"
       },
       {
-        "text": "bar del Park Hyatt (el de Lost in Translation)"
+        "text": "bar del Park Hyatt (el de Lost in Translation)",
+        "match_name": "New York Bar"
       }
     ]
   }

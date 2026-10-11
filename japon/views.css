@@ -489,3 +489,10 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
 .dy-done li{padding:4px 0;line-height:1.45}
 .pl-logged-done .pl-w{opacity:.6;text-decoration:line-through;text-decoration-color:#9aaea3}
 .pl-logged-done .pl-d,.pl-logged-done .pl-lk,.pl-logged-done .pl-depart{display:none}
+
+.done-pin { border: 0; background: none; color: inherit; font: inherit; padding: 4px 0; text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: #0f6e5655; text-underline-offset: 3px; }
+.dy-done small { opacity: .55; }
+
+.pp.pp-done.pp-logged:not(:hover):not(.active) { opacity: .85; }
+.dy-done li { display: flex; align-items: baseline; gap: .35em; }
+.dy-done .done-pin { flex: 1; min-width: 0; }

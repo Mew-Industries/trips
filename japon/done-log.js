@@ -10,9 +10,9 @@ export function parseDoneLog(value) {
     return day;
   });
 }
-export function matchDoneItem(item, destinations) {
-  const activities = destinations.flatMap(node => (node.activities || []).map(act => ({act, node})));
-  if (item.activity_id) return activities.find(({act}) => [act.activityId, act.syncId].includes(item.activity_id)) || null;
+export function matchDoneItem(item, destinations, places = []) {
+  const activities = destinations.flatMap(node => (node.activities || []).map(act => ({act, node}))).concat(places.map(place => ({act: {...place, text: place.text || place.name, coords: place.coords || (place.lat != null ? [place.lat, place.lon] : null)}, node: null})));
+  if (item.activity_id) return activities.find(({act}) => [act.activityId, act.syncId, act.id, act.gpid].includes(item.activity_id)) || null;
   const name = normalizeDoneName(item.match_name || item.text);
   return activities.find(({act}) => normalizeDoneName(act.text) === name) ||
     activities.find(({act}) => [...String(act.text).matchAll(/\(([^)]+)\)/g)].some(m => normalizeDoneName(m[1]) === name)) || null;

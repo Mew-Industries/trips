@@ -17,3 +17,8 @@ assert.equal(tripDayStatus(day, new Date('2026-10-10T15:00:00Z')).current, true)
 assert.equal(tripDayStatus({...day,date:'2026-10-10'}, new Date('2026-10-10T15:00:00Z')).past, true);
 assert.equal(tripDayStatus({...day,here:[{node:{coords:[37.5,127]}}]}, new Date('2026-10-10T15:00:00Z')).current, true);
 console.log('done-log: 11 assertions OK');
+
+const real = await import('./resolve_done_item.mjs');
+for (const day of log) for (const item of day.items) { const hit = real.matchDoneItem(item, real.destinations, real.places); assert.ok(hit?.act.coords, item.text); }
+assert.equal(real.matchDoneItem({text:"libre"},real.destinations,real.places),null);
+console.log("six seed pins + free entry OK");

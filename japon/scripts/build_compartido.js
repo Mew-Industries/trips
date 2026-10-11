@@ -221,6 +221,7 @@ function render() {
     .replace('<script src="data/added_by.js"></script>', '<script>window.PLACE_ADDED_BY = {};</script>')
     .replace('href="views.css"', 'href="../views.css"')
     .replace("from './views.js'", "from '../views.js'")
+    .replace("new URL('./data/saved-places.json', import.meta.url)", "new URL('../data/saved-places.json', import.meta.url)")
     .replace("from './done-log.js'", "from '../done-log.js'")
     .replace("new URL('./data/done-log.json', import.meta.url)", "new URL('../data/done-log.json', import.meta.url)")
     // La app compartida se sirve un nivel más abajo y no duplica módulos: el cliente del

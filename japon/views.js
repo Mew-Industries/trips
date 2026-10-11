@@ -558,17 +558,29 @@ export function dayRoute(day, ctx, keepOrder) {
 // Armar el recorrido cuesta poco pero se pide varias veces por día (el botón, el foco,
 // la lista): una vez por jornada alcanza.
 const _routes = new WeakMap();
+function withDoneRoute(spec, day, ctx) {
+  for (const item of doneItemsForDay(ctx.doneLog || [], day.date)) {
+    const hit = ctx.resolveDone?.(item);
+    if (!hit?.act.coords || !hit.node) continue;
+    const key = ctx.activityId(hit.act, hit.node);
+    let point = spec.route.find(p => p.key === key);
+    if (!point) { point = {key, act: hit.act, ll: hit.act.coords, cat: hit.act.cat || 'otro', done: true}; spec.route.push(point); }
+    point.done = true;
+    if (!spec.line.some(p => p.key === key)) spec.line.push(point);
+  }
+  return spec;
+}
 function routeOf(day, ctx) {
   const sig = ctx.plan ? ctx.plan.promoted(day.date).join('\u0000') : '';
   const old = _routes.get(day);
-  if (!old || old.sig !== sig) _routes.set(day, { sig, spec: dayRoute(day, ctx) });
+  if (!old || old.sig !== sig) _routes.set(day, { sig, spec: withDoneRoute(dayRoute(day, ctx), day, ctx) });
   return _routes.get(day).spec;
 }
 
 // El mapa de la jornada muestra el plan confirmado: hospedajes, terminales y actividades
 // con hora/reserva (`anchor`). Las sugerencias siguen en la lista, pero no dibujan ni
 // marcadores ni línea. Mantener este filtro acá también evita renderizar un mapa vacío.
-export const confirmedDayLine = spec => (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted);
+export const confirmedDayLine = spec => (spec.line || []).filter(p => p.bed || p.terminal || p.anchor || p.promoted || p.done);
 const plannedSpec = spec => Object.assign({}, spec, { line: confirmedDayLine(spec) });
 const dayHasMap = spec => confirmedDayLine(spec).length > 0 || (spec.stops || []).length > 0;
 
@@ -1019,7 +1031,11 @@ export function neighborDay(days, date, step) {
 
 function doneDayHtml(day, ctx) {
   const items = doneItemsForDay(ctx.doneLog || [], day.date);
-  return items.length ? '<section class="dy-done"><div class="sg-title">Hecho</div><ol>' + items.map(item => '<li>✓ ' + ctx.escHtml(item.text) + '</li>').join('') + '</ol></section>' : '';
+  return items.length ? '<section class="dy-done"><div class="sg-title">Hecho</div><ol>' + items.map(item => {
+    const hit = ctx.resolveDone?.(item);
+    const key = hit?.act.coords && hit.node ? ctx.activityId(hit.act, hit.node) : null;
+    return '<li>✓ ' + (key ? '<button type="button" class="done-pin" data-done-day="' + day.date + '" data-done-pin="' + ctx.escHtml(key) + '">' + ctx.escHtml(item.text) + '</button>' : ctx.escHtml(item.text) + ' <small>sin pin</small>') + '</li>';
+  }).join('') + '</ol></section>' : '';
 }
 function dayExpanded(day, status) {
   try { const saved = JSON.parse(localStorage.getItem('japon-day-expanded-v1') || '{}'); if (typeof saved[day.date] === 'boolean') return saved[day.date]; } catch (_) {}
@@ -1388,6 +1404,8 @@ export function mountViews(destinations, ctx) {
 
   dayView.addEventListener('click', (e) => {
     if (e.target.closest('a')) return;                   // Maps, la ficha del alojamiento: suyos
+    const donePin = e.target.closest('[data-done-pin]');
+    if (donePin) { ctx.focusDayAct?.(donePin.dataset.donePin); return; }
     const localMap = e.target.closest('[data-day-map-act]');
     if (localMap) { if (ctx.focusDayAct) ctx.focusDayAct(localMap.dataset.dayMapAct); return; }
     const sum = e.target.closest('.sg-all > summary');
@@ -1952,6 +1970,8 @@ export function mountViews(destinations, ctx) {
       cardTouch = null;
     }, { passive: true });
     panes.dias.addEventListener('click', (e) => {
+      const donePin = e.target.closest('[data-done-pin]');
+      if (donePin) { const key = donePin.dataset.donePin; goJornada(donePin.dataset.doneDay); setTimeout(() => ctx.focusDayAct?.(key), 0); return; }
       const toggle = e.target.closest('[data-collapse-day]');
       if (toggle) {
         const card = toggle.closest('.dy-card');

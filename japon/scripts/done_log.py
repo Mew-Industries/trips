@@ -5,6 +5,7 @@ import datetime
 import json
 from pathlib import Path
 import tempfile
+import subprocess
 
 LOG = Path(__file__).resolve().parents[1] / 'data/done-log.json'
 
@@ -29,6 +30,9 @@ def main():
         item['activity_id'] = args.activity_id
     if args.match_name:
         item['match_name'] = args.match_name
+    result = subprocess.run(['node', str(LOG.parent.parent / 'scripts/resolve_done_item.mjs'), json.dumps(item)], check=True, capture_output=True, text=True)
+    pin = json.loads(result.stdout)
+    print('Pin: ' + pin['name'] if pin else 'Aviso: sin pin; entrada libre')
     day['items'].append(item)
     data.sort(key=lambda day: day['date'])
     with tempfile.NamedTemporaryFile(mode='w', dir=LOG.parent, delete=False) as out:

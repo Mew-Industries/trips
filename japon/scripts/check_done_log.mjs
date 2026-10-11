@@ -33,6 +33,26 @@ await page.locator('.dv-body .dy-done').waitFor();
 assert.equal(await page.locator('.dv-body .dy-done li').count(),3);
 await page.screenshot({path:out+'/day-deep-link.png'});
 assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+for (const date of ['2026-10-09','2026-10-10']) {
+ await page.goto(base+'?tab=dias&jornada='+date);
+ const buttons=page.locator('.dv-body .dy-done [data-done-pin]');
+ await buttons.first().waitFor();
+ assert.equal(await buttons.count(),3);
+ assert.ok(await page.locator('.dv-day-map .pp-logged, .dv-day-map .rt-ord.pp-logged').count()>=3);
+ for(let i=0;i<3;i++) {
+  await buttons.nth(i).click();
+  await page.locator('.dv-day-map .leaflet-popup').last().waitFor();
+  assert.equal(await page.locator('.dv-day-map .leaflet-popup').last().isVisible(),true);
+ }
+ await page.screenshot({path:out+'/pins-'+date+'.png'});
+}
+await page.goto(base+'?tab=dias');
+const card10=page.locator('[data-jornada-card="2026-10-10"]');
+await card10.waitFor();
+await card10.locator('[data-done-pin]').first().click();
+await page.locator('.dv-day-map .leaflet-popup').last().waitFor();
+assert.ok(await page.locator('#map .pp-logged').count()>=5);
 assert.deepEqual(errors,[]);
+console.log('six clickable pins: day + general maps OK');
 console.log('done-log browser: collapsed 9/10, 3 each, current 11, matched plan, persistence, deep link, mobile OK');
 }finally{await browser.close();}
