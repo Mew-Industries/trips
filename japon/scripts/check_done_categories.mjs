@@ -44,7 +44,7 @@ for (const date of ['2026-10-09','2026-10-10']) {
   await buttons.nth(i).click();
   await page.locator('.dv-day-map .leaflet-popup').last().waitFor();
   assert.equal(await page.locator('.dv-day-map .leaflet-popup').last().isVisible(),true);
-  const names = date === '2026-10-09' ? [/G-Cans/, /Toyosu Market/, /teamLab Planets/] : [/Edo-Tokyo/, /Metropolitan Government/, /New York Bar/];
+  const names = date === '2026-10-09' ? [/G-Cans/, /Toyosu Market/, /teamLab Planets/] : [/Edo-Tokyo/, /Metropolitan Government/, /Park Hyatt Tokyo/];
   assert.match(await page.locator('.dv-day-map .leaflet-popup').last().innerText(), names[i]);
  }
  const pins = await page.locator('.dv-day-map .pp.pp-logged').evaluateAll(es => es.map(e => ({emoji:e.querySelector('.pp-emoji')?.textContent, display:getComputedStyle(e.querySelector('.pp-emoji')).display, width:parseFloat(getComputedStyle(e).width), badge:getComputedStyle(e,'::after').width})));

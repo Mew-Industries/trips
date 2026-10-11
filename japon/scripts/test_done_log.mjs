@@ -22,3 +22,13 @@ const real = await import('./resolve_done_item.mjs');
 for (const day of log) for (const item of day.items) { const hit = real.matchDoneItem(item, real.destinations, real.places); assert.ok(hit?.act.coords, item.text); }
 assert.equal(real.matchDoneItem({text:"libre"},real.destinations,real.places),null);
 console.log("six seed pins + free entry OK");
+
+const parkItem = doneItemsForDay(log, '2026-10-10')[2];
+assert.equal(parkItem.text, 'bar del Park Hyatt');
+const park = real.matchDoneItem(parkItem, real.destinations, real.places).act;
+assert.equal(park.text, 'Park Hyatt Tokyo');
+assert.deepEqual(park.coords, [35.6862131,139.6904828]);
+assert.equal(park.cat, 'bar-noche');
+assert.equal(park.sources[0].url, 'https://maps.app.goo.gl/RZZtM8QSkziP5YW78');
+assert.ok(!log.flatMap(d => d.items).some(i => real.matchDoneItem(i, real.destinations, real.places)?.act.text === 'New York Bar'));
+console.log('Park Hyatt pin, category, Maps link + New York Bar not done OK');

@@ -40,5 +40,19 @@
         "url": "https://www.google.com/maps/search/?api=1&query=New+York+Bar&query_place_id=ChIJOXWXbz_zGGAR1HVgDHIj6GY"
       }
     ]
+  },
+  {
+    "name": "Park Hyatt Tokyo",
+    "lat": 35.6862131,
+    "lon": 139.6904828,
+    "cat": "bar-noche",
+    "gpid": "0x6018f32cd7dab227:0x2cd8a394ca8e7d96",
+    "area": "Tokio",
+    "sources": [
+      {
+        "type": "google_maps",
+        "url": "https://maps.app.goo.gl/RZZtM8QSkziP5YW78"
+      }
+    ]
   }
 ]
