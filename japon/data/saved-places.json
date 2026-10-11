@@ -3,7 +3,7 @@
     "name": "Edo-Tokyo Open Air Architectural Museum",
     "lat": 35.715572,
     "lon": 139.512543,
-    "cat": "museos",
+    "cat": "templo-museo",
     "gpid": "ChIJh5F6GpuNGGARZ6dHiggrfyQ",
     "area": "Tokio",
     "sources": [
@@ -17,7 +17,7 @@
     "name": "Tokyo Metropolitan Government Building",
     "lat": 35.689481,
     "lon": 139.691686,
-    "cat": "miradores",
+    "cat": "arquitectura",
     "gpid": "17394692006143746536",
     "area": "Tokio",
     "sources": [
@@ -31,7 +31,7 @@
     "name": "New York Bar",
     "lat": 35.686113,
     "lon": 139.690401,
-    "cat": "comida",
+    "cat": "bar-noche",
     "gpid": "ChIJOXWXbz_zGGAR1HVgDHIj6GY",
     "area": "Tokio",
     "sources": [

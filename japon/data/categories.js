@@ -94,6 +94,9 @@ window.PLACE_CAT_LEGACY = {
 
 // Categoría explícita por lugar. Gana sobre LEGACY.
 window.PLACE_CAT_OVERRIDES = {
+  'New York Bar': 'bar-noche',
+  'Edo-Tokyo Open Air Architectural Museum': 'templo-museo',
+  'Tokyo Metropolitan Government Building': 'arquitectura',
   // --- Bares, clubes y music bars (venían como `ocio`/`comida` en los reels) ---
   'A10 (bar secreto)': 'bar-noche',
   'BAR PIANO': 'bar-noche',
