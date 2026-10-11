@@ -622,6 +622,7 @@
 <script type="module">
 import Chart from 'https://esm.sh/chart.js@4.4.0/auto';
 import { mountViews } from './views.js';
+import { parseDoneLog, matchDoneItem } from './done-log.js';
 import { createPlanClient } from './plan/client.js';
 
 const destinations = [
@@ -5492,6 +5493,18 @@ function activityCatalogHtml(entries, node, interactive = true) {
     '<details class="activity-done"><summary class="activity-done-summary">✓ 0 hechas</summary><ul class="card-list activity-list activity-done-list"></ul></details></div></div>';
 }
 
+let doneLog = [];
+try {
+  const response = await fetch(new URL('./data/done-log.json', import.meta.url), {cache: 'no-cache'});
+  if (!response.ok) throw new Error('done-log HTTP ' + response.status);
+  doneLog = parseDoneLog(await response.json());
+} catch (error) { console.error('No se pudo cargar el log de hechos', error); }
+const loggedActivityIds = new Set(doneLog.flatMap(day => day.items.map(item => {
+  const match = matchDoneItem(item, destinations);
+  return match ? activityId(match.act, match.node) : null;
+})).filter(Boolean));
+const activityIsDone = key => loggedActivityIds.has(key) || checkedActivities.has(key);
+
 const CHECKLIST_KEY = 'japon-activity-checklist-v2';
 const LEGACY_CHECKLIST_KEY = 'japon-activity-checklist-v1';
 const CHECKLIST_PENDING_KEY = 'japon-activity-checklist-pending-v2';
@@ -5546,7 +5559,7 @@ async function hydrateChecklist() {
 
 function syncCheckItem(el) {
   if (!el || !el.dataset.check) return;
-  const done = checkedActivities.has(el.dataset.check);
+  const done = activityIsDone(el.dataset.check);
   el.classList.toggle('is-done', done);
   let button = el.querySelector(':scope > .activity-check');
   if (!button) {
@@ -5555,7 +5568,8 @@ function syncCheckItem(el) {
     button.className = 'activity-check';
     el.prepend(button);
   }
-  button.setAttribute('aria-label', done ? 'Destachar actividad' : 'Tachar actividad');
+  button.disabled = loggedActivityIds.has(el.dataset.check);
+  button.setAttribute('aria-label', loggedActivityIds.has(el.dataset.check) ? 'Registrada en Hecho' : done ? 'Destachar actividad' : 'Tachar actividad');
   button.setAttribute('aria-pressed', String(done));
 }
 
@@ -5568,7 +5582,7 @@ function arrangeChecklistCatalogs() {
     catalog.querySelectorAll('.thing-row[data-check]').forEach(row => {
       const home = row.dataset.activityHome || (row.closest('.activity-featured') ? 'featured' : 'live');
       row.dataset.activityHome = home;
-      const done = checkedActivities.has(row.dataset.check);
+      const done = activityIsDone(row.dataset.check);
       const target = done ? doneList : catalog.querySelector('[data-activity-home="' + CSS.escape(home) + '"]' + (home === 'featured' ? ' .card-list' : ''));
       if (target && row.parentElement !== target) target.appendChild(row);
     });
@@ -5816,8 +5830,8 @@ destinations.forEach(d => {
       dt.coords[0] === a.coords[0] && dt.coords[1] === a.coords[1]);
     const m = sameDaytrip && dtMarkers[sameDaytrip.id]
       ? dtMarkers[sameDaytrip.id]
-      : placePin(a.coords, cat, 'save', savedPlaceLayer, key, checkedActivities.has(key) ? 'pp-done' : '');
-    m._ppDone = checkedActivities.has(key);
+      : placePin(a.coords, cat, 'save', savedPlaceLayer, key, activityIsDone(key) ? 'pp-done' : '');
+    m._ppDone = activityIsDone(key);
     const evidence = (a.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
       '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
       (s.owner ? ' · @' + escHtml(s.owner) : '') +
@@ -5843,7 +5857,7 @@ destinations.forEach(d => {
 // se pierde cuando applyCatFilter saca y devuelve el marker a su capa.
 function syncDonePins() {
   Object.keys(actMarkers).forEach(key => {
-    const done = checkedActivities.has(key);
+    const done = activityIsDone(key);
     const m = actMarkers[key];
     if (m._ppDone === done) return;
     m._ppDone = done;
@@ -6663,9 +6677,9 @@ function enterDayFocus(spec) {
   ord.forEach((p, i) => {
     // El número de una parada ya tachada nace atenuado; el pin de abajo (actMarkers)
     // trae su propio atenuado, así el par entero descansa.
-    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji, checkedActivities.has(p.key) ? 'pp-done' : ''), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
+    const m = L.marker(p.ll, { icon: ordIcon(p.number || i + 1, p.color, p.emoji, activityIsDone(p.key) ? 'pp-done' : ''), interactive: false, zIndexOffset: 1200 }).addTo(focusLayer);
     dayFocus.catMarkers.push({ m, cat: p.cat, holder: focusLayer });
-    dayFocus.ordMarkers.push({ m, key: p.key, n: p.number || i + 1, color: p.color, emoji: p.emoji, done: checkedActivities.has(p.key) });
+    dayFocus.ordMarkers.push({ m, key: p.key, n: p.number || i + 1, color: p.color, emoji: p.emoji, done: activityIsDone(p.key) });
   });
   focusLayer.addTo(map);
 
@@ -6692,7 +6706,7 @@ function enterDayFocus(spec) {
 function syncDayFocusDone() {
   if (!dayFocus) return;
   dayFocus.ordMarkers.forEach(o => {
-    const done = checkedActivities.has(o.key);
+    const done = activityIsDone(o.key);
     if (o.done === done) return;
     o.done = done;
     o.m.setIcon(ordIcon(o.n, o.color, o.emoji, done ? 'pp-done' : ''));
@@ -7292,7 +7306,7 @@ function renderDayMap(container, spec) {
     const sub = p.time || (cat.icon + ' ' + cat.label);
     // Una parada del plan ya tachada sigue en el recorrido (promoverla fue una
     // decisión), pero su pin descansa: `pp-done` sobre el número o sobre el disco.
-    const done = checkedActivities.has(p.key);
+    const done = activityIsDone(p.key);
     const icon = p.planNumber ? ordIcon(p.planNumber, cat.color, cat.icon, done ? 'pp-done' : '')
       : placeIcon(p.cat, 'save', p.key, done ? 'pp-done' : '');
     const marker = named(L.marker(ll, { icon, zIndexOffset: p.planNumber ? 1200 : -1000 }).addTo(_dayViewMap), name,
@@ -7316,7 +7330,7 @@ function renderDayMap(container, spec) {
     // en el mapa") se sostiene con `.active`, que en desktop no hay hover que dure.
     // Una tachada ya no es candidata (salió de la lista) pero su punto se queda,
     // igual de apagado: desde su popup se destacha.
-    const done = checkedActivities.has(p.key);
+    const done = activityIsDone(p.key);
     const marker = named(L.marker(p.ll, {
       icon: placeIcon(p.cat, 'save', p.key, 'pp-sug' + (done ? ' pp-done' : '')), zIndexOffset: -1000,
     }), name,
@@ -7372,7 +7386,7 @@ function syncDayMapDone() {
     const m = _dayViewMarkers[key];
     const meta = m._doneMeta;
     if (!meta) return;
-    const done = checkedActivities.has(key);
+    const done = activityIsDone(key);
     if (meta.done === done) return;
     meta.done = done;
     const cls = (meta.cls + (done ? ' pp-done' : '')).trim();
@@ -7436,7 +7450,8 @@ try {
     // El estado del checklist entra como FUNCIÓN (no el Set): cada render pregunta por
     // el valor vigente. Una tachada sale de las sugerencias (task 700); el aviso de
     // vuelta (onChecklistChange) es lo que repinta las secciones sin recargar.
-    isActivityDone: (key) => checkedActivities.has(key),
+    doneLog,
+    isActivityDone: (key) => activityIsDone(key),
     onChecklistChange: (fn) => { checklistViewsHandler = fn; },
     wire: (pane) => {
       wireChecklist(pane);

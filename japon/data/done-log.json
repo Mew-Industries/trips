@@ -1,0 +1,31 @@
+[
+  {
+    "date": "2026-10-09",
+    "items": [
+      {
+        "text": "G-Cans"
+      },
+      {
+        "text": "comer en Toyosu Market",
+        "match_name": "Toyosu Market"
+      },
+      {
+        "text": "teamLab Planets"
+      }
+    ]
+  },
+  {
+    "date": "2026-10-10",
+    "items": [
+      {
+        "text": "Open-air museo de arquitectura (Edo-Tokyo Open Air Architectural Museum)"
+      },
+      {
+        "text": "Tokyo Metropolitan Government Building (no entraron)"
+      },
+      {
+        "text": "bar del Park Hyatt (el de Lost in Translation)"
+      }
+    ]
+  }
+]

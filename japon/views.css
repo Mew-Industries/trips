@@ -476,3 +476,16 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
   .dv-close, .dv-nav { min-height: 38px; }
   .dv-nav { width: 38px; height: 38px; }
 }
+
+/* Travel history shares the itinerary's quiet green accent. */
+.dy-collapse{width:100%;display:flex;justify-content:space-between;gap:12px;border:0;background:transparent;color:inherit;text-align:left;font:inherit;font-size:12px;padding:10px 12px;cursor:pointer;min-height:44px}
+.dy-collapse>span:last-child{white-space:nowrap;color:#0F6E56}
+.dy-collapse:focus-visible{outline:2px solid #0F6E56;outline-offset:-2px}
+.dy-collapsed .dy-row{display:none}
+.dy-collapsed .dy-chevron{display:inline-block;transform:rotate(-90deg)}
+.dy-today{border-color:#0F6E56!important;box-shadow:inset 3px 0 #0F6E56}
+.dy-done{margin:12px 0;color:#527065;font-size:13px}
+.dy-done ol{list-style:none;margin:6px 0;padding:0}
+.dy-done li{padding:4px 0;line-height:1.45}
+.pl-logged-done .pl-w{opacity:.6;text-decoration:line-through;text-decoration-color:#9aaea3}
+.pl-logged-done .pl-d,.pl-logged-done .pl-lk,.pl-logged-done .pl-depart{display:none}

@@ -11,6 +11,8 @@
 
 import { buildItinerary, fmtRange, fmtDate, fmtDateLong, fmtWeekday, nightsWord, dayOf, timeOf, cmp } from './itinerary.js';
 
+import { doneItemsForDay, tripDayStatus } from './done-log.js';
+
 const TABS = [
   { id: 'resumen', label: 'Resumen', icon: '🗺️' },
   { id: 'hospedajes', label: 'Hospedajes', icon: '🛏️' },
@@ -755,7 +757,7 @@ function planItemHtml(e, ctx, planNumber) {
   }
 
   const anchored = !!e.time && (e.kind === 'reserva' || e.kind === 'check-in');
-  return '<li class="pl-it pl-' + e.kind + (anchored ? ' pl-anchor' : '') + '"' + (anchored ? ' data-plan-anchor="true"' : '') + '>' +
+  return '<li class="pl-it pl-' + e.kind + (anchored ? ' pl-anchor' : '') + (check && ctx.isActivityDone && ctx.isActivityDone(check) ? ' pl-logged-done' : '') + '"' + (anchored ? ' data-plan-anchor="true"' : '') + '>' +
     '<span class="pl-t' + (planNumber || e.time ? '' : ' tbd') + '">' + (planNumber ? planNumber + '.' : (e.time || 'a definir')) + '</span>' +
     '<div class="pl-b">' +
       '<div class="pl-top"><span class="pl-k">' + EV_LABEL[e.kind] + '</span>' + meta.join('') + '</div>' +
@@ -1015,6 +1017,15 @@ export function neighborDay(days, date, step) {
   return days[i + step] || null;
 }
 
+function doneDayHtml(day, ctx) {
+  const items = doneItemsForDay(ctx.doneLog || [], day.date);
+  return items.length ? '<section class="dy-done"><div class="sg-title">Hecho</div><ol>' + items.map(item => '<li>✓ ' + ctx.escHtml(item.text) + '</li>').join('') + '</ol></section>' : '';
+}
+function dayExpanded(day, status) {
+  try { const saved = JSON.parse(localStorage.getItem('japon-day-expanded-v1') || '{}'); if (typeof saved[day.date] === 'boolean') return saved[day.date]; } catch (_) {}
+  return !status.past;
+}
+
 function dayViewHtml(day, it, ctx) {
   const esc = ctx.escHtml;
   const prev = neighborDay(it.days, day.date, -1), next = neighborDay(it.days, day.date, 1);
@@ -1046,6 +1057,7 @@ function dayViewHtml(day, it, ctx) {
           '<button type="button" class="dv-share" data-share="' + day.date + '">compartir</button>' +
         '</div>' +
       '</div>' +
+      doneDayHtml(day, ctx) +
       (hasMap ? '<div class="sm-map dv-day-map" data-day-map aria-label="Mapa del recorrido del día"></div>' : '') +
       (plan ? '<section class="dv-sec dv-fijo"><div class="sg-title">Itinerario</div>' + plan + '</section>' : '') +
       '<section class="dv-sec dv-sug">' + (sugSectionHtml(day, ctx) || '<div class="dy-free">Sin sugerencias para este día.</div>') + '</section>' +
@@ -1069,7 +1081,11 @@ RENDER.dias = (it, ctx) => {
     const mapBtn = dayHasMap(spec)
       ? '<button type="button" class="dy-map" data-day="' + day.date + '">ver en mapa</button>' : '';
 
-    return '<div class="v-card dy-card' + (day.inFlight ? ' dy-flight' : '') + '" data-jornada-card="' + day.date + '"><div class="dy-row">' +
+    const status = tripDayStatus(day);
+    const expanded = dayExpanded(day, status);
+    const count = doneItemsForDay(ctx.doneLog || [], day.date).length;
+    const summary = '<button type="button" class="dy-collapse" data-collapse-day="' + day.date + '" aria-expanded="' + expanded + '"><span>' + fmtDate(day.date) + ' · ' + ctx.escHtml(dayMeta(day).city) + '</span><span>' + count + ' hechas <span class="dy-chevron">⌄</span></span></button>';
+    return '<div class="v-card dy-card' + (status.current ? ' dy-today' : '') + (expanded ? '' : ' dy-collapsed') + (day.inFlight ? ' dy-flight' : '') + '" data-jornada-card="' + day.date + '">' + summary + '<div class="dy-row">' +
       '<div class="dy-when">' +
         '<button type="button" class="dy-day-link" data-jornada="' + day.date + '" aria-label="Abrir día ' + day.n + ', ' + fmtDateLong(day.date) + '">' +
           '<span class="dy-num">DÍA ' + day.n + '</span>' +
@@ -1079,7 +1095,7 @@ RENDER.dias = (it, ctx) => {
         mapBtn +
       '</div>' +
       '<div class="dy-main">' +
-        '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) +
+        '<div class="dy-where">' + whereHtml(day, ctx) + '</div>' + sleepHtml(day, ctx) + doneDayHtml(day, ctx) +
         (plan ? '<div class="dy-ev"><div class="sg-title">Itinerario</div>' + plan + '</div>' : '') +
         (sug || plan ? sug : '<div class="dy-free">Sin nada agendado.</div>') +
       '</div>' +
@@ -1936,6 +1952,14 @@ export function mountViews(destinations, ctx) {
       cardTouch = null;
     }, { passive: true });
     panes.dias.addEventListener('click', (e) => {
+      const toggle = e.target.closest('[data-collapse-day]');
+      if (toggle) {
+        const card = toggle.closest('.dy-card');
+        const expanded = card.classList.toggle('dy-collapsed') === false;
+        toggle.setAttribute('aria-expanded', String(expanded));
+        try { const saved = JSON.parse(localStorage.getItem('japon-day-expanded-v1') || '{}'); saved[toggle.dataset.collapseDay] = expanded; localStorage.setItem('japon-day-expanded-v1', JSON.stringify(saved)); } catch (_) {}
+        return;
+      }
       const more = e.target.closest('.sg-more');
       if (more) { e.stopPropagation(); toggleSug(more); return; }
       const open = e.target.closest('[data-jornada]');

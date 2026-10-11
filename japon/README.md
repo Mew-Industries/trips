@@ -93,3 +93,14 @@ Con la llegada Tokio HND el 8/10 y la salida desde Tokio NRT el 16/11:
 ## Stack
 
 HTML + JavaScript + Leaflet 1.9.4 + Chart.js 4.4 (todo CDN, sin build step).
+
+### Log de hechos
+
+`data/done-log.json` conserva las visitas en orden por día, separado de `destinations`.
+Agregar: `python3 scripts/done_log.py add 2026-10-11 "Texto de la visita"`.
+Opcionales: `--activity-id <activityId o syncId>` o `--match-name "Nombre en el plan"`.
+El matcher ignora mayúsculas, acentos y puntuación; también reconoce nombres entre
+paréntesis (G-Cans). Las entradas libres siguen visibles en Hecho. Una visita anotada
+en el log no se destacha desde el checklist; se edita el log si hace falta corregirla.
+El sync de Cata y el clima siguen escribiendo únicamente su modelo en index.html.
+Verificar: `node scripts/test_done_log.mjs` y `node scripts/check_done_log.mjs URL`.
