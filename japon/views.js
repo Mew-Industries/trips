@@ -13,6 +13,12 @@ import { buildItinerary, fmtRange, fmtDate, fmtDateLong, fmtWeekday, nightsWord,
 
 import { doneItemsForDay, tripDayStatus } from './done-log.js';
 
+if (typeof document !== 'undefined') document.addEventListener('toggle', e => {
+  const key = e.target.dataset?.suggestionGroup;
+  if (!key) return;
+  try { const saved = JSON.parse(localStorage.getItem('japon-suggestion-groups-v1') || '{}'); saved[key] = e.target.open; localStorage.setItem('japon-suggestion-groups-v1', JSON.stringify(saved)); } catch (_) {}
+}, true);
+
 const TABS = [
   { id: 'resumen', label: 'Resumen', icon: '🗺️' },
   { id: 'hospedajes', label: 'Hospedajes', icon: '🛏️' },
@@ -564,7 +570,7 @@ function withDoneRoute(spec, day, ctx) {
     if (!hit?.act.coords || !hit.node) continue;
     const key = ctx.activityId(hit.act, hit.node);
     let point = spec.route.find(p => p.key === key);
-    if (!point) { point = {key, act: hit.act, ll: hit.act.coords, cat: hit.act.cat || 'otro', done: true}; spec.route.push(point); }
+    if (!point) { point = {key, act: hit.act, ll: hit.act.coords, cat: ctx.catOfAct(hit.act), done: true}; spec.route.push(point); }
     point.done = true;
     if (!spec.line.some(p => p.key === key)) spec.line.push(point);
   }
@@ -969,19 +975,38 @@ function cityCatalogHtml(day, ctx) {
 // "todo lo de Kioto · 45" y eso las vuelve invisibles»). Lo que pasa del tope se abre
 // acá mismo con el botón, sin mandar a otra pantalla; el catálogo entero de la ciudad
 // sigue plegado abajo, que es otra cosa: no es lo que toca hoy.
+const SUG_CATEGORY_ORDER = ['arquitectura', 'parque', 'actividad', 'templo-museo', 'arte', 'landmark', 'taller', 'barrio', 'otro', 'sin-identificar', 'compras', 'bar-noche'];
+
+export function groupedSuggestions(spec, day, ctx) {
+  const origin = (day.sleep?.lodging?.coords || day.wake?.lodging?.coords || day.sleep?.coords || day.wake?.coords);
+  const distance = p => {
+    const c = p.act.coords;
+    if (!origin || !c) return Infinity;
+    const rad = x => x * Math.PI / 180;
+    const a = Math.sin(rad(c[0] - origin[0]) / 2) ** 2 + Math.cos(rad(origin[0])) * Math.cos(rad(c[0])) * Math.sin(rad(c[1] - origin[1]) / 2) ** 2;
+    return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+  const pool = spec.route.concat(spec.loose).filter(p => !p.anchor && !p.promoted && !doneInPlan(p, ctx) && p.cat !== 'comida' && ctx.CAT_META[p.cat]?.icon !== '🍜');
+  const cats = [...new Set([...SUG_CATEGORY_ORDER, ...pool.map(p => p.cat)])];
+  return cats.map(cat => ({cat, items: pool.filter(p => p.cat === cat).sort((a, b) => {
+    const delta = distance(a) - distance(b);
+    return (Number.isNaN(delta) ? 0 : delta) || a.act.text.localeCompare(b.act.text, 'es');
+  })})).filter(g => g.items.length);
+}
+
 function sugSectionHtml(day, ctx, cap) {
   const spec = routeOf(day, ctx);
-  const total = spec.route.filter(p => !p.anchor && !p.promoted && !doneInPlan(p, ctx)).length +
-    spec.loose.filter(p => !p.promoted && !doneInPlan(p, ctx)).length;
-  const list = routeListHtml(spec, ctx, day, cap);
-  const all = cityCatalogHtml(day, ctx);
-  if (!list && !all) return '';
-  const more = (cap && total > cap)
-    ? '<button type="button" class="sg-more" data-shown="' + cap + '" data-total="' + total + '">ver las ' + total + '</button>' : '';
-  return '<div class="dy-sug" data-done-sig="' + ctx.escHtml(sugDoneSig(spec, ctx)) + '">' +
-    '<div class="sg-title">Sugerencias' + (total ? ' <span>' + total + '</span>' : '') + '</div>' +
-    (list ? '<div class="sg-wrap">' + list + '</div>' + more : '') + all +
-  '</div>';
+  const groups = groupedSuggestions(spec, day, ctx);
+  const total = groups.reduce((n, g) => n + g.items.length, 0);
+  if (!total) return '';
+  const list = groups.map((g, i) => {
+    const key = day.date + ':' + g.cat;
+    let open = i < 3;
+    try { const saved = JSON.parse(localStorage.getItem('japon-suggestion-groups-v1') || '{}'); if (typeof saved[key] === 'boolean') open = saved[key]; } catch (_) {}
+    const meta = ctx.CAT_META[g.cat] || ctx.CAT_META.otro;
+    return '<details class="sg-category" data-suggestion-group="' + ctx.escHtml(key) + '"' + (open ? ' open' : '') + '><summary>' + meta.icon + ' ' + ctx.escHtml(meta.label) + ' <b>' + g.items.length + '</b></summary>' + routeListHtml({route:g.items, loose:[]}, ctx, day, null) + '</details>';
+  }).join('');
+  return '<div class="dy-sug" data-done-sig="' + ctx.escHtml(sugDoneSig(spec, ctx)) + '"><div class="sg-title">Sugerencias <span>' + total + '</span></div><div class="sg-wrap">' + list + '</div></div>';
 }
 
 // ------------------------------------------------------ vista de día (task 660)
@@ -1735,12 +1760,21 @@ export function mountViews(destinations, ctx) {
     item.append(make('span', 'rt-ic', row.dataset.planIcon || ''), make('span', 'sg-name', row.dataset.planName || ''), make('span', 'sg-kind', row.dataset.planCat || ''));
     row.replaceChildren(grip, item);
   }
-  function suggestionList(scope) {
-    let list = scope.querySelector('.sg-wrap .rt-list');
-    if (list) return list;
-    const wrap = scope.querySelector('.sg-wrap');
-    if (!wrap) return null;
-    list = make('ol', 'rt-list'); wrap.appendChild(list); return list;
+  function suggestionList(scope, row) {
+    const day = dayByDate[row.dataset.planDate];
+    const point = routeOf(day, ctx).route.concat(routeOf(day, ctx).loose).find(p => p.key === row.dataset.planKey);
+    if (!point || point.cat === 'comida') return null;
+    const key = day.date + ':' + point.cat;
+    let group = scope.querySelector('[data-suggestion-group="' + CSS.escape(key) + '"]');
+    if (!group) {
+      const tpl = document.createElement('template'); tpl.innerHTML = sugSectionHtml(day, ctx, null);
+      group = tpl.content.querySelector('[data-suggestion-group="' + CSS.escape(key) + '"]');
+      let section = scope.querySelector('.dy-sug');
+      if (!section) { section = tpl.content.firstElementChild; scope.appendChild(section); }
+      else if (group) section.querySelector('.sg-wrap').appendChild(group);
+      group?.querySelector('[data-plan-key="' + CSS.escape(row.dataset.planKey) + '"]')?.remove();
+    }
+    return group?.querySelector('.rt-list') || null;
   }
   function promotedList(drop) {
     return drop;
@@ -1765,7 +1799,7 @@ export function mountViews(destinations, ctx) {
       });
       [...list.querySelectorAll(':scope > .pl-promoted')].forEach(row => {
         if (wanted.includes(row.dataset.planKey)) return;
-        asSuggestion(row); const target = suggestionList(scope); if (target) target.appendChild(row);
+        asSuggestion(row); const target = suggestionList(scope, row); if (target) target.appendChild(row); else row.remove();
       });
       renumberPlan(list); relabelPlan(list);
       if (!list.children.length) {

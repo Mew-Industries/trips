@@ -97,6 +97,7 @@ window.PLACE_CAT_OVERRIDES = {
   'New York Bar': 'bar-noche',
   'Edo-Tokyo Open Air Architectural Museum': 'templo-museo',
   'Tokyo Metropolitan Government Building': 'arquitectura',
+  'Ayuntamiento de Tokio (mirador gratis)': 'arquitectura',
   // --- Bares, clubes y music bars (venían como `ocio`/`comida` en los reels) ---
   'A10 (bar secreto)': 'bar-noche',
   'BAR PIANO': 'bar-noche',

@@ -496,3 +496,11 @@ body.discrete .lg-when, body.discrete .tr-when, body.discrete .dy-when { display
 .pp.pp-done.pp-logged:not(:hover):not(.active) { opacity: .85; }
 .dy-done li { display: flex; align-items: baseline; gap: .35em; }
 .dy-done .done-pin { flex: 1; min-width: 0; }
+
+.sg-category { margin: 8px 0; border-top: 1px solid var(--line, #e5e7eb); padding-top: 8px; }
+.sg-category > summary { display: flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; list-style: none; font-size: var(--fs-meta); font-weight: 600; }
+.sg-category > summary::-webkit-details-marker { display: none; }
+.sg-category > summary::before { content: '▸'; color: var(--muted); }
+.sg-category[open] > summary::before { content: '▾'; }
+.sg-category > summary b { color: var(--muted); font-weight: 400; margin-left: auto; }
+.sg-category > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

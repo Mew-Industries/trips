@@ -1,0 +1,32 @@
+import pw from '/usr/lib/node_modules/agent-browser/node_modules/playwright-core/index.js';
+import assert from 'node:assert/strict';
+import {mkdirSync} from 'node:fs';
+import {groupedSuggestions} from '../views.js';
+const meta = {arquitectura:{icon:'🏛️'},parque:{icon:'🌳'},comida:{icon:'🍜'},'bar-noche':{icon:'🍸'}};
+const point=(text,cat,coords)=>({key:text,cat,act:{text,coords}});
+const groups=groupedSuggestions({route:[point('Lejos','arquitectura',[36,140]),point('Cerca','arquitectura',[35,139]),point('Cena','comida',[35,139]),point('Bar','bar-noche'),point('Parque','parque')],loose:[point('Z libre','arquitectura'),point('A libre','arquitectura')]},{sleep:{lodging:{coords:[35,139]}}},{CAT_META:meta});
+assert.deepEqual(groups.map(g=>g.cat),['arquitectura','parque','bar-noche']);
+assert.deepEqual(groups[0].items.map(p=>p.act.text),['Cerca','Lejos','A libre','Z libre']);
+const base=process.argv[2] || 'http://127.0.0.1:8760/japon/';
+const out=process.argv[3] || '/tmp/task760-round4';mkdirSync(out,{recursive:true});
+const browser=await pw.chromium.launch({executablePath:'/home/openclaw/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome',args:['--no-sandbox','--disable-dev-shm-usage']});
+try {
+const page=await browser.newPage({viewport:{width:390,height:844}});const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+await page.route('https://japon-checklist.mewis.online/**',r=>r.fulfill({json:{done:[]},headers:{'access-control-allow-origin':'*'}}));
+await page.goto(base+'?tab=dias&jornada=2026-10-11');
+const section=page.locator('.dv-body .dy-sug');await section.locator('.sg-category').first().waitFor();
+const cats=await section.locator('.sg-category').evaluateAll(es=>es.map(e=>({key:e.dataset.suggestionGroup,open:e.open,count:e.querySelectorAll('.rt-item').length,label:e.querySelector('summary').textContent})));
+assert.ok(cats.length>3);assert.ok(cats.every(c=>!c.key.endsWith(':comida')));assert.ok(cats.slice(0,3).every(c=>c.open));assert.ok(cats.slice(3).every(c=>!c.open));
+assert.ok(!await section.locator('[data-plan-icon="🍜"]').count());
+assert.equal(await section.locator('.sg-all').count(),0);
+const last=section.locator('.sg-category').last();await last.locator('summary').click();const key=await last.getAttribute('data-suggestion-group');await page.waitForFunction(key=>JSON.parse(localStorage.getItem('japon-suggestion-groups-v1')||'{}')[key]===true,key);
+await page.reload();await section.locator('.sg-category').first().waitFor();assert.equal(await section.locator(`[data-suggestion-group="${key}"]`).evaluate(e=>e.open),true);
+assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+await section.scrollIntoViewIfNeeded();await page.screenshot({path:out+'/suggestions-mobile.png'});
+await page.goto(base+'?tab=dias&jornada=2026-10-10');const buttons=page.locator('.dv-body .dy-done [data-done-pin]');await buttons.first().waitFor();await buttons.nth(1).click();
+await page.locator('.dv-day-map .leaflet-popup').last().waitFor();assert.match(await page.locator('.dv-day-map .leaflet-popup').last().innerText(),/Arquitectura/);
+assert.ok(await page.locator('.dv-day-map .pp-logged .pp-emoji').evaluateAll(es=>es.some(e=>e.textContent==='🏛️')));
+assert.ok(await page.locator('#map .pp-logged .pp-emoji').evaluateAll(es=>es.some(e=>e.textContent==='🏛️')));
+await page.locator('.dv-day-map').scrollIntoViewIfNeeded();await page.screenshot({path:out+'/architecture-mobile.png'});assert.deepEqual(errors,[]);
+console.log('AC1-6 OK: no food, fixed groups, distance/alphabetic order, defaults/persistence, mobile/deep link, architecture day+general+popup');
+} finally {await browser.close();}
