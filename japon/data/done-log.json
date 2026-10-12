@@ -30,5 +30,23 @@
         "match_name": "Park Hyatt Tokyo"
       }
     ]
+  },
+  {
+    "date": "2026-10-11",
+    "items": [
+      {
+        "text": "paseo por Shibuya y Shibuya Crossing",
+        "match_name": "Shibuya Scramble"
+      },
+      {
+        "text": "workshop de Betty Smith (Ebisu Factory)"
+      },
+      {
+        "text": "paseo por Daikanyama"
+      },
+      {
+        "text": "noche en Shinjuku Ni-chome, arrancando por el bar KING"
+      }
+    ]
   }
 ]
