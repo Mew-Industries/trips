@@ -488,6 +488,9 @@
   /* El historial conserva siempre el símbolo y el color de su categoría. */
   .pins-emoji .pp.pp-logged:not(:hover):not(.active) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); opacity: .35; }
   .pins-emoji .pp.pp-logged .pp-emoji, .pins-emoji .pp.pp-logged:not(:hover):not(.active) .pp-emoji { display: block; }
+  /* El historial se atenúa solo en el resumen; en cada día conserva su categoría a pleno. */
+  .dv-day-map .pp.pp-logged, .dv-day-map .rt-ord.pp-logged,
+  #map.day-focus .pp.pp-logged, #map.day-focus .rt-ord.pp-logged { opacity: 1 !important; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }

@@ -23,6 +23,14 @@ try {
  assert.equal(await dayPin.locator('.pp-emoji').textContent(),'🛠️');
  assert.equal(await general.locator('.pp-emoji').textContent(),'🛠️');
  assert.equal(await dayPin.evaluate(e=>getComputedStyle(e).backgroundColor),await general.evaluate(e=>getComputedStyle(e).backgroundColor));
+ await page.locator('.dv-day-map .leaflet-popup-close-button').click();
+ await page.mouse.move(1,1);
+ assert.equal(await dayPin.evaluate(e=>getComputedStyle(e).opacity),'1');
+ assert.ok((await page.locator('.dv-day-map .pp-logged').evaluateAll(es=>es.map(e=>getComputedStyle(e).opacity))).every(o=>o==='1'));
+ await page.evaluate(()=>document.querySelector('#map').classList.add('day-focus'));
+ await page.waitForTimeout(200);
+ assert.equal(await general.evaluate(e=>getComputedStyle(e).opacity),'1');
+ await page.evaluate(()=>document.querySelector('#map').classList.remove('day-focus'));
  await page.screenshot({path:out+'/betty-day.png'});
  await general.evaluate(e=>e.parentElement.click());
  await page.locator('#map .leaflet-popup').last().waitFor();
@@ -51,6 +59,11 @@ try {
   assert.ok(!suggestions.some(k=>loggedKeys.includes(k)),date);
  }
  await page.goto(base+'?tab=resumen');
+ await page.locator('#map .pp-logged').first().waitFor();
+ await page.mouse.move(1,1);
+ const globalOpacity=await page.locator('#map .pp-logged').evaluateAll(es=>es.map(e=>getComputedStyle(e).opacity));
+ assert.ok(globalOpacity.length>=8 && globalOpacity.every(o=>o==='0.35'),JSON.stringify(globalOpacity));
+ await page.screenshot({path:out+'/general-dimmed.png'});
  for(const id of ['tokio-medio','tokio-final']) {
   const card=page.locator('article[data-id="'+id+'"]');await card.waitFor();
   const pending=await card.locator('.activity-live [data-check]').evaluateAll(es=>es.map(e=>e.dataset.check));

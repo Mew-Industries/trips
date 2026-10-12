@@ -78,10 +78,10 @@ check('AC1 · el contador de la sección acompaña', await page.evaluate((n) =>
   document.querySelector('.dv-sug .sg-title span')?.textContent.trim() === String(n), after.length));
 const pinDone = await page.evaluate((key) => {
   const pin = document.querySelector(`[data-day-map] .pp[data-id="${CSS.escape(key)}"]`);
-  return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity };
+  return pin && { done: pin.classList.contains('pp-done'), logged: pin.classList.contains('pp-logged'), opacity: getComputedStyle(pin).opacity };
 }, KEY);
-check('AC3 · en el mapita de la jornada su pin queda atenuado',
-  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) === 0.35, JSON.stringify(pinDone));
+check('AC3 · el pin del día conserva el historial a pleno',
+  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) === (pinDone.logged ? 1 : 0.35), JSON.stringify(pinDone));
 await page.locator('[data-day-map]').screenshot({ path: `${OUT}/ac1-jornada-tachada.png` });
 
 // Y en los DEMÁS días: la lista de tarjetas renderiza el viaje entero.
@@ -126,10 +126,10 @@ check('AC2 · tachada sigue en el itinerario, tachada',
   await promoted.count() === 1 && await promoted.locator('.pl-mainrow.is-done').count() === 1);
 const ordDone = await edit.evaluate(() => {
   const ord = document.querySelector('[data-day-map] .rt-ord.pp-done, [data-day-map] .pp.pp-done');
-  return ord && { opacity: getComputedStyle(ord).opacity };
+  return ord && { logged: ord.classList.contains('pp-logged'), opacity: getComputedStyle(ord).opacity };
 });
-check('AC3 · su pin numerado del mapita descansa atenuado',
-  !!ordDone && [0.35].includes(parseFloat(ordDone.opacity)), JSON.stringify(ordDone));
+check('AC3 · la promovida conserva el historial a pleno en el día',
+  !!ordDone && parseFloat(ordDone.opacity) === (ordDone.logged ? 1 : 0.35), JSON.stringify(ordDone));
 check('AC2 · sin recargar', await edit.evaluate(() => window.__sinRecargar === true));
 await edit.locator('.dv-fijo').scrollIntoViewIfNeeded();
 await edit.screenshot({ path: `${OUT}/ac2-promovida-tachada.png` });
@@ -185,7 +185,7 @@ await main.mouse.move(5, 5);
 await main.waitForTimeout(400);
 const resting = await main.evaluate((key) => {
   const pin = document.querySelector(`#map .pp[data-id="${CSS.escape(key)}"]`);
-  return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity, w: Math.round(pin.getBoundingClientRect().width), badge: getComputedStyle(pin, '::after').width };
+  return pin && { done: pin.classList.contains('pp-done'), logged: pin.classList.contains('pp-logged'), opacity: getComputedStyle(pin).opacity, w: Math.round(pin.getBoundingClientRect().width), badge: getComputedStyle(pin, '::after').width };
 }, KEY);
 check('AC3 · en reposo el pin tachado del mapa principal queda atenuado con el adorno actual',
   !!resting && resting.done && parseFloat(resting.opacity) === 0.35 && resting.w >= 18 && resting.badge === '11px', JSON.stringify(resting));
