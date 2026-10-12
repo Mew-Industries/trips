@@ -36,5 +36,25 @@ try {
  await card.getByRole('button',{name:'workshop de Betty Smith (Ebisu Factory)',exact:true}).click();
  await page.locator('.dv-day-map .leaflet-popup').last().waitFor();
  assert.match(await page.locator('.dv-day-map .leaflet-popup').last().innerText(),/Betty Smith Ebisu Factory/);
- assert.deepEqual(errors,[]);console.log('October 11: Betty clickable from list/detail, workshop icon/color + done badge on both maps; Shibuya pin; two free entries; no page errors OK');
+ // Every historical pin is dimmed globally and absent from later suggestions.
+ await page.goto(base+'?tab=dias&jornada=2026-10-31');
+ await page.locator('.dv-body .dv-sug').waitFor();
+ const loggedKeys=await page.locator('#map .pp-logged').evaluateAll(es=>es.map(e=>e.dataset.id));
+ assert.ok(loggedKeys.includes(key));assert.ok(loggedKeys.length>=8);
+ await page.mouse.move(1,1);
+ const opacity=await page.locator('#map [data-id="'+key+'"]').evaluate(e=>getComputedStyle(e).opacity);
+ assert.equal(opacity,'0.35');
+ for(const date of ['2026-10-20','2026-10-31','2026-11-14']) {
+  await page.goto(base+'?tab=dias&jornada='+date);
+  await page.locator('.dv-body').waitFor();
+  const suggestions=await page.locator('.dv-sug [data-plan-key]').evaluateAll(es=>es.map(e=>e.dataset.planKey));
+  assert.ok(!suggestions.some(k=>loggedKeys.includes(k)),date);
+ }
+ await page.goto(base+'?tab=resumen');
+ for(const id of ['tokio-medio','tokio-final']) {
+  const card=page.locator('article[data-id="'+id+'"]');await card.waitFor();
+  const pending=await card.locator('.activity-live [data-check]').evaluateAll(es=>es.map(e=>e.dataset.check));
+  assert.ok(!pending.some(k=>loggedKeys.includes(k)),id);
+ }
+ assert.deepEqual(errors,[]);console.log('October 11: Betty clickable from list/detail, workshop icon/color + done badge on both maps; Shibuya pin; two free entries; future suggestions/catalogs exclude all historical pins; global opacity 0.35; no page errors OK');
 } finally {await browser.close();}

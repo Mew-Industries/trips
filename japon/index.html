@@ -478,7 +478,7 @@
      pero en TODOS los mapas — ya está hecha, descansa también en la portada. Hover o
      popup abierto la traen nítida: destachar desde el popup tiene que ser posible. */
   .pp.pp-logged::after, .rt-ord.pp-logged::after { content: '✓'; position: absolute; right: -3px; top: -4px; color: white; background: #0F6E56; border-radius: 50%; width: 11px; height: 11px; text-align: center; font: bold 8px/11px sans-serif; box-shadow: 0 0 0 1px white; opacity: 1; }
-  .pp.pp-logged:not(:hover):not(.active) { opacity: .8; }
+  .pp.pp-logged:not(:hover):not(.active) { opacity: .35; }
   .pp.pp-done { transition: transform 0.15s, opacity 0.15s; }
   .pp.pp-done:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
   .pp.pp-done:not(:hover):not(.active) .pp-emoji { display: none; }
@@ -486,7 +486,7 @@
   .rt-ord.pp-done:not(:hover):not(.active) { opacity: 0.35; }
 
   /* El historial conserva siempre el símbolo y el color de su categoría. */
-  .pins-emoji .pp.pp-logged:not(:hover):not(.active) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); opacity: .85; }
+  .pins-emoji .pp.pp-logged:not(:hover):not(.active) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); opacity: .35; }
   .pins-emoji .pp.pp-logged .pp-emoji, .pins-emoji .pp.pp-logged:not(:hover):not(.active) .pp-emoji { display: block; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */

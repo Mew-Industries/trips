@@ -81,7 +81,7 @@ const pinDone = await page.evaluate((key) => {
   return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity };
 }, KEY);
 check('AC3 · en el mapita de la jornada su pin queda atenuado',
-  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) === 0.85, JSON.stringify(pinDone));
+  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) === 0.35, JSON.stringify(pinDone));
 await page.locator('[data-day-map]').screenshot({ path: `${OUT}/ac1-jornada-tachada.png` });
 
 // Y en los DEMÁS días: la lista de tarjetas renderiza el viaje entero.
@@ -129,7 +129,7 @@ const ordDone = await edit.evaluate(() => {
   return ord && { opacity: getComputedStyle(ord).opacity };
 });
 check('AC3 · su pin numerado del mapita descansa atenuado',
-  !!ordDone && [0.35, 0.85].includes(parseFloat(ordDone.opacity)), JSON.stringify(ordDone));
+  !!ordDone && [0.35].includes(parseFloat(ordDone.opacity)), JSON.stringify(ordDone));
 check('AC2 · sin recargar', await edit.evaluate(() => window.__sinRecargar === true));
 await edit.locator('.dv-fijo').scrollIntoViewIfNeeded();
 await edit.screenshot({ path: `${OUT}/ac2-promovida-tachada.png` });
@@ -188,7 +188,7 @@ const resting = await main.evaluate((key) => {
   return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity, w: Math.round(pin.getBoundingClientRect().width), badge: getComputedStyle(pin, '::after').width };
 }, KEY);
 check('AC3 · en reposo el pin tachado del mapa principal queda atenuado con el adorno actual',
-  !!resting && resting.done && parseFloat(resting.opacity) === 0.85 && resting.w >= 18 && resting.badge === '11px', JSON.stringify(resting));
+  !!resting && resting.done && parseFloat(resting.opacity) === 0.35 && resting.w >= 18 && resting.badge === '11px', JSON.stringify(resting));
 await main.screenshot({ path: `${OUT}/ac3-pin-apagado-portada.png` });
 await main.close();
 
