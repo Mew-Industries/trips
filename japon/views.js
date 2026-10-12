@@ -567,7 +567,7 @@ const _routes = new WeakMap();
 function withDoneRoute(spec, day, ctx) {
   for (const item of doneItemsForDay(ctx.doneLog || [], day.date)) {
     const hit = ctx.resolveDone?.(item);
-    if (!hit?.act.coords || !hit.node) continue;
+    if (!hit?.act.coords) continue;
     const key = ctx.activityId(hit.act, hit.node);
     let point = spec.route.find(p => p.key === key);
     if (!point) { point = {key, act: hit.act, ll: hit.act.coords, cat: ctx.catOfAct(hit.act), done: true}; spec.route.push(point); }
@@ -1058,7 +1058,7 @@ function doneDayHtml(day, ctx) {
   const items = doneItemsForDay(ctx.doneLog || [], day.date);
   return items.length ? '<section class="dy-done"><div class="sg-title">Hecho</div><ol>' + items.map(item => {
     const hit = ctx.resolveDone?.(item);
-    const key = hit?.act.coords && hit.node ? ctx.activityId(hit.act, hit.node) : null;
+    const key = hit?.act.coords ? ctx.activityId(hit.act, hit.node) : null;
     return '<li>✓ ' + (key ? '<button type="button" class="done-pin" data-done-day="' + day.date + '" data-done-pin="' + ctx.escHtml(key) + '">' + ctx.escHtml(item.text) + '</button>' : ctx.escHtml(item.text) + ' <small>sin pin</small>') + '</li>';
   }).join('') + '</ol></section>' : '';
 }

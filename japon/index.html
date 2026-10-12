@@ -5328,7 +5328,8 @@ const thingKey = name => catKey(String(name || '').split('(')[0]);
 // sync del workspace keyed por este mismo thingKey).
 const ADDED_BY = window.PLACE_ADDED_BY || {};
 const savedDonePlaces = await fetch(new URL('./data/saved-places.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('saved places HTTP ' + r.status); return r.json(); });
-const sourceThings = [...(window.SOURCE_THINGS || []), ...savedDonePlaces];
+const doneDestinations = destinations.map(node => ({...node, activities: [...(node.activities || [])]}));
+const sourceThings = [...savedDonePlaces, ...(window.SOURCE_THINGS || [])];
 const sourceThingByIndex = [];
 // place_id de Google por thingKey (task 705): reels.js trae `gpid` (capturado por
 // el geocoder) y added_by.js puede traer PLACE_GPID (CID del sync de la lista de
@@ -5355,7 +5356,7 @@ function cityKeyOf(value) {
   return hit ? hit[0] : key.split(' ')[0];
 }
 const cityOfNode = d => cityKeyOf(d.name || d.short || d.id);
-const activityId = (a, d) => a.activityId || ('act-' + cityOfNode(d) + '-' + (thingKey(a.text).replace(/\s+/g, '-') || 'sin-nombre'));
+const activityId = (a, d = {}) => a.activityId || ('act-' + cityOfNode(d || {}) + '-' + (thingKey(a.text || a.name).replace(/\s+/g, '-') || 'sin-nombre'));
 // Con coords se prefiere el link nuevo (gpid si hay, si no centrado en el punto)
 // por sobre el `url:` hardcodeado del dato: ése es search por nombre (task 705).
 function mapsSource(name, url, coords) {
@@ -5506,8 +5507,19 @@ try {
   if (!response.ok) throw new Error('done-log HTTP ' + response.status);
   doneLog = parseDoneLog(await response.json());
 } catch (error) { console.error('No se pudo cargar el log de hechos', error); }
+// Resolve with the shared source priority, then reuse the actual map activity/key.
+function resolveDone(item) {
+  const hit = matchDoneItem(item, doneDestinations, savedDonePlaces, window.SOURCE_THINGS || []);
+  if (!hit) return null;
+  for (const node of destinations) {
+    const act = (node.activities || []).find(a => thingKey(a.text) === thingKey(hit.act.text));
+    if (act) return {act, node};
+  }
+  const orphan = orphanPlaces.find(p => thingKey(p.name) === thingKey(hit.act.text));
+  return orphan ? {act: {...orphan, text: orphan.name, coords: [orphan.lat, orphan.lon]}, node: null} : hit;
+}
 const loggedActivityIds = new Set(doneLog.flatMap(day => day.items.map(item => {
-  const match = matchDoneItem(item, destinations);
+  const match = resolveDone(item);
   return match ? activityId(match.act, match.node) : null;
 })).filter(Boolean));
 const activityIsDone = key => loggedActivityIds.has(key) || checkedActivities.has(key);
@@ -5954,7 +5966,9 @@ const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
   const cat = catOf(p.name, p.cat);
-  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer);
+  const key = activityId(p);
+  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer, key, activityIsDone(key) ? 'pp-done pp-logged' : '');
+  actMarkers[key] = m; actPinCats[key] = cat; m._ppDone = activityIsDone(key);
   const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
     '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
     (s.owner ? ' · @' + escHtml(s.owner) : '') +
@@ -7459,7 +7473,7 @@ try {
     // el valor vigente. Una tachada sale de las sugerencias (task 700); el aviso de
     // vuelta (onChecklistChange) es lo que repinta las secciones sin recargar.
     doneLog,
-    resolveDone: item => matchDoneItem(item, destinations),
+    resolveDone,
     isActivityDone: (key) => activityIsDone(key),
     onChecklistChange: (fn) => { checklistViewsHandler = fn; },
     wire: (pane) => {

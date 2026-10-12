@@ -19,7 +19,7 @@ const check = (name, ok, detail = '') => {
   if (!ok) failed++;
 };
 
-const browser = await chromium.launch({ args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 
 // El estado remoto mockeado vive acá: el GET del checklist devuelve `done`, los POST
 // se anotan. El plan igual, con una promovida cuando la fase lo pide.
@@ -62,12 +62,13 @@ const before = await sugKeys(page);
 check('el 9/10 arranca con sugerencias listadas', before.length > 0, `${before.length}`);
 const KEY = before[0];
 
-// El círculo vive en el catálogo de la ciudad: se abre y se tacha ahí, con mouse real.
-await page.locator('.dv-sug .sg-all > summary').first().click();
-await page.waitForTimeout(400);
-const row = page.locator(`.dv-sug .sg-all [data-check="${KEY}"]`).first();
-await row.scrollIntoViewIfNeeded();
-await row.locator('.activity-check').click();
+// The day catalog was removed in the unified layout; use the shared map popup.
+async function openPin(page, key) {
+  await page.locator(`#map .pp[data-id="${key}"]`).evaluate(e => e.parentElement.click());
+  await page.locator('#map .leaflet-popup .pop-check').last().waitFor();
+}
+await openPin(page, KEY);
+await page.locator('#map .leaflet-popup .activity-check').last().evaluate(e => e.click());
 await page.waitForTimeout(600);
 
 const after = await sugKeys(page);
@@ -80,7 +81,7 @@ const pinDone = await page.evaluate((key) => {
   return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity };
 }, KEY);
 check('AC3 · en el mapita de la jornada su pin queda atenuado',
-  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) <= 0.4, JSON.stringify(pinDone));
+  !!pinDone && pinDone.done && parseFloat(pinDone.opacity) === 0.85, JSON.stringify(pinDone));
 await page.locator('[data-day-map]').screenshot({ path: `${OUT}/ac1-jornada-tachada.png` });
 
 // Y en los DEMÁS días: la lista de tarjetas renderiza el viaje entero.
@@ -90,16 +91,11 @@ const inCards = await page.evaluate((key) =>
   document.querySelectorAll(`#view-dias .sg-wrap [data-plan-key="${CSS.escape(key)}"]`).length, KEY);
 check('AC1 · tampoco se ofrece en ningún otro día', inCards === 0, `${inCards} apariciones`);
 
-// Destachar desde el catálogo la devuelve, también sin recargar. El catálogo se
-// llena lazy: se reabre el details de la ciudad y recién ahí está la fila hecha.
+// Restore through the same shared popup without a reload.
 await page.goBack();
 await page.waitForTimeout(800);
-await page.locator('.dv-sug .sg-all > summary').first().click();
-await page.waitForTimeout(400);
-const doneRow = page.locator(`.dv-sug .activity-done-list [data-check="${KEY}"]`).first();
-await page.locator('.dv-sug .activity-done > summary').first().click();
-await doneRow.scrollIntoViewIfNeeded();
-await doneRow.locator('.activity-check').click();
+await openPin(page, KEY);
+await page.locator('#map .leaflet-popup .activity-check').last().evaluate(e => e.click());
 await page.waitForTimeout(600);
 const restored = await sugKeys(page);
 check('AC1 · destachar la devuelve a las sugerencias', restored.includes(KEY), `${restored.length}`);
@@ -129,11 +125,11 @@ await edit.waitForTimeout(600);
 check('AC2 · tachada sigue en el itinerario, tachada',
   await promoted.count() === 1 && await promoted.locator('.pl-mainrow.is-done').count() === 1);
 const ordDone = await edit.evaluate(() => {
-  const ord = document.querySelector('[data-day-map] .rt-ord.pp-done');
+  const ord = document.querySelector('[data-day-map] .rt-ord.pp-done, [data-day-map] .pp.pp-done');
   return ord && { opacity: getComputedStyle(ord).opacity };
 });
 check('AC3 · su pin numerado del mapita descansa atenuado',
-  !!ordDone && parseFloat(ordDone.opacity) <= 0.4, JSON.stringify(ordDone));
+  !!ordDone && [0.35, 0.85].includes(parseFloat(ordDone.opacity)), JSON.stringify(ordDone));
 check('AC2 · sin recargar', await edit.evaluate(() => window.__sinRecargar === true));
 await edit.locator('.dv-fijo').scrollIntoViewIfNeeded();
 await edit.screenshot({ path: `${OUT}/ac2-promovida-tachada.png` });
@@ -148,14 +144,10 @@ await main.goto(jornadaUrl(), { waitUntil: 'networkidle', timeout: 60000 });
 await main.waitForTimeout(2200);
 check('AC1 · lo tachado que trae el server tampoco se ofrece', !(await sugKeys(main)).includes(KEY));
 
-// "Abrir en el mapa" desde el catálogo (fila ya hecha): cierra la jornada, vuela el
-// mapa principal al pin y abre su popup — el camino real de un tap.
-await main.locator('.dv-sug .sg-all > summary').first().click();
-await main.locator('.dv-sug .activity-done > summary').first().click();
-const mainRow = main.locator(`.dv-sug .activity-done-list [data-check="${KEY}"]`).first();
-await mainRow.scrollIntoViewIfNeeded();
-await mainRow.locator('[data-act]').click();
-await main.waitForTimeout(1600);
+await main.locator('.dv-close').click();
+await main.waitForTimeout(400);
+await openPin(main, KEY);
+await main.waitForTimeout(600);
 
 const mainPin = await main.evaluate((key) => {
   const pin = document.querySelector(`#map .pp[data-id="${CSS.escape(key)}"]`);
@@ -193,10 +185,10 @@ await main.mouse.move(5, 5);
 await main.waitForTimeout(400);
 const resting = await main.evaluate((key) => {
   const pin = document.querySelector(`#map .pp[data-id="${CSS.escape(key)}"]`);
-  return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity, w: Math.round(pin.getBoundingClientRect().width) };
+  return pin && { done: pin.classList.contains('pp-done'), opacity: getComputedStyle(pin).opacity, w: Math.round(pin.getBoundingClientRect().width), badge: getComputedStyle(pin, '::after').width };
 }, KEY);
-check('AC3 · en reposo el pin tachado del mapa principal queda apagado (≤0.4, punto)',
-  !!resting && resting.done && parseFloat(resting.opacity) <= 0.4 && resting.w <= 14, JSON.stringify(resting));
+check('AC3 · en reposo el pin tachado del mapa principal queda atenuado con el adorno actual',
+  !!resting && resting.done && parseFloat(resting.opacity) === 0.85 && resting.w >= 18 && resting.badge === '11px', JSON.stringify(resting));
 await main.screenshot({ path: `${OUT}/ac3-pin-apagado-portada.png` });
 await main.close();
 

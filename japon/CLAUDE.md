@@ -481,3 +481,7 @@ HTML + JavaScript + Leaflet 1.9.4 + Chart.js 4.4, todo por CDN, **sin build step
 - **Cambios (jun 2026)**: chain norte al arranque (Nikko→Sendai 1n→Sapporo 2n), financiado con −1 Tokio inicial, −1 Koyasan, −1 Tokio final; agregar Sendai corrió todo el medio del viaje +1 día. Sin Noboribetsu/Hakodate e Hiroshima/Miyajima; Osaka 5n; ventana de vuelo 6/10–18/11.
 - **Silver Week** (~19–23 sep) cae ANTES del viaje (arranca 6/10) — el viaje la esquiva por completo.
 - Estado: vuelos FIRMES (tickets del 6/10, ambos tramos confirmados con números/horarios reales).
+
+## Log «Hecho» · task 760/761
+
+`done-log.json` guarda historia sin modificar el itinerario. El pool compartido de `done-log.js` resuelve actividades del itinerario > `saved-places.json` > `SOURCE_THINGS` de `reels.js`; nunca `SOURCE_TIPS`. Tanto el sitio (incluido `ctx.resolveDone`) como `resolve_done_item.mjs` usan esas tres fuentes. El sitio reutiliza la actividad y clave del pin ya dibujado. Los hechos se agregan al recorrido del día aunque no estuvieran agendados; conservan ícono/color de categoría y el adorno `pp-done pp-logged` en ambos mapas. Los nombres se comparan normalizados o por alias entre paréntesis, sin búsqueda difusa; `match_name` permite precisar el lugar sin cambiar el texto del recuerdo.
