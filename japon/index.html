@@ -690,7 +690,9 @@ const destinations = [
     "leg": {
       "mode": "✈️",
       "time": "~30 h · 1 escala",
-      "detail": "Ida EZE → Tokio Haneda · United Polaris business",
+      "detail": "Ida EZE → Tokio Haneda · United Polaris business. Última milla: desde Haneda T3, Keikyū + línea Toei Shinjuku hasta 新宿三丁目 (Shinjuku-sanchōme, ~1 h, ¥610) y ~250 m / 4 min a pie hasta el Shinoka (5-11-2 Shinjuku).",
+      "dirLabel": "de Haneda al depto ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Haneda%20Airport%20Terminal%203\u0026destination=35.6922137,139.7078294\u0026travelmode=transit",
       "fromTerminal": {
         "name": "Buenos Aires · Ezeiza (EZE)",
         "coords": [
@@ -1202,7 +1204,8 @@ const destinations = [
     "leg": {
       "mode": "🚆",
       "time": "~2 h 30",
-      "detail": "Tren Tobu/JR Tokio → Nikkō (Limited Express).",
+      "detail": "Tren Tobu/JR Tokio → Nikkō (Limited Express). Sale del Shinoka (~250 m hasta 新宿三丁目 Shinjuku-sanchōme). Nikkō es de paso, sin hospedaje: valijas a los lockers de la estación.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=35.6922137,139.7078294\u0026destination=36.7479,139.61948\u0026travelmode=transit",
       "fromTerminal": {
         "name": "Shinjuku",
         "coords": [
@@ -1368,7 +1371,8 @@ const destinations = [
     "leg": {
       "mode": "🚄",
       "time": "~3 h",
-      "detail": "JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki.",
+      "detail": "JR Nikkō → Utsunomiya + Shinkansen Tōhoku → Ichinoseki. Última milla: el Airbnb (2-1 Nihongi) está a 280 m / 4 min a pie de la estación de Ichinoseki.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=36.74746,139.62076\u0026destination=38.9274,141.1417\u0026travelmode=transit",
       "via": [
         [
           36.5551,
@@ -1530,7 +1534,8 @@ const destinations = [
     "leg": {
       "mode": "🚄",
       "time": "~45 min",
-      "detail": "Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku).",
+      "detail": "Geibikei (paseo en bote) a la mañana; después Ichinoseki → Sendai (Shinkansen Tōhoku). Última milla: Sendai Kokusai Hotel a 450 m / 6 min a pie de la estación de Sendai.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=38.9274,141.1417\u0026destination=38.2569005,140.8777838\u0026travelmode=transit",
       "via": [
         [
           38.2601,
@@ -1703,12 +1708,12 @@ const destinations = [
     },
     "leg": {
       "mode": "🚆✈️",
-      "time": "1 h 20 (vuelo)",
-      "detail": "Sendai → aeropuerto por la línea Access (~25 min) + Peach MM419, jue 15/10 16:50 → 18:10 (New Chitose, terminal doméstica). Reserva 7Y2NTQ, 2 pax, tarifa Minimum, con 1 valija despachada de Cata.",
+      "time": "1 h 20 (vuelo) + ~1 h a Susukino",
+      "detail": "Sendai → aeropuerto por la línea Access (~25 min) + Peach MM419, jue 15/10 16:50 → 18:10 (New Chitose, terminal doméstica). Reserva 7Y2NTQ, 2 pax, tarifa Minimum, con 1 valija despachada de Cata. Al aeropuerto: 450 m a pie del hotel a la estación de Sendai. En New Chitose: Rapid Airport a Sapporo (43 min) + 南北線 (Namboku-sen, línea Namboku) 2 paradas hasta すすきの (Susukino) y 400 m / 6 min a pie hasta el Glass 資生館 (Shiseikan).",
       "departure": "2026-10-15T16:50",
       "arrival": "2026-10-15T18:10",
-      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Sendai%20Station\u0026destination=Sendai%20Airport\u0026travelmode=transit",
-      "dirLabel": "cómo llegar al aeropuerto ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=New%20Chitose%20Airport\u0026destination=43.0546286,141.347972\u0026travelmode=transit",
+      "dirLabel": "de New Chitose al Airbnb ↗",
       "via": [
         [
           38.1397,
@@ -1949,12 +1954,12 @@ const destinations = [
     },
     "leg": {
       "mode": "✈️🚌",
-      "time": "1 h 35 (vuelo)",
-      "detail": "Sapporo → New Chitose en el Rapid Airport (~37 min) + ANA NH1174, sáb 17/10 11:55 → 13:30 (New Chitose terminal D → Komatsu) + bus del aeropuerto a Kanazawa. Reserva EPVZXU, 2 pax, tarifa Simple, 20 kg despachados por pax.",
+      "time": "1 h 35 (vuelo) + ~1 h a Kōrinbō",
+      "detail": "Sapporo → New Chitose en el Rapid Airport (~37 min) + ANA NH1174, sáb 17/10 11:55 → 13:30 (New Chitose terminal D → Komatsu) + bus del aeropuerto a Kanazawa. Reserva EPVZXU, 2 pax, tarifa Simple, 20 kg despachados por pax. Al aeropuerto: 400 m a pie hasta Susukino, Namboku a Sapporo y Rapid Airport. En Komatsu: bus limusina Hokutetsu (北鉄, Hokutetsu) vía 片町 (Katamachi) hasta la parada 香林坊 (Kōrinbō) en 百万石通り (Hyakumangoku-dōri, ~55 min) y 270 m / 4 min a pie hasta el Airbnb, 香林坊2丁目12-18 (Kōrinbō 2-12-18).",
       "departure": "2026-10-17T11:55",
       "arrival": "2026-10-17T13:30",
-      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Sapporo%20Station\u0026destination=New%20Chitose%20Airport\u0026travelmode=transit",
-      "dirLabel": "cómo llegar al aeropuerto ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Komatsu%20Airport\u0026destination=36.5644505,136.6526269\u0026travelmode=transit",
+      "dirLabel": "de Komatsu al Airbnb ↗",
       "via": [
         [
           42.7752,
@@ -2151,10 +2156,10 @@ const destinations = [
     "lodging": null,
     "leg": {
       "mode": "🚌",
-      "time": "~1 h 15",
-      "detail": "Bus directo Kanazawa → Shirakawa-go (de paso).",
-      "dirUrl": "https://japanbusonline.com/en",
-      "dirLabel": "reservar bus ↗",
+      "time": "~1 h 45",
+      "detail": "Bus Hokutetsu/Nohi Kanazawa → Shirakawa-go (1 h 15, ¥2.200, asiento reservado obligatorio en japanbusonline.com/en). Sale del 西口 (Nishi-guchi, salida oeste) de la estación de Kanazawa; desde el Airbnb, 220 m a pie hasta la parada 香林坊 (Kōrinbō) y bus local Hokutetsu 15 min hasta la estación (llega a la salida este: cruzar a la oeste). De paso, sin hospedaje.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=36.5644505,136.6526269\u0026destination=36.26195,136.90689\u0026travelmode=transit",
+      "dirLabel": "del Airbnb a la terminal ↗",
       "fromTerminal": {
         "name": "Estación de Kanazawa",
         "coords": [
@@ -2283,8 +2288,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚌🚄",
-      "time": "~3 h 40",
-      "detail": "Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto.",
+      "time": "~4 h",
+      "detail": "Bus Shirakawa-go → Kanazawa/Takayama + tren/Shinkansen a Kioto. Última milla: desde la estación de Kioto, bus urbano 4/7/205 (andén A2, 6 min, ¥230) hasta 河原町正面 (Kawaramachi-Shōmen) y 450 m / 6 min a pie hasta el Kyotofish (348-2 Yatsuyanagichō); a pie directo son 1,5 km / ~20 min.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=36.26195,136.90689\u0026destination=34.994,135.7671\u0026travelmode=transit",
       "path": [
         {
           "m": "bus",
@@ -2687,7 +2693,8 @@ const destinations = [
     "leg": {
       "mode": "🚆",
       "time": "~1 h",
-      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba.",
+      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba. Última milla: bajar de la 御堂筋線 (Midōsuji-sen) en 心斎橋 (Shinsaibashi, 350 m / 5 min a pie) o なんば (Namba, 400 m / 6 min); el Mercure está en 2-2-4 Nishi-Shinsaibashi. El 24/10 se llega desde Okayama (day trip a Naoshima) vía Shin-Osaka.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=34.994,135.7671\u0026destination=34.67062,135.49964\u0026travelmode=transit",
       "path": [
         {
           "m": "train",
@@ -2985,8 +2992,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚄",
-      "time": "~2 h 30",
-      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi).",
+      "time": "~3 h 15",
+      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi). Al ir: Midōsuji directo de Shinsaibashi a Shin-Osaka. Última milla: en Tokio, 中央線 (Chūō-sen) rápido a Shinjuku (13 min) y 850 m / 13 min a pie hasta el Park Hyatt (Nishi-Shinjuku 3-7-1-2), o 大江戸線 (Ōedo-sen) hasta 都庁前 (Tochōmae) y 700 m / 10 min.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=34.67062,135.49964\u0026destination=35.6857,139.6907\u0026travelmode=transit",
       "toName": "Tokio",
       "fromTerminal": {
         "name": "Shin-Ōsaka",
@@ -3093,8 +3101,10 @@ const destinations = [
     },
     "leg": {
       "mode": "✈️",
-      "time": "2 h 05 (vuelo)",
-      "detail": "ANA NH273, sáb 31/10 19:35 → 21:40 (Haneda terminal 2 → Fukuoka). Reserva ESXSPB, 2 pax, Economy L, tarifa Standard, asientos 20A/20B.",
+      "time": "2 h 05 (vuelo) + ~20 min a Nakasu",
+      "detail": "ANA NH273, sáb 31/10 19:35 → 21:40 (Haneda terminal 2 → Fukuoka). Reserva ESXSPB, 2 pax, Economy L, tarifa Standard, asientos 20A/20B. Última milla: subte 空港線 (Kūkō-sen, línea del aeropuerto) 4 paradas hasta 中洲川端 (Nakasu-Kawabata, 9 min, ¥260) y 200-300 m / 3-5 min a pie hasta el Royal Park Canvas (5-6-20 Nakasu).",
+      "dirLabel": "del aeropuerto al hotel ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Fukuoka%20Airport\u0026destination=33.5948042,130.4043468\u0026travelmode=transit",
       "fromName": "Tokio",
       "departure": "2026-10-31T19:35",
       "arrival": "2026-10-31T21:40",
@@ -3318,8 +3328,10 @@ const destinations = [
     },
     "leg": {
       "mode": "✈️",
-      "time": "1 h 05 (vuelo)",
-      "detail": "Air Busan BX 506, mar 3/11 11:55 → 13:00. Reserva KKNVSP, 2 pax, e-tickets 2324628511/12.",
+      "time": "1 h 05 (vuelo) + ~45 min a Jeonpo",
+      "detail": "Air Busan BX 506, mar 3/11 11:55 → 13:00. Reserva KKNVSP, 2 pax, e-tickets 2324628511/12. Al aeropuerto: Nakasu-Kawabata → 福岡空港 (Fukuoka-kūkō) en subte, 9 min. En Gimhae: 부산김해경전철 (Busan–Gimhae Light Rail) 3 paradas hasta 사상 (Sasang), cambio a Línea 2 sentido 장산 (Jangsan) 9 paradas hasta 전포 (Jeonpo) y 210 m / 3 min a pie hasta el Stay On Thing (19 Dongseong-ro 25beon-gil).",
+      "dirLabel": "de Gimhae al Airbnb ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Gimhae%20International%20Airport\u0026destination=35.152612,129.067328\u0026travelmode=transit",
       "departure": "2026-11-03T11:55",
       "arrival": "2026-11-03T13:00",
       "fromTerminal": {
@@ -3514,8 +3526,10 @@ const destinations = [
     },
     "leg": {
       "mode": "🚄",
-      "time": "~2 h 40",
-      "detail": "KTX Busan → Seúl.",
+      "time": "2 h 25 (KTX) + ~55 min al hanok",
+      "detail": "KTX 316, vie 6/11 Busan 08:59 → Suseo 11:24 (coche 6, asientos 8A/8B, comprado). Al ir: del Airbnb, 280 m a pie hasta la parada 성북초등학교 (Seongbuk Elementary School) y bus 82 hasta la estación de Busan (~25 min), o Línea 2 desde 전포 (Jeonpo) con cambio en 서면 (Seomyeon) a Línea 1. Última milla: desde 수서 (Suseo), Línea 3 directa hasta 안국 (Anguk, 41 min) y 650 m / 11 min a pie hasta el hanok (Bukchon-ro 12-gil 35-9).",
+      "dirLabel": "de Suseo al hanok ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Suseo%20Station\u0026destination=37.5823,126.9858\u0026travelmode=transit",
       "fromTerminal": {
         "name": "Estación de Busan",
         "coords": [
@@ -3870,7 +3884,9 @@ const destinations = [
     "leg": {
       "mode": "✈️🚆",
       "time": "~5 h 30 (vuelo + tren)",
-      "detail": "Air Premia YP731 Incheon → Narita, mar 10/11 08:45 → 11:20 + N'EX a Shinagawa + Shinkansen Kodama a Odawara + Hakone Tozan a Hakone-Yumoto (~2h45 en tierra). Reserva K8UP4Q, 2 pax, Wide Premium Standard, 32 kg despachados por pax.",
+      "detail": "Air Premia YP731 Incheon → Narita, mar 10/11 08:45 → 11:20 + N'EX a Shinagawa + Shinkansen Kodama a Odawara + Hakone Tozan a Hakone-Yumoto (~2h45 en tierra). Reserva K8UP4Q, 2 pax, Wide Premium Standard, 32 kg despachados por pax. Al ir: del hanok 650 m / 10 min a pie hasta 안국 (Anguk) y bus limusina 6011 directo a Incheon T1 (~1 h 20), o AREX desde Seoul Station. Última milla: desde 箱根湯本 (Hakone-Yumoto), 450 m / 7 min a pie hasta Yoshiike Ryokan.",
+      "dirLabel": "de Narita al ryokan ↗",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=Narita%20Airport%20Terminal%202\u0026destination=35.2305831,139.0999164\u0026travelmode=transit",
       "departure": "2026-11-10T08:45",
       "arrival": "2026-11-10T11:20",
       "via": [
@@ -4107,8 +4123,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚆",
-      "time": "~2 h 20",
-      "detail": "Hakone Tozan a Odawara + Shinkansen a Kioto.",
+      "time": "~2 h 50",
+      "detail": "Hakone Tozan a Odawara + Shinkansen a Kioto. Al ir: 450 m a pie del ryokan a Hakone-Yumoto. Última milla: desde la estación de Kioto, subte 烏丸線 (Karasuma-sen) a 烏丸御池 (Karasuma-Oike) y 東西線 (Tōzai-sen) hasta 東山 (Higashiyama), después 550 m / 9 min a pie hasta Sanjobo Sanso (2-21 Awataguchi Sanjōbōchō); el bus 5/105 hasta 神宮道 (Jingū-michi) tarda 30 min + 500 m a pie.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=35.2305831,139.0999164\u0026destination=35.0079,135.7847\u0026travelmode=transit",
       "via": [
         [
           35.2564,
@@ -4276,8 +4293,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚆",
-      "time": "~2 h 20",
-      "detail": "JR/Shinkansen Kioto → Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local.",
+      "time": "~3 h",
+      "detail": "JR/Shinkansen Kioto → Shin-Osaka + Midosuji a Namba + Nankai línea Koya y funicular (~1 h 50) + bus local. Al ir: de Sanjobo 550 m hasta 東山 (Higashiyama) y Tōzai + Karasuma a la estación de Kioto. Última milla: en 高野山駅 (Kōyasan-eki, estación del funicular) bus Nankai Rinkan 41 (andén 2, sentido 奥の院前 Okunoin-mae) 10 paradas hasta 刈萱堂前 (Karukayadō-mae, 19 min, ¥500) y 100 m / 1 min a pie hasta Eko-in.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=35.0079,135.7847\u0026destination=34.2123167,135.5938011\u0026travelmode=transit",
       "via": [
         [
           34.7335,
@@ -4512,8 +4530,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚆",
-      "time": "~4 h 30",
-      "detail": "Nankai + funicular Koyasan → Namba + Midosuji a Shin-Osaka + Shinkansen Nozomi a Tokio.",
+      "time": "~4 h 50",
+      "detail": "Nankai + funicular Koyasan → Namba + Midosuji a Shin-Osaka + Shinkansen Nozomi a Tokio. Al ir: de Eko-in 100 m hasta la parada 刈萱堂前 (Karukayadō-mae) y bus 41 a 高野山駅 (Kōyasan-eki). Última milla: en la estación de Tokio, 丸ノ内線 (Marunouchi-sen) hasta 新宿三丁目 (Shinjuku-sanchōme, ~17 min) y 350 m / 5 min a pie hasta el Garden-Takeda (5-8-10 Shinjuku).",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1\u0026origin=34.2123167,135.5938011\u0026destination=35.69286,139.70897\u0026travelmode=transit",
       "via": [
         [
           34.66293,
