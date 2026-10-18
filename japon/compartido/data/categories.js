@@ -103,6 +103,7 @@ window.PLACE_CAT_LEGACY = {
   "tips": "tips"
 };
 window.PLACE_CAT_OVERRIDES = {
+  "Ayuntamiento de Tokio (mirador gratis)": "arquitectura",
   "Golden Gai": "bar-noche",
   "Ohjo Building": "bar-noche",
   "Omoide Yokocho": "bar-noche",

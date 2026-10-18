@@ -474,13 +474,20 @@
   /* Actividad tachada (task 700): mismo reposo apagado que la candidata de arriba,
      pero en TODOS los mapas — ya está hecha, descansa también en la portada. Hover o
      popup abierto la traen nítida: destachar desde el popup tiene que ser posible. */
-  .pp.pp-logged::after, .rt-ord.pp-logged::after { content: '✓'; position: absolute; right: -5px; top: -7px; color: white; background: #0F6E56; border-radius: 50%; width: 16px; height: 16px; text-align: center; font: bold 12px/16px sans-serif; opacity: 1; }
-  .pp.pp-logged:not(:hover):not(.active) { opacity: .8; }
+  .pp.pp-logged::after, .rt-ord.pp-logged::after { content: '✓'; position: absolute; right: -3px; top: -4px; color: white; background: #0F6E56; border-radius: 50%; width: 11px; height: 11px; text-align: center; font: bold 8px/11px sans-serif; box-shadow: 0 0 0 1px white; opacity: 1; }
+  .pp.pp-logged:not(:hover):not(.active) { opacity: .35; }
   .pp.pp-done { transition: transform 0.15s, opacity 0.15s; }
   .pp.pp-done:not(:hover):not(.active) { width: 12px; height: 12px; background: var(--c); border: 1.5px solid rgba(255,255,255,0.7); box-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0.35; }
   .pp.pp-done:not(:hover):not(.active) .pp-emoji { display: none; }
   /* La parada numerada tachada (promovida y hecha) también descansa, sin perder el número. */
   .rt-ord.pp-done:not(:hover):not(.active) { opacity: 0.35; }
+
+  /* El historial conserva siempre el símbolo y el color de su categoría. */
+  .pins-emoji .pp.pp-logged:not(:hover):not(.active) { width: var(--pin-emoji-size, 22px); height: var(--pin-emoji-size, 22px); background: #fff; border: 2.5px solid var(--c); opacity: .35; }
+  .pins-emoji .pp.pp-logged .pp-emoji, .pins-emoji .pp.pp-logged:not(:hover):not(.active) .pp-emoji { display: block; }
+  /* El historial se atenúa solo en el resumen; en cada día conserva su categoría a pleno. */
+  .dv-day-map .pp.pp-logged, .dv-day-map .rt-ord.pp-logged,
+  #map.day-focus .pp.pp-logged, #map.day-focus .rt-ord.pp-logged { opacity: 1 !important; }
 
   /* Nodo "de paso": numerado pero rombo y color distinto (no se duerme ahí) */
   .marker-diamond-wrap { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -1052,7 +1059,8 @@ const destinations = [
     "leg": {
       "mode": "🚆",
       "time": "~1 h",
-      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba.",
+      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba. Última milla: bajar de la 御堂筋線 (Midōsuji-sen) en 心斎橋 (Shinsaibashi, 350 m / 5 min a pie) o なんば (Namba, 400 m / 6 min); el Mercure está en 2-2-4 Nishi-Shinsaibashi. El 24/10 se llega desde Okayama (day trip a Naoshima) vía Shin-Osaka.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.994,135.7671&destination=34.67062,135.49964&travelmode=transit",
       "path": [
         {
           "m": "train",
@@ -1349,8 +1357,9 @@ const destinations = [
     },
     "leg": {
       "mode": "🚄",
-      "time": "~2 h 30",
-      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi).",
+      "time": "~3 h 15",
+      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi). Al ir: Midōsuji directo de Shinsaibashi a Shin-Osaka. Última milla: en Tokio, 中央線 (Chūō-sen) rápido a Shinjuku (13 min) y 850 m / 13 min a pie hasta el Park Hyatt (Nishi-Shinjuku 3-7-1-2), o 大江戸線 (Ōedo-sen) hasta 都庁前 (Tochōmae) y 700 m / 10 min.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.67062,135.49964&destination=35.6857,139.6907&travelmode=transit",
       "toName": "Tokio",
       "fromTerminal": {
         "name": "Shin-Ōsaka",
@@ -2321,7 +2330,8 @@ const thingKey = name => catKey(String(name || '').split('(')[0]);
 // sync del workspace keyed por este mismo thingKey).
 const ADDED_BY = window.PLACE_ADDED_BY || {};
 const savedDonePlaces = await fetch(new URL('../data/saved-places.json', import.meta.url)).then(r => { if (!r.ok) throw new Error('saved places HTTP ' + r.status); return r.json(); });
-const sourceThings = [...(window.SOURCE_THINGS || []), ...savedDonePlaces];
+const doneDestinations = destinations.map(node => ({...node, activities: [...(node.activities || [])]}));
+const sourceThings = [...savedDonePlaces, ...(window.SOURCE_THINGS || [])];
 const sourceThingByIndex = [];
 // place_id de Google por thingKey (task 705): reels.js trae `gpid` (capturado por
 // el geocoder) y added_by.js puede traer PLACE_GPID (CID del sync de la lista de
@@ -2348,7 +2358,7 @@ function cityKeyOf(value) {
   return hit ? hit[0] : key.split(' ')[0];
 }
 const cityOfNode = d => cityKeyOf(d.name || d.short || d.id);
-const activityId = (a, d) => a.activityId || ('act-' + cityOfNode(d) + '-' + (thingKey(a.text).replace(/\s+/g, '-') || 'sin-nombre'));
+const activityId = (a, d = {}) => a.activityId || ('act-' + cityOfNode(d || {}) + '-' + (thingKey(a.text || a.name).replace(/\s+/g, '-') || 'sin-nombre'));
 // Con coords se prefiere el link nuevo (gpid si hay, si no centrado en el punto)
 // por sobre el `url:` hardcodeado del dato: ése es search por nombre (task 705).
 function mapsSource(name, url, coords) {
@@ -2499,8 +2509,19 @@ try {
   if (!response.ok) throw new Error('done-log HTTP ' + response.status);
   doneLog = parseDoneLog(await response.json());
 } catch (error) { console.error('No se pudo cargar el log de hechos', error); }
+// Resolve with the shared source priority, then reuse the actual map activity/key.
+function resolveDone(item) {
+  const hit = matchDoneItem(item, doneDestinations, savedDonePlaces, window.SOURCE_THINGS || []);
+  if (!hit) return null;
+  for (const node of destinations) {
+    const act = (node.activities || []).find(a => thingKey(a.text) === thingKey(hit.act.text));
+    if (act) return {act, node};
+  }
+  const orphan = orphanPlaces.find(p => thingKey(p.name) === thingKey(hit.act.text));
+  return orphan ? {act: {...orphan, text: orphan.name, coords: [orphan.lat, orphan.lon]}, node: null} : hit;
+}
 const loggedActivityIds = new Set(doneLog.flatMap(day => day.items.map(item => {
-  const match = matchDoneItem(item, destinations);
+  const match = resolveDone(item);
   return match ? activityId(match.act, match.node) : null;
 })).filter(Boolean));
 const activityIsDone = key => loggedActivityIds.has(key) || checkedActivities.has(key);
@@ -2947,7 +2968,9 @@ const orphanPlaceLayer = L.layerGroup().addTo(map);
 orphanPlaces.forEach(p => {
   if (p.lat == null || p.lon == null) return;
   const cat = catOf(p.name, p.cat);
-  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer);
+  const key = activityId(p);
+  const m = placePin([p.lat, p.lon], cat, 'save', orphanPlaceLayer, key, activityIsDone(key) ? 'pp-done pp-logged' : '');
+  actMarkers[key] = m; actPinCats[key] = cat; m._ppDone = activityIsDone(key);
   const evidence = (p.sources || []).map(s => '<a class="mini-pop-maps" href="' + escHtml(s.url) +
     '" target="_blank" rel="noopener">' + (s.type === 'instagram_reel' ? '🎬 Reel' : 'Google Maps') +
     (s.owner ? ' · @' + escHtml(s.owner) : '') +
@@ -3594,7 +3617,7 @@ L.DomEvent.disableClickPropagation(dayChip);
 // El número del recorrido, pintado con el color de la categoría del punto: es el
 // mismo círculo que la lista de la jornada pone delante del ítem.
 const ordIcon = (n, color, emoji, cls) => L.divIcon({
-  html: '<div class="rt-ord' + (cls ? ' ' + cls : '') + '" style="background:' + color + ';--c:' + color + '">' + n +
+  html: cls?.includes('pp-logged') ? '<div class="pp ' + cls + '" style="--c:' + color + '"><span class="pp-emoji">' + emoji + '</span></div>' : '<div class="rt-ord' + (cls ? ' ' + cls : '') + '" style="background:' + color + ';--c:' + color + '">' + n +
     (emoji ? '<span class="rt-ord-cat" aria-hidden="true">' + emoji + '</span>' : '') + '</div>',
   className: '', iconSize: [30, 30], iconAnchor: [15, 15],
 });
@@ -3670,7 +3693,7 @@ function enterDayFocus(spec) {
     // desde que las puntas son las terminales del salto, el tramo del día queda
     // exactamente DEBAJO de este trazo — si tomara clicks, taparía el de su línea, que
     // es lo que abre la ficha del transporte.
-    L.polyline(line, { color: '#0F6E56', weight: 3, opacity: 0.7, dashArray: '7, 6', lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(focusLayer);
+    L.polyline(line, { color: '#0F6E56', weight: 1.5, opacity: 0.3, dashArray: '4, 6', lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(focusLayer);
   }
   // Numeradas van las paradas, no las camas: el recorrido es lo que se visita. Va
   // incluso con una sola, para que el "1" de la lista tenga su punto en el mapa.
@@ -4272,7 +4295,7 @@ function renderDayMap(container, spec) {
   container.classList.add('pins-emoji');
   L.tileLayer(CARTO_TILES, { subdomains: 'abcd', maxZoom: 19 }).addTo(_dayViewMap);
   if (pts.length > 1) L.polyline(pts, {
-    color: '#0F6E56', weight: 3, opacity: 0.78, dashArray: '7, 6',
+    color: '#0F6E56', weight: 1.5, opacity: 0.3, dashArray: '4, 6',
     lineCap: 'round', lineJoin: 'round', interactive: false,
   }).addTo(_dayViewMap);
   const named = (marker, name, popup) => marker
@@ -4390,7 +4413,7 @@ function syncDayMapDone() {
     const done = activityIsDone(key);
     if (meta.done === done) return;
     meta.done = done;
-    const cls = (meta.cls + (done ? ' pp-done' : '')).trim();
+    const cls = (meta.cls + (done ? ' pp-done pp-logged' : '')).trim();
     m.setIcon(meta.ord ? ordIcon(meta.ord, meta.color, meta.emoji, cls) : placeIcon(meta.cat, 'save', key, cls));
     keepActive(m);
   });
@@ -4452,7 +4475,7 @@ try {
     // el valor vigente. Una tachada sale de las sugerencias (task 700); el aviso de
     // vuelta (onChecklistChange) es lo que repinta las secciones sin recargar.
     doneLog,
-    resolveDone: item => matchDoneItem(item, destinations),
+    resolveDone,
     isActivityDone: (key) => activityIsDone(key),
     onChecklistChange: (fn) => { checklistViewsHandler = fn; },
     wire: (pane) => {

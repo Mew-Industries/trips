@@ -129,9 +129,12 @@ const check = (name, ok, extra = '') => {
   });
   check('la línea confirmada conserva sólo anclas, terminales y hospedajes', leaked.length === 0,
     specs.reduce((n, x) => n + confirmedDayLine(x.spec).length, 0) + ' puntos confirmados');
-  const d14 = specs.find(x => x.day.date === '2026-10-19');
+  // Hasta el 18/10 este fixture era el 19/10 (Kanazawa → Shirakawa-go → Kioto). Con
+  // Shirakawa-go dado de baja ese día quedó sin sugerencias, así que se toma el primer
+  // día de traslado que además de su línea confirmada tenga sugerencias con pin.
+  const d14 = specs.find(x => x.spec.legs && x.spec.legs.length && x.spec.route.some(p => !p.anchor && p.key));
   const d14line = confirmedDayLine(d14.spec);
-  check('el día 14 separa sus sugerencias de la línea confirmada',
+  check('un día de traslado (' + d14.day.date + ') separa sus sugerencias de la línea confirmada',
     d14line.every(p => p.anchor || p.terminal || p.bed) && d14line.length < d14.spec.line.length,
     d14line.length + ' confirmados / ' + d14.spec.line.length + ' totales');
   const d4 = specs.find(x => x.day.date === '2026-10-09');
