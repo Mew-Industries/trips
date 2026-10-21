@@ -270,7 +270,7 @@ const check = (name, ok, extra = '') => {
   check('el 22/10 muestra la ida Kioto → Chichu y la vuelta con dato, y 2 tramos en ámbar',
     (d2210.match(/pl-it pl-hop/g) || []).length === 4 &&
       (d2210.match(/pl-hop"><span class="pl-t tbd"/g) || []).length === 2 &&
-      d2210.includes('Nozomi 08:12') && d2210.includes('ferry 16:35'));
+      d2210.includes('Nozomi 08:09') && d2210.includes('ferry 16:35'));
   // Geibikei (14/10) ya declara su ida en el dato (`travelMinutes`/`outboundLabel`):
   // no se le suma una fila que la contradiga, y la vuelta de ese día es el leg.
   check('el 14/10 no gana filas de traslado (Geibikei tiene su "Salir 08:45" propio)',

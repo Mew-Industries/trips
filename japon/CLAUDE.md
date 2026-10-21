@@ -489,3 +489,5 @@ HTML + JavaScript + Leaflet 1.9.4 + Chart.js 4.4, todo por CDN, **sin build step
 El pool se aplica retroactivamente a todo el log. En el mapa general los hechos quedan con opacidad .35 en reposo (ícono y categoría visibles; popup activo a pleno); en la vista de cada día conservan opacidad 1, y `activityIsDone` los excluye de sugerencias de cualquier jornada y de pendientes del catálogo de ciudad; permanecen accesibles en el desplegable de hechas.
 
 Ronda 2 (761): el dimmeado de los hechos del log es exclusivo del mapa general. En el mapa de cada día y el mapa compartido con `day-focus`, `pp-logged` conserva opacidad 1, ícono/color y adorno. El filtro de sugerencias posteriores sigue vigente.
+
+- 21/10/2026 · task 765: Nozomi 08:09 comprado ×5 para Naoshima 22/10; llegada Okayama 09:09 según Ekitan (Nozomi 1, horario vigente 18/9/2026). Entradas Chichu, Benesse/Valley Gallery y Minamidera ×5. Fuente: https://ekitan.com/timetable/shinkansen/section/601/sf-5198/st-6489
