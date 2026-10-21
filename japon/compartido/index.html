@@ -628,133 +628,56 @@ import { createPlanClient } from '../plan/client.js';
 
 const destinations = [
   {
-    "id": "kioto",
-    "n": 1,
-    "type": "destino",
-    "name": "Kioto",
-    "short": "Kioto",
-    "flag": "🇯🇵",
-    "sharedWith": "amigos",
-    "coords": [
-      35.0116,
-      135.7681
-    ],
-    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
-    "imgs": [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg"
-    ],
-    "dates": "19-24 oct",
-    "nights": 5,
-    "start": "2026-10-19",
-    "end": "2026-10-24",
-    "arrival": "19 oct · llegada a KIX y primera noche en Kioto",
-    "departure": "24 oct · sigue Osaka",
-    "lodging": {
-      "name": "Kyotofish · Kamogawa",
-      "type": "Airbnb · machiya entera de 180 m²",
-      "rating": "★4,86",
-      "guests": "4 personas · con amigos",
-      "area": "Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 · ~15 min a pie de la Estación de Kioto",
-      "coords": [
-        34.994,
-        135.7671
-      ],
-      "checkIn": "19 oct",
-      "checkOut": "24 oct",
-      "nights": 5,
-      "booked": true,
-      "checkInFrom": "16:00",
-      "checkOutBy": "10:00",
-      "img": "../img/lodging/kioto-machiya-4.jpg",
-      "imgs": [
-        "../img/lodging/kioto-machiya-4.jpg",
-        "../img/lodging/kioto-machiya-2.jpg",
-        "../img/lodging/kioto-machiya-3.jpg",
-        "../img/lodging/kioto-machiya-1.jpg"
-      ],
-      "url": "https://www.airbnb.com/rooms/1065587248882014284",
-      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=348-2%20Yatsuyanagich%C5%8D%20Shimogy%C5%8D-ku%20Kyoto%20600-8112",
-      "booking": {
-        "provider": "airbnb",
-        "url": "https://www.airbnb.com/rooms/1065587248882014284",
-        "checkIn": "19 oct · desde 16:00",
-        "checkOut": "24 oct · hasta 10:00"
-      },
-      "note": "Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con amigos."
-    },
-    "leg": {
-      "mode": "✈️",
-      "time": "a definir",
-      "detail": "Llegada a Kansai (KIX) → Kioto.",
-      "fromName": "Origen a definir",
-      "toName": "Kioto",
-      "toTerminal": {
-        "name": "Aeropuerto Internacional de Kansai (KIX)",
-        "coords": [
-          34.4347,
-          135.244
-        ],
-        "mode": "air"
-      },
-      "arrival": "2026-10-19T00:00"
-    },
-    "tempMax": "18-25",
-    "tempMin": "12-18",
-    "weatherUpdated": "2026-10-09",
-    "weatherMode": "forecast",
-    "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cinco en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
     "activities": [
       {
-        "text": "Chichu Art Museum",
+        "at": "2026-10-22T12:45",
+        "booked": "Entradas compradas ×5 · slot 12:45 (cancelable hasta 30 min antes, la hora no se cambia) · QR en eventos.tokyo → My Page → My Ticket",
         "cat": "museos",
         "coords": [
           34.447748,
           133.984717
         ],
-        "url": "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum",
-        "at": "2026-10-22T12:45",
-        "until": "2026-10-22T14:15",
-        "booked": "Entradas compradas ×5 · slot 12:45 (cancelable hasta 30 min antes, la hora no se cambia) · QR en eventos.tokyo → My Page → My Ticket",
         "hop": {
-          "mode": "🚄",
-          "time": "~4 h",
           "arriveBy": "11:55",
+          "detail": "Nozomi 08:09 Kioto → Okayama 09:09 → Marine Liner 09:33 a Chayamachi → local 10:12 a Uno → ferry 11:00 → Miyanoura 11:20 → bus + shuttle Benesse → Chichu ~12:00. Perder el ferry de las 11:00 = llegar ~13:10 (el siguiente sale 12:15). Nozomi 08:09 reservado ×5 (Martín, 21/10).",
           "from": "Kioto",
-          "detail": "Nozomi 08:09 Kioto → Okayama 09:09 → Marine Liner 09:33 a Chayamachi → local 10:12 a Uno → ferry 11:00 → Miyanoura 11:20 → bus + shuttle Benesse → Chichu ~12:00. Perder el ferry de las 11:00 = llegar ~13:10 (el siguiente sale 12:15). Nozomi 08:09 reservado ×5 (Martín, 21/10)."
+          "mode": "🚄",
+          "time": "~4 h"
         },
-        "syncId": "c-33971d9dedd047f0"
+        "syncId": "c-33971d9dedd047f0",
+        "text": "Chichu Art Museum",
+        "until": "2026-10-22T14:15",
+        "url": "https://www.google.com/maps/search/?api=1&query=Chichu%20Art%20Museum"
       },
       {
-        "text": "Benesse House Museum",
+        "at": "2026-10-22T14:30",
+        "booked": "Entradas compradas ×5 (incluyen Valley Gallery) · sin hora fija, se entra al llegar · QR en eventos.tokyo",
         "cat": "museos",
         "coords": [
           34.445228,
           133.990658
         ],
-        "url": "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum",
-        "at": "2026-10-22T14:30",
-        "booked": "Entradas compradas ×5 (incluyen Valley Gallery) · sin hora fija, se entra al llegar · QR en eventos.tokyo",
-        "syncId": "c-28945bfe70294d5c"
+        "syncId": "c-28945bfe70294d5c",
+        "text": "Benesse House Museum",
+        "url": "https://www.google.com/maps/search/?api=1&query=Benesse%20House%20Museum"
       },
       {
-        "text": "Minamidera (Art House Project, James Turrell)",
+        "at": "2026-10-22T15:20",
+        "booked": "Entradas compradas ×5 · turno 15:20 (cupo por turno) · QR en eventos.tokyo · después, Art House/Honmura hasta ~16:30",
         "cat": "museos",
         "coords": [
           34.4588511,
           133.9968422
         ],
-        "url": "https://www.google.com/maps/search/?api=1&query=Minamidera%20Naoshima",
-        "at": "2026-10-22T15:20",
-        "booked": "Entradas compradas ×5 · turno 15:20 (cupo por turno) · QR en eventos.tokyo · después, Art House/Honmura hasta ~16:30",
         "hopBack": {
           "mode": "🚄",
           "time": "~3 h",
           "to": "lodging",
           "detail": "Bus de Honmura a Miyanoura → ferry 16:35 → Uno 16:55 → local 17:05 a Okayama (~18:00) → Nozomi ~18:15 → Kioto ~19:20. Hay ferry más tarde a las 17:35."
         },
-        "syncId": "c-0a696b640e1b4993"
+        "syncId": "c-0a696b640e1b4993",
+        "text": "Minamidera (Art House Project, James Turrell)",
+        "url": "https://www.google.com/maps/search/?api=1&query=Minamidera%20Naoshima"
       },
       {
         "text": "Arashiyama Monkey Park Iwatayama",
@@ -925,17 +848,23 @@ const destinations = [
         "syncId": "c-b874224011f64a1a"
       }
     ],
+    "arrival": "19 oct · llegada a KIX y primera noche en Kioto",
+    "coords": [
+      35.0116,
+      135.7681
+    ],
+    "dates": "19-24 oct",
     "daytrips": [
       {
-        "id": "naoshima",
-        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg",
-        "name": "Naoshima",
         "coords": [
           34.4554,
           133.9933
         ],
-        "time": "jue 22/10 · ida y vuelta desde Kioto",
-        "desc": "Isla de arte, entradas compradas ×5: Chichu 12:45 → Benesse House ~14:30 → Minamidera 15:20 → Art House/Honmura hasta ~16:30. Ida: Nozomi 08:09 → Okayama 09:09 · Marine Liner 09:33 → Chayamachi → local 10:12 → Uno 10:45 · ferry 11:00 → Miyanoura 11:20. Vuelta: ferry 17:35 (o 16:35) → Uno → local 18:05 (17:05) → Okayama → Nozomi → Kioto ~20:20 (~19:20). ⚠️ Último Nozomi seguro 08:30; sin ferry entre 09:22 y 11:00 — perder el de 11:00 es perder el slot del Chichu."
+        "desc": "Isla de arte, entradas compradas ×5: Chichu 12:45 → Benesse House ~14:30 → Minamidera 15:20 → Art House/Honmura hasta ~16:30. Ida: Nozomi 08:09 → Okayama 09:09 · Marine Liner 09:33 → Chayamachi → local 10:12 → Uno 10:45 · ferry 11:00 → Miyanoura 11:20. Vuelta: ferry 17:35 (o 16:35) → Uno → local 18:05 (17:05) → Okayama → Nozomi → Kioto ~20:20 (~19:20). ⚠️ Último Nozomi seguro 08:30; sin ferry entre 09:22 y 11:00 — perder el de 11:00 es perder el slot del Chichu.",
+        "id": "naoshima",
+        "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Beachside_Torii%2C_Naoshima.jpg/360px-Beachside_Torii%2C_Naoshima.jpg",
+        "name": "Naoshima",
+        "time": "jue 22/10 · ida y vuelta desde Kioto"
       },
       {
         "id": "nara",
@@ -995,116 +924,80 @@ const destinations = [
         "url": "https://www.google.com/maps/search/?api=1&query=Monte%20Hiei",
         "desc": "Monasterio Tendai en la montaña entre Kioto y el lago Biwa."
       }
-    ]
+    ],
+    "departure": "24 oct · sigue Osaka",
+    "end": "2026-10-24",
+    "flag": "🇯🇵",
+    "id": "kioto",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
+    "imgs": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg/500px-Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine%2C_Kyoto%2C_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg/500px-Bamboo_Forest%2C_Arashiyama%2C_Kyoto%2C_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg/500px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-07.jpg"
+    ],
+    "intro": "Cinco noches en la capital cultural: Arashiyama al amanecer, los templos del este, Fushimi Inari, Nishiki y Pontocho de noche. Paramos los cinco en una machiya sobre el Kamogawa, en Shimogyō-ku, a un rato a pie de la Estación de Kioto.",
+    "leg": {
+      "mode": "✈️",
+      "time": "a definir",
+      "detail": "Llegada a Kansai (KIX) → Kioto.",
+      "fromName": "Origen a definir",
+      "toName": "Kioto",
+      "toTerminal": {
+        "name": "Aeropuerto Internacional de Kansai (KIX)",
+        "coords": [
+          34.4347,
+          135.244
+        ],
+        "mode": "air"
+      },
+      "arrival": "2026-10-19T00:00"
+    },
+    "lodging": {
+      "name": "Kyotofish · Kamogawa",
+      "type": "Airbnb · machiya entera de 180 m²",
+      "rating": "★4,86",
+      "guests": "4 personas · con amigos",
+      "area": "Shimogyō-ku, sobre el Kamogawa · 348-2 Yatsuyanagichō, Kyōto-shi 600-8112 · ~15 min a pie de la Estación de Kioto",
+      "coords": [
+        34.994,
+        135.7671
+      ],
+      "checkIn": "19 oct",
+      "checkOut": "24 oct",
+      "nights": 5,
+      "booked": true,
+      "checkInFrom": "16:00",
+      "checkOutBy": "10:00",
+      "img": "../img/lodging/kioto-machiya-4.jpg",
+      "imgs": [
+        "../img/lodging/kioto-machiya-4.jpg",
+        "../img/lodging/kioto-machiya-2.jpg",
+        "../img/lodging/kioto-machiya-3.jpg",
+        "../img/lodging/kioto-machiya-1.jpg"
+      ],
+      "url": "https://www.airbnb.com/rooms/1065587248882014284",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=348-2%20Yatsuyanagich%C5%8D%20Shimogy%C5%8D-ku%20Kyoto%20600-8112",
+      "booking": {
+        "provider": "airbnb",
+        "url": "https://www.airbnb.com/rooms/1065587248882014284",
+        "checkIn": "19 oct · desde 16:00",
+        "checkOut": "24 oct · hasta 10:00"
+      },
+      "note": "Machiya de dos plantas frente al Kamogawa: 4 dormitorios, 8 camas, 3 baños y patio de piedra sobre el río. Se comparte con amigos."
+    },
+    "n": 1,
+    "name": "Kioto",
+    "nights": 5,
+    "sharedWith": "amigos",
+    "short": "Kioto",
+    "start": "2026-10-19",
+    "tempMax": "18-25",
+    "tempMin": "12-18",
+    "type": "destino",
+    "weatherMode": "forecast",
+    "weatherUpdated": "2026-10-09"
   },
   {
-    "id": "osaka",
-    "n": 2,
-    "type": "destino",
-    "name": "Osaka",
-    "short": "Osaka",
-    "flag": "🇯🇵",
-    "sharedWith": "amigos",
-    "coords": [
-      34.6937,
-      135.5023
-    ],
-    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
-    "imgs": [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg"
-    ],
-    "dates": "24-27 oct",
-    "nights": 3,
-    "start": "2026-10-24",
-    "end": "2026-10-27",
-    "arrival": "24 oct · se llega de Kioto en tren (~1 h)",
-    "departure": "27 oct · sigue Tokio en Shinkansen",
-    "lodging": {
-      "name": "Mercure Tokyu Stay Osaka Namba",
-      "type": "Hotel · Superior Queen 25 m², no fumador",
-      "guests": "2 adultos · los amigos paran por su cuenta",
-      "area": "A 5 min a pie de Namba y Shinsaibashi (línea Midōsuji) · Nishi-Shinsaibashi 2-2-4, Chūō-ku 〒542-0086",
-      "coords": [
-        34.67062,
-        135.49964
-      ],
-      "checkIn": "24 oct",
-      "checkOut": "27 oct",
-      "nights": 3,
-      "booked": true,
-      "checkInFrom": "14:00",
-      "checkInTo": "01:00",
-      "checkOutBy": "11:00",
-      "img": "../img/osaka-mercure-cuarto.jpg",
-      "imgs": [
-        "../img/osaka-mercure-cuarto.jpg",
-        "../img/osaka-mercure-exterior.jpg",
-        "../img/osaka-mercure-cocina.jpg",
-        "../img/osaka-mercure-bano.jpg"
-      ],
-      "url": "https://www.mercure-tokyustay-osaka.com/",
-      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Mercure%20Tokyu%20Stay%20Osaka%20Namba",
-      "booking": {
-        "provider": "rakuten",
-        "checkIn": "24 oct · 14:00–01:00 (hasta la madrugada del 25)",
-        "checkOut": "27 oct · hasta 11:00",
-        "cancel": "Gratis hasta el 21/10 23:59 JST (22/10 50% · 23/10 80% · 24/10 100%)",
-        "includes": "Room only, sin comidas",
-        "payThere": "Accommodation tax ¥500/noche"
-      },
-      "note": "Cuarto de 25 m² en los pisos 14 a 18, cama queen de 170 cm y ventanal a la ciudad. Tiene kitchenette con microondas y lavarropas-secarropas en la habitación: a mitad del viaje eso resuelve la ropa. Es un Tokyu Stay operado bajo la marca Mercure, abierto en 2023."
-    },
-    "leg": {
-      "mode": "🚆",
-      "time": "~1 h",
-      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba. Última milla: bajar de la 御堂筋線 (Midōsuji-sen) en 心斎橋 (Shinsaibashi, 350 m / 5 min a pie) o なんば (Namba, 400 m / 6 min); el Mercure está en 2-2-4 Nishi-Shinsaibashi. El 24/10 se llega desde Okayama (day trip a Naoshima) vía Shin-Osaka.",
-      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.994,135.7671&destination=34.67062,135.49964&travelmode=transit",
-      "path": [
-        {
-          "m": "train",
-          "to": [
-            34.7335,
-            135.5002
-          ],
-          "syncId": "c-6f446d24dc41464f"
-        },
-        {
-          "m": "train",
-          "to": [
-            34.6937,
-            135.5023
-          ],
-          "syncId": "c-8a02319d7c184def"
-        }
-      ],
-      "fromTerminal": {
-        "name": "Estación de Kioto",
-        "coords": [
-          34.98585,
-          135.75877
-        ],
-        "mode": "train"
-      },
-      "toTerminal": {
-        "name": "Namba (Osaka)",
-        "coords": [
-          34.66293,
-          135.5023
-        ],
-        "mode": "train"
-      },
-      "why": [
-        "Naoshima quedó hecho el jueves 22 como day trip desde Kioto (entradas compradas): el sábado 24 es un traslado corto, sin horarios que corran.",
-        "Checkout de la machiya a las 10:00; el Mercure de Namba toma check-in de 14:00 a 25:00 — la tarde y la noche quedan enteras para Dōtonbori."
-      ]
-    },
-    "tempMax": "16-25",
-    "tempMin": "7-18",
-    "weatherUpdated": "2026-10-07",
-    "weatherMode": "climatología",
-    "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cinco. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "activities": [
       {
         "text": "Kuromon Ichiba (mercado)",
@@ -1263,6 +1156,12 @@ const destinations = [
         "syncId": "c-09e3ac076aaf4455"
       }
     ],
+    "arrival": "24 oct · se llega de Kioto en tren (~1 h)",
+    "coords": [
+      34.6937,
+      135.5023
+    ],
+    "dates": "24-27 oct",
     "daytrips": [
       {
         "id": "kobe",
@@ -1298,94 +1197,110 @@ const destinations = [
         "url": "https://www.google.com/maps/search/?api=1&query=PL%20Tower%20%28Great%20Peace%20Prayer%20Tower%29",
         "desc": "Torre de 180 m de la religión PL Kyodan, al sur de Osaka."
       }
-    ]
-  },
-  {
-    "id": "tokio-medio",
-    "n": 3,
-    "type": "destino",
-    "name": "Tokio",
-    "short": "Tokio",
+    ],
+    "departure": "27 oct · sigue Tokio en Shinkansen",
+    "end": "2026-10-27",
     "flag": "🇯🇵",
-    "sharedWith": "amigos",
-    "coords": [
-      35.71,
-      139.78
-    ],
-    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
+    "id": "osaka",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
     "imgs": [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg"
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg/500px-Osaka_Castle_Outer_Moat_and_Osaka_Business_Park%2C_November_2016.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg/500px-Dotonbori%2C_Osaka%2C_at_night%2C_November_2016.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg/500px-Tsutenkaku_Tower_%40_Shinsekai_%40_Osaka_%2813382524693%29.jpg"
     ],
-    "dates": "27-31 oct",
-    "nights": 4,
-    "start": "2026-10-27",
-    "end": "2026-10-31",
-    "arrival": "27 oct · se llega de Osaka en Shinkansen (~2 h 30)",
-    "departure": "31 oct · los amigos se quedan una noche más y vuelan el 1/11",
-    "lodging": {
-      "name": "Park Hyatt Tokyo",
-      "type": "Hotel · 2 Double Deluxe 55 m², pisos 42-51",
-      "guests": "4 personas · con amigos",
-      "area": "Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku",
-      "coords": [
-        35.6857,
-        139.6907
-      ],
-      "checkIn": "27 oct",
-      "checkOut": "31 oct",
-      "nights": 4,
-      "booked": true,
-      "checkInFrom": "15:00",
-      "checkOutBy": "12:00",
-      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
-      "imgs": [
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shinjuku_Park_Tower_6.jpg/500px-Shinjuku_Park_Tower_6.jpg"
-      ],
-      "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
-      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Park%20Hyatt%20Tokyo",
-      "booking": {
-        "provider": "hotel",
-        "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
-        "checkIn": "27 oct · desde 15:00",
-        "checkOut": "31 oct · hasta 12:00",
-        "cancel": "Gratis hasta el 24/10 23:59 JST (después se pierde 1 noche de depósito)"
-      },
-      "note": "El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Cuarto con dos camas dobles más sofá cama y vista a la ciudad o al Fuji. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más."
-    },
+    "intro": "Comida callejera + neón: la energía contraria de Kioto. Se llega el sábado 24 desde Kioto en tren (~1 h; Naoshima quedó hecho el jueves como day trip) y el 27 se sigue a Tokio en Shinkansen (~2h30), siempre los cinco. 3 noches: alcanzan para Dotonbori/Namba y un day trip, no para todo.",
     "leg": {
-      "mode": "🚄",
-      "time": "~3 h 15",
-      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi). Al ir: Midōsuji directo de Shinsaibashi a Shin-Osaka. Última milla: en Tokio, 中央線 (Chūō-sen) rápido a Shinjuku (13 min) y 850 m / 13 min a pie hasta el Park Hyatt (Nishi-Shinjuku 3-7-1-2), o 大江戸線 (Ōedo-sen) hasta 都庁前 (Tochōmae) y 700 m / 10 min.",
-      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.67062,135.49964&destination=35.6857,139.6907&travelmode=transit",
-      "toName": "Tokio",
+      "mode": "🚆",
+      "time": "~1 h",
+      "detail": "Kioto → Osaka (JR rápido ~30 min o Shinkansen a Shin-Osaka) → metro Midōsuji a Namba. Última milla: bajar de la 御堂筋線 (Midōsuji-sen) en 心斎橋 (Shinsaibashi, 350 m / 5 min a pie) o なんば (Namba, 400 m / 6 min); el Mercure está en 2-2-4 Nishi-Shinsaibashi. El 24/10 se llega desde Okayama (day trip a Naoshima) vía Shin-Osaka.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.994,135.7671&destination=34.67062,135.49964&travelmode=transit",
+      "path": [
+        {
+          "m": "train",
+          "to": [
+            34.7335,
+            135.5002
+          ],
+          "syncId": "c-6f446d24dc41464f"
+        },
+        {
+          "m": "train",
+          "to": [
+            34.6937,
+            135.5023
+          ],
+          "syncId": "c-8a02319d7c184def"
+        }
+      ],
       "fromTerminal": {
-        "name": "Shin-Ōsaka",
+        "name": "Estación de Kioto",
         "coords": [
-          34.73347,
-          135.50025
+          34.98585,
+          135.75877
         ],
         "mode": "train"
       },
       "toTerminal": {
-        "name": "Estación de Tokio",
+        "name": "Namba (Osaka)",
         "coords": [
-          35.68124,
-          139.76712
+          34.66293,
+          135.5023
         ],
         "mode": "train"
       },
       "why": [
-        "El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés."
+        "Naoshima quedó hecho el jueves 22 como day trip desde Kioto (entradas compradas): el sábado 24 es un traslado corto, sin horarios que corran.",
+        "Checkout de la machiya a las 10:00; el Mercure de Namba toma check-in de 14:00 a 25:00 — la tarde y la noche quedan enteras para Dōtonbori."
       ]
     },
-    "tempMax": "16-24",
-    "tempMin": "6-18",
-    "weatherUpdated": "2026-10-09",
+    "lodging": {
+      "name": "Mercure Tokyu Stay Osaka Namba",
+      "type": "Hotel · Superior Queen 25 m², no fumador",
+      "guests": "2 adultos · los amigos paran por su cuenta",
+      "area": "A 5 min a pie de Namba y Shinsaibashi (línea Midōsuji) · Nishi-Shinsaibashi 2-2-4, Chūō-ku 〒542-0086",
+      "coords": [
+        34.67062,
+        135.49964
+      ],
+      "checkIn": "24 oct",
+      "checkOut": "27 oct",
+      "nights": 3,
+      "booked": true,
+      "checkInFrom": "14:00",
+      "checkInTo": "01:00",
+      "checkOutBy": "11:00",
+      "img": "../img/osaka-mercure-cuarto.jpg",
+      "imgs": [
+        "../img/osaka-mercure-cuarto.jpg",
+        "../img/osaka-mercure-exterior.jpg",
+        "../img/osaka-mercure-cocina.jpg",
+        "../img/osaka-mercure-bano.jpg"
+      ],
+      "url": "https://www.mercure-tokyustay-osaka.com/",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Mercure%20Tokyu%20Stay%20Osaka%20Namba",
+      "booking": {
+        "provider": "rakuten",
+        "checkIn": "24 oct · 14:00–01:00 (hasta la madrugada del 25)",
+        "checkOut": "27 oct · hasta 11:00",
+        "cancel": "Gratis hasta el 21/10 23:59 JST (22/10 50% · 23/10 80% · 24/10 100%)",
+        "includes": "Room only, sin comidas",
+        "payThere": "Accommodation tax ¥500/noche"
+      },
+      "note": "Cuarto de 25 m² en los pisos 14 a 18, cama queen de 170 cm y ventanal a la ciudad. Tiene kitchenette con microondas y lavarropas-secarropas en la habitación: a mitad del viaje eso resuelve la ropa. Es un Tokyu Stay operado bajo la marca Mercure, abierto en 2023."
+    },
+    "n": 2,
+    "name": "Osaka",
+    "nights": 3,
+    "sharedWith": "amigos",
+    "short": "Osaka",
+    "start": "2026-10-24",
+    "tempMax": "16-25",
+    "tempMin": "7-18",
+    "type": "destino",
     "weatherMode": "climatología",
-    "intro": "Cuatro noches en Tokio, los cinco juntos. Los amigos se quedan hasta el 1 de noviembre.",
+    "weatherUpdated": "2026-10-07"
+  },
+  {
     "activities": [
       {
         "text": "Mirai Suisan — reservado mié 28/10 18:00 (4 pax, barra, 1 h)",
@@ -1806,7 +1721,92 @@ const destinations = [
         "syncId": "c-b1db72c42b2d46a9"
       }
     ],
-    "daytrips": []
+    "arrival": "27 oct · se llega de Osaka en Shinkansen (~2 h 30)",
+    "coords": [
+      35.71,
+      139.78
+    ],
+    "dates": "27-31 oct",
+    "daytrips": [],
+    "departure": "31 oct · los amigos se quedan una noche más y vuelan el 1/11",
+    "end": "2026-10-31",
+    "flag": "🇯🇵",
+    "id": "tokio-medio",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
+    "imgs": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg/500px-Five-storied_Pagoda_of_Sensoji_Temple_in_Tokyo%2C_20240824_1103_5615.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg/500px-Illuminated_street_corner_at_blue_hour_-_facade_of_the_building_Fujiya_in_Ginza_Chuo-ku_Tokyo_Japan.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg/500px-Tokyo_Shibuya_Scramble_Crossing_2018-10-09.jpg"
+    ],
+    "intro": "Cuatro noches en Tokio, los cinco juntos. Los amigos se quedan hasta el 1 de noviembre.",
+    "leg": {
+      "mode": "🚄",
+      "time": "~3 h 15",
+      "detail": "Shinkansen Shin-Osaka → Tokio (Nozomi). Al ir: Midōsuji directo de Shinsaibashi a Shin-Osaka. Última milla: en Tokio, 中央線 (Chūō-sen) rápido a Shinjuku (13 min) y 850 m / 13 min a pie hasta el Park Hyatt (Nishi-Shinjuku 3-7-1-2), o 大江戸線 (Ōedo-sen) hasta 都庁前 (Tochōmae) y 700 m / 10 min.",
+      "dirUrl": "https://www.google.com/maps/dir/?api=1&origin=34.67062,135.49964&destination=35.6857,139.6907&travelmode=transit",
+      "toName": "Tokio",
+      "fromTerminal": {
+        "name": "Shin-Ōsaka",
+        "coords": [
+          34.73347,
+          135.50025
+        ],
+        "mode": "train"
+      },
+      "toTerminal": {
+        "name": "Estación de Tokio",
+        "coords": [
+          35.68124,
+          139.76712
+        ],
+        "mode": "train"
+      },
+      "why": [
+        "El Nozomi sale cada pocos minutos: el día se acomoda al plan, no al revés."
+      ]
+    },
+    "lodging": {
+      "name": "Park Hyatt Tokyo",
+      "type": "Hotel · 2 Double Deluxe 55 m², pisos 42-51",
+      "guests": "4 personas · con amigos",
+      "area": "Nishi-Shinjuku 3-7-1-2, Shinjuku-ku · ~12 min a pie de la estación de Shinjuku",
+      "coords": [
+        35.6857,
+        139.6907
+      ],
+      "checkIn": "27 oct",
+      "checkOut": "31 oct",
+      "nights": 4,
+      "booked": true,
+      "checkInFrom": "15:00",
+      "checkOutBy": "12:00",
+      "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
+      "imgs": [
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Shinjuku_Park_Tower_10.jpg/500px-Shinjuku_Park_Tower_10.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Shinjuku_Park_Tower_6.jpg/500px-Shinjuku_Park_Tower_6.jpg"
+      ],
+      "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
+      "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Park%20Hyatt%20Tokyo",
+      "booking": {
+        "provider": "hotel",
+        "url": "https://www.hyatt.com/park-hyatt/en-US/tyoph-park-hyatt-tokyo",
+        "checkIn": "27 oct · desde 15:00",
+        "checkOut": "31 oct · hasta 12:00",
+        "cancel": "Gratis hasta el 24/10 23:59 JST (después se pierde 1 noche de depósito)"
+      },
+      "note": "El hotel de Lost in Translation, en lo alto de la Shinjuku Park Tower. Cuarto con dos camas dobles más sofá cama y vista a la ciudad o al Fuji. La reserva la tomaron los amigos para los cuatro (la plata, como siempre, vive en el sheet). Martín y Cata salen el 31; ellos se quedan una noche más."
+    },
+    "n": 3,
+    "name": "Tokio",
+    "nights": 4,
+    "sharedWith": "amigos",
+    "short": "Tokio",
+    "start": "2026-10-27",
+    "tempMax": "16-24",
+    "tempMin": "6-18",
+    "type": "destino",
+    "weatherMode": "climatología",
+    "weatherUpdated": "2026-10-09"
   }
 ];
 
