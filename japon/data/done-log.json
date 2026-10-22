@@ -57,5 +57,19 @@
         "text": "vuelo ANA NH1174 Sapporo (New Chitose) → Komatsu y bus limusina a Kanazawa"
       }
     ]
+  },
+  {
+    "date": "2026-10-22",
+    "items": [
+      {
+        "text": "ferry Takamatsu → Naoshima (Miyanoura), ~11:20"
+      },
+      {
+        "text": "calabaza roja de Kusama en el puerto de Miyanoura"
+      },
+      {
+        "text": "bus municipal 12:00 a Tsutsuji-sō (zona Benesse)"
+      }
+    ]
   }
 ]
