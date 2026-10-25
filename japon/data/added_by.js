@@ -123,6 +123,7 @@ window.PLACE_ADDED_BY = {
  "yugen cave": "Cata",
  "zao fox village": "Cata",
  "zuihoden": "Cata",
+ "うとん処sou": "Cata",
  "神奈川工科大学 kait広場": "Cata"
 };
 // CID de Google por lugar (thingKey → cid): abre la ficha exacta (task 705).
@@ -249,5 +250,6 @@ window.PLACE_GPID = {
  "yugen cave": "10171764106310359722",
  "zao fox village": "6471726852185138137",
  "zuihoden": "3231967922790058041",
+ "うとん処sou": "18101382119721284419",
  "神奈川工科大学 kait広場": "5449576823794475443"
 };
