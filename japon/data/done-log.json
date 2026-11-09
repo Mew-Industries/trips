@@ -129,5 +129,31 @@
         "text": "Changdeokgung (Changdeokgung — palacio Changdeok); el Huwon (Huwon — jardín secreto) estaba sold out"
       }
     ]
+  },
+  {
+    "date": "2026-11-08",
+    "items": [
+      {
+        "text": "día libre tras la salida de la noche anterior"
+      },
+      {
+        "text": "cena en Choi., menú degustación"
+      }
+    ]
+  },
+  {
+    "date": "2026-11-09",
+    "items": [
+      {
+        "text": "Gyeongbokgung (Gyeongbokgung — palacio Gyeongbok)"
+      },
+      {
+        "text": "Seoul Forest y almuerzo en China Place",
+        "match_name": "Seoul Forest"
+      },
+      {
+        "text": "compras de skincare en Olive Young Myeongdong (Daerim Changgo y Common Ground recortados)"
+      }
+    ]
   }
 ]
