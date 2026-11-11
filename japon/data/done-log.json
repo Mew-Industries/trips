@@ -172,5 +172,22 @@
         "text": "Hakone Tozan a Hakone-Yumoto y check-in en Yoshiike Ryokan"
       }
     ]
+  },
+  {
+    "date": "2026-11-11",
+    "items": [
+      {
+        "text": "bus Hakone Tozan (línea H) Hakone-Yumoto → Moto-Hakone"
+      },
+      {
+        "text": "torii de la paz y 箱根神社 (Hakone jinja, santuario de Hakone)"
+      },
+      {
+        "text": "barco pirata Moto-Hakone 15:15 → Tōgendai por el 芦ノ湖 (Ashinoko, lago Ashi)"
+      },
+      {
+        "text": "ropeway Tōgendai → 大涌谷 (Ōwakudani, valle volcánico) → Sōunzan"
+      }
+    ]
   }
 ]
