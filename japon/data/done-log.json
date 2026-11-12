@@ -189,5 +189,21 @@
         "text": "ropeway Tōgendai → 大涌谷 (Ōwakudani, valle volcánico) → Sōunzan"
       }
     ]
+  },
+  {
+    "date": "2026-11-12",
+    "items": [
+      {
+        "text": "Shinkansen Odawara 12:35 → Kioto 15:15 (reserva SmartEX 2012, cambio a Nozomi en Nagoya)"
+      },
+      {
+        "text": "subte Kyoto Station → Sanjobo Sanso (三条坊山荘), valijas y entrada al Airbnb 16:20",
+        "match_name": "Sanjobo Sanso (三条坊山荘)"
+      },
+      {
+        "text": "Uber a 清水寺 (Kiyomizu-dera, templo del agua pura) al anochecer",
+        "match_name": "Kiyomizu-dera"
+      }
+    ]
   }
 ]
